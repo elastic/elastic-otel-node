@@ -1,0 +1,24 @@
+{
+  "name": "@elastic/opentelemetry-node",
+  "version": "0.1.0",
+  "description": "Elastic distro of the OpenTelemetry SDK for Node.js",
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elastic/elastic-otel-java.git",
+    "directory": "packages/opentelemetry-node"
+  },
+  "keywords": [
+    "elastic",
+    "opentelemetry",
+    "apm",
+    "tracing",
+    "metrics",
+    "logs"
+  ],
+  "author": "Elastic Observability <https://www.elastic.co/observability>",
+  "engines": {
+    "node": ">=14"
+  }
+}
