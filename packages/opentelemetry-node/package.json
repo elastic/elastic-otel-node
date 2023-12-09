@@ -1,6 +1,7 @@
 {
   "name": "@elastic/opentelemetry-node",
   "version": "0.1.0",
+  "type": "commonjs",
   "description": "Elastic distro of the OpenTelemetry SDK for Node.js",
   "private": true,
   "license": "Apache-2.0",
@@ -28,6 +29,7 @@
   "dependencies": {
     "@opentelemetry/instrumentation-http": "^0.45.1",
     "@opentelemetry/resources": "^1.18.1",
-    "@opentelemetry/sdk-node": "^0.45.1"
+    "@opentelemetry/sdk-node": "^0.45.1",
+    "safe-stable-stringify": "^2.4.3"
   }
 }

@@ -4,5 +4,8 @@
     "packages/*"
   ],
   "license": "Apache-2.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@elastic/opentelemetry-node": "file:./packages/opentelemetry-node"
+  }
 }
