@@ -1,14 +1,14 @@
 {
-  "name": "@elastic/opentelemetry-collector-mock",
+  "name": "@elastic/mockotlpserver",
   "version": "0.1.0",
   "type": "commonjs",
-  "description": "Elastic OpenTelemetry collector mock for Node.js",
+  "description": "Elastic OLTP mock server for Node.js",
   "private": true,
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/elastic/elastic-otel-node.git",
-    "directory": "packages/opentelemetry-collector-mock"
+    "directory": "packages/mockotlpserver"
   },
   "keywords": [
     "elastic",
@@ -17,7 +17,7 @@
     "tracing",
     "metrics",
     "logs",
-    "collector",
+    "server",
     "mock"
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",
@@ -32,5 +32,12 @@
     "@grpc/grpc-js": "^1.9.13",
     "@grpc/proto-loader": "^0.7.10",
     "protobufjs": "^7.2.5"
+  },
+  "devDependencies": {
+    "@opentelemetry/auto-instrumentations-node": "^0.40.2",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.46.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.46.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.46.0",
+    "@opentelemetry/sdk-node": "^0.46.0"
   }
 }

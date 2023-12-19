@@ -24,13 +24,14 @@ for (const [name, path] of Object.entries(packages)) {
 
 // helper functions
 
-function intakeSpans(call, callback) {
-  const spans = call.request;
-  console.log('grpc spans', spans);
+function intakeTraces(call, callback) {
+  const tracesReq = call.request;
+  // console.log('grpc spans', tracesReq);
+  console.dir(tracesReq, { depth: 5 });
+
   callback(null, {
       partial_success: {
           rejected_spans: 0,
-          error_message: '',
       }
   });
 }
@@ -56,7 +57,7 @@ function startGrpc(options) {
 
   console.log(packages.trace.TraceService)
   grpcServer.addService(packages.trace.TraceService.service, {
-      Export: intakeSpans,
+      Export: intakeTraces,
   });
 
   grpcServer.bindAsync(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure(), () => {

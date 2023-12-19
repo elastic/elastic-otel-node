@@ -49,6 +49,8 @@ function badRequest(res) {
 function jsonParser(buff, req) {
   const reqText = buff.toString('utf-8');
 
+  console.log('JSON parsing')
+  // NOTE: check for bignums
   return JSON.parse(reqText);
 }
 
@@ -65,6 +67,7 @@ function protoParser(buff, req) {
   } else if (req.url === '/v1/metrics') {
     decoder = root.lookupType(`${pkgPrefix}.metrics.v1.ExportMetricsServiceRequest`);
   } else if (req.url === '/v1/traces') {
+    console.log('PROTO parsing')
     decoder = root.lookupType(`${pkgPrefix}.trace.v1.ExportTraceServiceRequest`);
   }
 
@@ -111,7 +114,9 @@ function startHttp(options) {
       const data = parseData(reqBuffer, req);
 
       // TODO: this is the place to do something with the data based on 
-      console.log(data);
+      // console.log(data);
+      console.dir(data, { depth: 5 });
+
       
       // TODO: in future response may add some header to communicate back
       // some information about
