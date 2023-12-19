@@ -11,6 +11,14 @@ const {
   getNodeAutoInstrumentations,
 } = require('@opentelemetry/auto-instrumentations-node');
 
+// TODO make this flavor configurable
+let otlpFlavor = 'grpc';
+const OTLPTraceExporter = {
+  http: OTLPTraceExporterHttp,
+  proto: OTLPTraceExporterProto,
+  grpc: OTLPTraceExporterGrpc
+}[otlpFlavor];
+
 const sdk = new NodeSDK({
   // traceExporter: new ConsoleSpanExporter(),
   traceExporter: new OTLPTraceExporter(),

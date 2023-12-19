@@ -36,23 +36,23 @@ function intakeTraces(call, callback) {
   });
 }
 
-function intakeMetrics(call, callback) {
-  // TODO: check proto
-}
+// function intakeMetrics(call, callback) {
+//   // TODO: check proto
+// }
 
-function intakeLogs(call, callback) {
-  // TODO: check proto
-}
+// function intakeLogs(call, callback) {
+//   // TODO: check proto
+// }
 
 
 /**
- * 
+ *
  * @param {Object} options
- * @param {string} options.host
+ * @param {string} options.hostname
  * @param {number} options.port
  */
 function startGrpc(options) {
-  const { port } = options;
+  const { hostname, port } = options;
   const grpcServer = new grpc.Server();
 
   console.log(packages.trace.TraceService)
@@ -60,11 +60,11 @@ function startGrpc(options) {
       Export: intakeTraces,
   });
 
-  grpcServer.bindAsync(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure(), () => {
+  grpcServer.bindAsync(`${hostname}:${port}`, grpc.ServerCredentials.createInsecure(), () => {
     console.log('grpc started', port);
     grpcServer.start();
   });
-  
+
 }
 
 

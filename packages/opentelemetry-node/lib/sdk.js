@@ -13,7 +13,7 @@ const luggite = require('./luggite');
  * https://github.com/open-telemetry/opentelemetry-specification/issues/2039
  */
 function luggiteLevelFromOtelLogLevel(otelLogLevel) {
-  luggiteLevel = {
+  const luggiteLevel = {
     NONE: luggite.FATAL + 1,  // TODO: support 'silent' luggite level
     ERROR: 'error',
     WARN: 'warn',

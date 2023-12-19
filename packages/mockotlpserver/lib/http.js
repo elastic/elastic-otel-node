@@ -1,9 +1,7 @@
 const http = require('http');
-const { URL } = require('url');
+const path = require('path');
 
 const protobuf = require('protobufjs');
-
-const TRACES_PATH = 'v1/traces';
 
 const parsersMap = {
   'application/json': jsonParser,
@@ -13,7 +11,7 @@ const parsersMap = {
 // TODO: for now `proto` files are copied from
 // https://github.com/open-telemetry/opentelemetry-proto
 // but maybe its better to have a submodule like otel-js does
-const prefix = __dirname + '/../opentelemetry/proto/';
+const prefix = path.resolve(__dirname, '../opentelemetry/proto/');
 const paths = [
   '/common/v1/common.proto',
   '/resource/v1/resource.proto',
@@ -42,7 +40,7 @@ function badRequest(res) {
 }
 
 /**
- * 
+ *
  * @param {Buffer} buff
  * @param {http.IncomingMessage} req
  */
@@ -55,7 +53,7 @@ function jsonParser(buff, req) {
 }
 
 /**
- * 
+ *
  * @param {Buffer} buff
  * @param {http.IncomingMessage} req
  */
@@ -79,7 +77,7 @@ function protoParser(buff, req) {
 }
 
 /**
- * 
+ *
  * @param {Buffer} buff
  * @param {http.IncomingMessage} req
  */
@@ -90,16 +88,14 @@ function unknownParser(buff, req) {
 
 
 /**
- * 
+ *
  * @param {Object} options
- * @param {string} options.host
+ * @param {string} options.hostname
  * @param {number} options.port
  */
 function startHttp(options) {
-  const { host, port } = options;
+  const { hostname, port } = options;
   const server = http.createServer((req, res) => {
-    const url = new URL(req.url, `http://${host}`);
-
     const chunks = [];
     req.on('data', (chunk) => chunks.push(chunk));
     req.on('end', () => {
@@ -113,16 +109,16 @@ function startHttp(options) {
       const reqBuffer = Buffer.concat(chunks);
       const data = parseData(reqBuffer, req);
 
-      // TODO: this is the place to do something with the data based on 
+      // TODO: this is the place to do something with the data based on
       // console.log(data);
       console.dir(data, { depth: 5 });
 
-      
+
       // TODO: in future response may add some header to communicate back
       // some information about
       // - the collector
       // - the config
-      // - something else 
+      // - something else
       // PS: maybe collector could be able to tell the sdk/distro to stop sending
       // because of: high load, sample rate changed, et al??
       res.writeHead(200);
@@ -134,8 +130,7 @@ function startHttp(options) {
     req.resume();
   });
 
-  // TODO: use host???
-  server.listen(port, '127.0.0.1', function () {
+  server.listen(port, hostname, function () {
     console.info('listening', server.address())
   });
 }
