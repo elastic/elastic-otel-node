@@ -12,8 +12,7 @@
     "es2022": true // Defines `Promise`, etc.
   },
   "extends": [
-    // XXX
-    // "plugin:prettier/recommended", // comment this out to check without style
+    "plugin:prettier/recommended", // comment this out to check without style
     "eslint:recommended"
   ],
   "plugins": [
