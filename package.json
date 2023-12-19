@@ -5,7 +5,19 @@
   ],
   "license": "Apache-2.0",
   "private": true,
+  "scripts": {
+    "lint": "npm run --if-present --workspaces lint",
+    "lint:fix": "npm run --if-present --workspaces lint:fix"
+  },
   "dependencies": {
     "@elastic/opentelemetry-node": "file:./packages/opentelemetry-node"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.3.1",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-promise": "^6.1.1"
   }
 }
