@@ -25,6 +25,8 @@
     "node": ">=14"
   },
   "scripts": {
+    "lint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
+    "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "start": "node lib/index.js"
   },
   "main": "lib/index.js",
