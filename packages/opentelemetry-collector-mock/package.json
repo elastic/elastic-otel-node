@@ -1,0 +1,36 @@
+{
+  "name": "@elastic/opentelemetry-collector-mock",
+  "version": "0.1.0",
+  "type": "commonjs",
+  "description": "Elastic OpenTelemetry collector mock for Node.js",
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elastic/elastic-otel-node.git",
+    "directory": "packages/opentelemetry-collector-mock"
+  },
+  "keywords": [
+    "elastic",
+    "opentelemetry",
+    "apm",
+    "tracing",
+    "metrics",
+    "logs",
+    "collector",
+    "mock"
+  ],
+  "author": "Elastic Observability <https://www.elastic.co/observability>",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "start": "node lib/index.js"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.9.13",
+    "@grpc/proto-loader": "^0.7.10",
+    "protobufjs": "^7.2.5"
+  }
+}
