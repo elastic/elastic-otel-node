@@ -28,7 +28,6 @@ for (const [name, path] of Object.entries(packages)) {
 
 function intakeTraces(call, callback) {
     const tracesReq = call.request;
-    // console.log('grpc spans', tracesReq);
     console.dir(tracesReq, {depth: 9});
 
     callback(null, {
@@ -48,12 +47,13 @@ function intakeTraces(call, callback) {
 
 /**
  *
- * @param {Object} options
- * @param {string} options.hostname
- * @param {number} options.port
+ * @param {Object} opts
+ * @param {import('./luggite').Logger} opts.log
+ * @param {string} opts.hostname
+ * @param {number} opts.port
  */
-function startGrpc(options) {
-    const {hostname, port} = options;
+function startGrpc(opts) {
+    const {log, hostname, port} = opts;
     const grpcServer = new grpc.Server();
 
     grpcServer.addService(packages.trace.TraceService.service, {
@@ -64,7 +64,7 @@ function startGrpc(options) {
         `${hostname}:${port}`,
         grpc.ServerCredentials.createInsecure(),
         () => {
-            console.log(`OTLP/gRPC listening at http://${hostname}:${port}`);
+            log.info(`OTLP/gRPC listening at http://${hostname}:${port}`);
             grpcServer.start();
         }
     );

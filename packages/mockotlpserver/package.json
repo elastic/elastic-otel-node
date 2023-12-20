@@ -27,13 +27,15 @@
   "scripts": {
     "lint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "start": "node lib/index.js"
+    "start": "node lib/index.js",
+    "watch": "node --watch lib/index.js # requires node >=18.11"
   },
   "main": "lib/index.js",
   "dependencies": {
     "@grpc/grpc-js": "^1.9.13",
     "@grpc/proto-loader": "^0.7.10",
-    "protobufjs": "^7.2.5"
+    "protobufjs": "^7.2.5",
+    "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
     "@opentelemetry/auto-instrumentations-node": "^0.40.2",

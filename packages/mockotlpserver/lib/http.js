@@ -93,12 +93,13 @@ function unknownParser(buff, req) {
 
 /**
  *
- * @param {Object} options
- * @param {string} options.hostname
- * @param {number} options.port
+ * @param {Object} opts
+ * @param {import('./luggite').Logger} opts.log
+ * @param {string} opts.hostname
+ * @param {number} opts.port
  */
-function startHttp(options) {
-    const {hostname, port} = options;
+function startHttp(opts) {
+    const {log, hostname, port} = opts;
     const server = http.createServer((req, res) => {
         const chunks = [];
         req.on('data', (chunk) => chunks.push(chunk));
@@ -140,7 +141,7 @@ function startHttp(options) {
             addr.family === 'IPv6'
                 ? `http://[${addr.address}]:${addr.port}`
                 : `http://${addr.address}:${addr.port}`;
-        console.log(`OTLP/HTTP listening at ${endpoint}`);
+        log.info(`OTLP/HTTP listening at ${endpoint}`);
     });
 }
 

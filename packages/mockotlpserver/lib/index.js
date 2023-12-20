@@ -1,5 +1,9 @@
+const luggite = require('./luggite');
+
 const {startHttp} = require('./http');
 const {startGrpc} = require('./grpc');
+
+const log = luggite.createLogger({name: 'mockotlpserver'});
 
 // Default hostname to 'localhost', because that is what `DEFAULT_COLLECTOR_URL`
 // uses in the OTel core exporter packages. Note that 'localhost' can by IPv6
@@ -12,6 +16,7 @@ const DEFAULT_GRPC_PORT = 4317;
 // Handles `OTEL_EXPORTER_OTLP_PROTOCOL=http/proto` and
 // `OTEL_EXPORTER_OTLP_PROTOCOL=http/json`.
 startHttp({
+    log,
     hostname: DEFAULT_HOSTNAME,
     port: DEFAULT_HTTP_PORT,
 });
@@ -21,6 +26,7 @@ startHttp({
 //
 // NOTE: to debug read this: https://github.com/grpc/grpc-node/blob/master/TROUBLESHOOTING.md
 startGrpc({
+    log,
     hostname: DEFAULT_HOSTNAME,
     port: DEFAULT_GRPC_PORT,
 });
