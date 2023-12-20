@@ -48,7 +48,6 @@ function badRequest(res) {
 function jsonParser(buff, req) {
     const reqText = buff.toString('utf-8');
 
-    console.log('JSON parsing');
     // NOTE: check for bignums
     return JSON.parse(reqText);
 }
@@ -70,7 +69,6 @@ function protoParser(buff, req) {
             `${pkgPrefix}.metrics.v1.ExportMetricsServiceRequest`
         );
     } else if (req.url === '/v1/traces') {
-        console.log('PROTO parsing');
         decoder = root.lookupType(
             `${pkgPrefix}.trace.v1.ExportTraceServiceRequest`
         );
@@ -79,7 +77,7 @@ function protoParser(buff, req) {
     if (decoder) {
         return decoder.decode(buff);
     }
-    console.error(`no decoder found for ${req.url}`);
+    console.error(`no proto decoder found for ${req.url}`);
     return {};
 }
 
@@ -90,7 +88,7 @@ function protoParser(buff, req) {
  */
 function unknownParser(buff, req) {
     const contentType = req.headers['content-type'];
-    console.log(`parser for ${contentType} not defined for url ${req.url}`);
+    console.error(`parser for ${contentType} not defined for url ${req.url}`);
 }
 
 /**
@@ -116,8 +114,7 @@ function startHttp(options) {
             const data = parseData(reqBuffer, req);
 
             // TODO: this is the place to do something with the data based on
-            // console.log(data);
-            console.dir(data, {depth: 5});
+            console.dir(data, {depth: 9});
 
             // TODO: in future response may add some header to communicate back
             // some information about
@@ -138,7 +135,12 @@ function startHttp(options) {
     });
 
     server.listen(port, hostname, function () {
-        console.info('listening', server.address());
+        const addr = server.address();
+        const endpoint =
+            addr.family === 'IPv6'
+                ? `http://[${addr.address}]:${addr.port}`
+                : `http://${addr.address}:${addr.port}`;
+        console.log(`OTLP/HTTP listening at ${endpoint}`);
     });
 }
 

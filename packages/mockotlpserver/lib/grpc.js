@@ -29,7 +29,7 @@ for (const [name, path] of Object.entries(packages)) {
 function intakeTraces(call, callback) {
     const tracesReq = call.request;
     // console.log('grpc spans', tracesReq);
-    console.dir(tracesReq, {depth: 5});
+    console.dir(tracesReq, {depth: 9});
 
     callback(null, {
         partial_success: {
@@ -56,7 +56,6 @@ function startGrpc(options) {
     const {hostname, port} = options;
     const grpcServer = new grpc.Server();
 
-    console.log(packages.trace.TraceService);
     grpcServer.addService(packages.trace.TraceService.service, {
         Export: intakeTraces,
     });
@@ -65,7 +64,7 @@ function startGrpc(options) {
         `${hostname}:${port}`,
         grpc.ServerCredentials.createInsecure(),
         () => {
-            console.log('grpc started', port);
+            console.log(`OTLP/gRPC listening at http://${hostname}:${port}`);
             grpcServer.start();
         }
     );
