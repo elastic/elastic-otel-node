@@ -40,5 +40,5 @@ export interface ResourceSpan {
 }
 
 export interface ExportTraceServiceRequest {
-    resourceSpans: ResouceSpan[];
+    resourceSpans: ResourceSpan[];
 }
