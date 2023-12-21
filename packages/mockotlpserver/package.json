@@ -29,10 +29,10 @@
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "start": "node lib/index.js",
-    "watch": "node --watch lib/index.js # requires node >=18.11"
+    "start": "node lib/mockotlpserver.js",
+    "watch": "node --watch lib/mockotlpserver.js # requires node >=18.11"
   },
-  "main": "lib/index.js",
+  "main": "lib/mockotlpserver.js",
   "dependencies": {
     "@grpc/grpc-js": "^1.9.13",
     "@grpc/proto-loader": "^0.7.10",
