@@ -25,7 +25,8 @@
     "node": ">=14.17.0"
   },
   "scripts": {
-    "lint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
+    "lint": "npm run lint:eslint && npm run lint:types",
+    "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "start": "node lib/index.js",
