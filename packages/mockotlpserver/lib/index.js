@@ -1,6 +1,7 @@
 const luggite = require('./luggite');
 const {startHttp} = require('./http');
 const {startGrpc} = require('./grpc');
+const {startUi} = require('./ui');
 const {InspectPrinter} = require('./printers');
 
 const log = luggite.createLogger({name: 'mockotlpserver'});
@@ -11,6 +12,7 @@ const log = luggite.createLogger({name: 'mockotlpserver'});
 const DEFAULT_HOSTNAME = 'localhost';
 const DEFAULT_HTTP_PORT = 4318;
 const DEFAULT_GRPC_PORT = 4317;
+const DEFAULT_UI_PORT = 8080;
 
 // Start a server which accepts incoming OTLP/HTTP calls and publishes
 // received request data to the `otlp.*` diagnostic channels.
@@ -30,6 +32,12 @@ startGrpc({
     log,
     hostname: DEFAULT_HOSTNAME,
     port: DEFAULT_GRPC_PORT,
+});
+
+startUi({
+    log,
+    hostname: DEFAULT_HOSTNAME,
+    port: DEFAULT_UI_PORT,
 });
 
 const printer = new InspectPrinter();

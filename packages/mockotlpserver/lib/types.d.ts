@@ -20,28 +20,25 @@ export interface Span {
     endTimeUnixNano: Long;
     attributes: Attribute[];
     droppedAttributesCount: number;
-    events?: Array<any>;
+    events?: any[];
     droppedEventsCount: number;
-    links?: Array<any>;
+    links?: any[];
     droppedLinksCount: number;
     status: { code: number };
 }
 
 export interface ScopeSpan {
     scope: { name: string; version: string };
-    spans: Array<Span>;
+    spans: Span[];
 }
 
 export interface ResouceSpan {
     resource: {
         attributes: Attribute[];
-    }
+    },
+    scopeSpans: ScopeSpan[];
 }
 
 export interface ExportTraceServiceRequest {
-    resourceSpans: Array<any>
-}
-
-export interface CollectorEmitter extends EventEmitter {
-
+    resourceSpans: ResouceSpan[];
 }
