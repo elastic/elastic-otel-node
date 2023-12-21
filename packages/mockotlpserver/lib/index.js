@@ -40,5 +40,5 @@ startUi({
     port: DEFAULT_UI_PORT,
 });
 
-const printer = new InspectPrinter();
+const printer = new InspectPrinter(log);
 printer.subscribe();

@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 /**
  * Various "Printers" the subscribe to `otlp.*` diagnostic channels and print
  * the results in various formats.
@@ -9,6 +6,9 @@ const path = require('path');
  *      const printer = new InspectPrinter();
  *      printer.subscribe();
  */
+
+const fs = require('fs');
+const path = require('path');
 
 const {
     diagchSub,
@@ -35,11 +35,21 @@ const {
 
 /** Abstract printer class */
 class Printer {
+    constructor(log) {
+        this._log = log;
+    }
     subscribe() {
         /** @type {any} */
         const inst = this;
         if (typeof inst.printTrace === 'function') {
-            diagchSub(CH_OTLP_V1_TRACE, inst.printTrace.bind(this));
+            // TODO: do this for the other print*().
+            diagchSub(CH_OTLP_V1_TRACE, (...args) => {
+                try {
+                    inst.printTrace(...args);
+                } catch (err) {
+                    console.error('TODO <className>.printTrace threw: %s', err);
+                }
+            });
         }
         if (typeof inst.printMetrics === 'function') {
             diagchSub(CH_OTLP_V1_METRICS, inst.printMetrics.bind(this));
@@ -55,8 +65,8 @@ class Printer {
  * @extends {Printer}
  */
 class InspectPrinter extends Printer {
-    constructor() {
-        super();
+    constructor(log) {
+        super(log);
         /** @private */
         this._inspectOpts = {depth: 9, breakLength: process.stdout.columns};
     }
@@ -84,6 +94,11 @@ class InspectPrinter extends Printer {
  */
 
 class UiPrinter extends Printer {
+    constructor(log) {
+        super(log);
+        this._dbDir = path.resolve(__dirname, '../db');
+    }
+
     /**
      * Prints into files the spns belonging to a trace
      * @param {import('./types').ExportTraceServiceRequest} traceReq
@@ -96,7 +111,7 @@ class UiPrinter extends Printer {
         traceReq.resourceSpans.forEach((resSpan) => {
             resSpan.scopeSpans.forEach((scopeSpan) => {
                 scopeSpan.spans.forEach((span) => {
-                    const traceId = span.traceId.toString();
+                    const traceId = span.traceId.toString('hex');
                     let traceSpans = tracesMap.get(traceId);
 
                     if (!traceSpans) {
@@ -109,9 +124,9 @@ class UiPrinter extends Printer {
         });
 
         // Write into a file
-        const tracesPath = path.join('__dirname', '/../ui/traces');
+        // TODO: manage lifetime of old trace ndjson files.
         for (const [traceId, traceSpans] of tracesMap.entries()) {
-            const filePath = path.join(tracesPath, `${traceId}.ndjson`);
+            const filePath = path.join(this._dbDir, `trace-${traceId}.ndjson`);
             const stream = fs.createWriteStream(filePath, {
                 flags: 'a',
                 encoding: 'utf-8',

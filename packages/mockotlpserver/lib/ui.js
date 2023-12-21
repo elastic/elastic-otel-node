@@ -25,7 +25,7 @@ function startUi(opts) {
     });
 
     // Use specific printer for UI
-    const printer = new UiPrinter();
+    const printer = new UiPrinter(log);
     printer.subscribe();
 }
 

@@ -4,3 +4,4 @@ build
 .DS_Store
 tmp
 .vscode
+/packages/mockotlpserver/db
