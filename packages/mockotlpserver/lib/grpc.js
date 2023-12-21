@@ -3,6 +3,13 @@ const {resolve} = require('path');
 const grpc = require('@grpc/grpc-js');
 const loader = require('@grpc/proto-loader');
 
+const {
+    diagchGet,
+    CH_OTLP_V1_TRACE,
+    // CH_OTLP_V1_METRICS,
+    // CH_OTLP_V1_LOGS,
+} = require('./diagch');
+
 // TODO: for now `proto` files are copied from
 // https://github.com/open-telemetry/opentelemetry-proto
 // but maybe its better to have a submodule like otel-js does
@@ -30,10 +37,7 @@ for (const [name, path] of Object.entries(packages)) {
 // helper functions
 
 function intakeTraces(call, callback) {
-    const tracesReq = call.request;
-    // console.log('grpc spans', tracesReq);
-    console.dir(tracesReq, {depth: 9});
-
+    diagchGet(CH_OTLP_V1_TRACE).publish(call.request);
     callback(null, {
         partial_success: {
             rejected_spans: 0,
@@ -51,12 +55,13 @@ function intakeTraces(call, callback) {
 
 /**
  *
- * @param {Object} options
- * @param {string} options.hostname
- * @param {number} options.port
+ * @param {Object} opts
+ * @param {import('./luggite').Logger} opts.log
+ * @param {string} opts.hostname
+ * @param {number} opts.port
  */
-function startGrpc(options) {
-    const {hostname, port} = options;
+function startGrpc(opts) {
+    const {log, hostname, port} = opts;
     const grpcServer = new grpc.Server();
 
     grpcServer.addService(packages.trace.TraceService.service, {
@@ -67,7 +72,7 @@ function startGrpc(options) {
         `${hostname}:${port}`,
         grpc.ServerCredentials.createInsecure(),
         () => {
-            console.log(`OTLP/gRPC listening at http://${hostname}:${port}`);
+            log.info(`OTLP/gRPC listening at http://${hostname}:${port}`);
             grpcServer.start();
         }
     );
