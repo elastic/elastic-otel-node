@@ -3,10 +3,30 @@ const path = require('path');
 
 const protobuf = require('protobufjs');
 
+const {
+    diagchGet,
+    CH_OTLP_V1_LOGS,
+    CH_OTLP_V1_METRICS,
+    CH_OTLP_V1_TRACE,
+} = require('./diagch');
+
 const parsersMap = {
     'application/json': jsonParser,
     'application/x-protobuf': protoParser,
 };
+
+function diagChFromReqUrl(reqUrl) {
+    switch (reqUrl) {
+        case '/v1/traces':
+            return diagchGet(CH_OTLP_V1_TRACE);
+        case '/v1/metrics':
+            return diagchGet(CH_OTLP_V1_METRICS);
+        case '/v1/logs':
+            return diagchGet(CH_OTLP_V1_LOGS);
+        default:
+            return null;
+    }
+}
 
 // TODO: for now `proto` files are copied from
 // https://github.com/open-telemetry/opentelemetry-proto
@@ -41,11 +61,11 @@ function badRequest(res) {
 }
 
 /**
- *
+ * @param {Logger} log
  * @param {Buffer} buff
  * @param {http.IncomingMessage} req
  */
-function jsonParser(buff, req) {
+function jsonParser(_log, buff, _req) {
     const reqText = buff.toString('utf-8');
 
     // NOTE: check for bignums
@@ -53,11 +73,11 @@ function jsonParser(buff, req) {
 }
 
 /**
- *
+ * @param {Logger} log
  * @param {Buffer} buff
  * @param {http.IncomingMessage} req
  */
-function protoParser(buff, req) {
+function protoParser(_log, buff, req) {
     const pkgPrefix = 'opentelemetry.proto.collector';
     let decoder;
     if (req.url === '/v1/logs') {
@@ -77,18 +97,21 @@ function protoParser(buff, req) {
     if (decoder) {
         return decoder.decode(buff);
     }
-    console.error(`no proto decoder found for ${req.url}`);
-    return {};
+    return null;
 }
 
 /**
  *
+ * @param {Logger} log
  * @param {Buffer} buff
  * @param {http.IncomingMessage} req
  */
-function unknownParser(buff, req) {
+function unknownParser(log, _buff, req) {
     const contentType = req.headers['content-type'];
-    console.error(`parser for ${contentType} not defined for url ${req.url}`);
+    log.warn(
+        {contentType},
+        `cannot parse ${req.url} request: unknown content-type`
+    );
 }
 
 /**
@@ -112,10 +135,16 @@ function startHttp(opts) {
             const contentType = req.headers['content-type'];
             const parseData = parsersMap[contentType] || unknownParser;
             const reqBuffer = Buffer.concat(chunks);
-            const data = parseData(reqBuffer, req);
-
-            // TODO: this is the place to do something with the data based on
-            console.dir(data, {depth: 9});
+            const reqUrl = req.url;
+            const data = parseData(log, reqBuffer, req);
+            const diagCh = diagChFromReqUrl(reqUrl);
+            if (!data) {
+                log.warn({contentType, reqUrl}, 'do not know how to parse req');
+            } else if (!diagCh) {
+                log.warn({reqUrl}, 'could not find diagnostic channel for req');
+            } else {
+                diagCh.publish(data);
+            }
 
             // TODO: in future response may add some header to communicate back
             // some information about

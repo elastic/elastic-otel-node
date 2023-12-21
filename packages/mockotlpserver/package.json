@@ -22,7 +22,7 @@
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",
   "engines": {
-    "node": ">=14"
+    "node": ">=14.17.0"
   },
   "scripts": {
     "lint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",

@@ -3,6 +3,13 @@ const {resolve} = require('path');
 const grpc = require('@grpc/grpc-js');
 const loader = require('@grpc/proto-loader');
 
+const {
+    diagchGet,
+    CH_OTLP_V1_TRACE,
+    // CH_OTLP_V1_METRICS,
+    // CH_OTLP_V1_LOGS,
+} = require('./diagch');
+
 // TODO: for now `proto` files are copied from
 // https://github.com/open-telemetry/opentelemetry-proto
 // but maybe its better to have a submodule like otel-js does
@@ -27,9 +34,7 @@ for (const [name, path] of Object.entries(packages)) {
 // helper functions
 
 function intakeTraces(call, callback) {
-    const tracesReq = call.request;
-    console.dir(tracesReq, {depth: 9});
-
+    diagchGet(CH_OTLP_V1_TRACE).publish(call.request);
     callback(null, {
         partial_success: {
             rejected_spans: 0,
