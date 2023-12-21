@@ -18,8 +18,11 @@ for (const [name, path] of Object.entries(packages)) {
     const definition = loader.loadSync(`${prefix}${path}`, {
         includeDirs: [pkgsBase],
     });
+    /** @type {any} */
     const descriptor = grpc.loadPackageDefinition(definition);
     const namespace = descriptor.opentelemetry.proto.collector[name].v1;
+
+    descriptor.opentelemetry;
 
     packages[name] = namespace;
 }
