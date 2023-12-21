@@ -1,5 +1,5 @@
 /**
- * Various "Printers" the subscribe to `otlp.*` diagnostic channels and print
+ * Various "Printers" that subscribe to `otlp.*` diagnostic channels and print
  * the results in various formats.
  *
  * Usage:
@@ -14,23 +14,12 @@ const {
     CH_OTLP_V1_TRACE,
 } = require('./diagch');
 
-// TODO: typewise it would be nice to have a type that forces printers
-// to have at least one of the functions
-// We can consider do composition instead of inheritance
-// const Printer = {
-//     subscribe () { ... }
-// }
-// const InspectPrinter = { ... }
-
-// function getPrinterInstance (specificPrinter) {
-//     return Object.assign({}, Printer, specificPrinter);
-// }
-
-// // usage
-// const inspectPrinter = getPrinterInstance(InspectPrinter);
-// inspectPrinter.subscribe();
-
-/** Abstract printer class */
+/**
+ * Abstract printer class.
+ *
+ * `subscribe()` will subscribe any `printTrace()` et al methods to the
+ * relevant `otlp.*` channel, with some error handling.
+ */
 class Printer {
     constructor(log) {
         this._log = log;
@@ -39,27 +28,46 @@ class Printer {
         /** @type {any} */
         const inst = this;
         if (typeof inst.printTrace === 'function') {
-            // TODO: do this for the other print*().
             diagchSub(CH_OTLP_V1_TRACE, (...args) => {
                 try {
                     inst.printTrace(...args);
                 } catch (err) {
-                    console.error('TODO <className>.printTrace threw: %s', err);
+                    this._log.error(
+                        {err},
+                        `${inst.constructor.name}.printTrace() threw`
+                    );
                 }
             });
         }
         if (typeof inst.printMetrics === 'function') {
-            diagchSub(CH_OTLP_V1_METRICS, inst.printMetrics.bind(this));
+            diagchSub(CH_OTLP_V1_METRICS, (...args) => {
+                try {
+                    inst.printMetrics(...args);
+                } catch (err) {
+                    this._log.error(
+                        {err},
+                        `${inst.constructor.name}.printMetrics() threw`
+                    );
+                }
+            });
         }
         if (typeof inst.printLogs === 'function') {
-            diagchSub(CH_OTLP_V1_LOGS, inst.printTrace.bind(this));
+            diagchSub(CH_OTLP_V1_LOGS, (...args) => {
+                try {
+                    inst.printLogs(...args);
+                } catch (err) {
+                    this._log.error(
+                        {err},
+                        `${inst.constructor.name}.printLogs() threw`
+                    );
+                }
+            });
         }
     }
 }
 
 /**
  * Specific printer for inspect format
- * @extends {Printer}
  */
 class InspectPrinter extends Printer {
     constructor(log) {
