@@ -24,7 +24,9 @@
   },
   "scripts": {
     "demo": "node -r ./start examples/simple-http-server.js",
-    "lint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
+    "lint": "npm run lint:eslint && npm run lint:types",
+    "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
+    "lint:types": "tsc",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0"
   },
   "main": "lib/index.js",

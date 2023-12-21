@@ -13,11 +13,13 @@
     "@elastic/opentelemetry-node": "file:./packages/opentelemetry-node"
   },
   "devDependencies": {
+    "@types/node": "^20.10.5",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-n": "^16.3.1",
     "eslint-plugin-prettier": "^5.0.1",
-    "eslint-plugin-promise": "^6.1.1"
+    "eslint-plugin-promise": "^6.1.1",
+    "typescript": "^4.4.4"
   }
 }
