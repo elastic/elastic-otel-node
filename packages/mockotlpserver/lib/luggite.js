@@ -32,21 +32,6 @@ var EOL = '\n';
 //---- Internal support stuff
 
 /**
- * Type assertion so TS can narrow types in if/else blocks
- * @type {(value: any) => value is string}
- */
-function isString(value) {
-    return typeof value === 'string';
-}
-/**
- * Type assertion so TS can narrow types in if/else blocks
- * @type {(value: any) => value is number}
- */
-function isNumber(value) {
-    return typeof value === 'number';
-}
-
-/**
  * Warn about an internal processing error.
  *
  * @param msg {String} Message with which to warn.
@@ -110,12 +95,13 @@ Object.keys(levelFromName).forEach(function (name) {
 function resolveLevel(nameOrNum) {
     var level;
     var type = typeof nameOrNum;
-    if (isString(nameOrNum)) {
+
+    if (typeof nameOrNum === 'string') {
         level = levelFromName[nameOrNum.toLowerCase()];
         if (!level) {
             throw new Error(format('unknown level name: "%s"', nameOrNum));
         }
-    } else if (!isNumber(nameOrNum)) {
+    } else if (typeof nameOrNum !== 'number') {
         throw new TypeError(
             format('cannot resolve level: invalid arg (%s):', type, nameOrNum)
         );
