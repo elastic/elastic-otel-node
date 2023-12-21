@@ -14,23 +14,34 @@ const {
     CH_OTLP_V1_TRACE,
 } = require('./diagch');
 
+// TODO: typewise it would be nice to have a type that forces printers
+// to have at least one of the functions
+
+/** Abstract printer class */
 class Printer {
     subscribe() {
-        if (typeof this.printTrace === 'function') {
-            diagchSub(CH_OTLP_V1_TRACE, this.printTrace.bind(this));
+        /** @type {any} */
+        const inst = this;
+        if (typeof inst.printTrace === 'function') {
+            diagchSub(CH_OTLP_V1_TRACE, inst.printTrace.bind(this));
         }
-        if (typeof this.printMetrics === 'function') {
-            diagchSub(CH_OTLP_V1_METRICS, this.printMetrics.bind(this));
+        if (typeof inst.printMetrics === 'function') {
+            diagchSub(CH_OTLP_V1_METRICS, inst.printMetrics.bind(this));
         }
-        if (typeof this.printLogs === 'function') {
-            diagchSub(CH_OTLP_V1_LOGS, this.printTrace.bind(this));
+        if (typeof inst.printLogs === 'function') {
+            diagchSub(CH_OTLP_V1_LOGS, inst.printTrace.bind(this));
         }
     }
 }
 
+/**
+ * Specific printer for inspect format
+ * @extends {Printer}
+ */
 class InspectPrinter extends Printer {
     constructor() {
         super();
+        /** @private */
         this._inspectOpts = {depth: 9, breakLength: process.stdout.columns};
     }
     printTrace(trace) {

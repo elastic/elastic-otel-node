@@ -5,8 +5,15 @@ const diagnostics_channel = require('diagnostics_channel');
 
 // Keep a references to channels created for `ch.subscribe(name)` to avoid
 // https://github.com/nodejs/node/issues/42170 bug with Node.js <16.17.0.
+/** @type {Record<string, diagnostics_channel.Channel>} */
 const diagchFromName = {};
 
+/**
+ * Returns the diagnostics channel with the given name
+ *
+ * @param {string} name
+ * @returns {diagnostics_channel.Channel}
+ */
 function diagchGet(name) {
     if (!(name in diagchFromName)) {
         diagchFromName[name] = diagnostics_channel.channel(name);
@@ -14,6 +21,12 @@ function diagchGet(name) {
     return diagchFromName[name];
 }
 
+/**
+ * Subscribes a message handler to the diagnostics channel with the given name
+ *
+ * @param {string} name
+ * @param {(msg: any) => void} onMessage
+ */
 function diagchSub(name, onMessage) {
     if (diagnostics_channel.subscribe) {
         // `diagnostics_channel.subscribe` was added in Node.js 16.17.0.

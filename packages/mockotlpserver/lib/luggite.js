@@ -12,9 +12,39 @@ var stream = require('stream');
 
 var safeStableStringify = require('safe-stable-stringify');
 
+/**
+ * TODO: add properties here
+ * @typedef {Object} LogRecord
+ */
+
+/**
+ * @typedef {Object} LoggerInstance
+ * @property {function(Record<string, any> | string, ...any): undefined} fatal
+ * @property {function(Record<string, any> | string, ...any): undefined} error
+ * @property {function(Record<string, any> | string, ...any): undefined} warn
+ * @property {function(Record<string, any> | string, ...any): undefined} info
+ * @property {function(Record<string, any> | string, ...any): undefined} debug
+ * @property {function(Record<string, any> | string, ...any): undefined} trace
+ */
+
 var EOL = '\n';
 
 //---- Internal support stuff
+
+/**
+ * Type assertion so TS can narrow types in if/else blocks
+ * @type {(value: any) => value is string}
+ */
+function isString(value) {
+    return typeof value === 'string';
+}
+/**
+ * Type assertion so TS can narrow types in if/else blocks
+ * @type {(value: any) => value is number}
+ */
+function isNumber(value) {
+    return typeof value === 'number';
+}
 
 /**
  * Warn about an internal processing error.
@@ -73,19 +103,19 @@ Object.keys(levelFromName).forEach(function (name) {
 /**
  * Resolve a level number, name (upper or lowercase) to a level number value.
  *
- * @param nameOrNum {String|Number} A level name (case-insensitive) or positive
+ * @param {string|number} nameOrNum A level name (case-insensitive) or positive
  *      integer level.
  * @api public
  */
 function resolveLevel(nameOrNum) {
     var level;
     var type = typeof nameOrNum;
-    if (type === 'string') {
+    if (isString(nameOrNum)) {
         level = levelFromName[nameOrNum.toLowerCase()];
         if (!level) {
             throw new Error(format('unknown level name: "%s"', nameOrNum));
         }
-    } else if (type !== 'number') {
+    } else if (!isNumber(nameOrNum)) {
         throw new TypeError(
             format('cannot resolve level: invalid arg (%s):', type, nameOrNum)
         );
@@ -99,6 +129,11 @@ function resolveLevel(nameOrNum) {
     return level;
 }
 
+/**
+ * Tells if the object is writable
+ * @param {any} obj
+ * @returns {boolean}
+ */
 function isWritable(obj) {
     if (obj instanceof stream.Writable) {
         return true;
@@ -132,7 +167,9 @@ function Logger(opts) {
 }
 
 /**
- * Add a stream
+ * Adds a stream
+ * @param {any} s
+ * @param {number} [defaultLevel]
  */
 Logger.prototype._addStream = function _addStream(s, defaultLevel) {
     if (defaultLevel === null || defaultLevel === undefined) {
@@ -187,6 +224,8 @@ Logger.prototype._addStream = function _addStream(s, defaultLevel) {
  * Set Usage:
  *    log.level(INFO)       // set all streams to level INFO
  *    log.level('info')     // can use 'info' et al aliases
+ *
+ * @param {number | string} value
  */
 Logger.prototype.level = function level(value) {
     if (value === undefined) {
@@ -205,8 +244,8 @@ Logger.prototype.level = function level(value) {
  *
  * Pre-condition: This is only called if there is at least one serializer.
  *
- * @param fields (Object) The log record fields.
- * @param excludeFields (Object) Optional mapping of keys to `true` for
+ * @param {Object} fields The log record fields.
+ * @param {Object} excludeFields Optional mapping of keys to `true` for
  *    keys to NOT apply a serializer.
  */
 Logger.prototype._applySerializers = function (fields, excludeFields) {
@@ -245,7 +284,7 @@ Logger.prototype._applySerializers = function (fields, excludeFields) {
 /**
  * Emit a log record.
  *
- * @param rec {log record}
+ * @param {LogRecord} rec The log record
  */
 Logger.prototype._emit = function (rec) {
     var i;
@@ -267,6 +306,11 @@ Logger.prototype._emit = function (rec) {
 /**
  * Build a record object suitable for emitting from the arguments
  * provided to the a log emitter.
+ *
+ * @param {any} log
+ * @param {any} minLevel
+ * @param {Array<any>} args
+ * @returns {LogRecord}
  */
 function mkRecord(log, minLevel, args) {
     var excludeFields, fields, msgArgs;
@@ -333,6 +377,9 @@ function mkRecord(log, minLevel, args) {
 /**
  * Build a log emitter function for level minLevel. I.e. this is the
  * creator of `log.info`, `log.error`, etc.
+ *
+ * @param {number} minLevel
+ * @returns {(fields?: Record<string, any>, msg?: string) => void}
  */
 function mkLogEmitter(minLevel) {
     return function LOG(...args) {
@@ -388,12 +435,16 @@ Logger.prototype.error = mkLogEmitter(ERROR);
 Logger.prototype.fatal = mkLogEmitter(FATAL);
 
 // ---- Serializers
-// A serializer is a function that serializes a JavaScript object to a
-// JSON representation for logging. There is a standard set of presumed
-// interesting objects in node.js-land.
-
-// Serialize an Error object
-// (Core error properties are enumerable in node 0.4, not in 0.6).
+/**
+ * A serializer is a function that serializes a JavaScript object to a
+ * JSON representation for logging. There is a standard set of presumed
+ * interesting objects in node.js-land.
+ *
+ * Serialize an Error object
+ * (Core error properties are enumerable in node 0.4, not in 0.6).
+ * @param {Error | Object} err
+ * @returns {Object}
+ */
 var errSerializer = function (err) {
     if (!err || !err.stack) return err;
     var obj = {
@@ -408,7 +459,14 @@ var errSerializer = function (err) {
 
 //---- Exports
 
+/**
+ * @param {any} options
+ * @returns {LoggerInstance}
+ */
 function createLogger(options) {
+    // TODO: I do not know yet if possible to document Function + prototype
+    // edit in JsDoc
+    // @ts-ignore
     return new Logger(options);
 }
 

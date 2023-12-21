@@ -15,6 +15,11 @@ const {
 // but maybe its better to have a submodule like otel-js does
 const prefix = resolve(__dirname, '../opentelemetry/proto');
 const pkgsBase = resolve(__dirname, '..');
+
+// TODO: type si `any`since we mutate the properties to a diffrent type
+// also we do not have type info from the proto files. Maybe we can provide
+// a generic later
+/** @type {any} */
 const packages = {
     logs: '/collector/logs/v1/logs_service.proto',
     metrics: '/collector/metrics/v1/metrics_service.proto',
@@ -37,12 +42,17 @@ for (const [name, path] of Object.entries(packages)) {
 // helper functions
 
 function intakeTraces(call, callback) {
-    diagchGet(CH_OTLP_V1_TRACE).publish(call.request);
     callback(null, {
         partial_success: {
             rejected_spans: 0,
         },
     });
+    // We publish into diagnostics channel after returning a response to the client to avoid not returning
+    // a response if one of the handlers throws (the hanlders run synchronously in the
+    // same context).
+    // https://nodejs.org/api/diagnostics_channel.html#channelpublishmessage
+    // TODO: maybe surround with try/catch to not blow up the server?
+    diagchGet(CH_OTLP_V1_TRACE).publish(call.request);
 }
 
 // function intakeMetrics(call, callback) {
@@ -56,7 +66,7 @@ function intakeTraces(call, callback) {
 /**
  *
  * @param {Object} opts
- * @param {import('./luggite').Logger} opts.log
+ * @param {import('./luggite').LoggerInstance} opts.log
  * @param {string} opts.hostname
  * @param {number} opts.port
  */
