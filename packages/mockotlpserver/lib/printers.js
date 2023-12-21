@@ -29,7 +29,7 @@ const {
 //     return Object.assign({}, Printer, specificPrinter);
 // }
 
-// // usage 
+// // usage
 // const inspectPrinter = getPrinterInstance(InspectPrinter);
 // inspectPrinter.subscribe();
 
