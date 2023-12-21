@@ -32,7 +32,7 @@ export interface ScopeSpan {
     spans: Span[];
 }
 
-export interface ResouceSpan {
+export interface ResourceSpan {
     resource: {
         attributes: Attribute[];
     },
