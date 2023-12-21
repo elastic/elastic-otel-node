@@ -169,7 +169,7 @@ function Logger(opts) {
 /**
  * Adds a stream
  * @param {any} s
- * @param {number} [defaultLevel]
+ * @param {number|string} [defaultLevel]
  */
 Logger.prototype._addStream = function _addStream(s, defaultLevel) {
     if (defaultLevel === null || defaultLevel === undefined) {
