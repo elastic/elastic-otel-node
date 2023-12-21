@@ -12,21 +12,6 @@ var stream = require('stream');
 
 var safeStableStringify = require('safe-stable-stringify');
 
-/**
- * TODO: add properties here
- * @typedef {Object} LogRecord
- */
-
-/**
- * @typedef {Object} LoggerInstance
- * @property {function(Record<string, any> | string, ...any): undefined} fatal
- * @property {function(Record<string, any> | string, ...any): undefined} error
- * @property {function(Record<string, any> | string, ...any): undefined} warn
- * @property {function(Record<string, any> | string, ...any): undefined} info
- * @property {function(Record<string, any> | string, ...any): undefined} debug
- * @property {function(Record<string, any> | string, ...any): undefined} trace
- */
-
 var EOL = '\n';
 
 //---- Internal support stuff
@@ -94,8 +79,6 @@ Object.keys(levelFromName).forEach(function (name) {
  */
 function resolveLevel(nameOrNum) {
     var level;
-    var type = typeof nameOrNum;
-
     if (typeof nameOrNum === 'string') {
         level = levelFromName[nameOrNum.toLowerCase()];
         if (!level) {
@@ -103,7 +86,11 @@ function resolveLevel(nameOrNum) {
         }
     } else if (typeof nameOrNum !== 'number') {
         throw new TypeError(
-            format('cannot resolve level: invalid arg (%s):', type, nameOrNum)
+            format(
+                'cannot resolve level: invalid arg (%s):',
+                typeof nameOrNum,
+                nameOrNum
+            )
         );
     } else if (nameOrNum < 0 || Math.floor(nameOrNum) !== nameOrNum) {
         throw new TypeError(
@@ -116,7 +103,6 @@ function resolveLevel(nameOrNum) {
 }
 
 /**
- * Tells if the object is writable
  * @param {any} obj
  * @returns {boolean}
  */
@@ -129,165 +115,164 @@ function isWritable(obj) {
 
 //---- Logger class
 
-function Logger(opts) {
-    if (!(this instanceof Logger)) {
-        throw new Error('must use "new" to create Logger instance');
+class Logger {
+    constructor(opts) {
+        opts = opts || {};
+        this._level = Infinity;
+        this._stringify = safeStableStringify.configure({deterministic: false});
+        this._serializers = {err: errSerializer};
+        this._haveNonRawStreams = false;
+        this._streams = [];
+        this._addStream({
+            type: 'stream',
+            stream: process.stdout,
+            level: opts.level,
+        });
+        // To allow storing raw log records (unrendered), `this._fields` must never
+        // be mutated. Create a copy for any changes.
+        this._fields = Object.assign({}, opts.fields);
+        if (opts.name) {
+            this._fields.name = opts.name;
+        }
     }
-    opts = opts || {};
-    this._level = Infinity;
-    this._stringify = safeStableStringify.configure({deterministic: false});
-    this._serializers = {err: errSerializer};
-    this._haveNonRawStreams = false;
-    this._streams = [];
-    this._addStream({
-        type: 'stream',
-        stream: process.stdout,
-        level: opts.level,
-    });
-    // To allow storing raw log records (unrendered), `this._fields` must never
-    // be mutated. Create a copy for any changes.
-    this._fields = Object.assign({}, opts.fields);
-    if (opts.name) {
-        this._fields.name = opts.name;
+
+    /**
+     * @param {any} s
+     * @param {number|string} [defaultLevel]
+     */
+    _addStream(s, defaultLevel) {
+        if (defaultLevel === null || defaultLevel === undefined) {
+            defaultLevel = INFO;
+        }
+
+        s = Object.assign({}, s);
+
+        // Implicit 'type' from other args.
+        if (!s.type) {
+            if (s.stream) {
+                s.type = 'stream';
+            }
+        }
+        s.raw = s.type === 'raw'; // PERF: Allow for faster check in `_emit`.
+
+        if (s.level !== undefined) {
+            s.level = resolveLevel(s.level);
+        } else {
+            s.level = resolveLevel(defaultLevel);
+        }
+        if (s.level < this._level) {
+            this._level = s.level;
+        }
+
+        switch (s.type) {
+            case 'stream':
+                assert.ok(
+                    isWritable(s.stream),
+                    '"stream" stream is not writable: ' + inspect(s.stream)
+                );
+                break;
+            case 'raw':
+                break;
+            default:
+                throw new TypeError('unknown stream type "' + s.type + '"');
+        }
+
+        this._streams.push(s);
+        if (!this._haveNonRawStreams && !s.raw) {
+            this._haveNonRawStreams = true;
+        }
+    }
+
+    /**
+     * Get/set the level of all streams on this logger.
+     *
+     * Get Usage:
+     *    // Returns the current log level (lowest level of all its streams).
+     *    log.level() -> INFO
+     *
+     * Set Usage:
+     *    log.level(INFO)       // set all streams to level INFO
+     *    log.level('info')     // can use 'info' et al aliases
+     *
+     * @param {number|string} [value]
+     * @returns {number|undefined}
+     */
+    level(value) {
+        if (value === undefined) {
+            return this._level;
+        }
+        var newLevel = resolveLevel(value);
+        var len = this._streams.length;
+        for (var i = 0; i < len; i++) {
+            this._streams[i].level = newLevel;
+        }
+        this._level = newLevel;
+    }
+
+    /**
+     * Apply registered serializers to the appropriate keys in the given fields.
+     *
+     * Pre-condition: This is only called if there is at least one serializer.
+     *
+     * @param {object} fields The log record fields.
+     * @param {object} excludeFields Optional mapping of keys to `true` for
+     *    keys to NOT apply a serializer.
+     */
+    _applySerializers(fields, excludeFields) {
+        var self = this;
+
+        // Check each serializer against these (presuming number of serializers
+        // is typically less than number of fields).
+        Object.keys(this._serializers).forEach(function (name) {
+            if (
+                fields[name] === undefined ||
+                (excludeFields && excludeFields[name])
+            ) {
+                return;
+            }
+            try {
+                fields[name] = self._serializers[name](fields[name]);
+            } catch (err) {
+                _warn(
+                    format(
+                        'luggite: ERROR: Exception thrown from the "%s" ' +
+                            'serializer. This should never happen. This is a bug ' +
+                            'in that serializer function.\n%s',
+                        name,
+                        err.stack || err
+                    )
+                );
+                fields[name] = format(
+                    '(Error in log "%s" serializer ' +
+                        'broke field. See stderr for details.)',
+                    name
+                );
+            }
+        });
+    }
+
+    /**
+     * Emit a log record.
+     *
+     * @param {object} rec The log record
+     */
+    _emit(rec) {
+        var i;
+
+        var str;
+        if (this._haveNonRawStreams) {
+            str = this._stringify(rec) + EOL;
+        }
+
+        var level = rec.level;
+        for (i = 0; i < this._streams.length; i++) {
+            var s = this._streams[i];
+            if (s.level <= level) {
+                s.stream.write(s.raw ? rec : str);
+            }
+        }
     }
 }
-
-/**
- * Adds a stream
- * @param {any} s
- * @param {number|string} [defaultLevel]
- */
-Logger.prototype._addStream = function _addStream(s, defaultLevel) {
-    if (defaultLevel === null || defaultLevel === undefined) {
-        defaultLevel = INFO;
-    }
-
-    s = Object.assign({}, s);
-
-    // Implicit 'type' from other args.
-    if (!s.type) {
-        if (s.stream) {
-            s.type = 'stream';
-        }
-    }
-    s.raw = s.type === 'raw'; // PERF: Allow for faster check in `_emit`.
-
-    if (s.level !== undefined) {
-        s.level = resolveLevel(s.level);
-    } else {
-        s.level = resolveLevel(defaultLevel);
-    }
-    if (s.level < this._level) {
-        this._level = s.level;
-    }
-
-    switch (s.type) {
-        case 'stream':
-            assert.ok(
-                isWritable(s.stream),
-                '"stream" stream is not writable: ' + inspect(s.stream)
-            );
-            break;
-        case 'raw':
-            break;
-        default:
-            throw new TypeError('unknown stream type "' + s.type + '"');
-    }
-
-    this._streams.push(s);
-    if (!this._haveNonRawStreams && !s.raw) {
-        this._haveNonRawStreams = true;
-    }
-};
-
-/**
- * Get/set the level of all streams on this logger.
- *
- * Get Usage:
- *    // Returns the current log level (lowest level of all its streams).
- *    log.level() -> INFO
- *
- * Set Usage:
- *    log.level(INFO)       // set all streams to level INFO
- *    log.level('info')     // can use 'info' et al aliases
- *
- * @param {number | string} value
- */
-Logger.prototype.level = function level(value) {
-    if (value === undefined) {
-        return this._level;
-    }
-    var newLevel = resolveLevel(value);
-    var len = this._streams.length;
-    for (var i = 0; i < len; i++) {
-        this._streams[i].level = newLevel;
-    }
-    this._level = newLevel;
-};
-
-/**
- * Apply registered serializers to the appropriate keys in the given fields.
- *
- * Pre-condition: This is only called if there is at least one serializer.
- *
- * @param {Object} fields The log record fields.
- * @param {Object} excludeFields Optional mapping of keys to `true` for
- *    keys to NOT apply a serializer.
- */
-Logger.prototype._applySerializers = function (fields, excludeFields) {
-    var self = this;
-
-    // Check each serializer against these (presuming number of serializers
-    // is typically less than number of fields).
-    Object.keys(this._serializers).forEach(function (name) {
-        if (
-            fields[name] === undefined ||
-            (excludeFields && excludeFields[name])
-        ) {
-            return;
-        }
-        try {
-            fields[name] = self._serializers[name](fields[name]);
-        } catch (err) {
-            _warn(
-                format(
-                    'luggite: ERROR: Exception thrown from the "%s" ' +
-                        'serializer. This should never happen. This is a bug ' +
-                        'in that serializer function.\n%s',
-                    name,
-                    err.stack || err
-                )
-            );
-            fields[name] = format(
-                '(Error in log "%s" serializer ' +
-                    'broke field. See stderr for details.)',
-                name
-            );
-        }
-    });
-};
-
-/**
- * Emit a log record.
- *
- * @param {LogRecord} rec The log record
- */
-Logger.prototype._emit = function (rec) {
-    var i;
-
-    var str;
-    if (this._haveNonRawStreams) {
-        str = this._stringify(rec) + EOL;
-    }
-
-    var level = rec.level;
-    for (i = 0; i < this._streams.length; i++) {
-        var s = this._streams[i];
-        if (s.level <= level) {
-            s.stream.write(s.raw ? rec : str);
-        }
-    }
-};
 
 /**
  * Build a record object suitable for emitting from the arguments
@@ -296,7 +281,7 @@ Logger.prototype._emit = function (rec) {
  * @param {any} log
  * @param {any} minLevel
  * @param {Array<any>} args
- * @returns {LogRecord}
+ * @returns {object}
  */
 function mkRecord(log, minLevel, args) {
     var excludeFields, fields, msgArgs;
@@ -365,7 +350,7 @@ function mkRecord(log, minLevel, args) {
  * creator of `log.info`, `log.error`, etc.
  *
  * @param {number} minLevel
- * @returns {(fields?: Record<string, any>, msg?: string) => void}
+ * @returns {function(Record<string, any> | string, ...any): void}
  */
 function mkLogEmitter(minLevel) {
     return function LOG(...args) {
@@ -447,12 +432,9 @@ var errSerializer = function (err) {
 
 /**
  * @param {any} options
- * @returns {LoggerInstance}
+ * @returns {Logger}
  */
 function createLogger(options) {
-    // TODO: I do not know yet if possible to document Function + prototype
-    // edit in JsDoc
-    // @ts-ignore
     return new Logger(options);
 }
 
@@ -468,6 +450,7 @@ module.exports = {
     nameFromLevel: nameFromLevel,
 
     createLogger: createLogger,
+    Logger, // exported only for types, should not be used directly, use `createLogger`
 };
 
 // vim: tabstop=4 shiftwidth=4 expandtab

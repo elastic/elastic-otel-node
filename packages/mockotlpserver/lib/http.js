@@ -61,7 +61,7 @@ function badRequest(res) {
 }
 
 /**
- * @param {import('./luggite').LoggerInstance} _log
+ * @param {import('./luggite').Logger} _log
  * @param {Buffer} buff
  * @param {http.IncomingMessage} _req
  */
@@ -73,7 +73,7 @@ function jsonParser(_log, buff, _req) {
 }
 
 /**
- * @param {import('./luggite').LoggerInstance} _log
+ * @param {import('./luggite').Logger} _log
  * @param {Buffer} buff
  * @param {http.IncomingMessage} req
  */
@@ -102,7 +102,7 @@ function protoParser(_log, buff, req) {
 
 /**
  *
- * @param {import('./luggite').LoggerInstance} log
+ * @param {import('./luggite').Logger} log
  * @param {Buffer} _buff
  * @param {http.IncomingMessage} req
  */
@@ -117,7 +117,7 @@ function unknownParser(log, _buff, req) {
 /**
  *
  * @param {Object} opts
- * @param {import('./luggite').LoggerInstance} opts.log
+ * @param {import('./luggite').Logger} opts.log
  * @param {string} opts.hostname
  * @param {number} opts.port
  */

@@ -69,7 +69,7 @@ class UiPrinter extends Printer {
 /**
  *
  * @param {Object} opts
- * @param {import('./luggite').LoggerInstance} opts.log
+ * @param {import('./luggite').Logger} opts.log
  * @param {string} opts.hostname
  * @param {number} opts.port
  */
