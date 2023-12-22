@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 
+const Long = require('long');
+
 const {Printer} = require('./printers');
 
 // helper functions
@@ -58,21 +60,39 @@ class UiPrinter extends Printer {
             });
 
             for (const span of traceSpans) {
-                const traceId = span.traceId.toString('hex');
-                const spanId = span.spanId.toString('hex');
-                const parentSpanId = span.parentSpanId?.toString('hex');
-                const ids = {traceId, spanId};
-
-                if (parentSpanId) {
-                    ids.parentSpanId = parentSpanId;
-                }
-
+                const formatted = this._formatSpan(span);
                 stream.write(
-                    JSON.stringify(Object.assign({}, span, ids)) + '\n'
+                    JSON.stringify(Object.assign({}, span, formatted)) + '\n'
                 );
             }
             stream.close();
         }
+    }
+
+    /**
+     * @param {import('./types').Span} span
+     */
+    _formatSpan(span) {
+        const traceId = span.traceId.toString('hex');
+        const spanId = span.spanId.toString('hex');
+        const parentSpanId = span.parentSpanId?.toString('hex');
+        const formatted = {traceId, spanId};
+
+        if (parentSpanId) {
+            formatted.parentSpanId = parentSpanId;
+        }
+        formatted.startTimeUnixNano = new Long(
+            span.startTimeUnixNano.low,
+            span.startTimeUnixNano.high,
+            span.startTimeUnixNano.unsigned
+        ).toString();
+        formatted.endTimeUnixNano = new Long(
+            span.endTimeUnixNano.low,
+            span.endTimeUnixNano.high,
+            span.endTimeUnixNano.unsigned
+        ).toString();
+
+        return formatted;
     }
 }
 

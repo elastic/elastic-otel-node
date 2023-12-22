@@ -1,9 +1,12 @@
 <!doctype html>
 <html>
     <head>
+        <!-- https://bulma.io/ -->
         <link rel="stylesheet" href="./bulma.min.css">
-        <link rel="stylesheet" href="./style.css">
+        <!-- https://d3js.org/ -->
         <script src="d3.v7.min.js"></script>
+        
+        <link rel="stylesheet" href="./style.css">
         <title>Mock OLTP Server UI</title>
     </head>
     <body>
@@ -19,7 +22,7 @@
 
         <h1 class="title">Trace Details</h1>
         <h1 class="subtitle"></h1>
-        
+        <div id="chart" class="box"></div>
     </body>
 
 
@@ -30,13 +33,80 @@
             const childSpans = spanMap[node.id];
             
             if (childSpans) {
-                node.children = childSpans.map((s) => ({ id: s.spanId, name: s.name }));
+                node.children = childSpans.map((s) => ({
+                    id: s.spanId,
+                    name: s.name,
+                    // This is the duration
+                    value: Number(BigInt(s.endTimeUnixNano) - BigInt(s.startTimeUnixNano)),
+                }));
                 node.children.forEach((c) => buildTree(spanMap, c));
             }
 
             return node;
         }
-    </script>`
+
+        function draw(data) {
+            // Specify the chart’s dimensions.
+            const width = 928;
+            const height = 2400;
+            const format = d3.format(",d");
+
+            // Create a color scale (a color for each child of the root node and their descendants).
+            const color = d3.scaleOrdinal(d3.quantize(d3.interpolateRainbow, data.children.length + 1))
+
+            // Create a partition layout.
+            const partition = d3.partition()
+                .size([height, width])
+                .padding(1);
+
+            // Apply the partition layout.
+            const root = partition(d3.hierarchy(data)
+                .sum(d => d.value)
+                .sort((a, b) => b.height - a.height || b.value - a.value));
+
+            // Create the SVG container.
+            const svg = d3.create("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("viewBox", [0, 0, width, height])
+                .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif");
+
+            // Add a cell for each node of the hierarchy.
+            const cell = svg
+                .selectAll()
+                .data(root.descendants())
+                .join("g")
+                .attr("transform", d => `translate(${d.y0},${d.x0})`);
+
+            cell.append("title")
+                .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`);
+
+            // Color the cell with respect to which child of root it belongs to. 
+            cell.append("rect")
+                .attr("width", d => d.y1 - d.y0)
+                .attr("height", d => d.x1 - d.x0)
+                .attr("fill-opacity", 0.6)
+                .attr("fill", d => {
+                    if (!d.depth) return "#ccc";
+                    while (d.depth > 1) d = d.parent;
+                    return color(d.data.name);
+                });
+
+            // Add labels and a title.
+            const text = cell.filter(d => (d.x1 - d.x0) > 16).append("text")
+                .attr("x", 4)
+                .attr("y", 13);
+
+            text.append("tspan")
+                .text(d => d.data.name);
+
+            text.append("tspan")
+                .attr("fill-opacity", 0.7)
+                .text(d => ` ${format(d.value)}`);
+
+            return svg.node();
+        }
+    </script>
 
     <!-- main line -->
     <script>
@@ -52,19 +122,18 @@
                 return ndjson.split('\n').filter(l => l).map(JSON.parse);
             })
             .then((spans) => {
-                const spanMap = {};
-                spans.forEach((s) => {
+                const spanMap = spans.sort((a, b) => {
+                    return a.startTimeUnixNano < b.startTimeUnixNano ? -1 : 1;
+                }).reduce((map, s) => {
                     const parentId = s.parentSpanId || traceId;
-                    spanMap[parentId] = spanMap[parentId] || [];
-                    spanMap[parentId].push(s);
-                });
-                Object.values(spanMap).forEach((array) => {
-                    array.sort((a, b) => {
-                        return a.startTimeUnixNano < b.startTimeUnixNano ? -1 : 1;
-                    });
-                });
-                const root = buildTree(spanMap, { id: traceId, name: 'trace' });
-                console.log('root', root);
+                    map[parentId] = map[parentId] || [];
+                    map[parentId].push(s);
+                    return map;
+                }, {});
+
+                const data = buildTree(spanMap, { id: traceId, name: 'trace' });
+                const svg = draw(data);
+                document.getElementById('chart').appendChild(svg);
             });
         }
     </script>
