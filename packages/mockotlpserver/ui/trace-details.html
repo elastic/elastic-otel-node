@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="./bulma.min.css">
+        <link rel="stylesheet" href="./style.css">
+        <script src="d3.v7.min.js"></script>
+        <title>Mock OLTP Server UI</title>
+    </head>
+    <body>
+        <nav class="level">
+            <p class="level-item has-text-centered">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" class="" role="img" aria-hidden="true">
+                    <path fill="#F04E98" d="M10 32H7.238C3.793 32 1 28.865 1 24.998V15h9v17Z"></path>
+                    <path d="M10 32h9V8h-9z"></path>
+                    <path fill="#07C" d="M31 32h-9V0l1.973.024C27.866.072 31 3.731 31 8.228V32Z"></path>
+                </svg>
+            </p>
+        </nav>
+
+        <h1 class="title">Trace Details</h1>
+        <h1 class="subtitle"></h1>
+        
+    </body>
+
+
+    <!-- helper scripts -->
+    <script>
+        // formats the data for plotting
+        function buildTree(spanMap, node) {
+            const childSpans = spanMap[node.id];
+            
+            if (childSpans) {
+                node.children = childSpans.map((s) => ({ id: s.spanId, name: s.name }));
+                node.children.forEach((c) => buildTree(spanMap, c));
+            }
+
+            return node;
+        }
+    </script>`
+
+    <!-- main line -->
+    <script>
+        const searchParams = new URLSearchParams(location.search);
+        const traceId = searchParams.get('traceId')
+
+        if (traceId) {
+            // Fetch and fill the table
+        fetch(`/api/traces/${traceId}`)
+            .then((res) => res.text())
+            .then((ndjson) => {
+                // TODO: we need better parsing for big num
+                return ndjson.split('\n').filter(l => l).map(JSON.parse);
+            })
+            .then((spans) => {
+                const spanMap = {};
+                spans.forEach((s) => {
+                    const parentId = s.parentSpanId || traceId;
+                    spanMap[parentId] = spanMap[parentId] || [];
+                    spanMap[parentId].push(s);
+                });
+                Object.values(spanMap).forEach((array) => {
+                    array.sort((a, b) => {
+                        return a.startTimeUnixNano < b.startTimeUnixNano ? -1 : 1;
+                    });
+                });
+                const root = buildTree(spanMap, { id: traceId, name: 'trace' });
+                console.log('root', root);
+            });
+        }
+    </script>
+</html>

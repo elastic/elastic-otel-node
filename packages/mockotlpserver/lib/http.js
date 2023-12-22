@@ -175,9 +175,6 @@ function startHttp(opts) {
     });
 
     server.listen(port, hostname, function () {
-        // /** @type {import('net').AddressInfo} */
-        // TODO: the api retours string | AddressInfo
-        // we should cover this case and use type assertions
         /** @type {any} */
         const addr = server.address();
         const endpoint =

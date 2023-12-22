@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+const { URL } = require('url');
 
-const httpServer = require('http-server');
 
 const {Printer} = require('./printers');
 
@@ -67,6 +68,31 @@ class UiPrinter extends Printer {
 }
 
 /**
+ * @param {http.ServerResponse} res
+ */
+function send404(res) {
+    res.writeHead(404, {'Content-Type': 'text/plain'});
+    res.write('Error 404: Resource not found.');
+    res.end();
+}
+
+/**
+ * @param {http.ServerResponse} res
+ */
+function send400(res) {
+    res.writeHead(404, {'Content-Type': 'text/plain'});
+    res.write('Error 400: Bad request.');
+    res.end();
+}
+
+const mimeLookup = {
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+    '.html': 'text/html',
+    '.png': 'image/x-png',
+};
+
+/**
  *
  * @param {Object} opts
  * @param {import('./luggite').Logger} opts.log
@@ -75,12 +101,69 @@ class UiPrinter extends Printer {
  */
 function startUi(opts) {
     const {log, hostname, port} = opts;
-    const server = httpServer.createServer({
-        root: path.join(__dirname, '/../ui'),
+    const assetsPath = path.resolve(__dirname, '../ui');
+    const dataPath = path.resolve(__dirname, '../db');
+    const server = http.createServer((req, res) => {
+        req.resume();
+        req.on('end', () => {
+            if (req.method === 'POST') {
+                return send400(res);
+            }
+            // API methods
+            if (req.url === '/api/traces') {
+                const traceFiles = fs.readdirSync(dataPath).filter((f) => {
+                    return f.startsWith('trace-');
+                });
+
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify(traceFiles));
+                return;
+            } else if (req.url.startsWith('/api/traces/')) {
+                const traceId = req.url.replace('/api/traces/', '');
+                const tracePath = path.resolve(
+                    dataPath,
+                    `trace-${traceId}.ndjson`
+                );
+
+                console.log('tracePath', tracePath);
+
+                if (!fs.existsSync(tracePath)) {
+                    return send404(res);
+                }
+
+                res.writeHead(200, {'Content-Type': 'text/plain'});
+                fs.createReadStream(tracePath).pipe(res);
+                return;
+            }
+
+            // fallback to serve static
+            // TODO: check for path traversal?
+            const url = new URL(req.url, `http://${hostname}:${port}`);
+            const urlPath = url.pathname;
+
+            const fileUrl = urlPath === '/' ? '/index.html' : urlPath;
+            const filePath = assetsPath + fileUrl;
+            const fileExt = path.extname(filePath);
+            const mimeType = mimeLookup[fileExt];
+
+            if (mimeType && fs.existsSync(filePath)) {
+                res.writeHead(200, {'Content-Type': mimeType});
+                fs.createReadStream(filePath).pipe(res);
+                return;
+            }
+
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            fs.createReadStream(`${assetsPath}/404.html`).pipe(res);
+        });
     });
 
     server.listen(port, hostname, function () {
-        const endpoint = `http://${hostname}:${port}`;
+        /** @type {any} */
+        const addr = server.address();
+        const endpoint =
+            addr.family === 'IPv6'
+                ? `http://[${addr.address}]:${addr.port}`
+                : `http://${addr.address}:${addr.port}`;
         log.info(`UI listening at ${endpoint}`);
     });
 
