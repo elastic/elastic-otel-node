@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
-const { URL } = require('url');
-
 
 const {Printer} = require('./printers');
 
@@ -60,7 +58,18 @@ class UiPrinter extends Printer {
             });
 
             for (const span of traceSpans) {
-                stream.write(JSON.stringify(span) + '\n');
+                const traceId = span.traceId.toString('hex');
+                const spanId = span.spanId.toString('hex');
+                const parentSpanId = span.parentSpanId?.toString('hex');
+                const ids = {traceId, spanId};
+
+                if (parentSpanId) {
+                    ids.parentSpanId = parentSpanId;
+                }
+
+                stream.write(
+                    JSON.stringify(Object.assign({}, span, ids)) + '\n'
+                );
             }
             stream.close();
         }
