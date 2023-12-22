@@ -154,8 +154,6 @@ function startUi(opts) {
                     `trace-${traceId}.ndjson`
                 );
 
-                console.log('tracePath', tracePath);
-
                 if (!fs.existsSync(tracePath)) {
                     return send404(res);
                 }
