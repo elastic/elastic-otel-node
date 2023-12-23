@@ -1,7 +1,4 @@
 const http = require('http');
-const path = require('path');
-
-const protobuf = require('protobufjs');
 
 const {
     diagchGet,
