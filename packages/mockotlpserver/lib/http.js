@@ -1,7 +1,4 @@
 const http = require('http');
-const path = require('path');
-
-const protobuf = require('protobufjs');
 
 const {
     diagchGet,
@@ -9,6 +6,9 @@ const {
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
 } = require('./diagch');
+const {getProtoRoot} = require('./proto');
+
+const protoRoot = getProtoRoot();
 
 const parsersMap = {
     'application/json': jsonParser,
@@ -26,25 +26,6 @@ function diagChFromReqUrl(reqUrl) {
         default:
             return null;
     }
-}
-
-// TODO: for now `proto` files are copied from
-// https://github.com/open-telemetry/opentelemetry-proto
-// but maybe its better to have a submodule like otel-js does
-const prefix = path.resolve(__dirname, '../opentelemetry/proto/');
-const paths = [
-    '/common/v1/common.proto',
-    '/resource/v1/resource.proto',
-    '/logs/v1/logs.proto',
-    '/metrics/v1/metrics.proto',
-    '/trace/v1/trace.proto',
-    '/collector/logs/v1/logs_service.proto',
-    '/collector/metrics/v1/metrics_service.proto',
-    '/collector/trace/v1/trace_service.proto',
-];
-let root;
-for (const p of paths) {
-    root = protobuf.loadSync(`${prefix}${p}`, root);
 }
 
 // helper functions
@@ -81,15 +62,15 @@ function protoParser(_log, buff, req) {
     const pkgPrefix = 'opentelemetry.proto.collector';
     let decoder;
     if (req.url === '/v1/logs') {
-        decoder = root.lookupType(
+        decoder = protoRoot.lookupType(
             `${pkgPrefix}.logs.v1.ExportLogsServiceRequest`
         );
     } else if (req.url === '/v1/metrics') {
-        decoder = root.lookupType(
+        decoder = protoRoot.lookupType(
             `${pkgPrefix}.metrics.v1.ExportMetricsServiceRequest`
         );
     } else if (req.url === '/v1/traces') {
-        decoder = root.lookupType(
+        decoder = protoRoot.lookupType(
             `${pkgPrefix}.trace.v1.ExportTraceServiceRequest`
         );
     }

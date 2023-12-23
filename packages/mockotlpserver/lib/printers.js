@@ -15,6 +15,7 @@ const {
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
 } = require('./diagch');
+const {getProtoRoot} = require('./proto');
 
 /**
  * Abstract printer class.
@@ -75,7 +76,10 @@ class InspectPrinter extends Printer {
     constructor(log) {
         super(log);
         /** @private */
-        this._inspectOpts = {depth: 10, breakLength: process.stdout.columns};
+        this._inspectOpts = {
+            depth: 10,
+            breakLength: process.stdout.columns || 120,
+        };
     }
     printTrace(trace) {
         console.dir(trace, this._inspectOpts);
@@ -87,6 +91,29 @@ class InspectPrinter extends Printer {
         console.dir(logs, this._inspectOpts);
     }
 }
+
+// `enum SpanKind` in "trace.proto".
+const SpanKind = getProtoRoot().lookupType(
+    'opentelemetry.proto.trace.Span'
+).SpanKind;
+const spanKindEnumFromVal = {
+    [SpanKind.SPAN_KIND_UNSPECIFIED]: 'SPAN_KIND_UNSPECIFIED',
+    [SpanKind.SPAN_KIND_INTERNAL]: 'SPAN_KIND_INTERNAL',
+    [SpanKind.SPAN_KIND_SERVER]: 'SPAN_KIND_SERVER',
+    [SpanKind.SPAN_KIND_CLIENT]: 'SPAN_KIND_CLIENT',
+    [SpanKind.SPAN_KIND_PRODUCER]: 'SPAN_KIND_PRODUCER',
+    [SpanKind.SPAN_KIND_CONSUMER]: 'SPAN_KIND_CONSUMER',
+};
+
+// `enum SpanKind` in "trace.proto".
+const StatusCode = getProtoRoot().lookupType(
+    'opentelemetry.proto.trace.Status'
+).StatusCode;
+const statusCodeEnumFromVal = {
+    [StatusCode.STATUS_CODE_UNSET]: 'STATUS_CODE_UNSET',
+    [StatusCode.STATUS_CODE_OK]: 'STATUS_CODE_OK',
+    [StatusCode.STATUS_CODE_ERROR]: 'STATUS_CODE_ERROR',
+};
 
 /**
  * JSON stringify an OTLP trace service request to one *possible* representation.
@@ -120,20 +147,12 @@ class InspectPrinter extends Printer {
  *      startTimeUnixNano: '1703205196340000000',
  *      kind: 2,
  *
- * The ideal (at least for our use case) would be:
- * - spanId et al with hex encoding     spanId: "l38srd+eIyk=",
- * - enums as string                    kind: "SPAN_KIND_SERVER",
- * - longs as string                    startTimeUnixNano: "1703204488211000000",
- *   (Longs as string isn't "ideal", but it is safer with JavaScript's
- *   `JSON.stringify()` that does not handle `BigInt`.)
- *
- * However, this implementation does not do the ideal. Instead it will attempt
- * to mimic the OTLP/json format, regardless of the incoming format.
+ * This implementation:
+ * - converts `traceId`, `spanId`, `parentSpanId` to hex
+ * - converts `span.kind` and `span.status.code` to their enum string value
+ * - converts longs to string
  *
  * Limitations:
- * - Enums as string is only available with protobufjs.  Therefore, we'll stick
- *   with numbers for now.
- *   TODO: perhaps this could be done manually for other OTLP flavours?
  * - We are using `json: true` for protobufjs conversion, which isn't applied
  *   for the other flavours.
  * - Q: Are there other Binary fields we need to worry about?
@@ -203,6 +222,20 @@ function jsonStringifyTrace(trace, opts) {
                     rv = undefined;
                 }
                 break;
+            case 'kind':
+                /* eslint-disable no-prototype-builtins */
+                if (spanKindEnumFromVal.hasOwnProperty(v)) {
+                    rv = spanKindEnumFromVal[v];
+                }
+                break;
+            case 'status':
+                if (
+                    'code' in v &&
+                    statusCodeEnumFromVal.hasOwnProperty(v.code)
+                ) {
+                    v.code = statusCodeEnumFromVal[v.code];
+                }
+                break;
             case 'traceId':
             case 'spanId':
             case 'parentSpanId':
@@ -270,4 +303,5 @@ module.exports = {
     Printer,
     JSONPrinter,
     InspectPrinter,
+    jsonStringifyTrace,
 };
