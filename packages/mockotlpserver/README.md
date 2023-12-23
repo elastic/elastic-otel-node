@@ -194,14 +194,16 @@ Try all the protocols:
 -->
 
 
-## Different mockotlpserver output modes
+## Different mockotlpserver printers
+
+### json, json2
 
 ```
 node lib/mockotlpserver.js -o json
 node lib/mockotlpserver.js -o json2
 ```
 
-Two other output modes are `json` (0-space indentation) and `json2` (2-space
+Two other printers are `json` (0-space indentation) and `json2` (2-space
 indentation). These emit a JSON representation of each request, with some
 normalization applied:
 
@@ -210,3 +212,25 @@ normalization applied:
 - `startTimeUnixNano`, `endTimeUnixNano` are converted to a string of a 64-bit integer
   (JavaScript's JSON.stringify cannot handle large 64-bit integers, so using
   Number can lose precision.)
+
+### waterfall
+
+This printer converts OTLP trace spans into a sort of "waterfall"
+representation of the trace. The parent/child relationships are shown, along
+with some span timing and other details.
+
+```
+# server
+node lib/mockotlpserver.js -o inspect,waterfall
+
+# example client
+(cd examples; node -r ./telemetry.js simple-http-request.js)
+
+# waterfall rendering
+------ trace 299229 (2 spans) ------
+       span 090dfe "GET" (14.5ms, SPAN_KIND_CLIENT, GET http://localhost:3000/ -> 200)
+  +9ms `- span 90acc7 "GET" (3.4ms, SPAN_KIND_SERVER, GET http://localhost:3000/ -> 200)
+```
+
+The leading gutter shows the start time offset from the preceding span.
+`` `- `` markers show parent/child relationships.

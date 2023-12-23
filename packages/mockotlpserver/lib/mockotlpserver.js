@@ -5,6 +5,7 @@ const {startHttp} = require('./http');
 const {startGrpc} = require('./grpc');
 const {startUi} = require('./ui');
 const {JSONPrinter, InspectPrinter} = require('./printers');
+const {TraceWaterfallPrinter} = require('./waterfall');
 
 const log = luggite.createLogger({name: 'mockotlpserver'});
 
@@ -16,21 +17,31 @@ const DEFAULT_HTTP_PORT = 4318;
 const DEFAULT_GRPC_PORT = 4317;
 const DEFAULT_UI_PORT = 8080;
 
-const OUTPUT_MODES = ['inspect', 'json', 'json2'];
-function parseOutputMode(option, optstr, arg) {
-    if (OUTPUT_MODES.indexOf(arg) === -1) {
+const PRINTER_NAMES = ['inspect', 'json', 'json2', 'waterfall'];
+
+// This adds a custom cli option type to dashdash, to support `-o json,waterfall`
+// options for specifying multiple printers (aka output modes).
+function parseCommaSepPrinters(option, optstr, arg) {
+    const printers = arg
+        .trim()
+        .split(/\s*,\s*/g)
+        .filter((part) => part);
+    const invalids = printers.filter((p) => !PRINTER_NAMES.includes(p));
+    if (invalids.length) {
         throw new Error(
-            `arg for "${optstr}" is not a known output mode: "${arg}"`
+            `error in "${optstr}": unknown printers: "${invalids.join(', ')}"`
         );
     }
-    return arg;
+    return printers;
 }
+
 dashdash.addOptionType({
-    name: 'outputMode',
+    name: 'arrayOfPrinters',
     takesArg: true,
-    helpArg: 'MODE',
-    parseArg: parseOutputMode,
-    default: 'inspect',
+    helpArg: 'STRING',
+    parseArg: parseCommaSepPrinters,
+    array: true,
+    arrayFlatten: true,
 });
 
 const CMD = 'mockotlpserver';
@@ -42,10 +53,11 @@ const OPTIONS = [
     },
     {
         names: ['o'],
-        type: 'outputMode',
-        help: `Format for printing OTLP data. One of "${OUTPUT_MODES.join(
+        type: 'arrayOfPrinters',
+        help: `Formats for printing OTLP data. One or more of "${PRINTER_NAMES.join(
             '", "'
         )}".`,
+        default: ['inspect', 'waterfall'],
     },
 ];
 
@@ -96,17 +108,22 @@ function main() {
     });
 
     const printers = [];
-    switch (opts.o) {
-        case 'inspect':
-            printers.push(new InspectPrinter(log));
-            break;
-        case 'json':
-            printers.push(new JSONPrinter(log, 0));
-            break;
-        case 'json2':
-            printers.push(new JSONPrinter(log, 2));
-            break;
-    }
+    opts.o.forEach((printerName) => {
+        switch (printerName) {
+            case 'inspect':
+                printers.push(new InspectPrinter(log));
+                break;
+            case 'json':
+                printers.push(new JSONPrinter(log, 0));
+                break;
+            case 'json2':
+                printers.push(new JSONPrinter(log, 2));
+                break;
+            case 'waterfall':
+                printers.push(new TraceWaterfallPrinter(log));
+                break;
+        }
+    });
     printers.forEach((p) => p.subscribe());
 }
 
