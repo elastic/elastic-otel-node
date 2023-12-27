@@ -7,6 +7,11 @@
         <script src="d3.v7.min.js"></script>
         <script src="d3.icicle.js"></script>
         <script src="d3.trace.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/vega@5.25.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.16.3"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.22.2"></script>
+
         
         <link rel="stylesheet" href="./style.css">
         <title>Mock OLTP Server UI</title>
@@ -24,8 +29,9 @@
 
         <h1 class="title">Trace Details</h1>
         <h1 class="subtitle"></h1>
-        <div id="icicle-chart" class="box"></div>
-        <div id="trace-chart" class="box"></div>
+        <div id="icicle-chart" class="box" style="display: none;"></div>
+        <div id="trace-chart" class="box" style="display: none;"></div>
+        <div id="vega"></div>
     </body>
 
 
@@ -51,7 +57,7 @@
     </script>
 
     <!-- main line -->
-    <script>
+    <!--script>
         const searchParams = new URLSearchParams(location.search);
         const traceId = searchParams.get('traceId')
 
@@ -92,5 +98,62 @@
                 document.getElementById('trace-chart').appendChild(svg2);
             });
         }
+    </script-->
+
+    <script>
+        const searchParams = new URLSearchParams(location.search);
+        const traceId = searchParams.get('traceId')
+        const values = [];
+
+        const pushSpan = (map, node) => {
+            const childs = map[node.spanId];
+            if (childs) {
+
+            }
+        }
+
+        // https://vega.github.io/editor/#/edited
+        if (traceId) {
+            // Fetch and fill the table
+            fetch(`/api/traces/${traceId}`)
+            .then((res) => res.text())
+            .then((ndjson) => {
+                return ndjson.split('\n').filter(l => l).map(JSON.parse);
+            }).then((spans) => {
+                // Construct the data
+                const sorted = spans.sort((a, b) => {
+                    return a.startTimeUnixNano < b.startTimeUnixNano ? -1 : 1;
+                });
+                const spanMap = sorted.reduce((map, s, i, arr) => {
+                    const traceStart = BigInt(arr[0].startTimeUnixNano);
+                    const parentId = s.parentSpanId || traceId;
+
+                    s.start = Number(BigInt(s.startTimeUnixNano) - traceStart);
+                    s.end = Number(BigInt(s.endTimeUnixNano) - traceStart);
+                    map[parentId] = map[parentId] || [];
+                    map[parentId].push(s);
+                    return map;
+                }, {});
+            })
+        }
+        const vSpec = {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "description": "A simple bar chart with ranged data (aka Gantt Chart).",
+            "data": {
+                "values": [
+                    {"task": "A", "start": 1, "end": 3},
+                    {"task": "B", "start": 3, "end": 8},
+                    {"task": "C", "start": 8, "end": 10}
+                ]
+            },
+            "mark": "bar",
+            "encoding": {
+                "y": {"field": "task", "type": "ordinal"},
+                "x": {"field": "start", "type": "quantitative"},
+                "x2": {"field": "end"}
+            }
+        };
+        // Embed the visualization in the container with id `vis`
+        vegaEmbed('#vega', vSpec);
     </script>
 </html>
