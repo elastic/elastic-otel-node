@@ -30,6 +30,7 @@
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0"
   },
   "main": "lib/index.js",
+  "types": "lib/types.d.ts",
   "dependencies": {
     "@opentelemetry/instrumentation-http": "^0.45.1",
     "@opentelemetry/resources": "^1.18.1",
