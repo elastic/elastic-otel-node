@@ -32,17 +32,17 @@
     <!-- helper scripts -->
     <script>
         // formats the data for plotting
-        const toChartData = (map, node) => {
+        const toChartData = (map, node, level = 0) => {
             const { spanId, start, end } = node;
             const name = `(${spanId.substring(0,6)}) ${node.name}`;
             const children = map[node.spanId];
 
             if (!children) {
-                return [{ name, spanId, start, end }];
+                return [{ name, spanId, start, end, level }];
             }
 
-            const childrenData = children.map((n) => toChartData(map, n));
-            return [{ name, spanId, start, end }, childrenData].flat(2);
+            const childrenData = children.map((n) => toChartData(map, n, level + 1));
+            return [{ name, spanId, start, end, level }, childrenData].flat(2);
         }
     </script>
 
@@ -84,6 +84,7 @@
                 
                 return toChartData(spanMap, traceSpan);
             }).then((data) => {
+
                 const vSpec = {
                     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
                     "description": "A simple bar chart with ranged data (aka Gantt Chart).",
@@ -103,6 +104,25 @@
                                     "sort": "none",
                                     "axis": { "labels": false }
                                 },
+                                "color": {
+                                    "legend": null,
+                                    "field": "level",
+                                    "scale": {
+                                        // Color per level (may be edited)
+                                        "range": [
+                                            "#444fe9",
+                                            "#35992e",
+                                            "#181518",
+                                            "#9ff570",
+                                            "#144169",
+                                            "#2141c5",
+                                            "#8e052a",
+                                            "#2c6ef0",
+                                            "#511853",
+                                            "#95a095"
+                                        ]
+                                    }
+                                } 
                             }
                         },
                         {
