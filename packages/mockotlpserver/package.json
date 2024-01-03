@@ -39,7 +39,6 @@
     "@grpc/grpc-js": "^1.9.13",
     "@grpc/proto-loader": "^0.7.10",
     "dashdash": "^2.0.0",
-    "http-server": "^14.1.1",
     "long": "^5.2.3",
     "protobufjs": "^7.2.5",
     "safe-stable-stringify": "^2.4.3"
@@ -49,7 +48,6 @@
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.46.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.46.0",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.46.0",
-    "@opentelemetry/sdk-node": "^0.46.0",
-    "@types/http-server": "^0.12.4"
+    "@opentelemetry/sdk-node": "^0.46.0"
   }
 }

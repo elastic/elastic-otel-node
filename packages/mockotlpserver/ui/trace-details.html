@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+    <head>
+        <!-- https://bulma.io/ -->
+        <link rel="stylesheet" href="./css/bulma.min.css">
+        <link rel="stylesheet" href="./css/style.css">
+        
+        <!-- https://vega.github.io/vega-lite/ -->
+        <script src="./js/vega@5.25.0.min.js"></script>
+        <script src="./js/vega-lite@5.16.3.min.js"></script>
+        <script src="./js/vega-embed@6.22.2.min.js"></script>
+
+        <title>Mock OLTP Server UI</title>
+    </head>
+    <body>
+        <nav class="level">
+            <p class="level-item has-text-centered">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" class="" role="img" aria-hidden="true">
+                    <path fill="#F04E98" d="M10 32H7.238C3.793 32 1 28.865 1 24.998V15h9v17Z"></path>
+                    <path d="M10 32h9V8h-9z"></path>
+                    <path fill="#07C" d="M31 32h-9V0l1.973.024C27.866.072 31 3.731 31 8.228V32Z"></path>
+                </svg>
+            </p>
+        </nav>
+
+        <h1 class="title">Trace Details</h1>
+        <h1 class="subtitle"></h1>
+        <div style="width: 100%;" id="vega"></div>
+    </body>
+
+
+    <!-- helper scripts -->
+    <script>
+        // formats the data for plotting
+        const toChartData = (map, node, level = 0) => {
+            const { spanId, start, end } = node;
+            const name = `(${spanId.substring(0,6)}) ${node.name}`;
+            const children = map[node.spanId];
+
+            if (!children) {
+                return [{ name, spanId, start, end, level }];
+            }
+
+            const childrenData = children.map((n) => toChartData(map, n, level + 1));
+            return [{ name, spanId, start, end, level }, childrenData].flat(2);
+        }
+    </script>
+
+    <!-- main line -->
+    <script>
+        const searchParams = new URLSearchParams(location.search);
+        const traceId = searchParams.get('traceId')
+        const values = [];
+
+        // https://vega.github.io/editor/#/edited
+        if (traceId) {
+            // Fetch and fill the table
+            fetch(`/api/traces/${traceId}`)
+            .then((res) => res.text())
+            .then((ndjson) => {
+                return ndjson.split('\n').filter(l => l).map(JSON.parse);
+            }).then((spans) => {
+                // Construct the data
+                const sorted = spans.sort((a, b) => {
+                    return a.startTimeUnixNano < b.startTimeUnixNano ? -1 : 1;
+                });
+                const spanMap = sorted.reduce((map, s, i, arr) => {
+                    const traceStart = BigInt(arr[0].startTimeUnixNano);
+                    const parentId = s.parentSpanId || traceId;
+
+                    s.start = Number(BigInt(s.startTimeUnixNano) - traceStart);
+                    s.end = Number(BigInt(s.endTimeUnixNano) - traceStart);
+                    map[parentId] = map[parentId] || [];
+                    map[parentId].push(s);
+                    return map;
+                }, {});
+
+                const traceSpan = {
+                    name: 'trace',
+                    spanId: traceId,
+                    start: Math.min(...spanMap[traceId].map(s => s.start)),
+                    end: Math.max(...spanMap[traceId].map(s => s.end)),
+                };
+                
+                return toChartData(spanMap, traceSpan);
+            }).then((data) => {
+
+                const vSpec = {
+                    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                    "description": "A simple char to represent traces.",
+                    "width": "container",
+                    "data": {
+                        "values": data
+                    },
+                    "layer": [
+                        {
+                            "mark": "bar",
+                            "encoding": {
+                                "x": { "field": "start", "type": "quantitative" },
+                                "x2": { "field": "end" },
+                                "y": {
+                                    "field": "name",
+                                    "type": "nominal",
+                                    "sort": "none",
+                                    "axis": { "labels": false }
+                                },
+                                "color": {
+                                    "legend": null,
+                                    "field": "level",
+                                    "scale": {
+                                        // Color per level (may be edited)
+                                        "range": [
+                                            "#444fe9",
+                                            "#35992e",
+                                            "#181518",
+                                            "#9ff570",
+                                            "#144169",
+                                            "#2141c5",
+                                            "#8e052a",
+                                            "#2c6ef0",
+                                            "#511853",
+                                            "#95a095"
+                                        ]
+                                    }
+                                } 
+                            }
+                        },
+                        {
+                            "mark": {"type": "text", "opacity": 0.9, "color": "white", "dx": 40},
+                            "encoding": {
+                                "x": { "field": "start", "type": "quantitative" },
+                                "y": {
+                                    "field": "name",
+                                    "type": "nominal",
+                                    "sort": "none",
+                                    "axis": { "labels": false }
+                                },
+                                "text": { "field": "name" }
+                            }
+                        }
+                    ]
+                };
+                // Embed the visualization in the container with id `vis`
+                vegaEmbed('#vega', vSpec);
+            })
+        }
+    </script>
+</html>

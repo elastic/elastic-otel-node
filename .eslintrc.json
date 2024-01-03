@@ -84,6 +84,7 @@
   "ignorePatterns": [
     "/.nyc_output",
     "node_modules",
-    "tmp"
+    "tmp",
+    "*.min.js"
   ]
 }

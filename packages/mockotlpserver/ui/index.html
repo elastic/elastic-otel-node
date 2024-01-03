@@ -1,9 +1,73 @@
 <!doctype html>
 <html>
     <head>
+        <!-- https://bulma.io/ -->
+        <link rel="stylesheet" href="./css/bulma.min.css">
+        <link rel="stylesheet" href="./css/style.css">
         <title>Mock OLTP Server UI</title>
     </head>
     <body>
-        Hello world
+        <nav class="level">
+            <p class="level-item has-text-centered">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" class="" role="img" aria-hidden="true">
+                    <path fill="#F04E98" d="M10 32H7.238C3.793 32 1 28.865 1 24.998V15h9v17Z"></path>
+                    <path d="M10 32h9V8h-9z"></path>
+                    <path fill="#07C" d="M31 32h-9V0l1.973.024C27.866.072 31 3.731 31 8.228V32Z"></path>
+                </svg>
+            </p>
+        </nav>
+
+        <h1 class="title">Traces</h1>
+        <div class="box">
+            <table class="table" style="width: 100%;">
+                <thead>
+                    <th>Trace id</th>
+                    <th>Actions</th>
+                </thead>
+                <tbody id="traces-list">
+                </tbody>
+        </div>
     </body>
+
+
+    <!-- helper scripts -->
+    <script>
+        // just a small string interpolation
+        function interpolate (tpl, obj) {
+            let res = tpl;
+            for (const [key, val] of Object.entries(obj)) {
+                res = res.split(`{{${key}}}`).join(val);
+            }
+            return res;
+        }
+    </script>
+
+    <!-- this is  not rendered and serves as a template for other scripts -->
+    <script id="row-template" type="text/x-template">
+        <tr>
+            <td class="is-vcentered">{{traceId}}</td>
+            <td class="is-vcentered">
+                <a class="button" href="/trace-details.html?traceId={{traceId}}">
+                    View
+                </a>
+            </td>
+        </tr>
+    </script>
+
+    <!-- main line -->
+    <script>
+        const tableBody = document.getElementById('traces-list')
+        const rowTemplate = document.getElementById('row-template').innerHTML;
+
+        // Fetch and fill the table
+        fetch('/api/traces')
+            .then((res) => res.json())
+            .then((traces) => {
+                for (const trace of traces) {
+                    const traceId = trace.replace(/^trace\-|\.ndjson/g, '');
+                    const rowHtml = interpolate(rowTemplate, { traceId });
+                    tableBody.insertAdjacentHTML('beforeend', rowHtml);
+                }
+            });
+    </script>
 </html>
