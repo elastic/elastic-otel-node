@@ -2,18 +2,14 @@
 <html>
     <head>
         <!-- https://bulma.io/ -->
-        <link rel="stylesheet" href="./bulma.min.css">
-        <!-- https://d3js.org/ -->
-        <script src="d3.v7.min.js"></script>
-        <script src="d3.icicle.js"></script>
-        <script src="d3.trace.js"></script>
-
-        <script src="https://cdn.jsdelivr.net/npm/vega@5.25.0"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.16.3"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.22.2"></script>
-
+        <link rel="stylesheet" href="./css/bulma.min.css">
+        <link rel="stylesheet" href="./css/style.css">
         
-        <link rel="stylesheet" href="./style.css">
+        <!-- https://vega.github.io/vega-lite/ -->
+        <script src="./js/vega@5.25.0.js"></script>
+        <script src="./js/vega-lite@5.16.3.js"></script>
+        <script src="./js/vega-embed@6.22.2.js"></script>
+
         <title>Mock OLTP Server UI</title>
     </head>
     <body>
@@ -29,88 +25,32 @@
 
         <h1 class="title">Trace Details</h1>
         <h1 class="subtitle"></h1>
-        <div id="icicle-chart" class="box" style="display: none;"></div>
-        <div id="trace-chart" class="box" style="display: none;"></div>
-        <div id="vega"></div>
+        <div style="width: 100%;" id="vega"></div>
     </body>
 
 
     <!-- helper scripts -->
     <script>
         // formats the data for plotting
-        function buildTree(spanMap, node) {
-            const childSpans = spanMap[node.id];
-            
-            if (childSpans) {
-                node.children = childSpans.map((s) => ({
-                    id: s.spanId,
-                    name: s.name,
-                    start: BigInt(s.startTimeUnixNano),
-                    end: BigInt(s.endTimeUnixNano),
-                    duration: Number(BigInt(s.endTimeUnixNano) - BigInt(s.startTimeUnixNano)),
-                }));
-                node.children.forEach((c) => buildTree(spanMap, c));
+        const toChartData = (map, node) => {
+            const { spanId, start, end } = node;
+            const name = `(${spanId.substring(0,6)}) ${node.name}`;
+            const children = map[node.spanId];
+
+            if (!children) {
+                return [{ name, spanId, start, end }];
             }
 
-            return node;
+            const childrenData = children.map((n) => toChartData(map, n));
+            return [{ name, spanId, start, end }, childrenData].flat(2);
         }
     </script>
 
     <!-- main line -->
-    <!--script>
-        const searchParams = new URLSearchParams(location.search);
-        const traceId = searchParams.get('traceId')
-
-        if (traceId) {
-            // Fetch and fill the table
-        fetch(`/api/traces/${traceId}`)
-            .then((res) => res.text())
-            .then((ndjson) => {
-                // TODO: we need better parsing for big num
-                return ndjson.split('\n').filter(l => l).map(JSON.parse);
-            })
-            .then((spans) => {
-                const spanMap = spans.sort((a, b) => {
-                    return a.startTimeUnixNano < b.startTimeUnixNano ? -1 : 1;
-                }).reduce((map, s) => {
-                    const parentId = s.parentSpanId || traceId;
-                    map[parentId] = map[parentId] || [];
-                    map[parentId].push(s);
-                    return map;
-                }, {});
-
-                const data = buildTree(spanMap, { id: traceId, name: 'trace' });
-                const svg = Icicle(data,{
-                    value: d => d.duration, // size of each node (span)
-                    label: d => d.name, // display name for each cell
-                    title: (d, n) => `${n.ancestors().reverse().map(d => d.data.name).join(".")}\n${n.value.toLocaleString("en")}us`, // hover text
-                    width: 960,
-                    height: 840
-                });
-                document.getElementById('icicle-chart').appendChild(svg);
-
-                const svg2 = Trace(data, {
-                    value: d => d.duration, // size of each node (span)
-                    label: d => d.name, // display name for each cell
-                    width: 960,
-                    height: 840
-                });
-                document.getElementById('trace-chart').appendChild(svg2);
-            });
-        }
-    </script-->
-
     <script>
         const searchParams = new URLSearchParams(location.search);
         const traceId = searchParams.get('traceId')
         const values = [];
-
-        const pushSpan = (map, node) => {
-            const childs = map[node.spanId];
-            if (childs) {
-
-            }
-        }
 
         // https://vega.github.io/editor/#/edited
         if (traceId) {
@@ -134,26 +74,55 @@
                     map[parentId].push(s);
                     return map;
                 }, {});
+
+                const traceSpan = {
+                    name: 'trace',
+                    spanId: traceId,
+                    start: Math.min(...spanMap[traceId].map(s => s.start)),
+                    end: Math.max(...spanMap[traceId].map(s => s.end)),
+                };
+                
+                return toChartData(spanMap, traceSpan);
+            }).then((data) => {
+                const vSpec = {
+                    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+                    "description": "A simple bar chart with ranged data (aka Gantt Chart).",
+                    "width": "container",
+                    "data": {
+                        "values": data
+                    },
+                    "layer": [
+                        {
+                            "mark": "bar",
+                            "encoding": {
+                                "x": { "field": "start", "type": "quantitative" },
+                                "x2": { "field": "end" },
+                                "y": {
+                                    "field": "name",
+                                    "type": "nominal",
+                                    "sort": "none",
+                                    "axis": { "labels": false }
+                                },
+                            }
+                        },
+                        {
+                            "mark": {"type": "text", "opacity": 0.9, "color": "white", "dx": 40},
+                            "encoding": {
+                                "x": { "field": "start", "type": "quantitative" },
+                                "y": {
+                                    "field": "name",
+                                    "type": "nominal",
+                                    "sort": "none",
+                                    "axis": { "labels": false }
+                                },
+                                "text": { "field": "name" }
+                            }
+                        }
+                    ]
+                };
+                // Embed the visualization in the container with id `vis`
+                vegaEmbed('#vega', vSpec);
             })
         }
-        const vSpec = {
-            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-            "description": "A simple bar chart with ranged data (aka Gantt Chart).",
-            "data": {
-                "values": [
-                    {"task": "A", "start": 1, "end": 3},
-                    {"task": "B", "start": 3, "end": 8},
-                    {"task": "C", "start": 8, "end": 10}
-                ]
-            },
-            "mark": "bar",
-            "encoding": {
-                "y": {"field": "task", "type": "ordinal"},
-                "x": {"field": "start", "type": "quantitative"},
-                "x2": {"field": "end"}
-            }
-        };
-        // Embed the visualization in the container with id `vis`
-        vegaEmbed('#vega', vSpec);
     </script>
 </html>
