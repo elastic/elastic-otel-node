@@ -1,4 +1,4 @@
-const {NodeSDK, tracing, api} = require('@opentelemetry/sdk-node');
+const {NodeSDK, api} = require('@opentelemetry/sdk-node');
 const {
     envDetectorSync,
     hostDetectorSync,
@@ -34,7 +34,15 @@ class ElasticNodeSDK {
     constructor() {
         this._setupLogger();
 
+        if (!('OTEL_TRACES_EXPORTER' in process.env)) {
+            // Ensure this envvar is set to avoid a diag.warn() in NodeSDK.
+            process.env.OTEL_TRACES_EXPORTER = 'otlp';
+        }
+
         // TODO accept serviceName, detect service name
+
+        // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
+        //   `spanProcessor` nor `traceExporter` are passed in.
         this._otelSdk = new NodeSDK({
             serviceName: 'unknown-node-service',
             resourceDetectors: [
@@ -44,10 +52,6 @@ class ElasticNodeSDK {
                 hostDetectorSync,
                 // TODO cloud/container detectors by default
             ],
-            // TODO real span exporter, debug exporter support (better than ConsoleSpanExporter)
-            spanProcessor: new tracing.SimpleSpanProcessor(
-                new tracing.ConsoleSpanExporter()
-            ),
             // TODO metrics
             // TODO log exporter? Optionally. Compare to apm-agent-java opts.
             // logRecordProcessor: new logs.SimpleLogRecordProcessor(new logs.ConsoleLogRecordExporter()),
@@ -86,6 +90,7 @@ class ElasticNodeSDK {
         }
 
         const log = luggite.createLogger({name: 'elastic-otel-node', level});
+        // TODO: when luggite supports .child, add a module/component attr for diag log output
         api.diag.setLogger(
             {
                 error: log.error.bind(log),
