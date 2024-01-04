@@ -7,7 +7,8 @@
   "private": true,
   "scripts": {
     "lint": "npm run --if-present --workspaces lint",
-    "lint:fix": "npm run --if-present --workspaces lint:fix"
+    "lint:fix": "npm run --if-present --workspaces lint:fix",
+    "maint:update-otel-deps": "node scripts/update-otel-deps.js"
   },
   "dependencies": {
     "@elastic/opentelemetry-node": "file:./packages/opentelemetry-node"
@@ -20,6 +21,7 @@
     "eslint-plugin-n": "^16.3.1",
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.1.1",
+    "glob": "^10.3.10",
     "typescript": "^4.4.4"
   }
 }
