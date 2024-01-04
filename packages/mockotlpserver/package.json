@@ -31,8 +31,8 @@
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "start": "node lib/mockotlpserver.js",
     "watch": "node --watch lib/mockotlpserver.js",
-    "example": "cd examples && node -r ./telemetry.js simple-http-request.js",
-    "example3": "cd examples && for flav in http/proto http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r ./telemetry.js simple-http-request.js; done"
+    "example": "cd ../../examples && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
+    "example3": "cd ../../examples && for flav in http/proto http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry/start.js simple-http-request.js; done"
   },
   "main": "lib/mockotlpserver.js",
   "dependencies": {
