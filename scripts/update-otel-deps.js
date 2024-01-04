@@ -8,19 +8,17 @@
  */
 
 const path = require('path');
-const {execSync, execFileSync, spawnSync} = require('child_process');
+const {execFileSync, spawnSync} = require('child_process');
 const {globSync} = require('glob');
 
 const pj = require(path.resolve(__dirname, '../package.json'));
 
 function updateOTelDeps(workspace) {
-    console.log('XXX -- workspace: ', workspace);
     const p = spawnSync('npm', ['outdated', '--json'], {
         cwd: workspace,
         encoding: 'utf8',
     });
     const outdated = JSON.parse(p.stdout);
-    console.log('XXX outdated for workspace: ', workspace, outdated);
 
     const npmArgs = [];
     Object.keys(outdated).forEach((pkgName) => {
@@ -29,7 +27,6 @@ function updateOTelDeps(workspace) {
         }
         npmArgs.push(`${pkgName}@${outdated[pkgName].latest}`);
     });
-    console.log('XXX npmArgs: ', npmArgs);
     if (npmArgs.length > 0) {
         console.log(`cd ${workspace} && npm install ${npmArgs.join(' ')}`);
         npmArgs.unshift('install');
