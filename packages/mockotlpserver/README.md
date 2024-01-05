@@ -14,11 +14,11 @@ this repo.)
     npm ci
     cd packages/mockotlpserver
 
-# Usage
+# CLI Usage
 
-The use the mock server, (a) start the server then (b) send OTLP data to it.
+To use the mock server, (a) start the server then (b) send OTLP data to it.
 
-    node lib/mockotlpserver.js
+    npm start  # or 'node lib/cli.js'
 
 By default it will output received OTLP data using Node.js's `inspect`
 format (used under the hood for `console.log`). This shows the complete
@@ -173,6 +173,8 @@ ExportTraceServiceRequest {
 
 </details>
 
+It will also dump a trace waterfall text representation of received tracing data.
+
 
 ## Different OTLP protocols
 
@@ -234,3 +236,9 @@ node lib/mockotlpserver.js -o inspect,waterfall
 
 The leading gutter shows the start time offset from the preceding span.
 `` `- `` markers show parent/child relationships.
+
+
+# Module usage
+
+TODO: details coming
+
