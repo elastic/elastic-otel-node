@@ -9,6 +9,7 @@ const {
     // CH_OTLP_V1_METRICS,
     // CH_OTLP_V1_LOGS,
 } = require('./diagch');
+const {Service} = require('./service');
 
 // TODO: for now `proto` files are copied from
 // https://github.com/open-telemetry/opentelemetry-proto
@@ -63,31 +64,55 @@ function intakeTraces(call, callback) {
 //   // TODO: check proto
 // }
 
-/**
- *
- * @param {Object} opts
- * @param {import('./luggite').Logger} opts.log
- * @param {string} opts.hostname
- * @param {number} opts.port
- */
-function startGrpc(opts) {
-    const {log, hostname, port} = opts;
-    const grpcServer = new grpc.Server();
+class GrpcService extends Service {
+    /**
+     * @param {Object} opts
+     * @param {string} opts.hostname
+     * @param {number} opts.port
+     */
+    constructor(opts) {
+        super();
+        this._opts = opts;
+        this._grpcServer = null;
+        this._port = null;
+    }
 
-    grpcServer.addService(packages.trace.TraceService.service, {
-        Export: intakeTraces,
-    });
+    async start() {
+        const {hostname, port} = this._opts;
 
-    grpcServer.bindAsync(
-        `${hostname}:${port}`,
-        grpc.ServerCredentials.createInsecure(),
-        () => {
-            log.info(`OTLP/gRPC listening at http://${hostname}:${port}`);
-            grpcServer.start();
+        this._grpcServer = new grpc.Server();
+        this._grpcServer.addService(packages.trace.TraceService.service, {
+            Export: intakeTraces,
+        });
+
+        return new Promise((resolve, reject) => {
+            this._grpcServer.bindAsync(
+                `${hostname}:${port}`,
+                grpc.ServerCredentials.createInsecure(),
+                (err, boundPort) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        this._port = boundPort;
+                        this._grpcServer.start();
+                        resolve();
+                    }
+                }
+            );
+        });
+    }
+
+    get url() {
+        return new URL(`http://${this._opts.hostname}:${this._port}`);
+    }
+
+    async close() {
+        if (this._grpcServer) {
+            this._grpcServer.forceShutdown();
         }
-    );
+    }
 }
 
 module.exports = {
-    startGrpc,
+    GrpcService,
 };

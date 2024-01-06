@@ -1,10 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const {promisify} = require('util');
 
 const Long = require('long');
 
 const {Printer} = require('./printers');
+const {Service} = require('./service');
 
 // helper functions
 
@@ -121,84 +123,107 @@ const mimeLookup = {
     '.png': 'image/x-png',
 };
 
-/**
- *
- * @param {Object} opts
- * @param {import('./luggite').Logger} opts.log
- * @param {string} opts.hostname
- * @param {number} opts.port
- */
-function startUi(opts) {
-    const {log, hostname, port} = opts;
-    const assetsPath = path.resolve(__dirname, '../ui');
-    const dataPath = path.resolve(__dirname, '../db');
-    const server = http.createServer((req, res) => {
-        req.resume();
-        req.on('end', () => {
-            if (req.method === 'POST') {
-                return send400(res);
-            }
-            // API methods
-            if (req.url === '/api/traces') {
-                const traceFiles = fs.readdirSync(dataPath).filter((f) => {
-                    return f.startsWith('trace-');
-                });
+class UiService extends Service {
+    /**
+     * @param {Object} opts
+     * @param {import('./luggite').Logger} opts.log
+     * @param {string} opts.hostname
+     * @param {number} opts.port
+     */
+    constructor(opts) {
+        super();
+        this._opts = opts;
+        this._server = null;
+        this._printer = new UiPrinter(opts.log);
+    }
 
-                res.writeHead(200, {'Content-Type': 'application/json'});
-                res.end(JSON.stringify(traceFiles));
-                return;
-            } else if (req.url.startsWith('/api/traces/')) {
-                const traceId = req.url.replace('/api/traces/', '');
-                const tracePath = path.resolve(
-                    dataPath,
-                    `trace-${traceId}.ndjson`
-                );
+    async start() {
+        const {hostname, port} = this._opts;
+        const assetsPath = path.resolve(__dirname, '../ui');
+        const dataPath = path.resolve(__dirname, '../db');
+        this._server = http.createServer((req, res) => {
+            req.resume();
+            req.on('end', () => {
+                if (req.method === 'POST') {
+                    return send400(res);
+                }
+                // API methods
+                if (req.url === '/api/traces') {
+                    const traceFiles = fs.readdirSync(dataPath).filter((f) => {
+                        return f.startsWith('trace-');
+                    });
 
-                if (!fs.existsSync(tracePath)) {
-                    return send404(res);
+                    res.writeHead(200, {'Content-Type': 'application/json'});
+                    res.end(JSON.stringify(traceFiles));
+                    return;
+                } else if (req.url.startsWith('/api/traces/')) {
+                    const traceId = req.url.replace('/api/traces/', '');
+                    const tracePath = path.resolve(
+                        dataPath,
+                        `trace-${traceId}.ndjson`
+                    );
+
+                    if (!fs.existsSync(tracePath)) {
+                        return send404(res);
+                    }
+
+                    res.writeHead(200, {'Content-Type': 'text/plain'});
+                    fs.createReadStream(tracePath).pipe(res);
+                    return;
                 }
 
-                res.writeHead(200, {'Content-Type': 'text/plain'});
-                fs.createReadStream(tracePath).pipe(res);
-                return;
-            }
+                // fallback to serve static
+                // TODO: check for path traversal?
+                const url = new URL(req.url, `http://${hostname}:${port}`);
+                const urlPath = url.pathname;
 
-            // fallback to serve static
-            // TODO: check for path traversal?
-            const url = new URL(req.url, `http://${hostname}:${port}`);
-            const urlPath = url.pathname;
+                const fileUrl = urlPath === '/' ? '/index.html' : urlPath;
+                const filePath = assetsPath + fileUrl;
+                const fileExt = path.extname(filePath);
+                const mimeType = mimeLookup[fileExt];
 
-            const fileUrl = urlPath === '/' ? '/index.html' : urlPath;
-            const filePath = assetsPath + fileUrl;
-            const fileExt = path.extname(filePath);
-            const mimeType = mimeLookup[fileExt];
+                if (mimeType && fs.existsSync(filePath)) {
+                    res.writeHead(200, {'Content-Type': mimeType});
+                    fs.createReadStream(filePath).pipe(res);
+                    return;
+                }
 
-            if (mimeType && fs.existsSync(filePath)) {
-                res.writeHead(200, {'Content-Type': mimeType});
-                fs.createReadStream(filePath).pipe(res);
-                return;
-            }
-
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            fs.createReadStream(`${assetsPath}/404.html`).pipe(res);
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                fs.createReadStream(`${assetsPath}/404.html`).pipe(res);
+            });
         });
-    });
 
-    server.listen(port, hostname, function () {
-        /** @type {any} */
-        const addr = server.address();
-        const endpoint =
-            addr.family === 'IPv6'
+        this._printer.subscribe();
+
+        return new Promise((resolve, reject) => {
+            this._server.listen(port, hostname, () => {
+                resolve();
+            });
+            this._server.on('error', reject);
+        });
+    }
+
+    async close() {
+        if (this._server) {
+            await promisify(this._server.close)();
+        }
+    }
+
+    get url() {
+        const addr = this._server.address();
+        if (addr === null) {
+            return null;
+        } else if (typeof addr === 'string') {
+            return new URL(addr);
+        }
+        return new URL(
+            [6, 'IPv6'].includes(addr.family)
                 ? `http://[${addr.address}]:${addr.port}`
-                : `http://${addr.address}:${addr.port}`;
-        log.info(`UI listening at ${endpoint}`);
-    });
-
-    // Use specific printer for UI
-    const printer = new UiPrinter(log);
-    printer.subscribe();
+                : `http://${addr.address}:${addr.port}`
+        );
+    }
 }
 
 module.exports = {
-    startUi,
+    UiService,
 };
