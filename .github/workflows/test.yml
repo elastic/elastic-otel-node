@@ -1,0 +1,53 @@
+name: test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - '**/*.md'
+    - '**/*.asciidoc'
+    - 'docs/**'
+    - 'examples/**'
+  pull_request:
+    branches:
+    - main
+    paths-ignore:
+    - '**/*.md'
+    - '**/*.asciidoc'
+    - 'docs/**'
+    - 'examples/**'
+
+# Cancel jobs running for old commits on a PR. Allow concurrent runs on 'main'.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  test-vers:
+    # TODO: services eventually will go here
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '21'
+          - '21.0'
+          - '20'
+          - '20.0'
+          - '18.18.2' # Skip >=18.19.0 until IITM issues are resolved.
+          - '18.0'
+          - '16'
+          - '16.0'
+          - '14'
+          - '14.17' # TODO: is this our actual min? same as elastic-apm-node
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm ci
+    - run: npm test
+
+  # TODO: test-windows eventually

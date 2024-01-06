@@ -1,6 +1,6 @@
 # @elastic/mockotlpserver Changelog
 
-## Unreleased
+## v0.2.0
 
 - Added the ability to use the mock OTLP server as a module, so it can
   eventually be used in testing by other packages in this repo. The CLI
@@ -8,15 +8,19 @@
 
     ```js
     const {MockOtlpServer} = require('@elastic/mockotlpserver');
-    const otlpServer = new MockOtlpServer(/* ... */);
+    const otlpServer = new MockOtlpServer({
+        onTrace: (trace) => { /* ... */ },
+        // ... see code comment for other options.
+    });
     otlpServer.start();
+
     // ...
+
     otlpServer.close();
     ```
 
-    It isn't quite useable yet -- it needs some sugar to make receiving the
-    OTLP data easier (rather than needing to know the internal diagnostic
-    channel details).
+    The `onTrace` option can be used to collect TraceServiceRequest
+    data. Similar options exist for the other signals.
 
 ## v0.1.0
 
