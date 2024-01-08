@@ -1,0 +1,10 @@
+{
+  "name": "elastic-otel-node-examples",
+  "license": "Apache-2.0",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {},
+  "dependencies": {
+    "@elastic/opentelemetry-node": "*"
+  }
+}

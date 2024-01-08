@@ -1,0 +1,10 @@
+/*
+  The main styles are provided by the Bulma CSS lib. This one was picked since does not require
+  any kind of intergration or package instllation
+  https://bulma.io/
+
+  Below there is place for customized styles
+*/
+body {
+  padding: 16px;
+}

@@ -13,7 +13,7 @@ export interface Attribute {
 export interface Span {
     traceId: Buffer;
     spanId: Buffer;
-    parentSpanId: Buffer;
+    parentSpanId?: Buffer;
     name: string;
     kind: number;
     startTimeUnixNano: Long;

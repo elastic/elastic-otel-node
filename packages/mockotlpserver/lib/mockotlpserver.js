@@ -1,13 +1,7 @@
-const dashdash = require('dashdash');
-
 const luggite = require('./luggite');
-const {startHttp} = require('./http');
-const {startGrpc} = require('./grpc');
-const {startUi} = require('./ui');
-const {JSONPrinter, InspectPrinter} = require('./printers');
-const {TraceWaterfallPrinter} = require('./waterfall');
-
-const log = luggite.createLogger({name: 'mockotlpserver'});
+const {HttpService} = require('./http');
+const {GrpcService} = require('./grpc');
+const {UiService} = require('./ui');
 
 // Default hostname to 'localhost', because that is what `DEFAULT_COLLECTOR_URL`
 // uses in the OTel core exporter packages. Note that 'localhost' can by IPv6
@@ -17,114 +11,91 @@ const DEFAULT_HTTP_PORT = 4318;
 const DEFAULT_GRPC_PORT = 4317;
 const DEFAULT_UI_PORT = 8080;
 
-const PRINTER_NAMES = ['inspect', 'json', 'json2', 'waterfall'];
+class MockOtlpServer {
+    /**
+     * @param {object} [opts]
+     * @param {import('./luggite').Logger} [opts.log]
+     * @param {Array<string>} [opts.services] Zero or more of 'http', 'grpc',
+     *      and 'ui'. If not provided, then defaults to starting all services.
+     * @param {number} [opts.httpPort] Default 4318. Use 0 to select a free port.
+     * @param {number} [opts.grpcPort] Default 4317. Use 0 to select a free port.
+     * @param {number} [opts.uiPort] Default 8080. Use 0 to select a free port.
+     */
+    constructor(opts) {
+        opts = opts ?? {};
+        this._log = opts.log ?? luggite.createLogger({name: 'mockotlpserver'});
+        this._services = opts.services ?? ['http', 'grpc', 'ui'];
+        this._httpPort = opts.httpPort ?? DEFAULT_HTTP_PORT;
+        this._grpcPort = opts.grpcPort ?? DEFAULT_GRPC_PORT;
+        this._uiPort = opts.uiPort ?? DEFAULT_UI_PORT;
 
-// This adds a custom cli option type to dashdash, to support `-o json,waterfall`
-// options for specifying multiple printers (aka output modes).
-function parseCommaSepPrinters(option, optstr, arg) {
-    const printers = arg
-        .trim()
-        .split(/\s*,\s*/g)
-        .filter((part) => part);
-    const invalids = printers.filter((p) => !PRINTER_NAMES.includes(p));
-    if (invalids.length) {
-        throw new Error(
-            `error in "${optstr}": unknown printers: "${invalids.join(', ')}"`
-        );
-    }
-    return printers;
-}
-
-dashdash.addOptionType({
-    name: 'arrayOfPrinters',
-    takesArg: true,
-    helpArg: 'STRING',
-    parseArg: parseCommaSepPrinters,
-    array: true,
-    arrayFlatten: true,
-});
-
-const CMD = 'mockotlpserver';
-const OPTIONS = [
-    {
-        names: ['help', 'h'],
-        type: 'bool',
-        help: 'Print this help and exit.',
-    },
-    {
-        names: ['o'],
-        type: 'arrayOfPrinters',
-        help: `Formats for printing OTLP data. One or more of "${PRINTER_NAMES.join(
-            '", "'
-        )}".`,
-        default: ['inspect', 'waterfall'],
-    },
-];
-
-function main() {
-    const parser = dashdash.createParser({options: OPTIONS});
-    let opts;
-    try {
-        opts = parser.parse({options: OPTIONS});
-    } catch (err) {
-        log.error({err}, `${CMD}: command-line options error`);
-        process.exit(1);
-    }
-    if (opts.help) {
-        var help = parser.help({includeDefault: true}).trimRight();
-        console.log(
-            'Usage:\n' +
-                '    node lib/mockotlpserver.js [OPTIONS]\n' +
-                'Options:\n' +
-                help
-        );
-        process.exit(0);
+        this._httpServer = null;
+        this.httpUrl = null;
+        this._grpcServer = null;
+        this.grpcUrl = null;
+        this._uiServer = null;
+        this.uiUrl = null;
     }
 
-    // Start a server which accepts incoming OTLP/HTTP calls and publishes
-    // received request data to the `otlp.*` diagnostic channels.
-    // Handles `OTEL_EXPORTER_OTLP_PROTOCOL=http/proto` and
-    // `OTEL_EXPORTER_OTLP_PROTOCOL=http/json`.
-    startHttp({
-        log,
-        hostname: DEFAULT_HOSTNAME,
-        port: DEFAULT_HTTP_PORT,
-    });
+    async start() {
+        for (let service of this._services) {
+            switch (service) {
+                case 'http':
+                    // Start a server which accepts incoming OTLP/HTTP calls and publishes
+                    // received request data to the `otlp.*` diagnostic channels.
+                    // Handles `OTEL_EXPORTER_OTLP_PROTOCOL=http/proto` and
+                    // `OTEL_EXPORTER_OTLP_PROTOCOL=http/json`.
+                    this._httpService = new HttpService({
+                        log: this._log,
+                        hostname: DEFAULT_HOSTNAME,
+                        port: this._httpPort,
+                    });
+                    await this._httpService.start();
+                    this.httpUrl = this._httpService.url;
+                    this._log.info(`OTLP/HTTP listening at ${this.httpUrl}`);
+                    break;
 
-    // Start a server which accepts incoming OTLP/gRPC calls and publishes
-    // received request data to the `otlp.*` diagnostic channels.
-    // Handles `OTEL_EXPORTER_OTLP_PROTOCOL=grpc`.
-    // NOTE: to debug read this: https://github.com/grpc/grpc-node/blob/master/TROUBLESHOOTING.md
-    startGrpc({
-        log,
-        hostname: DEFAULT_HOSTNAME,
-        port: DEFAULT_GRPC_PORT,
-    });
+                case 'grpc':
+                    // Start a server which accepts incoming OTLP/gRPC calls and publishes
+                    // received request data to the `otlp.*` diagnostic channels.
+                    // Handles `OTEL_EXPORTER_OTLP_PROTOCOL=grpc`.
+                    // NOTE: to debug read this: https://github.com/grpc/grpc-node/blob/master/TROUBLESHOOTING.md
+                    this._grpcService = new GrpcService({
+                        hostname: DEFAULT_HOSTNAME,
+                        port: this._grpcPort,
+                    });
+                    await this._grpcService.start();
+                    this.grpcUrl = this._grpcService.url;
+                    this._log.info(`OTLP/HTTP listening at ${this.grpcUrl}`);
+                    break;
 
-    startUi({
-        log,
-        hostname: DEFAULT_HOSTNAME,
-        port: DEFAULT_UI_PORT,
-    });
-
-    const printers = [];
-    opts.o.forEach((printerName) => {
-        switch (printerName) {
-            case 'inspect':
-                printers.push(new InspectPrinter(log));
-                break;
-            case 'json':
-                printers.push(new JSONPrinter(log, 0));
-                break;
-            case 'json2':
-                printers.push(new JSONPrinter(log, 2));
-                break;
-            case 'waterfall':
-                printers.push(new TraceWaterfallPrinter(log));
-                break;
+                case 'ui':
+                    this._uiService = new UiService({
+                        log: this._log,
+                        hostname: DEFAULT_HOSTNAME,
+                        port: this._uiPort,
+                    });
+                    await this._uiService.start();
+                    this.uiUrl = this._uiService.url;
+                    this._log.info(`UI listening at ${this.uiUrl}`);
+                    break;
+            }
         }
-    });
-    printers.forEach((p) => p.subscribe());
+    }
+
+    async close() {
+        if (this._httpService) {
+            await this._httpService.close();
+        }
+        if (this._grpcService) {
+            await this._grpcService.close();
+        }
+        if (this._uiService) {
+            await this._uiService.close();
+        }
+    }
 }
 
-main();
+module.exports = {
+    MockOtlpServer,
+};
