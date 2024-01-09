@@ -118,8 +118,8 @@ const statusCodeEnumFromVal = {
 /**
  * JSON stringify an OTLP trace service request to one *possible* representation.
  *
- * Getting the same JSON representation, regardless of this OTLP flavour was
- * used for the request has some surprises.
+ * Getting the same JSON representation of an OTLP trace service request,
+ * regardless of which OTLP flavour was used, has some surprises.
  *
  * Notes:
  * - *OTLP/proto* requests return a `protobuf` object hierarchy (see
