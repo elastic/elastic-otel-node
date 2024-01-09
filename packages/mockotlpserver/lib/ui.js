@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
-const {promisify} = require('util');
 
 const Long = require('long');
 
@@ -205,7 +204,11 @@ class UiService extends Service {
 
     async close() {
         if (this._server) {
-            await promisify(this._server.close)();
+            return new Promise((resolve, reject) => {
+                this._server.close((err) => {
+                    err ? reject(err) : resolve();
+                });
+            });
         }
     }
 

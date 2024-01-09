@@ -2,6 +2,7 @@ const luggite = require('./luggite');
 const {HttpService} = require('./http');
 const {GrpcService} = require('./grpc');
 const {UiService} = require('./ui');
+const {Printer} = require('./printers');
 
 // Default hostname to 'localhost', because that is what `DEFAULT_COLLECTOR_URL`
 // uses in the OTel core exporter packages. Note that 'localhost' can by IPv6
@@ -11,23 +12,65 @@ const DEFAULT_HTTP_PORT = 4318;
 const DEFAULT_GRPC_PORT = 4317;
 const DEFAULT_UI_PORT = 8080;
 
+/**
+ * A "Printer" to pass on received data to `onTrace` et al callbacks given
+ * to MockOtlpServer.
+ */
+class CallbackPrinter extends Printer {
+    constructor(log, callbacks) {
+        super(log);
+        this._callbacks = callbacks;
+    }
+    printTrace(trace) {
+        if (this._callbacks.onTrace) {
+            this._callbacks.onTrace(trace);
+        }
+    }
+    printMetrics(metrics) {
+        if (this._callbacks.onMetrics) {
+            this._callbacks.onMetrics(metrics);
+        }
+    }
+    printLogs(logs) {
+        if (this._callbacks.onLogs) {
+            this._callbacks.onLogs(logs);
+        }
+    }
+}
+
 class MockOtlpServer {
     /**
      * @param {object} [opts]
      * @param {import('./luggite').Logger} [opts.log]
      * @param {Array<string>} [opts.services] Zero or more of 'http', 'grpc',
      *      and 'ui'. If not provided, then defaults to starting all services.
+     * @param {string} [opts.httpHostname] Default 'localhost'.
      * @param {number} [opts.httpPort] Default 4318. Use 0 to select a free port.
+     * @param {string} [opts.grpcHostname] Default 'localhost'.
      * @param {number} [opts.grpcPort] Default 4317. Use 0 to select a free port.
+     * @param {string} [opts.uiHostname] Default 'localhost'.
      * @param {number} [opts.uiPort] Default 8080. Use 0 to select a free port.
+     * @param {Function} [opts.onTrace] Called for each received trace service request.
+     * @param {Function} [opts.onMetrics] Called for each received metrics service request.
+     * @param {Function} [opts.onLogs] Called for each received logs service request.
      */
     constructor(opts) {
         opts = opts ?? {};
         this._log = opts.log ?? luggite.createLogger({name: 'mockotlpserver'});
         this._services = opts.services ?? ['http', 'grpc', 'ui'];
+        this._httpHostname = opts.httpHostname ?? DEFAULT_HOSTNAME;
         this._httpPort = opts.httpPort ?? DEFAULT_HTTP_PORT;
+        this._grpcHostname = opts.grpcHostname ?? DEFAULT_HOSTNAME;
         this._grpcPort = opts.grpcPort ?? DEFAULT_GRPC_PORT;
+        this._uiHostname = opts.uiHostname ?? DEFAULT_HOSTNAME;
         this._uiPort = opts.uiPort ?? DEFAULT_UI_PORT;
+
+        this._printer = new CallbackPrinter(this._log, {
+            onTrace: opts.onTrace,
+            onMetrics: opts.onMetrics,
+            onLogs: opts.onLogs,
+        });
+        this._printer.subscribe();
 
         this._httpServer = null;
         this.httpUrl = null;
@@ -47,7 +90,7 @@ class MockOtlpServer {
                     // `OTEL_EXPORTER_OTLP_PROTOCOL=http/json`.
                     this._httpService = new HttpService({
                         log: this._log,
-                        hostname: DEFAULT_HOSTNAME,
+                        hostname: this._httpHostname,
                         port: this._httpPort,
                     });
                     await this._httpService.start();
@@ -61,7 +104,7 @@ class MockOtlpServer {
                     // Handles `OTEL_EXPORTER_OTLP_PROTOCOL=grpc`.
                     // NOTE: to debug read this: https://github.com/grpc/grpc-node/blob/master/TROUBLESHOOTING.md
                     this._grpcService = new GrpcService({
-                        hostname: DEFAULT_HOSTNAME,
+                        hostname: this._grpcHostname,
                         port: this._grpcPort,
                     });
                     await this._grpcService.start();
@@ -72,7 +115,7 @@ class MockOtlpServer {
                 case 'ui':
                     this._uiService = new UiService({
                         log: this._log,
-                        hostname: DEFAULT_HOSTNAME,
+                        hostname: this._uiHostname,
                         port: this._uiPort,
                     });
                     await this._uiService.start();

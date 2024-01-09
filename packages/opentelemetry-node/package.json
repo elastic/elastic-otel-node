@@ -23,11 +23,12 @@
     "node": ">=14"
   },
   "scripts": {
-    "demo": "cd ../../examples && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
+    "example": "cd ../../examples && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
     "lint": "npm run lint:eslint && npm run lint:types",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc",
-    "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0"
+    "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
+    "test": "tape test/**/*.test.js"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -35,5 +36,11 @@
     "@opentelemetry/resources": "^1.19.0",
     "@opentelemetry/sdk-node": "^0.46.0",
     "safe-stable-stringify": "^2.4.3"
+  },
+  "devDependencies": {
+    "@elastic/mockotlpserver": "*",
+    "module-details-from-path": "^1.0.3",
+    "semver": "^7.5.4",
+    "tape": "^5.7.2"
   }
 }

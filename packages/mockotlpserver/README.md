@@ -240,5 +240,21 @@ The leading gutter shows the start time offset from the preceding span.
 
 # Module usage
 
-TODO: details coming
+The mock OTLP server can also be used in Node.js code (e.g. in a test suite).
+
+```js
+const {MockOtlpServer} = require('@elastic/mockotlpserver');
+const otlpServer = new MockOtlpServer({
+    onTrace: (trace) => { /* ... */ },
+    // ... see code comment for other options.
+});
+otlpServer.start();
+
+// Run code that sends telemetry via OTLP...
+
+otlpServer.close();
+```
+
+See `runTestFixtures()` in "../opentelemetry-node/test/testutils.js" for a
+more complete example.
 
