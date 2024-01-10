@@ -42,7 +42,7 @@ class MockOtlpServer {
     /**
      * @param {object} [opts]
      * @param {import('./luggite').Logger} [opts.log]
-     * @param {Array<string>} [opts.services] Zero or more of 'http', 'grpc',
+     * @param {Array<'http'|'grpc'|'ui'>} [opts.services] Zero or more of 'http', 'grpc',
      *      and 'ui'. If not provided, then defaults to starting all services.
      * @param {string} [opts.httpHostname] Default 'localhost'.
      * @param {number} [opts.httpPort] Default 4318. Use 0 to select a free port.

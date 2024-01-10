@@ -35,22 +35,6 @@ function _warn(msg, dedupKey) {
 }
 var _warned = {};
 
-// TODO: check if this class is necessary
-// - not exported
-// - not used here
-function ConsoleRawStream() {}
-ConsoleRawStream.prototype.write = function (rec) {
-    if (rec.level < INFO) {
-        console.log(rec);
-    } else if (rec.level < WARN) {
-        console.info(rec);
-    } else if (rec.level < ERROR) {
-        console.warn(rec);
-    } else {
-        console.error(rec);
-    }
-};
-
 //---- Levels
 
 var TRACE = 10;
@@ -123,7 +107,7 @@ class Logger {
     /**
      * @param {Object} opts
      * @param {string} [opts.name] Name for the logger
-     * @param {number} [opts.level] Log level to apply to this logger
+     * @param {number|string} [opts.level] Log level to apply to this logger
      * @param {Record<string, any>} [opts.fields]
      */
     constructor(opts) {
@@ -149,7 +133,7 @@ class Logger {
     /**
      * @param {Object} s
      * @param {string} [s.type]
-     * @param {number} [s.level]
+     * @param {number|string} [s.level]
      * @param {stream.Writable} [s.stream]
      * @param {number|string} [defaultLevel]
      */
@@ -230,7 +214,7 @@ class Logger {
      * Pre-condition: This is only called if there is at least one serializer.
      *
      * @param {Record<string, any>} fields The log record fields.
-     * @param {Record<string, true>} excludeFields Optional mapping of keys to `true` for
+     * @param {Record<string, boolean>} excludeFields Optional mapping of keys to `true` for
      *    keys to NOT apply a serializer.
      */
     _applySerializers(fields, excludeFields) {
@@ -293,8 +277,8 @@ class Logger {
  * Build a record object suitable for emitting from the arguments
  * provided to the a log emitter.
  *
- * @param {any} log
- * @param {any} minLevel
+ * @param {Logger} log
+ * @param {number} minLevel
  * @param {Array<any>} args
  * @returns {object}
  */
@@ -448,7 +432,7 @@ var errSerializer = function (err) {
 /**
  * @param {Object} options
  * @param {string} [options.name] Name for the logger
- * @param {number} [options.level] Log level to apply to this logger
+ * @param {number|string} [options.level] Log level to apply to this logger
  * @param {Record<string, any>} [options.fields]
  * @returns {Logger}
  */
@@ -456,19 +440,17 @@ function createLogger(options) {
     return new Logger(options);
 }
 
-module.exports = {
-    TRACE: TRACE,
-    DEBUG: DEBUG,
-    INFO: INFO,
-    WARN: WARN,
-    ERROR: ERROR,
-    FATAL: FATAL,
-    resolveLevel: resolveLevel,
-    levelFromName: levelFromName,
-    nameFromLevel: nameFromLevel,
-
-    createLogger: createLogger,
-    Logger, // exported only for types, should not be used directly, use `createLogger`
-};
-
-// vim: tabstop=4 shiftwidth=4 expandtab
+// NOTE: VSCode gets better resoluiton when exported individually
+// instead of using an exports object `module.exports = {...}`
+module.exports.TRACE = TRACE;
+module.exports.DEBUG = DEBUG;
+module.exports.INFO = INFO;
+module.exports.WARN = WARN;
+module.exports.ERROR = ERROR;
+module.exports.FATAL = FATAL;
+module.exports.levelFromName = levelFromName;
+module.exports.nameFromLevel = nameFromLevel;
+module.exports.resolveLevel = resolveLevel;
+module.exports.createLogger = createLogger;
+// Logger class is exported only for types, should not be used directly, use `createLogger`
+module.exports.Logger = Logger;

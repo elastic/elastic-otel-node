@@ -15,6 +15,8 @@ const luggite = require('./luggite');
  * Dev Note: `OTEL_LOG_LEVEL`s are not standardized.
  * https://github.com/open-telemetry/opentelemetry-specification/issues/920
  * https://github.com/open-telemetry/opentelemetry-specification/issues/2039
+ * @param {string} otelLogLevel
+ * @returns {string}
  */
 function luggiteLevelFromOtelLogLevel(otelLogLevel) {
     const luggiteLevel =
@@ -73,9 +75,12 @@ class ElasticNodeSDK {
     /**
      * Setup a `this._log` using the level from OTEL_LOG_LEVEL, default 'info'.
      * Also set this logger to handle `api.diag.*()` log methods.
+     * @private
      */
     _setupLogger() {
+        /** @type {string} */
         let level;
+        /** @type {string} */
         let diagLevel;
         if (process.env.OTEL_LOG_LEVEL) {
             const otelLogLevel = process.env.OTEL_LOG_LEVEL.toUpperCase();
