@@ -18,9 +18,10 @@
     "prewatch": "npm run precompile",
     "prepublishOnly": "npm run compile",
     "tdd": "npm run test -- --watch-extensions ts --watch",
+    "pretest": "npm run version:update",
     "test": "nyc ts-mocha -p tsconfig.json test/**/*.test.ts",
     "version:update_original": "node ../../scripts/version-update.js",
-    "version:update": "echo \"export const VERSION = $(cat package.json | jq .version)\" > ./src/version.ts",
+    "version:update": "echo \"export const VERSION = '$(cat package.json | jq -r .version)';\" > ./src/version.ts && eslint ./src/version.ts --fix",
     "watch": "tsc -w"
   },
   "keywords": [
