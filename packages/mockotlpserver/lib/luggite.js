@@ -438,19 +438,14 @@ function createLogger(options) {
     return new Logger(options);
 }
 
-module.exports = {
-    TRACE: TRACE,
-    DEBUG: DEBUG,
-    INFO: INFO,
-    WARN: WARN,
-    ERROR: ERROR,
-    FATAL: FATAL,
-    resolveLevel: resolveLevel,
-    levelFromName: levelFromName,
-    nameFromLevel: nameFromLevel,
-
-    createLogger: createLogger,
-    Logger, // exported only for types, should not be used directly, use `createLogger`
-};
-
-// vim: tabstop=4 shiftwidth=4 expandtab
+module.exports.TRACE = TRACE;
+module.exports.DEBUG = DEBUG;
+module.exports.INFO = INFO;
+module.exports.WARN = WARN;
+module.exports.ERROR = ERROR;
+module.exports.FATAL = FATAL;
+module.exports.resolveLevel = resolveLevel;
+module.exports.levelFromName = levelFromName;
+module.exports.nameFromLevel = nameFromLevel;
+module.exports.createLogger = createLogger;
+module.exports.Logger = Logger; // exported only for types, should not be used directly, use `createLogger`
