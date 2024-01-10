@@ -1,6 +1,14 @@
+# Sytem
+.DS_Store
+
+# Node
 node_modules
 npm-debug.log*
+
+# Artifacts from build & test
+.nyc_output
 build
-.DS_Store
 tmp
+
+# Special cases
 /packages/mockotlpserver/db
