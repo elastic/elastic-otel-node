@@ -15,6 +15,7 @@
   "dependencies": {
     "@elastic/opentelemetry-node": "file:./packages/opentelemetry-node"
   },
+  "// otel devDependencies": "Placed bleow typescript dependency",
   "devDependencies": {
     "@types/node": "^20.10.5",
     "eslint": "^8.55.0",
@@ -24,6 +25,12 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "glob": "^10.3.10",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+
+    "@typescript-eslint/eslint-plugin": "5.8.1",
+    "@typescript-eslint/parser": "5.8.1",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-plugin-header": "3.1.1",
+    "eslint-plugin-node": "11.1.0"
   }
 }
