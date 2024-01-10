@@ -15,44 +15,44 @@
  */
 
 export enum METRIC_NAMES {
-  CPU_TIME = 'system.cpu.time',
-  CPU_UTILIZATION = 'system.cpu.utilization',
-  MEMORY_USAGE = 'system.memory.usage',
-  MEMORY_UTILIZATION = 'system.memory.utilization',
-  NETWORK_DROPPED = 'system.network.dropped',
-  NETWORK_ERRORS = 'system.network.errors',
-  NETWORK_IO = 'system.network.io',
-  PROCESS_CPU_TIME = 'process.cpu.time',
-  PROCESS_CPU_UTILIZATION = 'process.cpu.utilization',
-  PROCESS_MEMORY_USAGE = 'process.memory.usage',
+    CPU_TIME = 'system.cpu.time',
+    CPU_UTILIZATION = 'system.cpu.utilization',
+    MEMORY_USAGE = 'system.memory.usage',
+    MEMORY_UTILIZATION = 'system.memory.utilization',
+    NETWORK_DROPPED = 'system.network.dropped',
+    NETWORK_ERRORS = 'system.network.errors',
+    NETWORK_IO = 'system.network.io',
+    PROCESS_CPU_TIME = 'process.cpu.time',
+    PROCESS_CPU_UTILIZATION = 'process.cpu.utilization',
+    PROCESS_MEMORY_USAGE = 'process.memory.usage',
 }
 
 export enum ATTRIBUTE_NAMES {
-  SYSTEM_CPU_LOGICAL_NUMBER = 'system.cpu.logical_number',
-  SYSTEM_CPU_STATE = 'system.cpu.state',
-  SYSTEM_MEMORY_STATE = 'system.memory.state',
-  SYSTEM_DEVICE = 'system.device',
-  SYSTEM_NETWORK_DIRECTION = 'system.network.direction',
-  SYSTEM_NETWORK_STATE = 'system.network.state',
-  // TODO: change value if semconv changes
-  // https://github.com/open-telemetry/opentelemetry-specification/issues/3776
-  PROCESS_CPU_STATE = 'state',
+    SYSTEM_CPU_LOGICAL_NUMBER = 'system.cpu.logical_number',
+    SYSTEM_CPU_STATE = 'system.cpu.state',
+    SYSTEM_MEMORY_STATE = 'system.memory.state',
+    SYSTEM_DEVICE = 'system.device',
+    SYSTEM_NETWORK_DIRECTION = 'system.network.direction',
+    SYSTEM_NETWORK_STATE = 'system.network.state',
+    // TODO: change value if semconv changes
+    // https://github.com/open-telemetry/opentelemetry-specification/issues/3776
+    PROCESS_CPU_STATE = 'state',
 }
 
 export enum CPU_LABELS {
-  USER = 'user',
-  SYSTEM = 'system',
-  IDLE = 'idle',
-  INTERRUPT = 'interrupt',
-  NICE = 'nice',
+    USER = 'user',
+    SYSTEM = 'system',
+    IDLE = 'idle',
+    INTERRUPT = 'interrupt',
+    NICE = 'nice',
 }
 
 export enum NETWORK_LABELS {
-  RECEIVE = 'receive',
-  TRANSMIT = 'transmit',
+    RECEIVE = 'receive',
+    TRANSMIT = 'transmit',
 }
 
 export enum MEMORY_LABELS {
-  FREE = 'free',
-  USED = 'used',
+    FREE = 'free',
+    USED = 'used',
 }

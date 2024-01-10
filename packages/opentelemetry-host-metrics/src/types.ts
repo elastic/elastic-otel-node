@@ -18,50 +18,50 @@
  * Network data
  */
 export interface NetworkData {
-  iface: string;
-  rx_bytes: number;
-  rx_dropped: number;
-  rx_errors: number;
-  tx_bytes: number;
-  tx_dropped: number;
-  tx_errors: number;
+    iface: string;
+    rx_bytes: number;
+    rx_dropped: number;
+    rx_errors: number;
+    tx_bytes: number;
+    tx_dropped: number;
+    tx_errors: number;
 }
 
 /**
  * CPU usage data
  */
 export interface CpuUsageData {
-  cpuNumber: string;
-  system: number;
-  user: number;
-  idle: number;
-  nice: number;
-  interrupt: number;
-  systemP: number;
-  userP: number;
-  idleP: number;
-  interruptP: number;
-  niceP: number;
+    cpuNumber: string;
+    system: number;
+    user: number;
+    idle: number;
+    nice: number;
+    interrupt: number;
+    systemP: number;
+    userP: number;
+    idleP: number;
+    interruptP: number;
+    niceP: number;
 }
 
 /**
  * Process CPU usage data
  */
 export interface ProcessCpuUsageData {
-  system: number;
-  user: number;
-  systemP: number;
-  userP: number;
+    system: number;
+    user: number;
+    systemP: number;
+    userP: number;
 }
 
 /**
  * Memory data
  */
 export interface MemoryData {
-  used: number;
-  free: number;
-  // cached: number;
-  usedP: number;
-  freeP: number;
-  // cachedP: number;
+    used: number;
+    free: number;
+    // cached: number;
+    usedP: number;
+    freeP: number;
+    // cachedP: number;
 }

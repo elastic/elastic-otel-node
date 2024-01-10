@@ -15,14 +15,14 @@
  */
 
 import * as SI from 'systeminformation';
-import { NetworkData } from '../types';
+import {NetworkData} from '../types';
 
 export function getNetworkData() {
-  return new Promise<NetworkData[]>(resolve => {
-    SI.networkStats()
-      .then(resolve)
-      .catch(() => {
-        resolve([]);
-      });
-  });
+    return new Promise<NetworkData[]>((resolve) => {
+        SI.networkStats()
+            .then(resolve)
+            .catch(() => {
+                resolve([]);
+            });
+    });
 }
