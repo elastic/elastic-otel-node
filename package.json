@@ -10,6 +10,7 @@
     "lint": "eslint --ext=js,mjs,cjs scripts && npm run --if-present --workspaces lint",
     "lint:fix": "eslint --ext=js,mjs,cjs scripts && npm run --if-present --workspaces lint:fix",
     "test": "npm run --if-present --workspaces test",
+    "compile": "npm run --if-present --workspaces compile",
     "maint:update-otel-deps": "node scripts/update-otel-deps.js"
   },
   "dependencies": {
