@@ -138,7 +138,7 @@ describe('Host Metrics', () => {
                 .stub(process, 'cpuUsage')
                 .callsFake(() => mockedProcess.cpuUsage());
 
-            if (process.memoryUsage.rss) {
+            if (typeof process.memoryUsage.rss === 'function') {
                 sandbox
                     .stub(process.memoryUsage, 'rss')
                     .callsFake(mockedProcess.memoryUsage.rss);

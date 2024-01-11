@@ -1,6 +1,13 @@
+const otel = require('@opentelemetry/api');
+const {HostMetrics} = require('@elastic/opentelemetry-node-host-metrics');
 const {ElasticNodeSDK} = require('./lib/sdk.js');
 
 const sdk = new ElasticNodeSDK();
+const hostMetrics = new HostMetrics({
+    meterProvider: otel.metrics.getMeterProvider(),
+    name: 'example-host-metrics',
+});
+hostMetrics.start();
 
 // TODO sdk shutdown: also SIGINT?
 // TODO sdk shutdown handlers: better log on err
