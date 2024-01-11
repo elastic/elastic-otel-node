@@ -137,9 +137,19 @@ describe('Host Metrics', () => {
             sandbox
                 .stub(process, 'cpuUsage')
                 .callsFake(() => mockedProcess.cpuUsage());
-            sandbox
-                .stub(process.memoryUsage, 'rss')
-                .callsFake(mockedProcess.memoryUsage.rss);
+
+            if (process.memoryUsage.rss) {
+                sandbox
+                    .stub(process.memoryUsage, 'rss')
+                    .callsFake(mockedProcess.memoryUsage.rss);
+            } else {
+                sandbox
+                    .stub(process, 'memoryUsage')
+                    .callsFake(
+                        () => ({rss: mockedProcess.memoryUsage.rss()}) as any
+                    );
+            }
+
             sandbox.stub(SI, 'networkStats').callsFake(mockedSI.networkStats);
 
             reader = new TestMetricReader();
