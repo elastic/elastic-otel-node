@@ -25,17 +25,17 @@ format (used under the hood for `console.log`). This shows the complete
 object structure of the received data. For example, using an example script
 that uses the OpenTelemetry NodeSDK to trace an HTTP request/response:
 
-    cd examples/
-    node -r ./telemetry.js simple-http-request.js
+    cd ../../examples/
+    node -r @elastic/opentelemetry-node/start.js simple-http-request.js
 
 <details>
 <summary>will yield output close to the following:</summary>
 
 ```
-% node lib/mockotlpserver.js
-{"name":"mockotlpserver","level":30,"msg":"OTLP/HTTP listening at http://[::1]:4318","time":"2023-12-22T04:32:39.016Z"}
-{"name":"mockotlpserver","level":30,"msg":"OTLP/gRPC listening at http://localhost:4317","time":"2023-12-22T04:32:39.019Z"}
-{"name":"mockotlpserver","level":30,"msg":"UI listening at http://localhost:8080","time":"2023-12-22T04:32:39.019Z"}
+% node lib/cli.js
+{"name":"mockotlpserver","level":30,"msg":"OTLP/HTTP listening at http://[::1]:4318/","time":"2024-01-11T22:18:49.017Z"}
+{"name":"mockotlpserver","level":30,"msg":"OTLP/HTTP listening at http://localhost:4317/","time":"2024-01-11T22:18:49.025Z"}
+{"name":"mockotlpserver","level":30,"msg":"UI listening at http://[::1]:8080/","time":"2024-01-11T22:18:49.026Z"}
 ExportTraceServiceRequest {
   resourceSpans: [
     ResourceSpans {
@@ -55,30 +55,30 @@ ExportTraceServiceRequest {
                 KeyValue { key: 'net.host.ip', value: AnyValue { stringValue: '::1' } },
                 KeyValue { key: 'net.host.port', value: AnyValue { intValue: Long { low: 3000, high: 0, unsigned: false } } },
                 KeyValue { key: 'net.peer.ip', value: AnyValue { stringValue: '::1' } },
-                KeyValue { key: 'net.peer.port', value: AnyValue { intValue: Long { low: 62614, high: 0, unsigned: false } } },
+                KeyValue { key: 'net.peer.port', value: AnyValue { intValue: Long { low: 61855, high: 0, unsigned: false } } },
                 KeyValue { key: 'http.status_code', value: AnyValue { intValue: Long { low: 200, high: 0, unsigned: false } } },
                 KeyValue { key: 'http.status_text', value: AnyValue { stringValue: 'OK' } }
               ],
               events: [],
               links: [],
               traceId: Buffer(16) [Uint8Array] [
-                218, 252, 159, 205, 143,  43,
-                 13,  82,  26, 194,  84, 158,
-                 12, 241,  97,  50
+                128,  35,  86,  43, 203,
+                245, 130,  92,  63, 188,
+                 74, 232, 155, 123, 212,
+                222
               ],
               spanId: Buffer(8) [Uint8Array] [
-                235, 244, 225,
-                251, 215, 244,
-                158,  97
+                 34, 107, 247,  13,
+                140, 202, 136, 107
               ],
               parentSpanId: Buffer(8) [Uint8Array] [
-                192, 254, 88, 214,
-                252, 178, 90, 110
+                240, 107,  26, 226,
+                101, 131, 149,  15
               ],
               name: 'GET',
               kind: 2,
-              startTimeUnixNano: Long { low: -1485868864, high: 396561708, unsigned: true },
-              endTimeUnixNano: Long { low: -1481201225, high: 396561708, unsigned: true },
+              startTimeUnixNano: Long { low: 448057536, high: 396978934, unsigned: true },
+              endTimeUnixNano: Long { low: 452218144, high: 396978934, unsigned: true },
               droppedAttributesCount: 0,
               droppedEventsCount: 0,
               droppedLinksCount: 0,
@@ -93,10 +93,7 @@ ExportTraceServiceRequest {
                 KeyValue { key: 'http.host', value: AnyValue { stringValue: 'localhost:3000' } },
                 KeyValue { key: 'net.peer.ip', value: AnyValue { stringValue: '::1' } },
                 KeyValue { key: 'net.peer.port', value: AnyValue { intValue: Long { low: 3000, high: 0, unsigned: false } } },
-                KeyValue {
-                  key: 'http.response_content_length_uncompressed',
-                  value: AnyValue { intValue: Long { low: 4, high: 0, unsigned: false } }
-                },
+                KeyValue { key: 'http.response_content_length_uncompressed', value: AnyValue { intValue: Long { low: 4, high: 0, unsigned: false } } },
                 KeyValue { key: 'http.status_code', value: AnyValue { intValue: Long { low: 200, high: 0, unsigned: false } } },
                 KeyValue { key: 'http.status_text', value: AnyValue { stringValue: 'OK' } },
                 KeyValue { key: 'http.flavor', value: AnyValue { stringValue: '1.1' } },
@@ -105,18 +102,19 @@ ExportTraceServiceRequest {
               events: [],
               links: [],
               traceId: Buffer(16) [Uint8Array] [
-                218, 252, 159, 205, 143,  43,
-                 13,  82,  26, 194,  84, 158,
-                 12, 241,  97,  50
+                128,  35,  86,  43, 203,
+                245, 130,  92,  63, 188,
+                 74, 232, 155, 123, 212,
+                222
               ],
               spanId: Buffer(8) [Uint8Array] [
-                192, 254, 88, 214,
-                252, 178, 90, 110
+                240, 107,  26, 226,
+                101, 131, 149,  15
               ],
               name: 'GET',
               kind: 3,
-              startTimeUnixNano: Long { low: -1494868864, high: 396561708, unsigned: true },
-              endTimeUnixNano: Long { low: -1478129996, high: 396561708, unsigned: true },
+              startTimeUnixNano: Long { low: 439057536, high: 396978934, unsigned: true },
+              endTimeUnixNano: Long { low: 454517668, high: 396978934, unsigned: true },
               droppedAttributesCount: 0,
               droppedEventsCount: 0,
               droppedLinksCount: 0,
@@ -128,16 +126,13 @@ ExportTraceServiceRequest {
       ],
       resource: Resource {
         attributes: [
-          KeyValue { key: 'service.name', value: AnyValue { stringValue: 'simple-http-request' } },
+          KeyValue { key: 'service.name', value: AnyValue { stringValue: 'unknown-node-service' } },
           KeyValue { key: 'telemetry.sdk.language', value: AnyValue { stringValue: 'nodejs' } },
           KeyValue { key: 'telemetry.sdk.name', value: AnyValue { stringValue: 'opentelemetry' } },
-          KeyValue { key: 'telemetry.sdk.version', value: AnyValue { stringValue: '1.19.0' } },
-          KeyValue { key: 'process.pid', value: AnyValue { intValue: Long { low: 20595, high: 0, unsigned: false } } },
+          KeyValue { key: 'telemetry.sdk.version', value: AnyValue { stringValue: '1.18.1' } },
+          KeyValue { key: 'process.pid', value: AnyValue { intValue: Long { low: 82408, high: 0, unsigned: false } } },
           KeyValue { key: 'process.executable.name', value: AnyValue { stringValue: 'node' } },
-          KeyValue {
-            key: 'process.executable.path',
-            value: AnyValue { stringValue: '/Users/trentm/.nvm/versions/node/v18.18.2/bin/node' }
-          },
+          KeyValue { key: 'process.executable.path', value: AnyValue { stringValue: '/Users/trentm/.nvm/versions/node/v18.18.2/bin/node' } },
           KeyValue {
             key: 'process.command_args',
             value: AnyValue {
@@ -145,10 +140,8 @@ ExportTraceServiceRequest {
                 values: [
                   AnyValue { stringValue: '/Users/trentm/.nvm/versions/node/v18.18.2/bin/node' },
                   AnyValue { stringValue: '-r' },
-                  AnyValue { stringValue: './telemetry.js' },
-                  AnyValue {
-                    stringValue: '/Users/trentm/el/elastic-otel-node2/packages/mockotlpserver/examples/simple-http-request.js'
-                  }
+                  AnyValue { stringValue: '@elastic/opentelemetry-node/start.js' },
+                  AnyValue { stringValue: '/Users/trentm/el/elastic-otel-node/examples/simple-http-request.js' }
                 ]
               }
             }
@@ -156,24 +149,26 @@ ExportTraceServiceRequest {
           KeyValue { key: 'process.runtime.version', value: AnyValue { stringValue: '18.18.2' } },
           KeyValue { key: 'process.runtime.name', value: AnyValue { stringValue: 'nodejs' } },
           KeyValue { key: 'process.runtime.description', value: AnyValue { stringValue: 'Node.js' } },
-          KeyValue {
-            key: 'process.command',
-            value: AnyValue {
-              stringValue: '/Users/trentm/el/elastic-otel-node2/packages/mockotlpserver/examples/simple-http-request.js'
-            }
-          },
-          KeyValue { key: 'process.owner', value: AnyValue { stringValue: 'trentm' } }
+          KeyValue { key: 'process.command', value: AnyValue { stringValue: '/Users/trentm/el/elastic-otel-node/examples/simple-http-request.js' } },
+          KeyValue { key: 'process.owner', value: AnyValue { stringValue: 'trentm' } },
+          KeyValue { key: 'host.name', value: AnyValue { stringValue: 'pink.local' } },
+          KeyValue { key: 'host.arch', value: AnyValue { stringValue: 'amd64' } },
+          KeyValue { key: 'host.id', value: AnyValue { stringValue: 'DF529BD4-274A-53F1-A84E-7F85AFD59258' } }
         ],
         droppedAttributesCount: 0
       }
     }
   ]
 }
+------ trace 802356 (2 spans) ------
+       span f06b1a "GET" (15.5ms, SPAN_KIND_CLIENT, GET http://localhost:3000/ -> 200)
+  +9ms `- span 226bf7 "GET" (4.2ms, SPAN_KIND_SERVER, GET http://localhost:3000/ -> 200)
+
 ```
 
 </details>
 
-It will also dump a trace waterfall text representation of received tracing data.
+It also shows a trace waterfall text representation of received tracing data.
 
 
 ## Different OTLP protocols
@@ -201,8 +196,8 @@ Try all the protocols:
 ### json, json2
 
 ```
-node lib/mockotlpserver.js -o json
-node lib/mockotlpserver.js -o json2
+node lib/cli.js -o json
+node lib/cli.js -o json2
 ```
 
 Two other printers are `json` (0-space indentation) and `json2` (2-space
@@ -223,10 +218,10 @@ with some span timing and other details.
 
 ```
 # server
-node lib/mockotlpserver.js -o inspect,waterfall
+node lib/cli.js -o inspect,waterfall
 
 # example client
-(cd examples; node -r ./telemetry.js simple-http-request.js)
+(cd ../../examples; node -r @elastic/opentelemetry-node/start.js simple-http-request.js)
 
 # waterfall rendering
 ------ trace 299229 (2 spans) ------
