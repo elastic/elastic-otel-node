@@ -415,7 +415,7 @@ Logger.prototype.fatal = mkLogEmitter(FATAL);
  * @param {Error | Object} err
  * @returns {Object}
  */
-var errSerializer = function (err) {
+function errSerializer(err) {
     if (!err || !err.stack) return err;
     var obj = {
         message: err.message,
@@ -425,7 +425,7 @@ var errSerializer = function (err) {
         signal: err.signal,
     };
     return obj;
-};
+}
 
 //---- Exports
 
@@ -440,17 +440,17 @@ function createLogger(options) {
     return new Logger(options);
 }
 
-// NOTE: VSCode gets better resoluiton when exported individually
-// instead of using an exports object `module.exports = {...}`
-module.exports.TRACE = TRACE;
-module.exports.DEBUG = DEBUG;
-module.exports.INFO = INFO;
-module.exports.WARN = WARN;
-module.exports.ERROR = ERROR;
-module.exports.FATAL = FATAL;
-module.exports.levelFromName = levelFromName;
-module.exports.nameFromLevel = nameFromLevel;
-module.exports.resolveLevel = resolveLevel;
-module.exports.createLogger = createLogger;
-// Logger class is exported only for types, should not be used directly, use `createLogger`
-module.exports.Logger = Logger;
+module.exports = {
+    TRACE: TRACE,
+    DEBUG: DEBUG,
+    INFO: INFO,
+    WARN: WARN,
+    ERROR: ERROR,
+    FATAL: FATAL,
+    levelFromName: levelFromName,
+    nameFromLevel: nameFromLevel,
+    resolveLevel: resolveLevel,
+    createLogger: createLogger,
+    // Logger class is exported only for types, should not be used directly, use `createLogger`
+    Logger: Logger,
+};
