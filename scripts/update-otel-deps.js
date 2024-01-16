@@ -14,7 +14,17 @@ const {globSync} = require('glob');
 const pj = require(path.resolve(__dirname, '../package.json'));
 
 function updateOTelDeps(workspace) {
-    const p = spawnSync('npm', ['outdated', '--json'], {
+    // Only consider packages in this workspace's "package.json".
+    // A bare `npm outdated` will also include linked to workspaces in the
+    // same monorepo.
+    const pkg = require(
+        path.resolve(__dirname, '..', workspace, 'package.json')
+    );
+    const otelDeps = Object.keys(pkg.dependencies)
+        .concat(Object.keys(pkg.devDependencies || {}))
+        .filter((d) => d.startsWith('@opentelemetry/'));
+
+    const p = spawnSync('npm', ['outdated', '--json'].concat(otelDeps), {
         cwd: workspace,
         encoding: 'utf8',
     });
