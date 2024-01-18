@@ -44,7 +44,6 @@ class ElasticNodeSDK {
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
         this._otelSdk = new NodeSDK({
-            serviceName: 'unknown-node-service',
             resourceDetectors: [
                 envDetectorSync,
                 processDetectorSync,
