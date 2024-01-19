@@ -4,7 +4,9 @@
 
 const {ElasticNodeSDK} = require('../');
 
-const sdk = new ElasticNodeSDK();
+const sdk = new ElasticNodeSDK({
+    serviceName: process.env.TEL_SERVICE_NAME ?? undefined,
+});
 
 process.once('beforeExit', async () => {
     try {
