@@ -28,7 +28,7 @@ function luggiteLevelFromOtelLogLevel(otelLogLevel) {
  * Create a logger using the level from OTEL_LOG_LEVEL, default 'info'.
  * Also set this logger to handle `api.diag.*()` log methods.
  */
-function createLogger() {
+function setupLogger() {
     let level;
     let diagLevel;
     if (process.env.OTEL_LOG_LEVEL) {
@@ -60,5 +60,5 @@ function createLogger() {
 }
 
 module.exports = {
-    createLogger,
+    setupLogger,
 };

@@ -6,14 +6,14 @@ const {
 } = require('@opentelemetry/resources');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 
-const {createLogger} = require('./logging');
+const {setupLogger} = require('./logging');
 
 /**
  * @param {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} opts
  */
 class ElasticNodeSDK extends NodeSDK {
     constructor(opts = {}) {
-        const log = createLogger();
+        const log = setupLogger();
         log.trace('ElasticNodeSDK opts:', opts);
 
         if (!('OTEL_TRACES_EXPORTER' in process.env)) {
