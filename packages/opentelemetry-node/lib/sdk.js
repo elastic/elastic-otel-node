@@ -30,9 +30,13 @@ function luggiteLevelFromOtelLogLevel(otelLogLevel) {
     return luggiteLevel;
 }
 
-class ElasticNodeSDK {
-    constructor() {
-        this._setupLogger();
+/**
+ * @param {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} opts
+ */
+class ElasticNodeSDK extends NodeSDK {
+    constructor(opts = {}) {
+        const log = createLogger();
+        log.trace('ElasticNodeSDK opts:', opts);
 
         if (!('OTEL_TRACES_EXPORTER' in process.env)) {
             // Ensure this envvar is set to avoid a diag.warn() in NodeSDK.
@@ -43,7 +47,7 @@ class ElasticNodeSDK {
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
-        this._otelSdk = new NodeSDK({
+        const defaultConfig = {
             resourceDetectors: [
                 envDetectorSync,
                 processDetectorSync,
@@ -58,51 +62,57 @@ class ElasticNodeSDK {
                 // TODO All the instrumentations. Perf. Config support. Custom given instrs.
                 new HttpInstrumentation(),
             ],
-        });
-    }
+        };
 
-    start() {
-        return this._otelSdk.start();
-    }
-
-    shutdown() {
-        return this._otelSdk.shutdown();
-    }
-
-    /**
-     * Setup a `this._log` using the level from OTEL_LOG_LEVEL, default 'info'.
-     * Also set this logger to handle `api.diag.*()` log methods.
-     */
-    _setupLogger() {
-        let level;
-        let diagLevel;
-        if (process.env.OTEL_LOG_LEVEL) {
-            const otelLogLevel = process.env.OTEL_LOG_LEVEL.toUpperCase();
-            level = luggiteLevelFromOtelLogLevel(otelLogLevel);
-            diagLevel = otelLogLevel;
-            // Make sure NodeSDK doesn't see this envvar and overwrite our diag logger.
-            delete process.env.OTEL_LOG_LEVEL;
-        }
-        if (!level) {
-            level = 'info'; // default level
-            diagLevel = 'INFO';
-        }
-
-        const log = luggite.createLogger({name: 'elastic-otel-node', level});
-        // TODO: when luggite supports .child, add a module/component attr for diag log output
-        api.diag.setLogger(
-            {
-                error: log.error.bind(log),
-                warn: log.warn.bind(log),
-                info: log.info.bind(log),
-                debug: log.debug.bind(log),
-                verbose: log.trace.bind(log),
-            },
-            api.DiagLogLevel[diagLevel]
-        );
+        const configuration = Object.assign(defaultConfig, opts);
+        super(configuration);
 
         this._log = log;
     }
+
+    start() {
+        // TODO: make this preable useful, or drop it
+        this._log.info(
+            {premable: true},
+            'starting Elastic OpenTelemetry Node.js SDK distro'
+        );
+        super.start();
+    }
+}
+
+/**
+ * Create a logger using the level from OTEL_LOG_LEVEL, default 'info'.
+ * Also set this logger to handle `api.diag.*()` log methods.
+ */
+function createLogger() {
+    let level;
+    let diagLevel;
+    if (process.env.OTEL_LOG_LEVEL) {
+        const otelLogLevel = process.env.OTEL_LOG_LEVEL.toUpperCase();
+        level = luggiteLevelFromOtelLogLevel(otelLogLevel);
+        diagLevel = otelLogLevel;
+        // Make sure NodeSDK doesn't see this envvar and overwrite our diag logger.
+        delete process.env.OTEL_LOG_LEVEL;
+    }
+    if (!level) {
+        level = 'info'; // default level
+        diagLevel = 'INFO';
+    }
+
+    const log = luggite.createLogger({name: 'elastic-otel-node', level});
+    // TODO: when luggite supports .child, add a module/component attr for diag log output
+    api.diag.setLogger(
+        {
+            error: log.error.bind(log),
+            warn: log.warn.bind(log),
+            info: log.info.bind(log),
+            debug: log.debug.bind(log),
+            verbose: log.trace.bind(log),
+        },
+        api.DiagLogLevel[diagLevel]
+    );
+
+    return log;
 }
 
 module.exports = {
