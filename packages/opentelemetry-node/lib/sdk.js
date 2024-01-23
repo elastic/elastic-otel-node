@@ -7,6 +7,7 @@ const {
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 
 const {setupLogger} = require('./logging');
+const {env} = require('process');
 
 /**
  * @param {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} opts
@@ -20,8 +21,15 @@ class ElasticNodeSDK extends NodeSDK {
             // Ensure this envvar is set to avoid a diag.warn() in NodeSDK.
             process.env.OTEL_TRACES_EXPORTER = 'otlp';
         }
+        const envToRestore = {};
+        if ('OTEL_LOG_LEVEL' in process.env) {
+            envToRestore['OTEL_LOG_LEVEL'] = process.env.OTEL_LOG_LEVEL;
+            // Make sure NodeSDK doesn't see this envvar and overwrite our diag
+            // logger. It is restored below.
+            delete process.env.OTEL_LOG_LEVEL;
+        }
 
-        // TODO accept serviceName, detect service name
+        // TODO detect service name
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
@@ -44,6 +52,10 @@ class ElasticNodeSDK extends NodeSDK {
 
         const configuration = Object.assign(defaultConfig, opts);
         super(configuration);
+
+        Object.keys(envToRestore).forEach((k) => {
+            process.env[k] = envToRestore[k];
+        });
 
         this._log = log;
     }
