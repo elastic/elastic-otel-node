@@ -4,7 +4,11 @@
 
 const {ElasticNodeSDK} = require('../');
 
-const sdk = new ElasticNodeSDK();
+const sdk = new ElasticNodeSDK({
+    // Show an example of custom code for configuring the SDK possible when
+    // using a separate "telemetry.js" file for bootstrapping.
+    serviceName: process.env.MY_SERVICE_NAME ?? undefined,
+});
 
 process.once('beforeExit', async () => {
     try {
