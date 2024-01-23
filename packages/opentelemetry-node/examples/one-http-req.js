@@ -1,3 +1,9 @@
+// Start an HTTP server and make a single request to it.
+//
+// Usage:
+//      OTEL_SERVICE_NAME=one-http-req1 node -r ../start.js one-http-req.js
+//      OTEL_SERVICE_NAME=one-http-req2 node -r ./telemetry.js one-http-req.js
+
 const http = require('http');
 
 const server = http.createServer(function onRequest(req, res) {

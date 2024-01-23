@@ -36,7 +36,7 @@
   },
   "main": "lib/index.js",
   "bin": {
-      "mockotlpserver": "lib/cli.js"
+    "mockotlpserver": "lib/cli.js"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.9.13",
@@ -47,10 +47,10 @@
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
-    "@opentelemetry/auto-instrumentations-node": "^0.40.2",
-    "@opentelemetry/exporter-trace-otlp-grpc": "^0.46.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.46.0",
-    "@opentelemetry/exporter-trace-otlp-proto": "^0.46.0",
-    "@opentelemetry/sdk-node": "^0.46.0"
+    "@opentelemetry/auto-instrumentations-node": "^0.40.3",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.47.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.47.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.47.0",
+    "@opentelemetry/sdk-node": "^0.47.0"
   }
 }
