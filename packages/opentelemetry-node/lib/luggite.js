@@ -19,8 +19,8 @@ var EOL = '\n';
 /**
  * Warn about an internal processing error.
  *
- * @param msg {String} Message with which to warn.
- * @param [dedupKey] {String} Optional. A short string key for this warning to
+ * @param {string} msg  Message with which to warn.
+ * @param {string} [dedupKey]  A short string key for this warning to
  *      have its warning only printed once.
  */
 function _warn(msg, dedupKey) {
@@ -35,19 +35,6 @@ function _warn(msg, dedupKey) {
 }
 var _warned = {};
 
-function ConsoleRawStream() {}
-ConsoleRawStream.prototype.write = function (rec) {
-    if (rec.level < INFO) {
-        console.log(rec);
-    } else if (rec.level < WARN) {
-        console.info(rec);
-    } else if (rec.level < ERROR) {
-        console.warn(rec);
-    } else {
-        console.error(rec);
-    }
-};
-
 //---- Levels
 
 var TRACE = 10;
@@ -57,6 +44,7 @@ var WARN = 40;
 var ERROR = 50;
 var FATAL = 60;
 
+/** @type {Record<string, number>} */
 var levelFromName = {
     trace: TRACE,
     debug: DEBUG,
@@ -65,6 +53,7 @@ var levelFromName = {
     error: ERROR,
     fatal: FATAL,
 };
+/** @type {Record<number, string>} */
 var nameFromLevel = {};
 Object.keys(levelFromName).forEach(function (name) {
     nameFromLevel[levelFromName[name]] = name;
@@ -75,7 +64,6 @@ Object.keys(levelFromName).forEach(function (name) {
  *
  * @param {string|number} nameOrNum A level name (case-insensitive) or positive
  *      integer level.
- * @api public
  */
 function resolveLevel(nameOrNum) {
     var level;
@@ -116,6 +104,12 @@ function isWritable(obj) {
 //---- Logger class
 
 class Logger {
+    /**
+     * @param {Object} opts
+     * @param {string} [opts.name] Name for the logger
+     * @param {number|string} [opts.level] Log level to apply to this logger
+     * @param {Record<string, any>} [opts.fields]
+     */
     constructor(opts) {
         opts = opts || {};
         this._level = Infinity;
@@ -137,7 +131,10 @@ class Logger {
     }
 
     /**
-     * @param {any} s
+     * @param {Object} s
+     * @param {string} [s.type]
+     * @param {number|string} [s.level]
+     * @param {stream.Writable} [s.stream]
      * @param {number|string} [defaultLevel]
      */
     _addStream(s, defaultLevel) {
@@ -153,6 +150,7 @@ class Logger {
                 s.type = 'stream';
             }
         }
+        // @ts-expect-error -- adding a property `raw` which is not part of the param
         s.raw = s.type === 'raw'; // PERF: Allow for faster check in `_emit`.
 
         if (s.level !== undefined) {
@@ -178,6 +176,7 @@ class Logger {
         }
 
         this._streams.push(s);
+        // @ts-expect-error -- inspecting the previously added `raw` property
         if (!this._haveNonRawStreams && !s.raw) {
             this._haveNonRawStreams = true;
         }
@@ -214,8 +213,8 @@ class Logger {
      *
      * Pre-condition: This is only called if there is at least one serializer.
      *
-     * @param {object} fields The log record fields.
-     * @param {object} excludeFields Optional mapping of keys to `true` for
+     * @param {Record<string, any>} fields The log record fields.
+     * @param {Record<string, boolean>} excludeFields Optional mapping of keys to `true` for
      *    keys to NOT apply a serializer.
      */
     _applySerializers(fields, excludeFields) {
@@ -278,8 +277,8 @@ class Logger {
  * Build a record object suitable for emitting from the arguments
  * provided to the a log emitter.
  *
- * @param {any} log
- * @param {any} minLevel
+ * @param {Logger} log
+ * @param {number} minLevel
  * @param {Array<any>} args
  * @returns {object}
  */
@@ -393,8 +392,8 @@ function mkLogEmitter(minLevel) {
  *
  *    log.info()
  *
- * @params fields {Object} Optional set of additional fields to log.
- * @params msg {String} Log message. This can be followed by additional
+ * @param {Object} [fields] Record of additional fields to log.
+ * @param {string} msg Log message. This can be followed by additional
  *    arguments that are handled like
  *    [util.format](http://nodejs.org/docs/latest/api/all.html#util.format).
  */
@@ -416,7 +415,7 @@ Logger.prototype.fatal = mkLogEmitter(FATAL);
  * @param {Error | Object} err
  * @returns {Object}
  */
-var errSerializer = function (err) {
+function errSerializer(err) {
     if (!err || !err.stack) return err;
     var obj = {
         message: err.message,
@@ -426,12 +425,15 @@ var errSerializer = function (err) {
         signal: err.signal,
     };
     return obj;
-};
+}
 
 //---- Exports
 
 /**
- * @param {any} options
+ * @param {Object} options
+ * @param {string} [options.name] Name for the logger
+ * @param {number|string} [options.level] Log level to apply to this logger
+ * @param {Record<string, any>} [options.fields]
  * @returns {Logger}
  */
 function createLogger(options) {
@@ -445,12 +447,10 @@ module.exports = {
     WARN: WARN,
     ERROR: ERROR,
     FATAL: FATAL,
-    resolveLevel: resolveLevel,
     levelFromName: levelFromName,
     nameFromLevel: nameFromLevel,
-
+    resolveLevel: resolveLevel,
     createLogger: createLogger,
-    Logger, // exported only for types, should not be used directly, use `createLogger`
+    // Logger class is exported only for types, should not be used directly, use `createLogger`
+    Logger: Logger,
 };
-
-// vim: tabstop=4 shiftwidth=4 expandtab

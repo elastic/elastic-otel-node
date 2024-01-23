@@ -91,8 +91,10 @@ function safeGetPackageVersion(packageName) {
     }
 
     try {
-        return JSON.parse(fs.readFileSync(details.basedir + '/package.json'))
-            .version;
+        const pkgContents = fs.readFileSync(details.basedir + '/package.json', {
+            encoding: 'utf-8',
+        });
+        return JSON.parse(pkgContents).version;
     } catch (_err) {
         return null;
     }
@@ -264,7 +266,7 @@ class TestCollector {
  *    `TestCollector` object that has some convenience methods to use the
  *    collected data.
  *
- * @param {import('@types/tape').TestCase} suite
+ * @param {import('tape').Test} suite
  * @param {Array<TestFixture>} testFixtures
  */
 function runTestFixtures(suite, testFixtures) {
