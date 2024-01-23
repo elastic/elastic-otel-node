@@ -1,5 +1,13 @@
 # @elastic/mockotlpserver Changelog
 
+## untagged
+
+- Added a start at better metrics support:
+    - The `jsonN` output modes will some a somewhat normalized JSON
+      representation (similar to what is done to normalize trace request data).
+    - There is an experimental start at a `metrics-summary` printer:
+      `node lib/cli.js -o waterfall,metrics-summary`.
+
 ## v0.2.0
 
 - Added the ability to use the mock OTLP server as a module, so it can

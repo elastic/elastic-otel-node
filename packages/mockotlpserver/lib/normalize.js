@@ -195,8 +195,6 @@ function jsonStringifyTrace(trace, opts) {
  * - converts `span.kind` and `span.status.code` to their enum string value
  * - converts longs to string
  *
- * TODO probably should live elsewhere
- *
  * See `jsonStringifyTrace()` in for full notes.
  */
 function normalizeTrace(rawTrace) {
@@ -206,7 +204,125 @@ function normalizeTrace(rawTrace) {
     return JSON.parse(str);
 }
 
+/**
+ * JSON stringify an OTLP metrics service request to one *possible* representation.
+ *
+ * This implementation:
+ * - converts `startTimeUnixNano` and `timeUnixNano` longs to string
+ *
+ * Limitations:
+ * - We are using `json: true` for protobufjs conversion, which isn't applied
+ *   for the other flavours.
+ * - TODO: convert aggregationTemporality to enum string?
+ *
+ * @param {any} metrics
+ * @param {object} opts
+ * @param {number} [opts.indent] - indent option to pass to `JSON.stringify()`.
+ * @param {boolean} [opts.normAttributes] - whether to convert 'attributes' to
+ *      an object (rather than the native array of {key, value} objects).
+ * @param {boolean} [opts.stripResource] - exclude the 'resource' property, for brevity.
+ * @param {boolean} [opts.stripAttributes] - exclude 'attributes' properties, for brevity.
+ * @param {boolean} [opts.stripScope] - exclude 'scope' property, for brevity.
+ */
+function jsonStringifyMetrics(metrics, opts) {
+    /**
+     * Normalize an 'attributes' value, for example in:
+     *      [ { key: 'telemetry.sdk.version', value: { stringValue: '1.19.0' } },
+     *        { key: 'process.pid', value: { intValue: '19667' } } ]
+     * to a value for converting 'attributes' to a simpler object, e.g.:
+     *      { 'telemetry.sdk.version', '1.19.0',
+     *        'process.pid', 19667 }
+     */
+    const normAttrValue = (v) => {
+        if ('stringValue' in v) {
+            return v.stringValue;
+        } else if ('arrayValue' in v) {
+            return v.arrayValue.values.map(normAttrValue);
+        } else if ('intValue' in v) {
+            // The OTLP/json serialization uses JS Number for these, so we'll
+            // do the same. TODO: Is there not a concern with a 64-bit value?
+            if (typeof v.intValue === 'number') {
+                return v.intValue;
+            } else if (typeof v.intValue === 'string') {
+                return Number(v.intValue);
+            } else if (typeof v.intValue === 'object' && 'low' in v.intValue) {
+                return new Long(
+                    v.intValue.low,
+                    v.intValue.high,
+                    v.intValue.unsigned
+                ).toString();
+            }
+        }
+        throw new Error(`unexpected type of attributes value: ${v}`);
+    };
+
+    const replacer = (k, v) => {
+        let rv = v;
+        switch (k) {
+            case 'resource':
+                if (opts.stripResource) {
+                    rv = undefined;
+                }
+                break;
+            case 'attributes':
+                if (opts.stripAttributes) {
+                    rv = undefined;
+                } else if (opts.normAttributes) {
+                    rv = {};
+                    for (let i = 0; i < v.length; i++) {
+                        const attr = v[i];
+                        rv[attr.key] = normAttrValue(attr.value);
+                    }
+                }
+                break;
+            case 'scope':
+                if (opts.stripScope) {
+                    rv = undefined;
+                }
+                break;
+            case 'startTimeUnixNano':
+            case 'endTimeUnixNano':
+                // OTLP/gRPC time fields are `Long` (https://github.com/dcodeIO/Long.js),
+                // converted to a plain object. Convert them to a string to
+                // match the other flavour.
+                if (typeof v === 'object' && 'low' in v) {
+                    rv = new Long(v.low, v.high, v.unsigned).toString();
+                }
+                break;
+        }
+        return rv;
+    };
+
+    let norm;
+    if (typeof metrics.constructor.toObject === 'function') {
+        // Normalize `ExportMetricsServiceRequest` from OTLP/proto request
+        // with our custom options.
+        norm = metrics.constructor.toObject(metrics, {
+            longs: String,
+            json: true, // TODO not sure about using this, b/c it differs from other flavours
+        });
+    } else {
+        norm = metrics;
+    }
+
+    return JSON.stringify(norm, replacer, opts.indent || 0);
+}
+
+/**
+ * Normalize the given raw MetricesServiceRequest.
+ *
+ * See `jsonStringifyTrace()` in for full notes.
+ */
+function normalizeMetrics(rawMetrics) {
+    const str = jsonStringifyMetrics(rawMetrics, {
+        normAttributes: true,
+    });
+    return JSON.parse(str);
+}
+
 module.exports = {
     jsonStringifyTrace,
     normalizeTrace,
+    jsonStringifyMetrics,
+    normalizeMetrics,
 };

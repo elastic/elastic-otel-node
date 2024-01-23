@@ -7,9 +7,16 @@ const dashdash = require('dashdash');
 const luggite = require('./luggite');
 const {JSONPrinter, InspectPrinter} = require('./printers');
 const {TraceWaterfallPrinter} = require('./waterfall');
+const {MetricsSummaryPrinter} = require('./metrics-summary');
 const {MockOtlpServer} = require('./mockotlpserver');
 
-const PRINTER_NAMES = ['inspect', 'json', 'json2', 'waterfall'];
+const PRINTER_NAMES = [
+    'inspect',
+    'json',
+    'json2',
+    'waterfall',
+    'metrics-summary',
+];
 
 // This adds a custom cli option type to dashdash, to support `-o json,waterfall`
 // options for specifying multiple printers (aka output modes).
@@ -95,6 +102,9 @@ async function main() {
                 break;
             case 'waterfall':
                 printers.push(new TraceWaterfallPrinter(log));
+                break;
+            case 'metrics-summary':
+                printers.push(new MetricsSummaryPrinter(log));
                 break;
         }
     });
