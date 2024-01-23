@@ -7,7 +7,6 @@ const {
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 
 const {setupLogger} = require('./logging');
-const {env} = require('process');
 
 /**
  * @param {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} opts
