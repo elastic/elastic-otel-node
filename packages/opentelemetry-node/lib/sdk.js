@@ -1,7 +1,7 @@
 const {
     OTLPMetricExporter,
 } = require('@opentelemetry/exporter-metrics-otlp-proto');
-const {api, metrics, NodeSDK} = require('@opentelemetry/sdk-node');
+const {metrics, NodeSDK} = require('@opentelemetry/sdk-node');
 const {
     envDetectorSync,
     hostDetectorSync,
