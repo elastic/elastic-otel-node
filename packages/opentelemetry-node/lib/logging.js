@@ -35,8 +35,6 @@ function setupLogger() {
         const otelLogLevel = process.env.OTEL_LOG_LEVEL.toUpperCase();
         level = luggiteLevelFromOtelLogLevel(otelLogLevel);
         diagLevel = otelLogLevel;
-        // Make sure NodeSDK doesn't see this envvar and overwrite our diag logger.
-        delete process.env.OTEL_LOG_LEVEL;
     }
     if (!level) {
         level = 'info'; // default level
