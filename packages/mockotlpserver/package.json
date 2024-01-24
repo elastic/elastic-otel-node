@@ -47,7 +47,6 @@
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
-    "@opentelemetry/auto-instrumentations-node": "^0.40.3",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.47.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.47.0",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.47.0",

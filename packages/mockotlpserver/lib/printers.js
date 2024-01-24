@@ -13,7 +13,7 @@ const {
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
 } = require('./diagch');
-const {jsonStringifyTrace} = require('./normalize');
+const {jsonStringifyMetrics, jsonStringifyTrace} = require('./normalize');
 
 /**
  * Abstract printer class.
@@ -75,7 +75,7 @@ class InspectPrinter extends Printer {
         super(log);
         /** @private */
         this._inspectOpts = {
-            depth: 10,
+            depth: 13, // Need 13 to get full metrics data structure.
             breakLength: process.stdout.columns || 120,
         };
     }
@@ -107,8 +107,11 @@ class JSONPrinter extends Printer {
         console.log(str);
     }
     printMetrics(metrics) {
-        // TODO: cope with similar conversion issues as for trace above
-        console.log(JSON.stringify(metrics, null, this._indent));
+        const str = jsonStringifyMetrics(metrics, {
+            indent: this._indent,
+            normAttributes: true,
+        });
+        console.log(str);
     }
     printLogs(logs) {
         // TODO: cope with similar conversion issues as for trace above
