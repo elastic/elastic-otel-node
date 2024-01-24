@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "@elastic/mockotlpserver": "*",
-    "@opentelemetry/exporter-metrics-otlp-http": "^0.47.0",
     "@types/tape": "^5.6.4",
     "module-details-from-path": "^1.0.3",
     "semver": "^7.5.4",
