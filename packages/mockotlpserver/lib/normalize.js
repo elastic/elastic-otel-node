@@ -32,6 +32,37 @@ const statusCodeEnumFromVal = {
 };
 
 /**
+ * Normalize an 'attributes' value, for example in:
+ *      [ { key: 'telemetry.sdk.version', value: { stringValue: '1.19.0' } },
+ *        { key: 'process.pid', value: { intValue: '19667' } } ]
+ * to a value for converting 'attributes' to a simpler object, e.g.:
+ *      { 'telemetry.sdk.version': '1.19.0',
+ *        'process.pid': 19667 }
+ */
+function normAttrValue(v) {
+    if ('stringValue' in v) {
+        return v.stringValue;
+    } else if ('arrayValue' in v) {
+        return v.arrayValue.values.map(normAttrValue);
+    } else if ('intValue' in v) {
+        // The OTLP/json serialization uses JS Number for these, so we'll
+        // do the same. TODO: Is there not a concern with a 64-bit value?
+        if (typeof v.intValue === 'number') {
+            return v.intValue;
+        } else if (typeof v.intValue === 'string') {
+            return Number(v.intValue);
+        } else if (typeof v.intValue === 'object' && 'low' in v.intValue) {
+            return new Long(
+                v.intValue.low,
+                v.intValue.high,
+                v.intValue.unsigned
+            ).toString();
+        }
+    }
+    throw new Error(`unexpected type of attributes value: ${v}`);
+}
+
+/**
  * JSON stringify an OTLP trace service request to one *possible* representation.
  *
  * Getting the same JSON representation of an OTLP trace service request,
@@ -83,37 +114,6 @@ const statusCodeEnumFromVal = {
  * @param {boolean} [opts.stripScope] - exclude 'scope' property, for brevity.
  */
 function jsonStringifyTrace(trace, opts) {
-    /**
-     * Normalize an 'attributes' value, for example in:
-     *      [ { key: 'telemetry.sdk.version', value: { stringValue: '1.19.0' } },
-     *        { key: 'process.pid', value: { intValue: '19667' } } ]
-     * to a value for converting 'attributes' to a simpler object, e.g.:
-     *      { 'telemetry.sdk.version', '1.19.0',
-     *        'process.pid', 19667 }
-     */
-    const normAttrValue = (v) => {
-        if ('stringValue' in v) {
-            return v.stringValue;
-        } else if ('arrayValue' in v) {
-            return v.arrayValue.values.map(normAttrValue);
-        } else if ('intValue' in v) {
-            // The OTLP/json serialization uses JS Number for these, so we'll
-            // do the same. TODO: Is there not a concern with a 64-bit value?
-            if (typeof v.intValue === 'number') {
-                return v.intValue;
-            } else if (typeof v.intValue === 'string') {
-                return Number(v.intValue);
-            } else if (typeof v.intValue === 'object' && 'low' in v.intValue) {
-                return new Long(
-                    v.intValue.low,
-                    v.intValue.high,
-                    v.intValue.unsigned
-                ).toString();
-            }
-        }
-        throw new Error(`unexpected type of attributes value: ${v}`);
-    };
-
     const replacer = (k, v) => {
         let rv = v;
         switch (k) {
@@ -225,37 +225,6 @@ function normalizeTrace(rawTrace) {
  * @param {boolean} [opts.stripScope] - exclude 'scope' property, for brevity.
  */
 function jsonStringifyMetrics(metrics, opts) {
-    /**
-     * Normalize an 'attributes' value, for example in:
-     *      [ { key: 'telemetry.sdk.version', value: { stringValue: '1.19.0' } },
-     *        { key: 'process.pid', value: { intValue: '19667' } } ]
-     * to a value for converting 'attributes' to a simpler object, e.g.:
-     *      { 'telemetry.sdk.version', '1.19.0',
-     *        'process.pid', 19667 }
-     */
-    const normAttrValue = (v) => {
-        if ('stringValue' in v) {
-            return v.stringValue;
-        } else if ('arrayValue' in v) {
-            return v.arrayValue.values.map(normAttrValue);
-        } else if ('intValue' in v) {
-            // The OTLP/json serialization uses JS Number for these, so we'll
-            // do the same. TODO: Is there not a concern with a 64-bit value?
-            if (typeof v.intValue === 'number') {
-                return v.intValue;
-            } else if (typeof v.intValue === 'string') {
-                return Number(v.intValue);
-            } else if (typeof v.intValue === 'object' && 'low' in v.intValue) {
-                return new Long(
-                    v.intValue.low,
-                    v.intValue.high,
-                    v.intValue.unsigned
-                ).toString();
-            }
-        }
-        throw new Error(`unexpected type of attributes value: ${v}`);
-    };
-
     const replacer = (k, v) => {
         let rv = v;
         switch (k) {
