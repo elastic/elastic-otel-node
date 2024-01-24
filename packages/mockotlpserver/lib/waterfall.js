@@ -15,7 +15,8 @@
  *   rendering those.
  */
 
-const {Printer, jsonStringifyTrace} = require('./printers');
+const {Printer} = require('./printers');
+const {jsonStringifyTrace} = require('./normalize');
 
 /*
 
