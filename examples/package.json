@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "scripts": {},
   "dependencies": {
-    "@elastic/opentelemetry-node": "*"
+    "@elastic/opentelemetry-node": "*",
+    "express": "^4.18.2"
   }
 }

@@ -174,6 +174,10 @@ class TestCollector {
     /**
      * Return the spans sorted by start time for testing convenience.
      *
+     * Note: This may still be unreliable ordering if there are multiple spans
+     * started in the same millisecond (e.g. as happens frequently with
+     * express middleware spans).
+     *
      * TODO: a la TestSpan type from otel-js-contrib
      * @return {Array<object>}
      */

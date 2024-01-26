@@ -1,6 +1,6 @@
 // Test that 'http' instrumentation generates the telemetry we expect.
 
-const {test} = require('tape');
+const test = require('tape');
 const {runTestFixtures} = require('./testutils');
 
 const testFixtures = [
