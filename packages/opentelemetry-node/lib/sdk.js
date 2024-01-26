@@ -8,6 +8,9 @@ const {
     processDetectorSync,
 } = require('@opentelemetry/resources');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
+const {
+    ExpressInstrumentation,
+} = require('@opentelemetry/instrumentation-express');
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 const {setupLogger} = require('./logging');
@@ -49,6 +52,7 @@ class ElasticNodeSDK extends NodeSDK {
             instrumentations: [
                 // TODO All the instrumentations. Perf. Config support. Custom given instrs.
                 new HttpInstrumentation(),
+                new ExpressInstrumentation(),
             ],
         };
 
