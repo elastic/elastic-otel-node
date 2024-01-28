@@ -6,6 +6,7 @@ const {
     envDetectorSync,
     hostDetectorSync,
     processDetectorSync,
+    Resource,
 } = require('@opentelemetry/resources');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 const {
@@ -15,10 +16,16 @@ const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 const {setupLogger} = require('./logging');
 
+const version = require('../package.json').version;
+
 /**
- * @param {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} opts
+ * @typedef {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} PartialNodeSDKConfiguration
  */
+
 class ElasticNodeSDK extends NodeSDK {
+    /**
+     * @param {PartialNodeSDKConfiguration} opts
+     */
     constructor(opts = {}) {
         const log = setupLogger();
         log.trace('ElasticNodeSDK opts:', opts);
@@ -39,8 +46,21 @@ class ElasticNodeSDK extends NodeSDK {
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
+        /** @type {PartialNodeSDKConfiguration} */
         const defaultConfig = {
             resourceDetectors: [
+                // Add resource atttributes related to our distro
+                {
+                    detect: () => {
+                        // TODO: change to semconv resource attribs when
+                        // `@opentelemetry/semantic-conventions`get updated with the attribs used
+                        // https://github.com/open-telemetry/opentelemetry-js/issues/4235
+                        return new Resource({
+                            'telemetry.distro.name': 'elastic',
+                            'telemetry.distro.version': `${version}`,
+                        });
+                    },
+                },
                 envDetectorSync,
                 processDetectorSync,
                 // hostDetectorSync is not currently in the OTel default, but may be added
