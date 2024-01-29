@@ -16,8 +16,8 @@ const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 const {setupLogger} = require('./logging');
 
-const VERSION = require('../package.json').version;
-const USER_AGENT_PREFIX = `elastic-otel-node/${VERSION}`;
+const ELASTIC_SDK_VERSION = require('../package.json').version;
+const USER_AGENT_PREFIX = `elastic-otel-node/${ELASTIC_SDK_VERSION}`;
 
 /**
  * @typedef {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} PartialNodeSDKConfiguration
@@ -35,7 +35,8 @@ class ElasticNodeSDK extends NodeSDK {
             // Ensure this envvar is set to avoid a diag.warn() in NodeSDK.
             process.env.OTEL_TRACES_EXPORTER = 'otlp';
         }
-        // process.env.OTEL_EXPORTER_OTLP_TRACES_HEADERS = 'User-Agent=xxxxxx';
+
+        /** @type {NodeJS.ProcessEnv} */
         const envToRestore = {};
         if ('OTEL_LOG_LEVEL' in process.env) {
             envToRestore['OTEL_LOG_LEVEL'] = process.env.OTEL_LOG_LEVEL;
@@ -121,10 +122,12 @@ class ElasticNodeSDK extends NodeSDK {
         // Once the SDK is started the exporters are available/resolved so
         // we can acces them and add/modify headers to set pur distro data
         // TODO: should we keep it even if the user passed a custom exporter?
+        const unknownUserAgent = 'OTel-Unknown-Exporter-JavaScript';
         // @ts-expect-error -- accessing a private property of the SDK
         for (const exporter of this._tracerProvider._configuredExporters) {
-            const ua = exporter.headers['User-Agent'];
-            exporter.headers['User-Agent'] = `${USER_AGENT_PREFIX} ${ua}`;
+            const headers = exporter.headers;
+            const userAgent = headers['User-Agent'] || unknownUserAgent;
+            headers['User-Agent'] = `${USER_AGENT_PREFIX} ${userAgent}`;
         }
 
         if (!this._metricsDisabled) {
