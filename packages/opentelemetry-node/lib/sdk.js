@@ -60,7 +60,7 @@ class ElasticNodeSDK extends NodeSDK {
                         // https://github.com/open-telemetry/opentelemetry-js/issues/4235
                         return new Resource({
                             'telemetry.distro.name': 'elastic',
-                            'telemetry.distro.version': `${VERSION}`,
+                            'telemetry.distro.version': `${ELASTIC_SDK_VERSION}`,
                         });
                     },
                 },
