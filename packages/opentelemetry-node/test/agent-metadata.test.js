@@ -30,7 +30,7 @@ const testFixtures = [
     },
 ];
 
-test('OTEL_AGENT_METADATA', (suite) => {
+test('agent metada', (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });
