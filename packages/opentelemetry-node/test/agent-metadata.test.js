@@ -25,12 +25,12 @@ const testFixtures = [
             t.ok(attribs['telemetry.sdk.version']);
             // Test metadata from the distro
             t.equal(attribs['telemetry.distro.name'], 'elastic');
-            t.equal(attribs['telemetry.distro.version'], `${DISTRO_VERSION}`);
+            t.equal(attribs['telemetry.distro.version'], DISTRO_VERSION);
         },
     },
 ];
 
-test('agent metada', (suite) => {
+test('agent metadata', (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });
