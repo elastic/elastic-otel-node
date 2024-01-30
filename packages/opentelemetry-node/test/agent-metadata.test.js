@@ -25,7 +25,7 @@ const testFixtures = [
             t.ok(attribs['telemetry.sdk.version']);
             // Test metadata from the distro
             t.equal(attribs['telemetry.distro.name'], 'elastic');
-            t.equal(attribs['telemetry.distro.version'], `${DISTRO_VERSION}`);
+            t.equal(attribs['telemetry.distro.version'], DISTRO_VERSION);
         },
     },
 ];
