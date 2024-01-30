@@ -30,7 +30,7 @@ const testFixtures = [
     },
 ];
 
-test('agent metada', (suite) => {
+test('agent metadata', (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });
