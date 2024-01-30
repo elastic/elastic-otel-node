@@ -3,6 +3,7 @@
 const {test} = require('tape');
 const {runTestFixtures} = require('./testutils');
 
+/** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
         name: 'diag default',

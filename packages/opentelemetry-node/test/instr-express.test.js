@@ -3,6 +3,7 @@
 const test = require('tape');
 const {runTestFixtures, findObjInArray} = require('./testutils');
 
+/** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
         name: 'use-express',
