@@ -19,7 +19,6 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=../start.js',
-            OTEL_EXPORTER_OTLP_HEADERS: 'key=value',
             OTEL_EXPORTER_OTLP_TRACES_HEADERS: 't-key=t-value,key=override',
             OTEL_EXPORTER_OTLP_METRICS_HEADERS: 'm-key=m-value',
             OTEL_EXPORTER_OTLP_LOGS_HEADERS: 'l-key=l-value',
@@ -30,20 +29,16 @@ const testFixtures = [
             const lines = stdout.split('\n');
             const getLine = (start) => lines.find((l) => l.startsWith(start));
             t.equal(
-                getLine('OTEL_EXPORTER_OTLP_HEADERS'),
-                'OTEL_EXPORTER_OTLP_HEADERS key=value'
-            );
-            t.equal(
                 getLine('OTEL_EXPORTER_OTLP_TRACES_HEADERS'),
-                `OTEL_EXPORTER_OTLP_TRACES_HEADERS ${USER_AGENT_HEADER},key=override,t-key=t-value`
+                `OTEL_EXPORTER_OTLP_TRACES_HEADERS ${USER_AGENT_HEADER},t-key=t-value,key=override`
             );
             t.equal(
                 getLine('OTEL_EXPORTER_OTLP_METRICS_HEADERS'),
-                `OTEL_EXPORTER_OTLP_METRICS_HEADERS ${USER_AGENT_HEADER},key=value,m-key=m-value`
+                `OTEL_EXPORTER_OTLP_METRICS_HEADERS ${USER_AGENT_HEADER},m-key=m-value`
             );
             t.equal(
                 getLine('OTEL_EXPORTER_OTLP_LOGS_HEADERS'),
-                `OTEL_EXPORTER_OTLP_LOGS_HEADERS ${USER_AGENT_HEADER},key=value,l-key=l-value`
+                `OTEL_EXPORTER_OTLP_LOGS_HEADERS ${USER_AGENT_HEADER},l-key=l-value`
             );
         },
     },
@@ -53,10 +48,9 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=../start.js',
-            OTEL_EXPORTER_OTLP_HEADERS: 'key=value',
-            OTEL_EXPORTER_OTLP_TRACES_HEADERS: 't-key=t-value,key=override',
-            OTEL_EXPORTER_OTLP_METRICS_HEADERS: 'm-key=m-value,User-Agent=test',
-            OTEL_EXPORTER_OTLP_LOGS_HEADERS: 'l-key=l-value',
+            OTEL_EXPORTER_OTLP_TRACES_HEADERS: 't-key=t-value,User-Agent=t-ua',
+            OTEL_EXPORTER_OTLP_METRICS_HEADERS: 'm-key=m-value,User-Agent=m-ua',
+            OTEL_EXPORTER_OTLP_LOGS_HEADERS: 'l-key=l-value,User-Agent=l-ua',
         },
         // verbose: true,
         checkResult: (t, err, stdout, stderr) => {
@@ -64,20 +58,16 @@ const testFixtures = [
             const lines = stdout.split('\n');
             const getLine = (start) => lines.find((l) => l.startsWith(start));
             t.equal(
-                getLine('OTEL_EXPORTER_OTLP_HEADERS'),
-                'OTEL_EXPORTER_OTLP_HEADERS key=value'
-            );
-            t.equal(
                 getLine('OTEL_EXPORTER_OTLP_TRACES_HEADERS'),
-                `OTEL_EXPORTER_OTLP_TRACES_HEADERS ${USER_AGENT_HEADER},key=override,t-key=t-value`
+                'OTEL_EXPORTER_OTLP_TRACES_HEADERS User-Agent=t-ua,t-key=t-value'
             );
             t.equal(
                 getLine('OTEL_EXPORTER_OTLP_METRICS_HEADERS'),
-                `OTEL_EXPORTER_OTLP_METRICS_HEADERS User-Agent=test,key=value,m-key=m-value`
+                'OTEL_EXPORTER_OTLP_METRICS_HEADERS User-Agent=m-ua,m-key=m-value'
             );
             t.equal(
                 getLine('OTEL_EXPORTER_OTLP_LOGS_HEADERS'),
-                `OTEL_EXPORTER_OTLP_LOGS_HEADERS ${USER_AGENT_HEADER},key=value,l-key=l-value`
+                'OTEL_EXPORTER_OTLP_LOGS_HEADERS User-Agent=l-ua,l-key=l-value'
             );
         },
     },

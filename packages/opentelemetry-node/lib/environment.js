@@ -61,19 +61,15 @@ function setupEnvironment() {
     }
 
     // Work with exporter headers:
-    // - Add our user-agent header
+    // - Add our `user-agent` header in headers for traces, matrics & logs
     // - comply with OTEL_EXPORTER_OTLP_HEADERS spec until the issue is fixed
     // TODO: should we stash and restore? if so the restoration should be done
     // after start
     const userAgentHeader = {'User-Agent': USER_AGENT_HEADER};
-    const globalHeaders = parseKeyValuePairs(
-        process.env.OTEL_EXPORTER_OTLP_HEADERS
-    );
     // TODO: for now we omit our user agent if already defined elsewhere
     const tracesHeaders = Object.assign(
         {},
         userAgentHeader,
-        globalHeaders,
         parseKeyValuePairs(process.env.OTEL_EXPORTER_OTLP_TRACES_HEADERS)
     );
     process.env.OTEL_EXPORTER_OTLP_TRACES_HEADERS =
@@ -82,7 +78,6 @@ function setupEnvironment() {
     const metricsHeaders = Object.assign(
         {},
         userAgentHeader,
-        globalHeaders,
         parseKeyValuePairs(process.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS)
     );
     process.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS =
@@ -91,7 +86,6 @@ function setupEnvironment() {
     const logsHeaders = Object.assign(
         {},
         userAgentHeader,
-        globalHeaders,
         parseKeyValuePairs(process.env.OTEL_EXPORTER_OTLP_LOGS_HEADERS)
     );
     process.env.OTEL_EXPORTER_OTLP_LOGS_HEADERS =
