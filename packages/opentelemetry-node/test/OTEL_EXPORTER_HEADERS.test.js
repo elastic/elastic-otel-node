@@ -1,4 +1,5 @@
-// Test that usage of `OTEL_EXPORTER_OTLP_HEADERS` works as expected.
+// Test that `User-Agent` is properly set into `OTEL_EXPORTER_OTLP_*_HEADERS`
+// environment vars vif not defined.
 
 const {test} = require('tape');
 const {safeGetPackageVersion, runTestFixtures} = require('./testutils');
