@@ -14,33 +14,32 @@ const {
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 const {setupLogger} = require('./logging');
+const {distroDetectorSync} = require('./detector');
+const {setupEnvironment, restoreEnvironment} = require('./environment');
 
 /**
- * @param {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} opts
+ * @typedef {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} PartialNodeSDKConfiguration
  */
+
 class ElasticNodeSDK extends NodeSDK {
+    /**
+     * @param {PartialNodeSDKConfiguration} opts
+     */
     constructor(opts = {}) {
         const log = setupLogger();
         log.trace('ElasticNodeSDK opts:', opts);
 
-        if (!('OTEL_TRACES_EXPORTER' in process.env)) {
-            // Ensure this envvar is set to avoid a diag.warn() in NodeSDK.
-            process.env.OTEL_TRACES_EXPORTER = 'otlp';
-        }
-        const envToRestore = {};
-        if ('OTEL_LOG_LEVEL' in process.env) {
-            envToRestore['OTEL_LOG_LEVEL'] = process.env.OTEL_LOG_LEVEL;
-            // Make sure NodeSDK doesn't see this envvar and overwrite our diag
-            // logger. It is restored below.
-            delete process.env.OTEL_LOG_LEVEL;
-        }
-
+        // Setup & fix some env
+        setupEnvironment();
         // TODO detect service name
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
+        /** @type {PartialNodeSDKConfiguration} */
         const defaultConfig = {
             resourceDetectors: [
+                // Elastic's own detector to add some metadata
+                distroDetectorSync,
                 envDetectorSync,
                 processDetectorSync,
                 // hostDetectorSync is not currently in the OTel default, but may be added
@@ -80,9 +79,8 @@ class ElasticNodeSDK extends NodeSDK {
         const configuration = Object.assign(defaultConfig, opts);
         super(configuration);
 
-        Object.keys(envToRestore).forEach((k) => {
-            process.env[k] = envToRestore[k];
-        });
+        // Once NodeSDK's constructor finish we can restore env
+        restoreEnvironment();
 
         this._metricsDisabled = metricsDisabled;
         this._log = log;
