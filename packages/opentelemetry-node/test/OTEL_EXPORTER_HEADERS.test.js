@@ -74,7 +74,7 @@ const testFixtures = [
     },
 ];
 
-test('OTEL_LOG_LEVEL', (suite) => {
+test('OTEL_EXPORTER_OTLP[*]_HEADERS', (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });
