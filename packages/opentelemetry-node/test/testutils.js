@@ -11,8 +11,14 @@ const semver = require('semver');
 
 const {MockOtlpServer, normalizeTrace} = require('@elastic/mockotlpserver');
 
-// Lookup the property "str" (given in dot-notation) in the object "obj".
-// If the property isn't found, then `undefined` is returned.
+/**
+ * Lookup the property "str" (given in dot-notation) in the object "obj".
+ * If the property isn't found, then `undefined` is returned.
+ *
+ * @param {Object} obj
+ * @param {string} str
+ * @returns {any}
+ */
 function dottedLookup(obj, str) {
     var o = obj;
     var fields = str.split('.');
@@ -26,12 +32,19 @@ function dottedLookup(obj, str) {
     return o;
 }
 
-// Return the first element in the array that has a `key` with the given `val`;
-// or if `val` is undefined, then the first element with any value for the given
-// `key`.
-//
-// The `key` maybe a nested field given in dot-notation, for example:
-// 'context.db.statement'.
+/**
+ * Return the first element in the array that has a `key` with the given `val`;
+ * or if `val` is undefined, then the first element with any value for the given
+ * `key`.
+ *
+ * The `key` maybe a nested field given in dot-notation, for example:
+ * 'context.db.statement'.
+ *
+ * @param {Array<any>} arr
+ * @param {string} key
+ * @param {any} val
+ * @returns {any}
+ */
 function findObjInArray(arr, key, val) {
     let result = null;
     arr.some(function (elm) {
@@ -52,7 +65,14 @@ function findObjInArray(arr, key, val) {
     return result;
 }
 
-// Same as `findObjInArray` but return all matches instead of just the first.
+/**
+ * Same as `findObjInArray` but return all matches instead of just the first.
+ *
+ * @param {Array<any>} arr
+ * @param {string} key
+ * @param {any} val
+ * @returns {any}
+ */
 function findObjsInArray(arr, key, val) {
     return arr.filter(function (elm) {
         const actualVal = dottedLookup(elm, key);
@@ -69,12 +89,16 @@ function findObjsInArray(arr, key, val) {
     });
 }
 
-// "Safely" get the version of the given package, if possible. Otherwise return
-// null.
-//
-// Here "safely" means avoiding `require("$packageName/package.json")` because
-// that can fail if the package uses an old form of "exports"
-// (e.g. https://github.com/elastic/apm-agent-nodejs/issues/2350).
+/**
+ * "Safely" get the version of the given package, if possible. Otherwise return
+ * null.
+ * Here "safely" means avoiding `require("$packageName/package.json")` because
+ * that can fail if the package uses an old form of "exports"
+ * (e.g. https://github.com/elastic/apm-agent-nodejs/issues/2350).
+ *
+ * @param {string} packageName
+ * @returns {string | null}
+ */
 function safeGetPackageVersion(packageName) {
     let file;
     try {
@@ -125,6 +149,10 @@ function formatForTComment(data) {
     );
 }
 
+/**
+ * @param {string} a
+ * @returns {string}
+ */
 function quoteArg(a) {
     if (a.includes("'")) {
         return "'" + a.replace("'", "'\\''") + "'";
@@ -137,10 +165,29 @@ function quoteArg(a) {
     }
 }
 
+/**
+ * @param {string[]} argv
+ * @returns {string}
+ */
 function quoteArgv(argv) {
     return argv.map(quoteArg).join(' ');
 }
 
+/**
+ * Returns a representation of the environment variables in string type
+ * quoting them if the values have certain characters
+ *
+ *    process.env = {
+ *        OTEL_SERVICE_NAME: 'my service',
+ *        OTEL_LOG_LEVEL: 'trace',
+ *    };
+ *
+ *    console.log(quoteEnv);
+ *    // prints: OTEL_SERVICE_NAME="my service" OTEL_LOG_LEVEL=trace
+ *
+ * @param {NodeJS.ProcessEnv | undefined} env
+ * @returns {string}
+ */
 function quoteEnv(env) {
     if (!env) {
         return '';
@@ -151,6 +198,16 @@ function quoteEnv(env) {
         })
         .join(' ');
 }
+
+/**
+ * CollectorStore represents a place where all observability data is saved.
+ * From that store we can get all info sent from the agent to the server:
+ * - traces
+ * - metrics
+ * - logs
+ * @typedef {Object} CollectorStore
+ * @property {import('@opentelemetry/api').Span[]} sortedSpans
+ */
 
 // Collect data sent to the mock OTLP server and provide utilities
 // for using that data in tests.
@@ -206,6 +263,19 @@ class TestCollector {
 }
 
 /**
+ * @callback CheckResultCallback
+ * @param {import('tape').Test} t
+ * @param {import('child_process').ExecFileException | undefined} err
+ * @param {string} stdout
+ * @param {string} stderr
+ */
+/**
+ * @callback CheckTelemetryCallback
+ * @param {import('tape').Test} t
+ * @param {CollectorStore} collector
+ */
+
+/**
  * Run a series of "test fixture" tests. Each test fixture is an object that
  * defines a Node.js script to run, how to run it (arguments, env, cwd),
  * and function(s) to check the results after it is run. This runner starts
@@ -251,21 +321,21 @@ class TestCollector {
  * @property {number} [timeout] A timeout number of milliseconds for the process
  *    to execute. Default 10000.
  * @property {number} [maxBuffer] A maxBuffer to use for the exec.
- * @property {Object<String, String>} [env] Any custom envvars, e.g. `{NODE_OPTIONS:...}`.
+ * @property {NodeJS.ProcessEnv} [env] Any custom envvars, e.g. `{NODE_OPTIONS:...}`.
  * @property {boolean} [verbose] Set to `true` to include `t.comment()`s showing
  *    the command run and its output. This can be helpful to run the script
  *    manually for dev/debugging.
- * @property {Object} [testOpts] Additional tape test opts, if any. https://github.com/ljharb/tape#testname-opts-cb
- * @property {Map<string,string>} [versionRanges] A mapping of required version
+ * @property {import('tape').TestOptions} [testOpts] Additional tape test opts, if any. https://github.com/ljharb/tape#testname-opts-cb
+ * @property {Record<string,string>} [versionRanges] A mapping of required version
  *    ranges for either "node" or a given module name. If current versions don't
  *    satisfy, then the test will be skipped. E.g. this is common for ESM tests:
  *        versionRanges: {
  *          node: NODE_VER_RANGE_IITM
  *        }
- * @property {function} [checkResult] Check the exit and output of the
+ * @property {CheckResultCallback} [checkResult] Check the exit and output of the
  *    script: `checkResult(t, err, stdout, stderr)`. If not provided, by
  *    default it will be asserted that the script exited successfully.
- * @property {function} [checkTelemetry] Check the results received by the mock
+ * @property {CheckTelemetryCallback} [checkTelemetry] Check the results received by the mock
  *    OTLP server. `checkTelemetry(t, collector)`. The second arg is a
  *    `TestCollector` object that has some convenience methods to use the
  *    collected data.
