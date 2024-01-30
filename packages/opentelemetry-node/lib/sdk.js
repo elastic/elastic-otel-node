@@ -6,7 +6,6 @@ const {
     envDetectorSync,
     hostDetectorSync,
     processDetectorSync,
-    Resource,
 } = require('@opentelemetry/resources');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 const {
@@ -15,9 +14,8 @@ const {
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 const {setupLogger} = require('./logging');
-
-const ELASTIC_SDK_VERSION = require('../package.json').version;
-const USER_AGENT_PREFIX = `elastic-otel-node/${ELASTIC_SDK_VERSION}`;
+const {distroDetectorSync} = require('./detector');
+const {setupEnvironment, restoreEnvironment} = require('./environment');
 
 /**
  * @typedef {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} PartialNodeSDKConfiguration
@@ -31,20 +29,8 @@ class ElasticNodeSDK extends NodeSDK {
         const log = setupLogger();
         log.trace('ElasticNodeSDK opts:', opts);
 
-        if (!('OTEL_TRACES_EXPORTER' in process.env)) {
-            // Ensure this envvar is set to avoid a diag.warn() in NodeSDK.
-            process.env.OTEL_TRACES_EXPORTER = 'otlp';
-        }
-
-        /** @type {NodeJS.ProcessEnv} */
-        const envToRestore = {};
-        if ('OTEL_LOG_LEVEL' in process.env) {
-            envToRestore['OTEL_LOG_LEVEL'] = process.env.OTEL_LOG_LEVEL;
-            // Make sure NodeSDK doesn't see this envvar and overwrite our diag
-            // logger. It is restored below.
-            delete process.env.OTEL_LOG_LEVEL;
-        }
-
+        // Setup & fix some env
+        setupEnvironment();
         // TODO detect service name
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
@@ -52,18 +38,8 @@ class ElasticNodeSDK extends NodeSDK {
         /** @type {PartialNodeSDKConfiguration} */
         const defaultConfig = {
             resourceDetectors: [
-                // Add resource atttributes related to our distro
-                {
-                    detect: () => {
-                        // TODO: change to semconv resource attribs when
-                        // `@opentelemetry/semantic-conventions`get updated with the attribs used
-                        // https://github.com/open-telemetry/opentelemetry-js/issues/4235
-                        return new Resource({
-                            'telemetry.distro.name': 'elastic',
-                            'telemetry.distro.version': `${ELASTIC_SDK_VERSION}`,
-                        });
-                    },
-                },
+                // Elastic's own detector to add some metadata
+                distroDetectorSync,
                 envDetectorSync,
                 processDetectorSync,
                 // hostDetectorSync is not currently in the OTel default, but may be added
@@ -103,9 +79,8 @@ class ElasticNodeSDK extends NodeSDK {
         const configuration = Object.assign(defaultConfig, opts);
         super(configuration);
 
-        Object.keys(envToRestore).forEach((k) => {
-            process.env[k] = envToRestore[k];
-        });
+        // Once NodeSDK's constructor finish we can restore env
+        restoreEnvironment();
 
         this._metricsDisabled = metricsDisabled;
         this._log = log;
@@ -118,17 +93,6 @@ class ElasticNodeSDK extends NodeSDK {
             'starting Elastic OpenTelemetry Node.js SDK distro'
         );
         super.start();
-
-        // Once the SDK is started the exporters are available/resolved so
-        // we can acces them and add/modify headers to set pur distro data
-        // TODO: should we keep it even if the user passed a custom exporter?
-        const unknownUserAgent = 'OTel-Unknown-Exporter-JavaScript';
-        // @ts-expect-error -- accessing a private property of the SDK
-        for (const exporter of this._tracerProvider._configuredExporters) {
-            const headers = exporter.headers;
-            const userAgent = headers['User-Agent'] || unknownUserAgent;
-            headers['User-Agent'] = `${USER_AGENT_PREFIX} ${userAgent}`;
-        }
 
         if (!this._metricsDisabled) {
             // TODO: make this configurable, user might collect host metrics with a separate utility
