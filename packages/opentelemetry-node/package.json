@@ -32,6 +32,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@opentelemetry/exporter-logs-otlp-proto": "^0.47.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.47.0",
     "@opentelemetry/host-metrics": "^0.34.1",
     "@opentelemetry/instrumentation-express": "^0.34.1",
