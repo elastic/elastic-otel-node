@@ -2,6 +2,7 @@ const {
     OTLPMetricExporter,
 } = require('@opentelemetry/exporter-metrics-otlp-proto');
 const {metrics, NodeSDK} = require('@opentelemetry/sdk-node');
+const {View, DropAggregation} = require('@opentelemetry/sdk-metrics');
 const {
     envDetectorSync,
     hostDetectorSync,
@@ -16,6 +17,8 @@ const {HostMetrics} = require('@opentelemetry/host-metrics');
 const {setupLogger} = require('./logging');
 const {distroDetectorSync} = require('./detector');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
+
+const {CpuUtilizationAggregation} = require('./metrics');
 
 /**
  * @typedef {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} PartialNodeSDKConfiguration
@@ -74,6 +77,23 @@ class ElasticNodeSDK extends NodeSDK {
                     exportIntervalMillis: metricsInterval,
                     exportTimeoutMillis: metricsInterval, // TODO same val appropriate for timeout?
                 });
+            // Add views for `host-metrics` to avoid excess of data being sent to the server
+            defaultConfig.views = [
+                // TODO: drop network metrics for now
+                new View({
+                    instrumentName: 'system.network.*',
+                    aggregation: new DropAggregation(),
+                }),
+                new View({
+                    instrumentName: 'system.cpu.utilization',
+                    aggregation: {
+                        createAggregator(instrument) {
+                            console.log('creating Aggregator', instrument);
+                            return new CpuUtilizationAggregation();
+                        },
+                    },
+                }),
+            ];
         }
 
         const configuration = Object.assign(defaultConfig, opts);
