@@ -200,6 +200,30 @@ function quoteEnv(env) {
 }
 
 /**
+ * @typedef {Object} DataPointDouble
+ * @property {string} startTimeUnixNano
+ * @property {string} timeUnixNano
+ * @property {number} asDouble
+ * @property {Record<string, any} [attributes]
+ */
+/**
+ * @typedef {Object} GaugeMetricData
+ * @property {DataPointDouble[]} dataPoints
+ */
+/**
+ * @typedef {Object} SumMetricData
+ * @property {DataPointDouble[]} dataPoints
+ */
+/**
+ * @typedef {Object} CollectedMetric
+ * @property {string} name
+ * @property {string} description
+ * @property {string} unit
+ * @property {GaugeMetricData} [gauge]
+ * @property {SumMetricData} [sum]
+ */
+
+/**
  * CollectorStore represents a place where all observability data is saved.
  * From that store we can get all info sent from the agent to the server:
  * - traces
@@ -207,6 +231,7 @@ function quoteEnv(env) {
  * - logs
  * @typedef {Object} CollectorStore
  * @property {import('@opentelemetry/api').Span[]} sortedSpans
+ * @property {CollectedMetric[]} metrics
  */
 
 // Collect data sent to the mock OTLP server and provide utilities
@@ -259,6 +284,28 @@ class TestCollector {
             const bStartInt = BigInt(b.startTimeUnixNano);
             return aStartInt < bStartInt ? -1 : aStartInt > bStartInt ? 1 : 0;
         });
+    }
+
+    get metrics() {
+        const metrics = [];
+
+        this.rawMetrics.forEach((rawMetric) => {
+            const normTrace = normalizeTrace(rawMetric);
+            normTrace.resourceMetrics.forEach((resourceMetric) => {
+                resourceMetric.scopeMetrics.forEach((scopeMetric) => {
+                    scopeMetric.metrics.forEach((metric) => {
+                        metric.resource = resourceMetric.resource;
+                        metric.scope = scopeMetric.scope;
+                        metrics.push(metric);
+                    });
+                });
+            });
+        });
+
+        // TODO: for now we do not need any type of sorting
+        // To do so we need to take into account that each metric has a different
+        // property depending of the DataPointType (GAUGE, HISTOGRAM, ...) they have
+        return metrics;
     }
 }
 
