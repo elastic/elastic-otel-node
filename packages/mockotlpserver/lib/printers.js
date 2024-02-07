@@ -13,7 +13,11 @@ const {
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
 } = require('./diagch');
-const {jsonStringifyMetrics, jsonStringifyTrace} = require('./normalize');
+const {
+    jsonStringifyLogs,
+    jsonStringifyMetrics,
+    jsonStringifyTrace,
+} = require('./normalize');
 
 /**
  * Abstract printer class.
@@ -71,21 +75,25 @@ class Printer {
  * Use `console.dir` (i.e. `util.inspect`) to format OTLP data.
  */
 class InspectPrinter extends Printer {
-    constructor(log) {
+    constructor(log, signals = ['trace', 'metrics', 'logs']) {
         super(log);
         /** @private */
         this._inspectOpts = {
             depth: 13, // Need 13 to get full metrics data structure.
             breakLength: process.stdout.columns || 120,
         };
+        this._signals = signals;
     }
     printTrace(trace) {
+        if (!this._signals.includes('trace')) return;
         console.dir(trace, this._inspectOpts);
     }
     printMetrics(metrics) {
+        if (!this._signals.includes('metrics')) return;
         console.dir(metrics, this._inspectOpts);
     }
     printLogs(logs) {
+        if (!this._signals.includes('logs')) return;
         console.dir(logs, this._inspectOpts);
     }
 }
@@ -95,11 +103,13 @@ class InspectPrinter extends Printer {
  * request. **Warning**: Converting OTLP service requests to JSON is fraught.
  */
 class JSONPrinter extends Printer {
-    constructor(log, indent) {
+    constructor(log, indent, signals = ['trace', 'metrics', 'logs']) {
         super(log);
         this._indent = indent || 0;
+        this._signals = signals;
     }
     printTrace(trace) {
+        if (!this._signals.includes('trace')) return;
         const str = jsonStringifyTrace(trace, {
             indent: this._indent,
             normAttributes: true,
@@ -107,6 +117,7 @@ class JSONPrinter extends Printer {
         console.log(str);
     }
     printMetrics(metrics) {
+        if (!this._signals.includes('metrics')) return;
         const str = jsonStringifyMetrics(metrics, {
             indent: this._indent,
             normAttributes: true,
@@ -114,8 +125,12 @@ class JSONPrinter extends Printer {
         console.log(str);
     }
     printLogs(logs) {
-        // TODO: cope with similar conversion issues as for trace above
-        console.log(JSON.stringify(logs, null, this._indent));
+        if (!this._signals.includes('logs')) return;
+        const str = jsonStringifyLogs(logs, {
+            indent: this._indent,
+            normAttributes: true,
+        });
+        console.log(str);
     }
 }
 

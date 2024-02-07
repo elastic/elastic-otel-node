@@ -58,6 +58,18 @@ function normAttrValue(v) {
                 v.intValue.unsigned
             ).toString();
         }
+    } else if ('kvlistValue' in v) {
+        const obj = {};
+        for (let keyValue of v.kvlistValue.values) {
+            obj[keyValue.key] = normAttrValue(keyValue.value);
+        }
+        return obj;
+    } else if (Object.keys(v).length === 0) {
+        // Representing an empty value:
+        // - proto serialization: KeyValue { key: 'signal', value: AnyValue {} }
+        // - json serialization: { key: 'code', value: {} }
+        // This normalization will use `null`.
+        return null;
     }
     throw new Error(`unexpected type of attributes value: ${v}`);
 }
@@ -195,7 +207,7 @@ function jsonStringifyTrace(trace, opts) {
  * - converts `span.kind` and `span.status.code` to their enum string value
  * - converts longs to string
  *
- * See `jsonStringifyTrace()` in for full notes.
+ * See `jsonStringifyTrace()` for full notes.
  */
 function normalizeTrace(rawTrace) {
     const str = jsonStringifyTrace(rawTrace, {
@@ -278,12 +290,101 @@ function jsonStringifyMetrics(metrics, opts) {
 }
 
 /**
- * Normalize the given raw MetricesServiceRequest.
+ * Normalize the given raw MetricsServiceRequest.
  *
- * See `jsonStringifyTrace()` in for full notes.
+ * See `jsonStringifyMetrics()` for full notes.
  */
 function normalizeMetrics(rawMetrics) {
     const str = jsonStringifyMetrics(rawMetrics, {
+        normAttributes: true,
+    });
+    return JSON.parse(str);
+}
+
+/**
+ * JSON stringify an OTLP logs service request to one *possible* representation.
+ *
+ * This implementation:
+ * - converts `timeUnixNano` and `observedTimeUnixNano` longs to string
+ * - normalizes `body`, e.g. `"body": { "stringValue": "hi" },` becomes
+ *   `"body": "hi"`.
+ * - converts `traceId`, `spanId` to hex
+ *
+ * Limitations:
+ * - We are using `json: true` for protobufjs conversion, which isn't applied
+ *   for the other OTLP flavours.
+ *
+ * @param {any} logs
+ * @param {object} opts
+ * @param {number} [opts.indent] - indent option to pass to `JSON.stringify()`.
+ * @param {boolean} [opts.normAttributes] - whether to convert 'attributes' to
+ *      an object (rather than the native array of {key, value} objects).
+ * @param {boolean} [opts.stripResource] - exclude the 'resource' property, for brevity.
+ * @param {boolean} [opts.stripAttributes] - exclude 'attributes' properties, for brevity.
+ * @param {boolean} [opts.stripScope] - exclude 'scope' property, for brevity.
+ */
+function jsonStringifyLogs(logs, opts) {
+    const replacer = (k, v) => {
+        let rv = v;
+        switch (k) {
+            case 'resource':
+                if (opts.stripResource) {
+                    rv = undefined;
+                }
+                break;
+            case 'attributes':
+                if (opts.stripAttributes) {
+                    rv = undefined;
+                } else if (opts.normAttributes) {
+                    rv = {};
+                    for (let i = 0; i < v.length; i++) {
+                        const attr = v[i];
+                        rv[attr.key] = normAttrValue(attr.value);
+                    }
+                }
+                break;
+            case 'scope':
+                if (opts.stripScope) {
+                    rv = undefined;
+                }
+                break;
+            case 'body':
+                rv = normAttrValue(v);
+                break;
+            case 'traceId':
+            case 'spanId':
+                // v.toJSON() will already have been called, converting it from
+                // a Buffer to an object... which is just a waste of time.
+                if (v.type === 'Buffer') {
+                    rv = Buffer.from(v.data).toString('hex');
+                }
+                break;
+        }
+        return rv;
+    };
+
+    let norm;
+    if (typeof logs.constructor.toObject === 'function') {
+        // Normalize `ExportLogsServiceRequest` from OTLP/proto request
+        // with our custom options.
+        norm = logs.constructor.toObject(logs, {
+            longs: String,
+            json: true, // TODO not sure about using this, b/c it differs from other flavours
+        });
+    } else {
+        norm = logs;
+    }
+
+    return JSON.stringify(norm, replacer, opts.indent || 0);
+}
+
+/**
+ * Normalize the given raw LogsServiceRequest.
+ *
+ * See `jsonStringifyLogs()` for full notes.
+ */
+function normalizeLogs(rawLogs) {
+    const str = jsonStringifyLogs(rawLogs, {
         normAttributes: true,
     });
     return JSON.parse(str);
@@ -294,4 +395,6 @@ module.exports = {
     normalizeTrace,
     jsonStringifyMetrics,
     normalizeMetrics,
+    jsonStringifyLogs,
+    normalizeLogs,
 };

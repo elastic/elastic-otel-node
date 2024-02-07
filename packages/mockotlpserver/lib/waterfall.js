@@ -47,7 +47,7 @@ function shortId(id) {
 let lastRenderedSpan = null;
 
 function renderSpan(span, prefix = '') {
-    const attrs = span.attributes;
+    const attrs = span.attributes || {};
 
     // 6-char wide gutter shows start time offset from preceding span.
     let gutter;
@@ -99,7 +99,7 @@ function renderSpan(span, prefix = '') {
     // if (attrs['db.system']) { }
     // if (attrs['messaging.system']) { }
     // if (attrs['rpc.system']) { }
-    if (attrs['http.url']) {
+    if ('http.url' in attrs) {
         extras.push(
             [
                 attrs['http.method'],
@@ -188,7 +188,13 @@ class TraceWaterfallPrinter extends Printer {
                 )
                 .join('\n')
         );
-        console.log(rendering.join('\n'));
+
+        // Hack delay in printing so that this "summary" printer output
+        // appears after "inspect" or "json" printer output for other signals
+        // flushed at about the same time.
+        setTimeout(() => {
+            console.log(rendering.join('\n'));
+        }, 10);
     }
 }
 
