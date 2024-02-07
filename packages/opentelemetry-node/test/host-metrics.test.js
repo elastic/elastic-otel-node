@@ -10,17 +10,16 @@ const {runTestFixtures} = require('./testutils');
 const testFixtures = [
     {
         name: 'host metrics default views',
-        args: ['./fixtures/use-express.js'],
+        args: ['./fixtures/use-host-metrics.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=../start.js',
             // TODO: this shall change in the future
             // we give a small number so we export the metrics while the
             // server is waiting/processing requests
-            ETEL_METRICS_INTERVAL_MS: 50,
+            ETEL_METRICS_INTERVAL_MS: 100,
         },
         checkTelemetry: (t, collector) => {
-            // console.dir(collector.metrics, {depth: 9});
             const metrics = collector.metrics;
             const networkMetrics = metrics.filter((metric) =>
                 metric.name.startsWith('system.network')
@@ -40,7 +39,6 @@ const testFixtures = [
                 cpuTimeMetrics.length === 0,
                 'system.cpu.time metric is dropped'
             );
-
             cpuUtilizationMetrics.forEach((metric) => {
                 t.ok(
                     metric.gauge,
