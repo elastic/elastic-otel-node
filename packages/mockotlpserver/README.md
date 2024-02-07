@@ -178,47 +178,68 @@ are supported by `mockotlpserver` as well. Use the `OTEL_EXPORTER_OTLP_PROTOCOL`
 to tell the NodeSDK to use a different protocol:
 
 ```
-OTEL_EXPORTER_OTLP_PROTOCOL=http/json node -r ./telemetry.js simple-http-request.js
-OTEL_EXPORTER_OTLP_PROTOCOL=grpc      node -r ./telemetry.js simple-http-request.js
+cd ../../examples
+OTEL_EXPORTER_OTLP_PROTOCOL=http/json node -r @elastic/opentelemetry-node/start.js simple-http-request.js
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc      node -r @elastic/opentelemetry-node/start.js simple-http-request.js
 ```
 
 If you look carefully, you can see some differences in the representation of some fields
-(startTimeUnixNano, traceId, spanId, etc.)
+(startTimeUnixNano, traceId, spanId, etc.).
+
+**WARNING**: At the time of writing the Elastic OTel Node.js SDK distro only
+supports the `OTLP/proto` flavour for *metrics* and *logs* exporting -- the
+`OTEL_EXPORTER_OTLP_PROTOCOL` setting will be ignored. It is only the *trace*
+exporter that currently honours that setting.
 
 <!--
 Try all the protocols:
-    for flav in http/proto http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r ./telemetry.js simple-http-request.js; done
+    for flav in http/proto http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry-node/start.js simple-http-request.js; done
 -->
 
 
 ## Different mockotlpserver printers
 
+There are a few groups of "printers" that format and write received OTLP data
+to the console:
+- `inspect` - Use Node.js's `util.inspect` to dump a complete and coloured representation.
+- `json`, `json2` - Show a (somewhat normalized) JSON representation. The `2` means 2-space indentation.
+- `summary` - An opinionated compact summary of the data.
+
+Each of these printers can be limited to a particular signal by prefixing with
+the signal. E.g. `node lib/cli.js -o logs-inspect,summary` will show full
+"inspect" output for received Logs OTLP requests and summary output for all
+signals.
+
+Some notes on particular printers follow.
+
 ### json, json2
 
 ```
-node lib/cli.js -o json
-node lib/cli.js -o json2
+node lib/cli.js -o json   # 0-space indentation, i.e. compact
+node lib/cli.js -o json2  # 2-space indentation
 ```
 
-Two other printers are `json` (0-space indentation) and `json2` (2-space
-indentation). These emit a JSON representation of each request, with some
-normalization applied:
+The JSON-related printers do some normalization of fields for convenience.
 
 - `attributes` are converted to a mapping for brevity
 - `traceId`, `spanId`, `parentSpanId` are converted to a hex value
 - `startTimeUnixNano`, `endTimeUnixNano` are converted to a string of a 64-bit integer
   (JavaScript's JSON.stringify cannot handle large 64-bit integers, so using
   Number can lose precision.)
+- Note: some others not mentioned here. See "lib/normalize.js" for details.
 
-### waterfall
+You can run `node lib/cli.js -o inspect,json` to compare the raw and normalized
+JSON forms.
 
-This printer converts OTLP trace spans into a sort of "waterfall"
-representation of the trace. The parent/child relationships are shown, along
-with some span timing and other details.
+### trace-summary
+
+This printer converts OTLP trace spans into a sort of "waterfall" representation
+of the trace. The parent/child relationships are shown, along with some span
+timing and other details.
 
 ```
 # server
-node lib/cli.js -o inspect,waterfall
+node lib/cli.js -o inspect,trace-summary
 
 # example client
 (cd ../../examples; node -r @elastic/opentelemetry-node/start.js simple-http-request.js)
@@ -229,8 +250,9 @@ node lib/cli.js -o inspect,waterfall
   +9ms `- span 90acc7 "GET" (3.4ms, SPAN_KIND_SERVER, GET http://localhost:3000/ -> 200)
 ```
 
-The leading gutter shows the start time offset from the preceding span.
-`` `- `` markers show parent/child relationships.
+- The leading gutter shows the start time offset from the preceding span.
+- `` `- `` markers show parent/child relationships.
+- Span and trace IDs (e.g. `299229`, `090dfe`) are trimmed to prefix for brevity.
 
 
 # Module usage
