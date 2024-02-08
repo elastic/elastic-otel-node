@@ -1,6 +1,7 @@
 const {
     OTLPMetricExporter,
 } = require('@opentelemetry/exporter-metrics-otlp-proto');
+const {OTLPLogExporter} = require('@opentelemetry/exporter-logs-otlp-proto');
 const {metrics, NodeSDK} = require('@opentelemetry/sdk-node');
 const {
     envDetectorSync,
@@ -11,6 +12,7 @@ const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 const {
     ExpressInstrumentation,
 } = require('@opentelemetry/instrumentation-express');
+const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
 const {setupLogger} = require('./logging');
 const {distroDetectorSync} = require('./detector');
@@ -47,14 +49,18 @@ class ElasticNodeSDK extends NodeSDK {
                 hostDetectorSync,
                 // TODO cloud/container detectors by default
             ],
-            // TODO log exporter? Optionally. Compare to apm-agent-java opts.
-            // logRecordProcessor: new logs.SimpleLogRecordProcessor(new logs.ConsoleLogRecordExporter()),
             instrumentations: [
                 // TODO All the instrumentations. Perf. Config support. Custom given instrs.
                 new HttpInstrumentation(),
                 new ExpressInstrumentation(),
             ],
         };
+
+        // Default logs exporter.
+        // TODO: handle other protocols per OTEL_ exporter envvars (or get core NodeSDK to do it). Currently hardcoding to http/proto
+        defaultConfig.logRecordProcessor = new BatchLogRecordProcessor(
+            new OTLPLogExporter()
+        );
 
         // Default metrics exporter.
         // Currently NodeSDK does not handle `OTEL_METRICS_EXPORTER`
@@ -94,7 +100,7 @@ class ElasticNodeSDK extends NodeSDK {
     start() {
         // TODO: make this preamble useful, or drop it
         this._log.info(
-            {premable: true},
+            {preamble: true},
             'starting Elastic OpenTelemetry Node.js SDK distro'
         );
         super.start();

@@ -4,8 +4,10 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {},
-  "dependencies": {
+  "devDependencies": {
     "@elastic/opentelemetry-node": "*",
+    "@opentelemetry/instrumentation-bunyan": "^0.35.0",
+    "bunyan": "^1.8.15",
     "express": "^4.18.2"
   }
 }

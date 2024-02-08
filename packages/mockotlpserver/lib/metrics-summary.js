@@ -48,7 +48,12 @@ class MetricsSummaryPrinter extends Printer {
             }
         }
 
-        console.log(rendering.join('\n'));
+        // Hack delay in printing so that this "summary" printer output
+        // appears after "inspect" or "json" printer output for other signals
+        // flushed at about the same time.
+        setTimeout(() => {
+            console.log(rendering.join('\n'));
+        }, 10);
     }
 }
 
