@@ -9,7 +9,11 @@ const {execFile} = require('child_process');
 const moduleDetailsFromPath = require('module-details-from-path');
 const semver = require('semver');
 
-const {MockOtlpServer, normalizeTrace} = require('@elastic/mockotlpserver');
+const {
+    MockOtlpServer,
+    normalizeTrace,
+    normalizeMetrics,
+} = require('@elastic/mockotlpserver');
 
 /**
  * Lookup the property "str" (given in dot-notation) in the object "obj".
@@ -199,6 +203,7 @@ function quoteEnv(env) {
         .join(' ');
 }
 
+// XXX: move this types to packages/mockotlpserver/lib/normalize.js
 /**
  * @typedef {Object} DataPointDouble
  * @property {string} startTimeUnixNano
@@ -290,8 +295,8 @@ class TestCollector {
         const metrics = [];
 
         this.rawMetrics.forEach((rawMetric) => {
-            const normTrace = normalizeTrace(rawMetric);
-            normTrace.resourceMetrics.forEach((resourceMetric) => {
+            const normMetric = normalizeMetrics(rawMetric);
+            normMetric.resourceMetrics.forEach((resourceMetric) => {
                 resourceMetric.scopeMetrics.forEach((scopeMetric) => {
                     scopeMetric.metrics.forEach((metric) => {
                         metric.resource = resourceMetric.resource;

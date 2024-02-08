@@ -1,5 +1,12 @@
 /**
- * Type imports
+ * NOTICE: all this code below has the only purpose of provide a new `View`
+ * that does a simple aggregation (trim in this case) for `system.cpu.utilization`
+ * metric.
+ * This is too much code for a simple trim of data:
+ * - `@opentelemetry/sdk-metrics` should offer a easier way to do it and also
+ *   should export all the necessary building blocks like `LastValueAccumulation`
+ *   class and `AggregatorKind` enum
+ * - we might look for an alternate solution in this case (no proposal for now)
  */
 /**
  * @typedef {import('@opentelemetry/api').HrTime} HrTime
@@ -168,64 +175,15 @@ class SystemCpuUtilizationAggregator {
         console.log('toMetricdata');
         console.dir(accumulationByAttributes, {depth: 5});
 
-        // XXX: the calculation of utilization with the formula 1 - idle_value seems incorrect
-        // given the data
-        // [
-        //     { 'system.cpu.state': 'user', 'system.cpu.logical_number': '0' },
-        //     {
-        //       startTime: [ 1707301875, 111000000 ],
-        //       _current: 0.20908004778972522,
-        //       sampleTime: [ 1707301875, 201000000 ]
-        //     },
-        //     '[["system.cpu.logical_number","0"],["system.cpu.state","user"]]'
-        //   ],
-        //   [
-        //     { 'system.cpu.state': 'system', 'system.cpu.logical_number': '0' },
-        //     {
-        //       startTime: [ 1707301875, 111000000 ],
-        //       _current: 0.13341298287534847,
-        //       sampleTime: [ 1707301875, 201000000 ]
-        //     },
-        //     '[["system.cpu.logical_number","0"],["system.cpu.state","system"]]'
-        //   ],
-        //   [
-        //     { 'system.cpu.state': 'idle', 'system.cpu.logical_number': '0' },
-        //     {
-        //       startTime: [ 1707301875, 111000000 ],
-        //       _current: 0.599362803663879,
-        //       sampleTime: [ 1707301875, 201000000 ]
-        //     },
-        //     '[["system.cpu.logical_number","0"],["system.cpu.state","idle"]]'
-        //   ],
-        //   [
-        //     {
-        //       'system.cpu.state': 'interrupt',
-        //       'system.cpu.logical_number': '0'
-        //     },
-        //     {
-        //       startTime: [ 1707301875, 111000000 ],
-        //       _current: 0,
-        //       sampleTime: [ 1707301875, 201000000 ]
-        //     },
-        //     '[["system.cpu.logical_number","0"],["system.cpu.state","interrupt"]]'
-        //   ],
-        //   [
-        //     { 'system.cpu.state': 'nice', 'system.cpu.logical_number': '0' },
-        //     {
-        //       startTime: [ 1707301875, 111000000 ],
-        //       _current: 0,
-        //       sampleTime: [ 1707301875, 201000000 ]
-        //     },
-        //     '[["system.cpu.logical_number","0"],["system.cpu.state","nice"]]'
-        //   ],
-        //   ... other values for other CPUs
-        // ]
+        // We cannot sum up the utilization of all the states since `os.cpus()` is
+        // not returning all of the possible states but limited to: user, nice, sys, idle, irq
+        // https://nodejs.org/api/all.html#all_os_oscpus
         //
-        // we can check that 1 - 0.599362803663879 !== 0.20908004778972522 + 0.13341298287534847
-        // my guess is that the instrumentation does not give all the data/states of the CPU
-        // should we assume that diff is CPU being used but not reported? hence take `idle` value
-        // as the source to calculate utilization?
-
+        // where in linux we have more: user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice
+        // https://man7.org/linux/man-pages/man5/proc.5.html
+        //
+        // So in order to have the most accurate metric of utilization we use
+        // the formula 1 - (idle utilization)
         return {
             descriptor,
             aggregationTemporality,
@@ -263,16 +221,18 @@ function enableHostMetrics() {
 
 /** @type {View[]} */
 const HOST_METRICS_VIEWS = [
-    // drop network metrics for now
+    // drop `system.network.*` metrics for now
     new View({
         instrumentName: 'system.network.*',
         aggregation: Aggregation.Drop(),
     }),
-    // `system.cpu.time` also has lots of values since it reports values per each state and CPU.
+    // drop `system.cpu.time` also
+    // TODO: check if we can do an aggregation here
     new View({
         instrumentName: 'system.cpu.time',
         aggregation: Aggregation.Drop(),
     }),
+    // use the aggregation we craeted above
     new View({
         instrumentName: 'system.cpu.utilization',
         aggregation: new SystemCpuUtilizationAggregation(),

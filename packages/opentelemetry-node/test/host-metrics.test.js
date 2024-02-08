@@ -46,7 +46,7 @@ const testFixtures = [
                 );
                 t.ok(
                     metric.gauge?.dataPoints.every((dp) => dp.asDouble < 1),
-                    'data points have a value between 0-1'
+                    '"system.cpu.utilization" data points have a value between 0-1'
                 );
                 t.ok(
                     metric.gauge?.dataPoints.filter(
