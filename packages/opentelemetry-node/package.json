@@ -48,6 +48,6 @@
     "express": "^4.18.2",
     "module-details-from-path": "^1.0.3",
     "semver": "^7.6.0",
-    "tape": "^5.7.2"
+    "tape": "^5.7.4"
   }
 }
