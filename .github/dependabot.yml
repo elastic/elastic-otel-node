@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "elastic/apm-agent-node-js"
+    groups:
+      otel:
+        patterns:
+        - "@opentelemetry/*"
+      eslint:
+        dependency-type: "development"
+        patterns:
+        - "eslint*"
