@@ -39,6 +39,11 @@ const statusCodeEnumFromVal = {
  *      { 'telemetry.sdk.version': '1.19.0',
  *        'process.pid': 19667 }
  */
+
+/**
+ * @param {import('../opentelemetry/proto').opentelemetry.proto.common.v1.IAnyValue} v
+ * @returns {any}
+ */
 function normAttrValue(v) {
     if ('stringValue' in v) {
         return v.stringValue;

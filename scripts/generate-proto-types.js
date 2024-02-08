@@ -19,20 +19,31 @@ const protos = [
     return join(rootPath, protosPath, it);
 });
 
-const generateCommand = [
+// const generateCommand = [
+//     // 1st genereate static module
+//     join(binPath, 'pbjs'),
+//     '-t static-module',
+//     `-p ${protosPath}`,
+//     '-w commonjs',
+//     '--null-defaults',
+//     ...protos,
+//     // Pipe
+//     '|',
+//     // Then geenerate types
+//     join(binPath, 'pbts'),
+//     `-o ${rootPath}/packages/mockotlpserver/opentelemetry/proto.d.ts`,
+//     `-`,
+// ].join(' ');
+
+// execSync(generateCommand);
+
+const generateJSONCommand = [
     // 1st genereate static module
     join(binPath, 'pbjs'),
-    '-t static-module',
+    '-t json',
     `-p ${protosPath}`,
-    '-w commonjs',
-    '--null-defaults',
+    `-o ${rootPath}/packages/mockotlpserver/opentelemetry/proto.json`,
     ...protos,
-    // Pipe
-    '|',
-    // Then geenerate types
-    join(binPath, 'pbts'),
-    `-o ${rootPath}/packages/mockotlpserver/opentelemetry/proto.d.ts`,
-    `-`,
 ].join(' ');
 
-execSync(generateCommand);
+execSync(generateJSONCommand);
