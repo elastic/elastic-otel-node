@@ -268,7 +268,7 @@ const HOST_METRICS_VIEWS = [
         instrumentName: 'system.network.*',
         aggregation: Aggregation.Drop(),
     }),
-    // `syste.cpu.time` also has lots af values since it reposr values per each state and CPU
+    // `system.cpu.time` also has lots of values since it reports values per each state and CPU.
     new View({
         instrumentName: 'system.cpu.time',
         aggregation: Aggregation.Drop(),
