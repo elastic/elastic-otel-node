@@ -32,13 +32,13 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "@opentelemetry/exporter-logs-otlp-proto": "^0.47.0",
-    "@opentelemetry/exporter-metrics-otlp-proto": "^0.47.0",
-    "@opentelemetry/host-metrics": "^0.34.1",
-    "@opentelemetry/instrumentation-express": "^0.34.1",
-    "@opentelemetry/instrumentation-http": "^0.47.0",
+    "@opentelemetry/exporter-logs-otlp-proto": "^0.48.0",
+    "@opentelemetry/exporter-metrics-otlp-proto": "^0.48.0",
+    "@opentelemetry/host-metrics": "^0.35.0",
+    "@opentelemetry/instrumentation-express": "^0.35.0",
+    "@opentelemetry/instrumentation-http": "^0.48.0",
     "@opentelemetry/resources": "^1.20.0",
-    "@opentelemetry/sdk-node": "^0.47.0",
+    "@opentelemetry/sdk-node": "^0.48.0",
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {

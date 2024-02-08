@@ -47,9 +47,9 @@
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
-    "@opentelemetry/exporter-trace-otlp-grpc": "^0.47.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.47.0",
-    "@opentelemetry/exporter-trace-otlp-proto": "^0.47.0",
-    "@opentelemetry/sdk-node": "^0.47.0"
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.48.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.48.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.48.0",
+    "@opentelemetry/sdk-node": "^0.48.0"
   }
 }
