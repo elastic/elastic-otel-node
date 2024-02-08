@@ -15,3 +15,8 @@ updates:
         dependency-type: "development"
         patterns:
         - "eslint*"
+      patch-level:
+        update-types:
+        - "patch"
+        exclude-patterns:
+        - "@opentelemetry/*"
