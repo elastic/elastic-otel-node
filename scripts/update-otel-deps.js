@@ -20,7 +20,7 @@ function updateOTelDeps(workspace) {
     const pkg = require(
         path.resolve(__dirname, '..', workspace, 'package.json')
     );
-    const otelDeps = Object.keys(pkg.dependencies)
+    const otelDeps = Object.keys(pkg.dependencies || {})
         .concat(Object.keys(pkg.devDependencies || {}))
         .filter((d) => d.startsWith('@opentelemetry/'));
 
