@@ -203,7 +203,7 @@ function quoteEnv(env) {
         .join(' ');
 }
 
-// XXX: move this types to packages/mockotlpserver/lib/normalize.js
+// TODO: move this types to packages/mockotlpserver/lib/normalize.js
 /**
  * @typedef {Object} DataPointDouble
  * @property {string} startTimeUnixNano
