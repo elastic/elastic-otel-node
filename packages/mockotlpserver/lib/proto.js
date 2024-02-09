@@ -2,14 +2,14 @@
  * Some utilities for working with the OpenTelemetry proto files.
  */
 
-const path = require('path');
+const {resolve} = require('path');
 
 const {Root} = require('protobufjs');
 
 // TODO: for now `proto` files are copied from
 // https://github.com/open-telemetry/opentelemetry-proto/releases/tag/v1.0.0
 // but maybe its better to have a submodule like otel-js does
-const prefix = path.resolve(__dirname, '..');
+const prefix = resolve(__dirname, '..');
 const paths = [
     '/opentelemetry/proto/common/v1/common.proto',
     '/opentelemetry/proto/resource/v1/resource.proto',
@@ -33,7 +33,7 @@ const root = new Root();
 root.resolvePath = function patchResolvePath(filename) {
     let path = Root.prototype.resolvePath.apply(root, arguments);
     if (filename) {
-        const folder = filename.split('/').slice(0, -1).join('/');
+        const folder = resolve(filename, '..');
         path = prefix + path.replace(folder, '');
     }
     return path;
