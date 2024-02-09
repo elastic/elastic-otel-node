@@ -12,12 +12,13 @@ const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 const {
     ExpressInstrumentation,
 } = require('@opentelemetry/instrumentation-express');
-const {HostMetrics} = require('@opentelemetry/host-metrics');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
 const {setupLogger} = require('./logging');
 const {distroDetectorSync} = require('./detector');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
+
+const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
 
 /**
  * @typedef {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} PartialNodeSDKConfiguration
@@ -80,6 +81,10 @@ class ElasticNodeSDK extends NodeSDK {
                     exportIntervalMillis: metricsInterval,
                     exportTimeoutMillis: metricsInterval, // TODO same val appropriate for timeout?
                 });
+            defaultConfig.views = [
+                // Add views for `host-metrics` to avoid excess of data being sent to the server
+                ...HOST_METRICS_VIEWS,
+            ];
         }
 
         const configuration = Object.assign(defaultConfig, opts);
@@ -102,10 +107,7 @@ class ElasticNodeSDK extends NodeSDK {
 
         if (!this._metricsDisabled) {
             // TODO: make this configurable, user might collect host metrics with a separate utility
-            this._hostMetrics = new HostMetrics({
-                name: '', // Use empty string to satisfy types, but get default.
-            });
-            this._hostMetrics.start();
+            enableHostMetrics();
         }
     }
 }
