@@ -19,7 +19,6 @@ const {minimatch} = require('minimatch');
 const semver = require('semver');
 
 const TOP = process.cwd();
-const DRY_RUN = true;
 
 function debug(...args) {
     if (process.env.DEBUG) {
