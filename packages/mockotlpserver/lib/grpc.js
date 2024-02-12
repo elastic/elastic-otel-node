@@ -94,7 +94,6 @@ class GrpcService extends Service {
                         reject(err);
                     } else {
                         this._port = boundPort;
-                        this._grpcServer.start();
                         resolve();
                     }
                 }
