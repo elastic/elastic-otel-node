@@ -8,8 +8,9 @@ const {
     readdirSync,
     readFileSync,
     writeFileSync,
+    appendFileSync,
 } = require('fs');
-const {resolve, join, sep} = require('path');
+const {resolve, relative, join, sep} = require('path');
 const {tmpdir} = require('os');
 
 // SCRIPT PARAMS
@@ -72,23 +73,66 @@ protoPaths.forEach((p) => {
     content.forEach((line, idx) => {
         const rexp = /^import "/;
         if (rexp.test(line)) {
-            let importPath = line.slice(8, -2);
-            // Simple solution is just only to `cd ..` until we get
-            // to the root folder
-            const pathParts = p.split(sep);
-            let index = pathParts.length - 1;
+            const importPath = line.slice(8, -2);
+            const absImport = resolve(targetPath, '..', importPath);
+            console.log('from', p);
+            console.log('to', absImport);
+            const relImport = relative(p, absImport).replace(sep, '/');
 
-            while (pathParts[index] !== 'opentelemetry') {
-                importPath = '../' + importPath;
-                index--;
-            }
-            content[idx] = `import "${importPath}";`;
+            content[idx] = `import "${relImport}";`;
         }
     });
     writeFileSync(p, content.join('\n'), {encoding: 'utf-8'});
 });
 
-// 4rt - generate types using protobufjs-cli
+// protoPaths.forEach((p) => {
+//     const content = readFileSync(p, {encoding: 'utf-8'}).split('\n');
+//     content.forEach((line, idx) => {
+//         const rexp = /^import "/;
+//         if (rexp.test(line)) {
+//             let importPath = line.slice(8, -2);
+//             // Simplest solution is just only to `cd ..` until we get
+//             // the parent folder of the protos root (opentelemetry)
+//             // so the import
+//             //    import "opentelemetry/proto/logs/v1/logs.proto";
+//             // from ther file
+//             //    opentelemetry/proto/collector/logs/v1/logs_service.proto
+//             // becomes
+//             //    import "../../../../../opentelemetry/proto/logs/v1/logs.proto";
+//             const pathParts = p.split(sep);
+//             let index = pathParts.length - 1;
+
+//             while (pathParts[index] !== 'opentelemetry') {
+//                 importPath = '../' + importPath;
+//                 index--;
+//             }
+//             content[idx] = `import "${importPath}";`;
+//         }
+//     });
+//     writeFileSync(p, content.join('\n'), {encoding: 'utf-8'});
+// });
+
+// 4th - add extra info into README.md file
+const readmePath = resolve(targetPath, 'proto', 'collector', 'README.md');
+
+const appendText = `
+### NOTE from Elastic Observability
+The contents of these \`.proto\` files have been extracted from the repository
+${REPO_URL} at the following tag/hash ${HASH_TAG}.
+
+This will be kept in sync wth the version being used in opentelemetry-js repository
+https://github.com/open-telemetry/opentelemetry-js.git
+
+The import paths of such files have been modified to be relative to avoid issues
+when loading them with \`protobufjs\` library. Once the library issue is resolved
+the files will be extracted "as is" from the repository.
+
+Ref: https://github.com/protobufjs/protobuf.js/issues/1971
+`;
+
+appendFileSync(readmePath, appendText, {encoding: 'utf-8'});
+
+// 5th - generate types using protobufjs-cli
 const rootPath = resolve(__dirname, '..');
 const binPath = join(rootPath, 'node_modules', '.bin');
 const protosPath = resolve(targetPath, 'proto');
@@ -101,7 +145,7 @@ const protos = [
 });
 
 const generateCommand = [
-    // 1st genereate static module
+    // genereate static module
     join(binPath, 'pbjs'),
     '-t static-module',
     `-p ${protosPath}`,
@@ -110,7 +154,7 @@ const generateCommand = [
     ...protos,
     // Pipe
     '|',
-    // Then geenerate types
+    // Then generate types
     join(binPath, 'pbts'),
     `-o ${rootPath}/packages/mockotlpserver/opentelemetry/proto.d.ts`,
     `-`,
