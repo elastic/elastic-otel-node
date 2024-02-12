@@ -136,7 +136,7 @@ const generateCommand = [
     '|',
     // Then generate types
     join(binPath, 'pbts'),
-    `-o ${rootPath}/packages/mockotlpserver/opentelemetry/proto.d.ts`,
+    `-o ${rootPath}/packages/mockotlpserver/lib/types-proto.d.ts`,
     `-`,
 ].join(' ');
 

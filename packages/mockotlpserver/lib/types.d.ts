@@ -1,5 +1,3 @@
-import type EventEmitter from 'events';
-
 type Long = { low: number; high: number; unsigned: boolean };
 type StringValue = { stringValue: string };
 type IntValue = { intValue: Long };

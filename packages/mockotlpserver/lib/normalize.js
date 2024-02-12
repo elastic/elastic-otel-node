@@ -38,10 +38,8 @@ const statusCodeEnumFromVal = {
  * to a value for converting 'attributes' to a simpler object, e.g.:
  *      { 'telemetry.sdk.version': '1.19.0',
  *        'process.pid': 19667 }
- */
-
-/**
- * @param {import('../opentelemetry/proto').opentelemetry.proto.common.v1.IAnyValue} v
+ *
+ * @param {import('./types-proto').opentelemetry.proto.common.v1.IAnyValue} v
  * @returns {any}
  */
 function normAttrValue(v) {

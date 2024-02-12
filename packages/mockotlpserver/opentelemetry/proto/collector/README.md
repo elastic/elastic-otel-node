@@ -15,9 +15,3 @@ https://github.com/open-telemetry/opentelemetry-proto.git at the following tag/h
 
 This will be kept in sync wth the version being used in opentelemetry-js repository
 https://github.com/open-telemetry/opentelemetry-js.git
-
-The import paths of such files have been modified to be relative to avoid issues
-when loading them with `protobufjs` library. Once the library issue is resolved
-the files will be extracted "as is" from the repository.
-
-Ref: https://github.com/protobufjs/protobuf.js/issues/1971
