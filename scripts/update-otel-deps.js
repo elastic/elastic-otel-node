@@ -4,11 +4,13 @@
  * Update '@opentelemetry/*' deps in all workspaces.
  *
  * Usage:
+ *      # You should do a clean 'npm ci' before running this.
  *      node scripts/update-otel-deps.js
  *
  * You can set the `DEBUG=1` envvar to get some debug output.
  */
 
+const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const {spawnSync} = require('child_process');
@@ -17,6 +19,7 @@ const {minimatch} = require('minimatch');
 const semver = require('semver');
 
 const TOP = process.cwd();
+const DRY_RUN = true;
 
 function debug(...args) {
     if (process.env.DEBUG) {
@@ -49,7 +52,8 @@ function getAllWorkspaceDirs() {
  * notes on some perils with using 'npm outdated'.
  *
  * @param {object} opts
- * @param {string[]} [opts.patterns]
+ * @param {string[]} opts.patterns - An array of glob-like patterns to match
+ *      against dependency names. E.g. `["@opentelemetry/*"]`.
  * @param {boolean} [opts.allowRangeBumpFor0x] - By default this update only
  *      targets to latest available version that matches the current
  *      package.json range. Setting this to true allows any deps currently at an
@@ -57,14 +61,20 @@ function getAllWorkspaceDirs() {
  *      satisfy the current range. E.g. `^0.41.0` will be bumped to `0.42.0` or
  *      `1.2.3` or `2.3.4` if that is the latest published version. This means
  *      using `npm install ...` and changing the range in "package.json".
+ * @param {boolean} [opts.dryRun] - Note that a dry-run might not fully
+ *      accurately represent the commands run, because the final 'npm update'
+ *      args can depend on the results of earlier 'npm install' commands.
  */
-function updateNpmWorkspacesDeps({patterns, allowRangeBumpFor0x}) {
+function updateNpmWorkspacesDeps({patterns, allowRangeBumpFor0x, dryRun}) {
+    assert(
+        patterns && patterns.length > 0,
+        'must provide one or more patterns'
+    );
+
     let p;
 
     const wsDirs = getAllWorkspaceDirs();
-    const matchStr = patterns?.length
-        ? ` matching "${patterns.join('", "')}"`
-        : '';
+    const matchStr = ` matching "${patterns.join('", "')}"`;
     console.log(`Updating deps${matchStr} in ${wsDirs.length} workspace dirs`);
 
     const depPatternFilter = (name) => {
@@ -149,13 +159,19 @@ function updateNpmWorkspacesDeps({patterns, allowRangeBumpFor0x}) {
                 summaryStrs.add(
                     `${currVer} -> ${latestVer} ${depName}${summaryNote}`
                 );
-            } else if (allowRangeBumpFor0x && semver.lt(currVer, '1.0.0')) {
-                npmInstallArgs.push(`${depName}@${latestVer}`);
-                summaryStrs.add(
-                    `${currVer} -> ${latestVer} ${depName} (range-bump)${summaryNote}`
-                );
+            } else if (semver.lt(currVer, '1.0.0')) {
+                if (allowRangeBumpFor0x) {
+                    npmInstallArgs.push(`${depName}@${latestVer}`);
+                    summaryStrs.add(
+                        `${currVer} -> ${latestVer} ${depName} (range-bump)${summaryNote}`
+                    );
+                } else {
+                    console.log(
+                        `WARN: not updating dep "${depName}" in "${wsDir}" to latest: currVer=${currVer}, latestVer=${latestVer}, package.json dep range="${info.deps[depName]}" (use allowRangeBumpFor0x=true to supporting bumping 0.x deps out of package.json range)`
+                    );
+                }
             } else {
-                // TODO: Add support looking for a possible update in this case.
+                // TODO: Add support for finding a release other than latest that satisfies the package.json range.
                 console.log(
                     `WARN: dep "${depName}" in "${wsDir}" cannot be updated to latest: currVer=${currVer}, latestVer=${latestVer}, package.json dep range="${info.deps[depName]}" (this script does not yet support finding a possible published ver to update to that does satisfy the package.json range)`
                 );
@@ -178,24 +194,26 @@ function updateNpmWorkspacesDeps({patterns, allowRangeBumpFor0x}) {
     debug('npmUpdatePkgNames: ', npmUpdatePkgNames);
     for (let task of npmInstallTasks) {
         console.log(` $ cd ${task.cwd} && ${task.argv.join(' ')}`);
-        p = spawnSync(task.argv[0], task.argv.slice(1), {
-            cwd: task.cwd,
-            encoding: 'utf8',
-        });
-        if (p.error) {
-            throw p.error;
-        } else if (p.status !== 0) {
-            const err = Error(`'npm install' failed (status=${p.status})`);
-            err.cwd = task.cwd;
-            err.argv = task.argv;
-            err.process = p;
-            throw err;
+        if (!dryRun) {
+            p = spawnSync(task.argv[0], task.argv.slice(1), {
+                cwd: task.cwd,
+                encoding: 'utf8',
+            });
+            if (p.error) {
+                throw p.error;
+            } else if (p.status !== 0) {
+                const err = Error(`'npm install' failed (status=${p.status})`);
+                err.cwd = task.cwd;
+                err.argv = task.argv;
+                err.process = p;
+                throw err;
+            }
+            // Note: As noted at https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1917#issue-2109198809
+            // (see "... requires running npm install twice ...") in some cases this
+            // 'npm install' doesn't actually install the new version, but do not
+            // error out!
+            // TODO: guard against this with 'npm ls' or package.json check?
         }
-        // Note: As noted at https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1917#issue-2109198809
-        // (see "... requires running npm install twice ...") in some cases this
-        // 'npm install' doesn't actually install the new version, but do not
-        // error out!
-        // TODO: guard against this with 'npm ls' or package.json check?
     }
 
     // At this point we should just need a single `npm update ...` command
@@ -245,34 +263,44 @@ function updateNpmWorkspacesDeps({patterns, allowRangeBumpFor0x}) {
             });
 
         console.log(` $ npm update ${Array.from(npmUpdatePkgNames).join(' ')}`);
-        p = spawnSync('npm', ['update'].concat(Array.from(npmUpdatePkgNames)), {
-            cwd: TOP,
-            encoding: 'utf8',
-        });
-        if (p.error) {
-            throw p.error;
+        if (!dryRun) {
+            p = spawnSync(
+                'npm',
+                ['update'].concat(Array.from(npmUpdatePkgNames)),
+                {
+                    cwd: TOP,
+                    encoding: 'utf8',
+                }
+            );
+            if (p.error) {
+                throw p.error;
+            }
         }
     }
 
     console.log('\nSanity check that all matching packages are up-to-date:');
-    const allDeps = new Set();
-    Object.keys(pkgInfoFromWsDir).forEach((wsDir) => {
-        Object.keys(pkgInfoFromWsDir[wsDir].deps).forEach((dep) => {
-            allDeps.add(dep);
+    if (dryRun) {
+        console.log('  (Skipping sanity check for dry-run.)');
+    } else {
+        const allDeps = new Set();
+        Object.keys(pkgInfoFromWsDir).forEach((wsDir) => {
+            Object.keys(pkgInfoFromWsDir[wsDir].deps).forEach((dep) => {
+                allDeps.add(dep);
+            });
         });
-    });
-    console.log(` $ npm outdated ${Array.from(allDeps).join(' ')}`);
-    p = spawnSync('npm', ['outdated'].concat(Array.from(allDeps)), {
-        cwd: TOP,
-        encoding: 'utf8',
-    });
-    if (p.status !== 0) {
-        // Only *warning* here because the user might still want to commit
-        // what *was* updated.
-        console.log(`WARN: not all packages${matchStr} were fully updated:
+        console.log(` $ npm outdated ${Array.from(allDeps).join(' ')}`);
+        p = spawnSync('npm', ['outdated'].concat(Array.from(allDeps)), {
+            cwd: TOP,
+            encoding: 'utf8',
+        });
+        if (p.status !== 0) {
+            // Only *warning* here because the user might still want to commit
+            // what *was* updated.
+            console.log(`WARN: not all packages${matchStr} were fully updated:
   *** 'npm outdated' exited non-zero, stdout: ***
   ${p.stdout.trimEnd().split('\n').join('\n  ')}
   ***`);
+        }
     }
 
     // Summary/commit message.
@@ -298,6 +326,7 @@ async function main() {
     updateNpmWorkspacesDeps({
         patterns: ['@opentelemetry/*'],
         allowRangeBumpFor0x: true,
+        dryRun: true,
     });
 }
 
