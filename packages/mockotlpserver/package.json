@@ -25,9 +25,10 @@
     "node": ">=14.17.0"
   },
   "scripts": {
-    "lint": "npm run lint:eslint && npm run lint:types",
+    "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
-    "lint:types": "tsc",
+    "lint:types": "tsc --skipLibCheck",
+    "lint:deps": "dependency-check 'lib/**/*.js'",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "start": "node lib/cli.js",
     "watch": "node --watch lib/cli.js",
@@ -41,15 +42,10 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.10.0",
     "@grpc/proto-loader": "^0.7.10",
+    "@opentelemetry/core": "^1.21.0",
     "dashdash": "^2.0.0",
     "long": "^5.2.3",
     "protobufjs": "^7.2.6",
     "safe-stable-stringify": "^2.4.3"
-  },
-  "devDependencies": {
-    "@opentelemetry/exporter-trace-otlp-grpc": "^0.48.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.48.0",
-    "@opentelemetry/exporter-trace-otlp-proto": "^0.48.0",
-    "@opentelemetry/sdk-node": "^0.48.0"
   }
 }
