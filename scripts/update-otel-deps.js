@@ -326,7 +326,7 @@ async function main() {
     updateNpmWorkspacesDeps({
         patterns: ['@opentelemetry/*'],
         allowRangeBumpFor0x: true,
-        dryRun: true,
+        dryRun: false,
     });
 }
 
