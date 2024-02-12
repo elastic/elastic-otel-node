@@ -7,10 +7,12 @@ updates:
     open-pull-requests-limit: 10
     reviewers:
       - "elastic/apm-agent-node-js"
+    ignore:
+      # Ignore otel deps updates because dependabot messes it up. Use
+      # 'npm run maint:update-otel-deps' instead. See
+      # https://github.com/elastic/elastic-otel-node/pull/68 for details.
+      - dependency-name: "@opentelemetry/*"
     groups:
-      otel:
-        patterns:
-        - "@opentelemetry/*"
       eslint:
         dependency-type: "development"
         patterns:
@@ -18,5 +20,3 @@ updates:
       patch-level:
         update-types:
         - "patch"
-        exclude-patterns:
-        - "@opentelemetry/*"
