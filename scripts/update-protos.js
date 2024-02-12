@@ -1,5 +1,16 @@
-// Script to generate Types from the proto files
-// inspired from a similar script in `opentelemetry-js`
+// Script to keep protobuf definitons in sync with upstream OTel repository
+// https://github.com/open-telemetry/opentelemetry-js
+//
+// The process will checkout the files at the given tag or hash and copy them
+// into `packages/mockotlpserver`. It will also generate the TypeScript types
+// of all the services defined (logs, metrics, traces)
+//
+// NOTE: because of an issue in `protobufjs` we need to use relative paths
+// in order to generate the types and actually to work with the lib in general.
+// Since we do not want to tamper the downloaded assets we will do the
+// necessary modifications in a tremp folder to get the type generation working.
+// Ref: https://github.com/protobufjs/protobuf.js/issues/1971
+
 const {execSync} = require('child_process');
 const {
     existsSync,
@@ -43,6 +54,7 @@ function findFiles(dir, regexp) {
 // 1st checkout the repo at the given hash or tag
 const tempPath = tmpdir();
 const checkoutPath = `${tempPath}/${REPO_NAME}`;
+const sourcePath = join(checkoutPath, 'opentelemetry');
 
 if (existsSync(checkoutPath)) {
     rmSync(checkoutPath, {recursive: true, force: true});
@@ -62,11 +74,10 @@ const targetPath = resolve(
 if (existsSync(targetPath)) {
     rmSync(targetPath, {recursive: true, force: true});
 }
-cpSync(join(checkoutPath, 'opentelemetry'), targetPath, {recursive: true});
+cpSync(sourcePath, targetPath, {recursive: true});
 
-// 3rd - transform imports from absolute to relative
-// ref: https://github.com/protobufjs/protobuf.js/issues/1971
-const protoPaths = findFiles(resolve(targetPath, 'proto'), /\.proto$/);
+// 3rd - transform imports from absolute to relative on the checkout folder
+const protoPaths = findFiles(resolve(sourcePath, 'proto'), /\.proto$/);
 
 protoPaths.forEach((p) => {
     const content = readFileSync(p, {encoding: 'utf-8'}).split('\n');
@@ -74,7 +85,7 @@ protoPaths.forEach((p) => {
         const rexp = /^import "/;
         if (rexp.test(line)) {
             const importPath = line.slice(8, -2);
-            const absPath = resolve(targetPath, '..', importPath);
+            const absPath = resolve(sourcePath, '..', importPath);
             // TODO: not sure why but I get an extra `..` than must be removed
             const relPath = relative(p, absPath)
                 .replace(sep, '/')
@@ -86,7 +97,8 @@ protoPaths.forEach((p) => {
     writeFileSync(p, content.join('\n'), {encoding: 'utf-8'});
 });
 
-// 4th - add extra info into README.md file
+// 4th - add extra info into README.md file in the target folder
+// se we have info about which versin we are
 const readmePath = resolve(targetPath, 'proto', 'collector', 'README.md');
 
 const appendText = `
@@ -96,20 +108,14 @@ ${REPO_URL} at the following tag/hash ${HASH_TAG}.
 
 This will be kept in sync wth the version being used in opentelemetry-js repository
 https://github.com/open-telemetry/opentelemetry-js.git
-
-The import paths of such files have been modified to be relative to avoid issues
-when loading them with \`protobufjs\` library. Once the library issue is resolved
-the files will be extracted "as is" from the repository.
-
-Ref: https://github.com/protobufjs/protobuf.js/issues/1971
 `;
 
 appendFileSync(readmePath, appendText, {encoding: 'utf-8'});
 
-// 5th - generate types using protobufjs-cli
+// 5th - generate types using protobufjs-cli from the source path
 const rootPath = resolve(__dirname, '..');
 const binPath = join(rootPath, 'node_modules', '.bin');
-const protosPath = resolve(targetPath, 'proto');
+const protosPath = resolve(sourcePath, 'proto');
 const protos = [
     '/collector/trace/v1/trace_service.proto',
     '/collector/metrics/v1/metrics_service.proto',
@@ -135,3 +141,6 @@ const generateCommand = [
 ].join(' ');
 
 execSync(generateCommand);
+
+// Finally cleanup the temp folder
+rmSync(checkoutPath, {recursive: true, force: true});
