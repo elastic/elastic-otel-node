@@ -74,43 +74,17 @@ protoPaths.forEach((p) => {
         const rexp = /^import "/;
         if (rexp.test(line)) {
             const importPath = line.slice(8, -2);
-            const absImport = resolve(targetPath, '..', importPath);
-            console.log('from', p);
-            console.log('to', absImport);
-            const relImport = relative(p, absImport).replace(sep, '/');
+            const absPath = resolve(targetPath, '..', importPath);
+            // TODO: not sure why but I get an extra `..` than must be removed
+            const relPath = relative(p, absPath)
+                .replace(sep, '/')
+                .replace('../', '');
 
-            content[idx] = `import "${relImport}";`;
+            content[idx] = `import "${relPath}";`;
         }
     });
     writeFileSync(p, content.join('\n'), {encoding: 'utf-8'});
 });
-
-// protoPaths.forEach((p) => {
-//     const content = readFileSync(p, {encoding: 'utf-8'}).split('\n');
-//     content.forEach((line, idx) => {
-//         const rexp = /^import "/;
-//         if (rexp.test(line)) {
-//             let importPath = line.slice(8, -2);
-//             // Simplest solution is just only to `cd ..` until we get
-//             // the parent folder of the protos root (opentelemetry)
-//             // so the import
-//             //    import "opentelemetry/proto/logs/v1/logs.proto";
-//             // from ther file
-//             //    opentelemetry/proto/collector/logs/v1/logs_service.proto
-//             // becomes
-//             //    import "../../../../../opentelemetry/proto/logs/v1/logs.proto";
-//             const pathParts = p.split(sep);
-//             let index = pathParts.length - 1;
-
-//             while (pathParts[index] !== 'opentelemetry') {
-//                 importPath = '../' + importPath;
-//                 index--;
-//             }
-//             content[idx] = `import "${importPath}";`;
-//         }
-//     });
-//     writeFileSync(p, content.join('\n'), {encoding: 'utf-8'});
-// });
 
 // 4th - add extra info into README.md file
 const readmePath = resolve(targetPath, 'proto', 'collector', 'README.md');
