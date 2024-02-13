@@ -172,9 +172,6 @@ class SystemCpuUtilizationAggregator {
         accumulationByAttributes,
         endTime
     ) {
-        console.log('toMetricdata');
-        console.dir(accumulationByAttributes, {depth: 5});
-
         // We cannot sum up the utilization of all the states since `os.cpus()` is
         // not returning all of the possible states but limited to: user, nice, sys, idle, irq
         // https://nodejs.org/api/all.html#all_os_oscpus
