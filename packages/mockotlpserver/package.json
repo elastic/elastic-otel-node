@@ -28,7 +28,7 @@
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc --skipLibCheck",
-    "lint:deps": "dependency-check 'lib/**/*.js'",
+    "lint:deps": "dependency-check 'lib/**/*.js' -i protobufjs-cli",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "start": "node lib/cli.js",
     "watch": "node --watch lib/cli.js",
