@@ -50,6 +50,7 @@
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.47.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.47.0",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.47.0",
-    "@opentelemetry/sdk-node": "^0.47.0"
+    "@opentelemetry/sdk-node": "^0.47.0",
+    "protobufjs-cli": "^1.1.2"
   }
 }
