@@ -5,6 +5,7 @@
 
 const {test} = require('tape');
 const {runTestFixtures} = require('./testutils');
+const {allowedNodeEnvironmentFlags} = require('process');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -44,10 +45,20 @@ const testFixtures = [
                     metric.gauge,
                     'data points are present in system.cpu.utilization metric'
                 );
+                const allInRange = metric.gauge?.dataPoints.every(
+                    (dp) => dp.asDouble < 1
+                );
                 t.ok(
-                    metric.gauge?.dataPoints.every((dp) => dp.asDouble < 1),
+                    allInRange,
                     '"system.cpu.utilization" data points have a value between 0-1'
                 );
+                if (!allInRange) {
+                    // Note: extra output to debug flaky test (https://github.com/elastic/elastic-otel-node/issues/73).
+                    t.comment(
+                        'cpuUtilizationMetrics: ' +
+                            JSON.stringify(cpuUtilizationMetrics)
+                    );
+                }
                 t.ok(
                     metric.gauge?.dataPoints.filter(
                         (dp) =>
