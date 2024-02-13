@@ -27,12 +27,9 @@
  * @typedef {import('@opentelemetry/sdk-metrics').GaugeMetricData} GaugeMetricData
  */
 
-const {millisToHrTime, hrTimeToMicroseconds} = require('@opentelemetry/core');
-const {
-    Aggregation,
-    DataPointType,
-    View,
-} = require('@opentelemetry/sdk-metrics');
+const {core, metrics} = require('@opentelemetry/sdk-node');
+const {millisToHrTime, hrTimeToMicroseconds} = core;
+const {Aggregation, DataPointType, View} = metrics;
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 /**
@@ -216,7 +213,7 @@ function enableHostMetrics() {
     hostMetricsInstance.start();
 }
 
-/** @type {View[]} */
+/** @type {metrics.View[]} */
 const HOST_METRICS_VIEWS = [
     // drop `system.network.*` metrics for now
     new View({
