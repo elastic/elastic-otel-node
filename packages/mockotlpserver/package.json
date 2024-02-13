@@ -47,5 +47,8 @@
     "long": "^5.2.3",
     "protobufjs": "^7.2.6",
     "safe-stable-stringify": "^2.4.3"
+  },
+  "devDependencies": {
+    "protobufjs-cli": "^1.1.2"
   }
 }
