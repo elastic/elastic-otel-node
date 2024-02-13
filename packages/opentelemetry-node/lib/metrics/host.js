@@ -216,7 +216,7 @@ function enableHostMetrics() {
     hostMetricsInstance.start();
 }
 
-/** @type {View[]} */
+/** @type {metrics.View[]} */
 const HOST_METRICS_VIEWS = [
     // drop `system.network.*` metrics for now
     new View({
