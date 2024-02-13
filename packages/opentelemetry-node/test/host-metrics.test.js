@@ -5,7 +5,6 @@
 
 const {test} = require('tape');
 const {runTestFixtures} = require('./testutils');
-const {allowedNodeEnvironmentFlags} = require('process');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
