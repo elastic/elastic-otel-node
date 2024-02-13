@@ -27,7 +27,7 @@
  * @typedef {import('@opentelemetry/sdk-metrics').GaugeMetricData} GaugeMetricData
  */
 
-const {core, metrics} = require('@opentelemetry/sdk-node').core;
+const {core, metrics} = require('@opentelemetry/sdk-node');
 const {millisToHrTime, hrTimeToMicroseconds} = core;
 const {Aggregation, DataPointType, View} = metrics;
 const {HostMetrics} = require('@opentelemetry/host-metrics');
