@@ -20,6 +20,7 @@ const {
     readFileSync,
     writeFileSync,
     appendFileSync,
+    mkdtempSync,
 } = require('fs');
 const {resolve, relative, join, sep} = require('path');
 const {tmpdir} = require('os');
@@ -52,13 +53,10 @@ function findFiles(dir, regexp) {
 // MAIN LINE
 
 // 1st checkout the repo at the given hash or tag
-const tempPath = tmpdir();
+const tempPath = mkdtempSync(tmpdir());
 const checkoutPath = `${tempPath}/${REPO_NAME}`;
 const sourcePath = join(checkoutPath, 'opentelemetry');
 
-if (existsSync(checkoutPath)) {
-    rmSync(checkoutPath, {recursive: true, force: true});
-}
 execSync(`git clone --depth 1 --branch ${HASH_TAG} ${REPO_URL}`, {
     cwd: tempPath,
 });
@@ -143,4 +141,4 @@ const generateCommand = [
 execSync(generateCommand);
 
 // Finally cleanup the temp folder
-rmSync(checkoutPath, {recursive: true, force: true});
+rmSync(tempPath, {recursive: true, force: true});
