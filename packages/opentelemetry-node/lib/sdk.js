@@ -8,25 +8,22 @@ const {
     hostDetectorSync,
     processDetectorSync,
 } = require('@opentelemetry/resources');
-const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
-const {
-    ExpressInstrumentation,
-} = require('@opentelemetry/instrumentation-express');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
-const {setupLogger} = require('./logging');
 const {distroDetectorSync} = require('./detector');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
-
+const {getInstrumentations} = require('./instrumentations');
+const {setupLogger} = require('./logging');
 const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
 
 /**
- * @typedef {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} PartialNodeSDKConfiguration
+ * @typedef {import('./types').NodeSDKConfiguration} NodeSDKConfiguration
+ * @typedef {import('./types').ElasticNodeSDKConfiguration} ElasticNodeSDKConfiguration
  */
 
 class ElasticNodeSDK extends NodeSDK {
     /**
-     * @param {PartialNodeSDKConfiguration} opts
+     * @param {Partial<ElasticNodeSDKConfiguration>} opts
      */
     constructor(opts = {}) {
         const log = setupLogger();
@@ -38,7 +35,7 @@ class ElasticNodeSDK extends NodeSDK {
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
-        /** @type {PartialNodeSDKConfiguration} */
+        /** @type {Partial<NodeSDKConfiguration>} */
         const defaultConfig = {
             resourceDetectors: [
                 // Elastic's own detector to add some metadata
@@ -49,12 +46,10 @@ class ElasticNodeSDK extends NodeSDK {
                 hostDetectorSync,
                 // TODO cloud/container detectors by default
             ],
-            instrumentations: [
-                // TODO All the instrumentations. Perf. Config support. Custom given instrs.
-                new HttpInstrumentation(),
-                new ExpressInstrumentation(),
-            ],
         };
+
+        // Resolve the instrumentations based on config
+        defaultConfig.instrumentations = getInstrumentations(opts);
 
         // Default logs exporter.
         // TODO: handle other protocols per OTEL_ exporter envvars (or get core NodeSDK to do it). Currently hardcoding to http/proto
