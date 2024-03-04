@@ -26,10 +26,12 @@ const INSTRUMENTATIONS = {
  */
 function getInstrumentations(opts) {
     // User decided to write his/her own list
+    // TODO: log if also `instrumentationProviders` is defined???
     if (opts.instrumentations && Array.isArray(opts.instrumentations)) {
         return opts.instrumentations;
     }
 
+    // Provide default instrumentations if no providers present
     if (
         !opts.instrumentationProviders ||
         !Array.isArray(opts.instrumentationProviders)
@@ -37,35 +39,6 @@ function getInstrumentations(opts) {
         return Object.values(INSTRUMENTATIONS).map((fn) => fn());
     }
 
-    // TODO: discuss this approach. Use providers to replace current instruentations
-    // the shape of a provider is
-    // {
-    //      for: "name_of_the_instrumentation",
-    //      use: () => { new CustomInstrumentation() }
-    // }
-    // ----
-    // also we could pass directly an instrumentation for add/replace
-    // PROS:
-    // - no need to rewrite all instrumentations
-    // - all options are possible (add, remove, replace)
-    // - no messing with OTel config types, we're extending
-    // CONS:
-    // - typos coud lead to unexpected behaviors (double instrumentation)
-    // - `instrumentationName` may be not unique???
-    // OTHER OPTIONS:
-    // - use `instrumentations` and have a `mode` property
-    //    - mode extend to add new classes and replace
-    //    - mode replace to completelly rewrite instrumentations
-    //
-    // CRAZY IDEA:
-    // have a mode to include only the instrumentations of the detected packages
-    // for performance gains
-    // - method should be recursive to check all app dependencies
-    //    - it would require to scan all instrumentations to extract the modules they patch
-    // - or we could have a map per instrumentation name
-    //   - eg. 'mongoose' => ['@opentelemetry/instrumentation-mongoose', '@opentelemetry/instrumentation-mongodb']
-    // - would require to use a function similar to `safeGetPackageVersion`
-    //   - using `module-details-from-path`
     /** @type {Array<any>} */
     const providers = opts.instrumentationProviders;
     const result = [];
@@ -85,6 +58,8 @@ function getInstrumentations(opts) {
             result.push(instr);
         }
     });
+
+    return result;
 }
 
 module.exports = {
