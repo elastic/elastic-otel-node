@@ -48,8 +48,9 @@ class ElasticNodeSDK extends NodeSDK {
             ],
         };
 
-        // Resolve the instrumentations based on config
-        defaultConfig.instrumentations = getInstrumentations(opts);
+        // Use user's instrumetations or get the default ones
+        defaultConfig.instrumentations =
+            opts.instrumentations || getInstrumentations();
 
         // Default logs exporter.
         // TODO: handle other protocols per OTEL_ exporter envvars (or get core NodeSDK to do it). Currently hardcoding to http/proto
