@@ -38,17 +38,23 @@ const INSTRUMENTATIONS = {
 function getInstrumentations(opts) {
     /** @type {Array<Instrumentation>} */
     const instrumentations = [];
+
     Object.keys(INSTRUMENTATIONS).forEach((name) => {
         const isFactory = typeof opts[name] === 'function';
         const isObject = typeof opts[name] === 'object';
         const instrFactory = isFactory ? opts[name] : INSTRUMENTATIONS[name];
         const instrConfig = isObject ? opts[name] : undefined;
 
-        // We should add a instrumentation if:
+        // We should instantiate a instrumentation if:
         // - there is no config passed (elastic SDK will use its defaults)
-        // - the configuraiton passed is not disabling it
+        // - the configuration passed is not disabling it
+        let instr;
         if (!instrConfig || instrConfig.enabled !== false) {
-            instrumentations.push(instrFactory(instrConfig));
+            instr = instrFactory(instrConfig);
+        }
+
+        if (instr) {
+            instrumentations.push(instr);
         }
     });
 
