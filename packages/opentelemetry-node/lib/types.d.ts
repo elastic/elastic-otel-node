@@ -1,11 +1,3 @@
-import type {NodeSDKConfiguration} from '@opentelemetry/sdk-node';
-
-
-
-export type {NodeSDKConfiguration} from '@opentelemetry/sdk-node';
-
-
+// TODO: check if we need to reexport types from instrumentations
 export type {getInstrumentations} from './instrumentations';
-// We may want to keep a specific type for configuration
-export type ElasticNodeSDKConfiguration = NodeSDKConfiguration;
-
+export type {ElasticNodeSDK} from './sdk';

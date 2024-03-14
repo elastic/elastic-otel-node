@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('@opentelemetry/sdk-node').NodeSDKConfiguration} NodeSDKConfiguration
+ */
+
 const {
     OTLPMetricExporter,
 } = require('@opentelemetry/exporter-metrics-otlp-proto');
@@ -10,20 +14,15 @@ const {
 } = require('@opentelemetry/resources');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
+const {setupLogger} = require('./logging');
 const {distroDetectorSync} = require('./detector');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
-const {setupLogger} = require('./logging');
 const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
-
-/**
- * @typedef {import('./types').NodeSDKConfiguration} NodeSDKConfiguration
- * @typedef {import('./types').ElasticNodeSDKConfiguration} ElasticNodeSDKConfiguration
- */
 
 class ElasticNodeSDK extends NodeSDK {
     /**
-     * @param {Partial<ElasticNodeSDKConfiguration>} opts
+     * @param {Partial<NodeSDKConfiguration>} opts
      */
     constructor(opts = {}) {
         const log = setupLogger();

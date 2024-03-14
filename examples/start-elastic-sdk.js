@@ -28,11 +28,10 @@ const {
 const sdk = new ElasticNodeSDK({
     serviceName: path.parse(process.argv[1]).name,
     // One can **override** completelly the instrumentations provided by ElasticNodeSDK
-    // by specifying `instrumentations`. If this property is set ElasticNodeSDK won't check
-    // for **extensions** if this config in `instrumentationProviders`
+    // by specifying `instrumentations`.
     instrumentations: [
         // Users can have the default instrumentations by calling `getInstrumentations`
-        // method. The options param is a Map<string, Object | Function> where the key
+        // method. The options param is a Record<string, Object | Function> where the key
         // is the name of the instrumentation.
         getInstrumentations({
             // It's possible to pass a configuration object to the instrumentation
