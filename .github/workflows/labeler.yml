@@ -14,11 +14,6 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-    - name: Add agent-nodejs label
-      uses: actions-ecosystem/action-add-labels@v1
-      with:
-        labels: agent-nodejs
-
     - name: Check team membership for user
       uses: elastic/get-user-teams-membership@1.1.0
       id: checkUserMember
