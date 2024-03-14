@@ -10,7 +10,7 @@ const envToRestore = {};
 
 /**
  * Reads a string in the format `key-1=value,key2=value2` and parses
- * it into an object. This is the format specified for ley value pairs
+ * it into an object. This is the format specified for key value pairs
  * for OTEL environment vars. Example:
  * https://opentelemetry.io/docs/concepts/sdk-configuration/otlp-exporter-configuration/#otel_exporter_otlp_headers
  *
