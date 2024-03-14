@@ -45,11 +45,11 @@ const testFixtures = [
                     'data points are present in system.cpu.utilization metric'
                 );
                 const allInRange = metric.gauge?.dataPoints.every(
-                    (dp) => dp.asDouble < 1
+                    (dp) => 0 <= dp.asDouble && dp.asDouble <= 1
                 );
                 t.ok(
                     allInRange,
-                    '"system.cpu.utilization" data points have a value between 0-1'
+                    '"system.cpu.utilization" data points are in the range [0,1]'
                 );
                 if (!allInRange) {
                     // Note: extra output to debug flaky test (https://github.com/elastic/elastic-otel-node/issues/73).
