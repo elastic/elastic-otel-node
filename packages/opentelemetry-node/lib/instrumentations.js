@@ -32,10 +32,10 @@ const INSTRUMENTATIONS = {
 
 /**
  * Get the list of instrumentations baed on options
- * @param {Partial<InstrumentaionsMap>} [opts]
+ * @param {Partial<InstrumentaionsMap>} [opts={}]
  * @returns {Array<Instrumentation>}
  */
-function getInstrumentations(opts) {
+function getInstrumentations(opts = {}) {
     /** @type {Array<Instrumentation>} */
     const instrumentations = [];
 
