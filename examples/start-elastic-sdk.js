@@ -16,11 +16,6 @@ const {
     getInstrumentations,
 } = require('@elastic/opentelemetry-node');
 
-// TODO: remove BunyanInstrumentation manual usage when the distro includes it by default
-const {
-    BunyanInstrumentation,
-} = require('@opentelemetry/instrumentation-bunyan');
-
 const {
     ExpressInstrumentation,
 } = require('@opentelemetry/instrumentation-express');
@@ -49,7 +44,7 @@ const sdk = new ElasticNodeSDK({
             },
         }),
         // Users can apend their own instrumentations as they would do with the vanilla SDK.
-        new BunyanInstrumentation(),
+        // new AnotherInstrumentation(),
     ],
 });
 
