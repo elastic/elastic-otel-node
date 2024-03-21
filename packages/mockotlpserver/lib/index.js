@@ -1,8 +1,13 @@
 const {MockOtlpServer} = require('./mockotlpserver');
-const {normalizeTrace, normalizeMetrics} = require('./normalize');
+const {
+    normalizeLogs,
+    normalizeTrace,
+    normalizeMetrics,
+} = require('./normalize');
 
 module.exports = {
     MockOtlpServer,
+    normalizeLogs,
     normalizeTrace,
     normalizeMetrics,
 };

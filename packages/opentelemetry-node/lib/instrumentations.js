@@ -5,11 +5,15 @@
  * @returns {Instrumentation}
  *
  * @typedef {{
+ *  "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory
  * }} InstrumentaionsMap
  */
 
+const {
+    BunyanInstrumentation,
+} = require('@opentelemetry/instrumentation-bunyan');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 const {
     ExpressInstrumentation,
@@ -24,6 +28,8 @@ const {
 // the user's config and can default to something else if needed.
 /** @type {Record<keyof InstrumentaionsMap, (cfg: any) => Instrumentation>} */
 const INSTRUMENTATIONS = {
+    '@opentelemetry/instrumentation-bunyan': (cfg) =>
+        new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-http': (cfg) =>
         new HttpInstrumentation(cfg),
     '@opentelemetry/instrumentation-express': (cfg) =>

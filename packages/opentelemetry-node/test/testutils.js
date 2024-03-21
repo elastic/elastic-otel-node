@@ -11,6 +11,7 @@ const semver = require('semver');
 
 const {
     MockOtlpServer,
+    normalizeLogs,
     normalizeTrace,
     normalizeMetrics,
 } = require('@elastic/mockotlpserver');
@@ -234,9 +235,14 @@ function quoteEnv(env) {
  * - traces
  * - metrics
  * - logs
+ *
+ * TODO: these types don't represent to added 'resource' and 'scope' properties.
+ * TODO: This LogRecord doesn't include `traceId` et al, because there are 3 LogRecord classes: protos, api-logs, sdk-logs.
+ *
  * @typedef {Object} CollectorStore
  * @property {import('@opentelemetry/api').Span[]} sortedSpans
  * @property {CollectedMetric[]} metrics
+ * @property {import('@opentelemetry/api-logs').LogRecord[]} logs
  */
 
 // Collect data sent to the mock OTLP server and provide utilities
@@ -311,6 +317,25 @@ class TestCollector {
         // To do so we need to take into account that each metric has a different
         // property depending of the DataPointType (GAUGE, HISTOGRAM, ...) they have
         return metrics;
+    }
+
+    get logs() {
+        const logs = [];
+        this.rawLogs.forEach((logsServiceRequest) => {
+            const normLogs = normalizeLogs(logsServiceRequest);
+            normLogs.resourceLogs.forEach((resourceLogs) => {
+                resourceLogs.scopeLogs.forEach((scopeLogs) => {
+                    scopeLogs.logRecords.forEach((logRecord) => {
+                        logRecord.resource = resourceLogs.resource;
+                        logRecord.scope = scopeLogs.scope;
+                        logs.push(logRecord);
+                    });
+                });
+            });
+        });
+
+        // TODO: sorting required? Or is incoming order sufficient? s/logs/sortedLogs/ if actively sorting.
+        return logs;
     }
 }
 
