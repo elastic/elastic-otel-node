@@ -15,7 +15,6 @@ const {
     normalizeTrace,
     normalizeMetrics,
 } = require('@elastic/mockotlpserver');
-const {normalizeLogs} = require('@elastic/mockotlpserver/lib/normalize');
 
 /**
  * Lookup the property "str" (given in dot-notation) in the object "obj".
