@@ -9,7 +9,7 @@ const {JSONPrinter, InspectPrinter} = require('./printers');
 const {TraceWaterfallPrinter} = require('./waterfall');
 const {MetricsSummaryPrinter} = require('./metrics-summary');
 const {LogsSummaryPrinter} = require('./logs-summary');
-const {MockOtlpServer} = require('./mockotlpserver');
+const {DEFAULT_HOSTNAME, MockOtlpServer} = require('./mockotlpserver');
 
 const PRINTER_NAMES = [
     'trace-inspect',
@@ -73,6 +73,11 @@ const OPTIONS = [
         )}".`,
         default: ['inspect', 'summary'],
     },
+    {
+        names: ['hostname'],
+        type: 'string',
+        help: `The hostname on which servers should listen, by default this is "${DEFAULT_HOSTNAME}".`,
+    },
 ];
 
 async function main() {
@@ -100,6 +105,9 @@ async function main() {
     const otlpServer = new MockOtlpServer({
         log,
         services: ['http', 'grpc', 'ui'],
+        grpcHostname: opts.hostname || DEFAULT_HOSTNAME,
+        httpHostname: opts.hostname || DEFAULT_HOSTNAME,
+        uiHostname: opts.hostname || DEFAULT_HOSTNAME,
     });
     await otlpServer.start();
 
