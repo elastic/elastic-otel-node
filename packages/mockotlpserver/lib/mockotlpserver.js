@@ -140,5 +140,6 @@ class MockOtlpServer {
 }
 
 module.exports = {
+    DEFAULT_HOSTNAME,
     MockOtlpServer,
 };
