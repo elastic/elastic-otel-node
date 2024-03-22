@@ -46,10 +46,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    #XXX
-    # env:
-    #   REDIS_HOST: 'localhost'
-
     services:
       redis:
         image: redis:7

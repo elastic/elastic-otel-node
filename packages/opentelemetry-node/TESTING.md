@@ -1,6 +1,6 @@
 # Testing @elastic/opentelemetry-node
 
-tl;dr:
+tl;dr: To run all tests locally:
 
 ```
 npm run test-services:start
@@ -54,7 +54,19 @@ Running tests, but skipping those that require test services:
 npm run test:without-test-services
 ```
 
-XXX testing just one file, with/out services
+Running just one test file:
+
+```
+node test/instr-http.test.js
+```
+
+Running just one test file that requires a particular test service:
+
+```
+npm run test-services:start redis
+REDIS_HOST=localhost node test/instr-ioredis.test.js
+npm run test-services:stop redis
+```
 
 
 ## Requirements for writing test files
@@ -113,13 +125,12 @@ to this testing.
 - Set that envvar in the "test" script in "package.json", so that it is
   defined when `npm test` is run.
 - Add the service to "test/docker-compose.yaml" and be sure to include a
-  `healthcheck` section.
-- Add the service and the envvar to the "test-vers" job in "../../.github/workflows/test.yml". E.g.:
+  `healthcheck` section. (This docker compose file is used by
+  `npm run test-services:*` for loca dev testing.)
+- Add the service to the "test-vers" job in "../../.github/workflows/test.yml"
+  for testing in CI. E.g.:
 
     ```yaml
-    env:
-      REDIS_HOST: 'localhost'
-
     services:
       redis:
         image: redis:7
@@ -127,40 +138,9 @@ to this testing.
           - 6379:6379
     ```
 
-XXX Is 'env' needed in the YAML if 'npm test' sets those envvars?
+TODO: When we have a few services, it will be burdensome to have these envvars
+all set in the "test" script in package.json. As well, the current usage does
+not support Windows. Perhaps we could use Node v20's `--env-file` support for
+this? Or a script/.cmd wrapper that does that until v20 is the base.
 
-Dev Notes:
-- TODO: When we have a few services, it will be burdensome to have these envvars
-  all set in the "test" script in package.json. As well, the current usage does
-  not support Windows. Perhaps we could use Node v20's `--env-file` support
-  for this? Or a script/.cmd wrapper that does that until v20 is the base.
-
-
-XXX
-```
-npm test
-    # Sets fallback ${SERVICE}_HOST envvar if not already set. This should
-    # work in CI as well, which should be setting all those envvars.
-    # This then fails if services are missing. Fail fast.
-
-npm run test-services:start
-npm test
-npm run test-services:stop
-    # This should pass.
-
-npm run test:with-test-services   # oneliner for the above
-
-# To test just stuff using one service.
-npm run test-services:start redis
-# npm test [FILTER]  ???
-npm test redis  # or 'npm test "*redis*"' ???
-node test/instr-ioredis.test.js
-npm run test-services:stop redis
-    # This should pass.
-
-npm run test:without-test-services
-    # Does *not* set _HOST envvars, so we expect each of those service-using
-    # tests to quick skip at the top.
-```
-XXX
 
