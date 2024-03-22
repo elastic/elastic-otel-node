@@ -63,7 +63,6 @@ server.listen(0, '127.0.0.1', async function () {
         clientReq.end();
     });
 
-    // First request to show a client error.
     await new Promise((resolve) => {
         const clientReq = http.request(
             `http://127.0.0.1:${port}/echo`,
