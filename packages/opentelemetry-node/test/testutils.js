@@ -238,6 +238,7 @@ function quoteEnv(env) {
  *
  * TODO: these types don't represent to added 'resource' and 'scope' properties.
  * TODO: This LogRecord doesn't include `traceId` et al, because there are 3 LogRecord classes: protos, api-logs, sdk-logs.
+ * TODO: Likewise for this Span type.
  *
  * @typedef {Object} CollectorStore
  * @property {import('@opentelemetry/api').Span[]} sortedSpans
