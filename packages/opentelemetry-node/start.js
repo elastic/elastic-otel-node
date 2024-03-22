@@ -1,3 +1,4 @@
+const os = require('os');
 const {ElasticNodeSDK} = require('./lib/sdk.js');
 
 const sdk = new ElasticNodeSDK();
@@ -10,11 +11,10 @@ const sdk = new ElasticNodeSDK();
 //    all attributes (console.warn shows more data for ECONNREFUSED)
 // TODO sdk shutdown beforeExit: skip this for Lambda (also Azure Fns?)
 // TODO sdh shutdown: call process.exit?
-// Note: Per https://github.com/open-telemetry/opentelemetry-js/issues/1521
-// core OTel explicitly decided *not* to call `process.exit()`. Personally
-// I think that means it should not install a SIGTERM handler, assuming my
-// understanding is correct that a SIGTERM handler without process.exit()
-// will prevent the program exiting if it otherwise would.
+// TODO: Whether we have a signal handler for sdk.shutdown() is debatable. It
+// definitely *can* change program behaviour. Let's reconsider.
+// Note: See https://github.com/open-telemetry/opentelemetry-js/issues/1521
+// for some thoughts on automatic handling to shutdown the SDK.
 
 process.on('SIGTERM', async () => {
     try {
@@ -22,7 +22,7 @@ process.on('SIGTERM', async () => {
     } catch (err) {
         console.warn('warning: error shutting down OTel SDK', err);
     }
-    process.exit();
+    process.exit(128 + os.constants.signals.SIGTERM);
 });
 
 process.once('beforeExit', async () => {
