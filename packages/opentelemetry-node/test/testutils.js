@@ -8,13 +8,14 @@ const {execFile} = require('child_process');
 
 const moduleDetailsFromPath = require('module-details-from-path');
 const semver = require('semver');
-
 const {
     MockOtlpServer,
     normalizeLogs,
     normalizeTrace,
     normalizeMetrics,
 } = require('@elastic/mockotlpserver');
+
+const luggite = require('../lib/luggite');
 
 /**
  * Lookup the property "str" (given in dot-notation) in the object "obj".
@@ -403,7 +404,7 @@ class TestCollector {
  * @property {string} [cwd] Typically this is `__dirname`, then the `args` can
  *    be relative to the test file.
  * @property {number} [timeout] A timeout number of milliseconds for the process
- *    to execute. Default 10000.
+ *    to execute. Default is no timeout.
  * @property {number} [maxBuffer] A maxBuffer to use for the exec.
  * @property {NodeJS.ProcessEnv} [env] Any custom envvars, e.g. `{NODE_OPTIONS:...}`.
  * @property {boolean} [verbose] Set to `true` to include `t.comment()`s showing
@@ -452,6 +453,11 @@ function runTestFixtures(suite, testFixtures) {
 
             const collector = new TestCollector();
             const otlpServer = new MockOtlpServer({
+                // Pass in a logger solely to reduce the level to warn.
+                log: luggite.createLogger({
+                    name: 'mockotlpserver',
+                    level: 'warn',
+                }),
                 services: ['http'],
                 httpHostname: '127.0.0.1', // avoid default 'localhost' because possible IPv6
                 httpPort: 0,
@@ -476,7 +482,8 @@ function runTestFixtures(suite, testFixtures) {
                     tf.args,
                     {
                         cwd,
-                        timeout: tf.timeout || 10000, // guard on hang, 3s is sometimes too short for CI
+                        timeout: tf.timeout || undefined,
+                        killSignal: 'SIGINT',
                         env: Object.assign(
                             {},
                             process.env,

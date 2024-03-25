@@ -7,6 +7,7 @@
  * @typedef {{
  *  "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory
  * }} InstrumentaionsMap
  */
@@ -15,6 +16,9 @@ const {
     BunyanInstrumentation,
 } = require('@opentelemetry/instrumentation-bunyan');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
+const {
+    IORedisInstrumentation,
+} = require('@opentelemetry/instrumentation-ioredis');
 const {
     ExpressInstrumentation,
 } = require('@opentelemetry/instrumentation-express');
@@ -30,10 +34,12 @@ const {
 const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-bunyan': (cfg) =>
         new BunyanInstrumentation(cfg),
-    '@opentelemetry/instrumentation-http': (cfg) =>
-        new HttpInstrumentation(cfg),
     '@opentelemetry/instrumentation-express': (cfg) =>
         new ExpressInstrumentation(cfg),
+    '@opentelemetry/instrumentation-http': (cfg) =>
+        new HttpInstrumentation(cfg),
+    '@opentelemetry/instrumentation-ioredis': (cfg) =>
+        new IORedisInstrumentation(cfg),
 };
 
 /**

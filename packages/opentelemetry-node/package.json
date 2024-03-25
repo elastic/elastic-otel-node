@@ -29,7 +29,10 @@
     "lint:types": "tsc --skipLibCheck",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:deps": "dependency-check start.js 'lib/**/*.js' 'test/**/*.js' -i @types/tape",
-    "test": "tape test/**/*.test.js"
+    "test": "REDIS_HOST=localhost tape test/**/*.test.js",
+    "test:without-test-services": "tape test/**/*.test.js",
+    "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
+    "test-services:stop": "docker compose -f ./test/docker-compose.yaml down"
   },
   "main": "lib/index.js",
   "types": "lib/types.d.ts",
@@ -40,6 +43,7 @@
     "@opentelemetry/instrumentation-bunyan": "^0.36.0",
     "@opentelemetry/instrumentation-express": "^0.36.1",
     "@opentelemetry/instrumentation-http": "^0.49.1",
+    "@opentelemetry/instrumentation-ioredis": "^0.38.0",
     "@opentelemetry/resources": "^1.20.0",
     "@opentelemetry/sdk-logs": "^0.49.1",
     "@opentelemetry/sdk-node": "^0.49.1",
@@ -51,6 +55,7 @@
     "@types/tape": "^5.6.4",
     "bunyan": "^1.8.15",
     "express": "^4.19.1",
+    "ioredis": "^5.3.2",
     "module-details-from-path": "^1.0.3",
     "semver": "^7.6.0",
     "tape": "^5.7.5"
