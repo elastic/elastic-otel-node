@@ -126,7 +126,7 @@ to this testing.
   defined when `npm test` is run.
 - Add the service to "test/docker-compose.yaml" and be sure to include a
   `healthcheck` section. (This docker compose file is used by
-  `npm run test-services:*` for loca dev testing.)
+  `npm run test-services:*` for local dev testing.)
 - Add the service to the "test-vers" job in "../../.github/workflows/test.yml"
   for testing in CI. E.g.:
 
