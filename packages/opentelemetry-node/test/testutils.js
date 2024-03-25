@@ -199,7 +199,9 @@ function quoteEnv(env) {
     }
     return Object.keys(env)
         .map((k) => {
-            return `${k}=${quoteArg(env[k])}`;
+            // Environment values should be strings, but be defensive.
+            const v = typeof env[k] === 'string' ? env[k] : env[k].toString();
+            return `${k}=${quoteArg(v)}`;
         })
         .join(' ');
 }
@@ -303,11 +305,15 @@ class TestCollector {
 
         this.rawMetrics.forEach((rawMetric) => {
             const normMetric = normalizeMetrics(rawMetric);
-            normMetric.resourceMetrics.forEach((resourceMetric) => {
-                resourceMetric.scopeMetrics.forEach((scopeMetric) => {
-                    scopeMetric.metrics.forEach((metric) => {
-                        metric.resource = resourceMetric.resource;
-                        metric.scope = scopeMetric.scope;
+            normMetric.resourceMetrics.forEach((resourceMetrics) => {
+                // The `?.` usages are guards against empty array values (e.g. a
+                // MetricsServiceRequest with no ScopeMetrics) being normalized
+                // to the `.scopeMetrics` attribute not being set. I'm not sure
+                // that normalization isn't a bug itself.
+                resourceMetrics.scopeMetrics?.forEach((scopeMetrics) => {
+                    scopeMetrics.metrics?.forEach((metric) => {
+                        metric.resource = resourceMetrics.resource;
+                        metric.scope = scopeMetrics.scope;
                         metrics.push(metric);
                     });
                 });

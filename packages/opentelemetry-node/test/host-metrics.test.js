@@ -14,11 +14,14 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=../start.js',
-            // TODO: this shall change in the future
-            // we give a small number so we export the metrics while the
-            // server is waiting/processing requests
-            ETEL_METRICS_INTERVAL_MS: 100,
+            // TODO: Change away from an "ETEL_" prefix at some point.
+            // The default metrics interval is 30s, which makes for a slow test.
+            // However, too low a value runs into possible:
+            //      PeriodicExportingMetricReader: metrics collection errors TimeoutError: Operation timed out.
+            // which can lead to test data surprises.
+            ETEL_METRICS_INTERVAL_MS: '1000',
         },
+        // verbose: true,
         checkTelemetry: (t, collector) => {
             const metrics = collector.metrics;
             const networkMetrics = metrics.filter((metric) =>
@@ -41,11 +44,11 @@ const testFixtures = [
             );
             cpuUtilizationMetrics.forEach((metric) => {
                 t.ok(
-                    metric.gauge,
+                    metric.gauge?.dataPoints,
                     'data points are present in system.cpu.utilization metric'
                 );
                 // Note: Skip this too-frequently flaky test for now. See https://github.com/elastic/elastic-otel-node/issues/73
-                // const allInRange = metric.gauge?.dataPoints.every(
+                // const allInRange = metric.gauge?.dataPoints?.every(
                 //     (dp) => 0 <= dp.asDouble && dp.asDouble <= 1
                 // );
                 // t.ok(
@@ -60,7 +63,7 @@ const testFixtures = [
                 //     );
                 // }
                 t.ok(
-                    metric.gauge?.dataPoints.filter(
+                    metric.gauge?.dataPoints?.filter(
                         (dp) =>
                             dp.attributes && dp.attributes['system.cpu.state']
                     ),
@@ -68,13 +71,13 @@ const testFixtures = [
                 );
                 t.equal(
                     new Set(
-                        metric.gauge?.dataPoints.map(
+                        metric.gauge?.dataPoints?.map(
                             (dp) =>
                                 dp.attributes &&
                                 dp.attributes['system.cpu.logical_number']
                         )
                     ).size,
-                    metric.gauge?.dataPoints.length,
+                    metric.gauge?.dataPoints?.length,
                     'data points have different "system.cpu.logical_number"'
                 );
             });
