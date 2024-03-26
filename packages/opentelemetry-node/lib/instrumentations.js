@@ -8,7 +8,8 @@
  *  "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory,
- *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory
+ *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentation | InstrumentationFactory
  * }} InstrumentaionsMap
  */
 
@@ -22,6 +23,9 @@ const {
 const {
     ExpressInstrumentation,
 } = require('@opentelemetry/instrumentation-express');
+const {
+    FastifyInstrumentation,
+} = require('@opentelemetry/instrumentation-fastify');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -36,6 +40,8 @@ const INSTRUMENTATIONS = {
         new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-express': (cfg) =>
         new ExpressInstrumentation(cfg),
+    '@opentelemetry/instrumentation-fastify': (cfg) =>
+        new FastifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-http': (cfg) =>
         new HttpInstrumentation(cfg),
     '@opentelemetry/instrumentation-ioredis': (cfg) =>
