@@ -12,6 +12,9 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=../start.js',
         },
+        versionRanges: {
+            node: '>=14.18.0',
+        },
         // verbose: true,
         checkTelemetry: (t, col) => {
             // We expect spans like this
