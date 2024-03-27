@@ -1,11 +1,14 @@
-**Disclaimer**: This project is currently in early development.
+# Elastic OpenTelemetry Node.js Distribution
 
-This is Elastic's OpenTelemetry Node.js SDK distribution.  It is a light wrapper
+This is the Elastic OpenTelemetry Node.js Distribution.  It is a light wrapper
 around the OpenTelemetry Node SDK that makes it easier to get started using
 OpenTelemetry in your Node.js applications, especially if you are using [Elastic
 Observability](https://www.elastic.co/observability) as your observability
 solution.
 
+# Current status
+
+Pre-alpha
 
 # Install
 
