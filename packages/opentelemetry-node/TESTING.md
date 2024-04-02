@@ -65,6 +65,8 @@ Running just one test file that requires a particular test service:
 ```
 npm run test-services:start redis
 REDIS_HOST=localhost node test/instr-ioredis.test.js
+  # or use --env-file with Node v20 and later:
+  #   node --env-file ./test/test-services.env test/instr-ioredis.test.js
 npm run test-services:stop redis
 ```
 
