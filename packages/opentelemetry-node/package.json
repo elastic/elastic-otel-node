@@ -29,7 +29,7 @@
     "lint:types": "tsc --skipLibCheck",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:deps": "dependency-check start.js 'lib/**/*.js' 'test/**/*.js' -i @types/tape",
-    "test": "REDIS_HOST=localhost tape test/**/*.test.js",
+    "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
     "test-services:stop": "docker compose -f ./test/docker-compose.yaml down"
@@ -55,6 +55,7 @@
     "@opentelemetry/api": "^1.3.0",
     "@types/tape": "^5.6.4",
     "bunyan": "^1.8.15",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "fastify": "^4.26.2",
     "ioredis": "^5.3.2",
