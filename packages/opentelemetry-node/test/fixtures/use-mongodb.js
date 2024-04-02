@@ -3,8 +3,8 @@
 const otel = require('@opentelemetry/api');
 const {MongoClient} = require('mongodb');
 
-const host = process.env.MONGODB_HOST || '127.0.0.1';
-const port = process.env.MONGODB_PORT || '27017';
+const host = process.env.MONGODB_HOST;
+const port = process.env.MONGODB_PORT;
 
 async function main() {
     const url = `mongodb://${host}:${port}`;
