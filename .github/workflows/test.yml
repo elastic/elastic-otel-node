@@ -52,6 +52,14 @@ jobs:
         ports:
           - 6379:6379
 
+      postgres:
+        image: postgres:16
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+          POSTGRES_USER: 'postgres'
+
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
