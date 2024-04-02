@@ -122,8 +122,8 @@ to this testing.
 - Ensure that your test file(s) skip out if that envvar is not defined.
   Running `node test/your-file.test.js` should skip out with a message
   including "SKIP" and the envvar name.
-- Set that envvar in the "test" script in "package.json", so that it is
-  defined when `npm test` is run.
+- Set that envvar in the "test/test-services.env" file, so that it is defined
+  when `npm test` is run.
 - Add the service to "test/docker-compose.yaml" and be sure to include a
   `healthcheck` section. (This docker compose file is used by
   `npm run test-services:*` for local dev testing.)
@@ -137,10 +137,5 @@ to this testing.
         ports:
           - 6379:6379
     ```
-
-TODO: When we have a few services, it will be burdensome to have these envvars
-all set in the "test" script in package.json. As well, the current usage does
-not support Windows. Perhaps we could use Node v20's `--env-file` support for
-this? Or a script/.cmd wrapper that does that until v20 is the base.
 
 
