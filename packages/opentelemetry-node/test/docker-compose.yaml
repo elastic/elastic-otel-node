@@ -22,8 +22,6 @@ services:
       retries: 30
 
   mongodb:
-    # TODO: discuss here if keep this version or use latest (7)
-    # my take is this is preferred if we want to run TAV tests
     image: mongo:7
     ports:
       - "27017:27017"
