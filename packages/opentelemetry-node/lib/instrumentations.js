@@ -9,7 +9,8 @@
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory,
- *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentation | InstrumentationFactory
+ *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentation | InstrumentationFactory
  * }} InstrumentaionsMap
  */
 
@@ -26,6 +27,9 @@ const {
 const {
     FastifyInstrumentation,
 } = require('@opentelemetry/instrumentation-fastify');
+const {
+    MongoDBInstrumentation,
+} = require('@opentelemetry/instrumentation-mongodb');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -46,10 +50,12 @@ const INSTRUMENTATIONS = {
         new HttpInstrumentation(cfg),
     '@opentelemetry/instrumentation-ioredis': (cfg) =>
         new IORedisInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mongodb': (cfg) =>
+        new MongoDBInstrumentation(cfg),
 };
 
 /**
- * Get the list of instrumentations baed on options
+ * Get the list of instrumentations based on options
  * @param {Partial<InstrumentaionsMap>} [opts={}]
  * @returns {Array<Instrumentation>}
  */
