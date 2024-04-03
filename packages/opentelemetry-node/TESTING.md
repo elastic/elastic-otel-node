@@ -83,9 +83,9 @@ npm run test-services:stop redis
 In addition, for test files that require a running test service:
 
 5. **They MUST use an envvar to indicate whether to run and MUST skip testing if that envvar is not defined.**<br/>
-    That envvar name **SHOULD** match `${NAME_OF_SERVICE}_*`, e.g. `REDIS_HOST`,
-    and **the skip message MUST include "SKIP" and the envvar name.** The reason
-    for this requirement is so that `npm run test:without-test-services` works.
+    That envvar name **SHOULD** match `${NAME_OF_SERVICE}*`, e.g. `REDIS_HOST` or `PGHOST`,
+    and **the skip message MUST include "SKIP" and the envvar name.**
+
     For example, running [the ioredis test](./test/instr-ioredis.test.js)
     includes this output:
 
@@ -94,6 +94,13 @@ In addition, for test files that require a running test service:
     # SKIP ioredis tests: REDIS_HOST is not set (try with `REDIS_HOST=localhost`)
     ...
     ```
+
+    The idea here is that there is an explicit signal that the test file can
+    expect its required test services to be running, otherwise it skips out.
+    This allows `npm run test:without-test-services` to work. It is fine if
+    the test file is configurable via more than this one environment variable
+    (e.g. separate `MONGODB_HOST` and `MONGODB_PORT` envvars). However it
+    would be nice if all but one have reasonable default values.
 
 6. **They SHOULD fail quickly if the requisite test service is not up.**<br/>
     For example, running the ioredis test with `REDIS_HOST` set but no running
