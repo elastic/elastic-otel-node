@@ -11,6 +11,7 @@
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentation | InstrumentationFactory
+ *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentation | InstrumentationFactory
  * }} InstrumentaionsMap
  */
 
@@ -30,6 +31,7 @@ const {
 const {
     MongoDBInstrumentation,
 } = require('@opentelemetry/instrumentation-mongodb');
+const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -52,6 +54,7 @@ const INSTRUMENTATIONS = {
         new IORedisInstrumentation(cfg),
     '@opentelemetry/instrumentation-mongodb': (cfg) =>
         new MongoDBInstrumentation(cfg),
+    '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
 };
 
 /**
