@@ -24,14 +24,8 @@ services:
     image: mongo:7
     ports:
       - "27017:27017"
-    volumes:
-      - nodemongodata:/data/db
     healthcheck:
       test: ["CMD", "mongo", "--quiet"]
       interval: 1s
       timeout: 10s
       retries: 30
-
-volumes:
-  nodemongodata:
-    driver: local

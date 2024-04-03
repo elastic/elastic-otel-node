@@ -3,6 +3,13 @@
 const test = require('tape');
 const {runTestFixtures} = require('./testutils');
 
+let skip = process.env.MONGODB_HOST === undefined;
+if (skip) {
+    console.log(
+        '# SKIP mongodb tests: MONGODB_HOST is not set (try with `MONGODB_HOST=localhost:27017`)'
+    );
+}
+
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
@@ -60,7 +67,7 @@ const testFixtures = [
     },
 ];
 
-test('mongodb instrumentation', (suite) => {
+test('mongodb instrumentation', {skip}, (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });
