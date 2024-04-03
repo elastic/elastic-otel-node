@@ -8,7 +8,9 @@ const port = process.env.MONGODB_PORT;
 
 async function main() {
     const url = `mongodb://${host}:${port}`;
-    const mongodbClient = new MongoClient(url);
+    const mongodbClient = new MongoClient(url, {
+        serverSelectionTimeoutMS: 3000,
+    });
 
     await mongodbClient.connect();
 
