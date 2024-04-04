@@ -73,22 +73,23 @@ npm run test-services:stop redis
 
 ## Requirements for writing test files
 
-**All test files MUST match the `test/**/*.test.js` glob pattern.**
+1. **All test files MUST match the `test/**/*.test.js` glob pattern.**
 
-**A test file MUST be runnable independently.** I.e. one can execute
-`node test/foo.test.js` independent of other test files.
+2. **A test file MUST be runnable independently.**<br/>
+   I.e. one can execute `node test/foo.test.js` independent of other test files.
 
-**A test file MUST exit with non-zero status to indicate failure.**
+3.  **A test file MUST exit with non-zero status to indicate failure.**
 
-**A test file SHOULD generate TAP output.**
+4.  **A test file SHOULD generate TAP output.**
 
-For test files that require a running test service:
+In addition, for test files that require a running test service:
 
-- **They MUST use an envvar to indicate whether to run and MUST skip testing if that envvar is not defined.**
-  That envvar name **SHOULD** match `${NAME_OF_SERVICE}_*`, e.g. `REDIS_HOST`,
-  and **the skip message MUST include "SKIP" and the envvar name.**
-  For example, running [the ioredis test](./test/instr-ioredis.test.js)
-  includes this output:
+5. **They MUST use an envvar to indicate whether to run and MUST skip testing if that envvar is not defined.**<br/>
+    That envvar name **SHOULD** match `${NAME_OF_SERVICE}*`, e.g. `REDIS_HOST` or `PGHOST`,
+    and **the skip message MUST include "SKIP" and the envvar name.**
+
+    For example, running [the ioredis test](./test/instr-ioredis.test.js)
+    includes this output:
 
     ```
     $ node test/instr-ioredis.test.js
@@ -96,9 +97,16 @@ For test files that require a running test service:
     ...
     ```
 
-- **They SHOULD fail quickly if the requisite test service is not up.**
-  For example, running the ioredis test with `REDIS_HOST` set but no running
-  Redis, fails within a couple seconds:
+    The idea here is that there is an explicit signal that the test file can
+    expect its required test services to be running, otherwise it skips out.
+    This allows `npm run test:without-test-services` to work. It is fine if
+    the test file is configurable via more than this one environment variable
+    (e.g. separate `MONGODB_HOST` and `MONGODB_PORT` envvars). However it
+    would be nice if all but one have reasonable default values.
+
+6. **They SHOULD fail quickly if the requisite test service is not up.**<br/>
+    For example, running the ioredis test with `REDIS_HOST` set but no running
+    Redis, fails within a couple seconds:
 
     ```
     $ time REDIS_HOST=localhost node test/instr-ioredis.test.js
