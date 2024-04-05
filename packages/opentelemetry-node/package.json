@@ -28,7 +28,7 @@
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc --skipLibCheck",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "lint:deps": "dependency-check start.js 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv",
+    "lint:deps": "dependency-check start.js 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv -i @opentelemetry/winston-transport",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
