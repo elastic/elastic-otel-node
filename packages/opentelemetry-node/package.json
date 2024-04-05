@@ -47,9 +47,11 @@
     "@opentelemetry/instrumentation-ioredis": "^0.39.0",
     "@opentelemetry/instrumentation-mongodb": "^0.42.0",
     "@opentelemetry/instrumentation-pg": "^0.40.0",
+    "@opentelemetry/instrumentation-winston": "^0.36.0",
     "@opentelemetry/resources": "^1.20.0",
     "@opentelemetry/sdk-logs": "^0.50.0",
     "@opentelemetry/sdk-node": "^0.50.0",
+    "@opentelemetry/winston-transport": "^0.2.0",
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
@@ -65,6 +67,7 @@
     "mongodb": "^6.3.0",
     "pg": "^8.11.5",
     "semver": "^7.6.0",
-    "tape": "^5.7.5"
+    "tape": "^5.7.5",
+    "winston": "^3.13.0"
   }
 }
