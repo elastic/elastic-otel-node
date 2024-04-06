@@ -13,7 +13,7 @@ const testFixtures = [
         args: ['./fixtures/use-host-metrics.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             // TODO: Change away from an "ETEL_" prefix at some point.
             // The default metrics interval is 30s, which makes for a slow test.
             // However, too low a value runs into possible:

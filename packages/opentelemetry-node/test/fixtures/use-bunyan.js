@@ -1,4 +1,4 @@
-// Usage: node -r ../../start.js use-bunyan.js
+// Usage: node -r @elastic/opentelemetry-node use-bunyan.js
 
 const bunyan = require('bunyan');
 const otel = require('@opentelemetry/api');

@@ -1,5 +1,5 @@
 const os = require('os');
-const {ElasticNodeSDK} = require('./lib/sdk.js');
+const {ElasticNodeSDK} = require('./elastic-node-sdk.js');
 
 const sdk = new ElasticNodeSDK();
 

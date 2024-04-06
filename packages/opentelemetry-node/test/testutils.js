@@ -375,7 +375,7 @@ class TestCollector {
  *
  *    const testFixtures = [
  *      {
- *        args: ['-r', '../start.js', 'fixtures/hello.js'],
+ *        args: ['-r', '@elastic/opentelemetry-node', 'fixtures/hello.js'],
  *        cwd: __dirname,
  *        verbose: true, // use to get debug output for the script's run
  *        checkTelemetry: (t, tel) => {

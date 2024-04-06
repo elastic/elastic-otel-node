@@ -1,4 +1,4 @@
-// Usage: node -r ../../start.js XXX use-ioredis.mjs
+// Usage: node -r @elastic/opentelemetry-node use-ioredis.mjs
 
 import {trace} from '@opentelemetry/api';
 
@@ -13,7 +13,7 @@ const redis = new Redis(process.env.REDIS_HOST, {
 const randomId = ((Math.random() * 2 ** 32) >>> 0).toString(16);
 const testKeyName = `test-${randomId}`;
 
-const tracer = trace.getTracer();
+const tracer = trace.getTracer('fixture');
 await tracer.startActiveSpan('manual', async (span) => {
     redis.set(testKeyName, 'bar');
     let val = await redis.get(testKeyName);

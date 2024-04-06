@@ -1,4 +1,4 @@
-// Usage: node -r ../../start.js use-express.js
+// Usage: node -r @elastic/opentelemetry-node use-express.js
 // TODO: add express.Router() usage, error capture with error handler? See examples/express-app.js.
 
 const http = require('http');

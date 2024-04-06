@@ -10,7 +10,7 @@ const testFixtures = [
         args: ['./fixtures/use-fastify.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         versionRanges: {
             node: '>=14.18.0',

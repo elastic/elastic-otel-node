@@ -1,18 +1,17 @@
-// --import=module
-// Added in: v19.0.0, v18.18.0
+// Register ESM hook and start the SDK.
+// This is called for `--import @elastic/opentelemetry-node`.
 
-// https://nodejs.org/api/module.html#customization-hooks
-// https://nodejs.org/api/module.html#moduleregisterspecifier-parenturl-options
-// v20.8.0 	Add support for WHATWG URL instances.
-// v20.6.0 	Added in: v20.6.0
-import {register} from 'node:module';
+import module from 'node:module';
+import {isMainThread} from 'node:worker_threads';
 
-console.log('hi from import.mjs');
+if (isMainThread) {
+    // XXX logging
+    if (typeof module.register === 'function') {
+        // XXX also protect against double registering of the loader, if the user also
+        //     adds `--loader=./hook.mjs` because we'll want to support that.
+        //     What *does* happen with double registering of the IITM loader?
+        module.register('./hook.mjs', import.meta.url);
+    }
 
-// XXX TODO: guard on supported node versions (v20.6.0 I think?)
-// XXX also protect against double registering of the loader, if the user also
-//     adds `--loader=./loader.mjs` because we'll want to support that.
-//     What *does* happen with double registering of the IITM loader?
-register('./loader.mjs', import.meta.url);
-
-await import('./start.js');
+    await import('./lib/start.js');
+}

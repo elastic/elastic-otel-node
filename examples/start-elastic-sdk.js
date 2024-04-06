@@ -1,7 +1,7 @@
 /**
  * Setup and start the Elastic OpenTelemetry Node.js SDK distro.
  *
- * This is an alternative to the `node -r @elastic/opentelemetry-node/start.js`
+ * This is an alternative to the `node -r @elastic/opentelemetry-node`
  * convenience for starting the SDK. Starting the SDK manually via a local
  * file can be useful to allow configuring the SDK with code.
  *
@@ -10,6 +10,8 @@
  */
 
 const path = require('path');
+
+// TODO see notes for isMainThread and module.register handling
 
 const {
     ElasticNodeSDK,

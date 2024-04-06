@@ -1,4 +1,4 @@
-// Usage: node -r ../../start.js use-ioredis.js
+// Usage: node -r @elastic/opentelemetry-node use-ioredis.js
 
 const otel = require('@opentelemetry/api');
 const {Redis} = require('ioredis');

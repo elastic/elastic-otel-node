@@ -13,7 +13,7 @@ const testFixtures = [
         args: ['./fixtures/use-http-get.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         checkTelemetry: (t, collector) => {
             const span = collector.sortedSpans[0];

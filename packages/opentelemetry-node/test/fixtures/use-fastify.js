@@ -1,4 +1,4 @@
-// Usage: node -r ../../start.js use-fastify.js
+// Usage: node -r @elastic/opentelemetry-node use-fastify.js
 
 const http = require('http');
 

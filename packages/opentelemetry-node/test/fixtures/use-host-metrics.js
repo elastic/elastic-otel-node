@@ -1,4 +1,4 @@
-// Usage: node -r ../../start.js use-host-metrics.js
+// Usage: node -r @elastic/opentelemetry-node use-host-metrics.js
 
 const {createHash} = require('crypto');
 

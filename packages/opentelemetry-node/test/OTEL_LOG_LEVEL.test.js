@@ -10,7 +10,7 @@ const testFixtures = [
         args: ['./fixtures/use-diag.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         // verbose: true,
         checkResult: (t, err, stdout, stderr) => {
@@ -26,7 +26,7 @@ const testFixtures = [
         args: ['./fixtures/use-diag.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_LOG_LEVEL: 'debug',
         },
         // verbose: true,
@@ -44,7 +44,7 @@ const testFixtures = [
         args: ['./fixtures/use-diag.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_LOG_LEVEL: 'VerBoSe',
         },
         // verbose: true,
