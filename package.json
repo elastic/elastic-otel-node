@@ -7,7 +7,8 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "lint": "eslint --ext=js,mjs,cjs scripts && npm run --if-present --workspaces lint",
+    "lint": "npm run lint:eslint && npm run --if-present --workspaces lint",
+    "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:fix": "eslint --ext=js,mjs,cjs scripts && npm run --if-present --workspaces lint:fix",
     "test": "npm run --if-present --workspaces test",
     "maint:update-otel-deps": "node scripts/update-otel-deps.js"
