@@ -228,8 +228,6 @@ function enableHostMetrics() {
 // for others that we want to include shorly (CPU metrics)
 // Ref (data amount issue): https://github.com/elastic/elastic-otel-node/issues/51
 // Ref (metrics in Kibana): https://github.com/elastic/kibana/pull/174700
-// TODO: if metrics filter config becomes a thing we may want to convert this to a
-// function that receives the filter as a param (or gets it from env)
 /** @type {metrics.View[]} */
 const HOST_METRICS_VIEWS = [
     // drop `system.network.*` (not in Kibana)
