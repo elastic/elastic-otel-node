@@ -7,6 +7,9 @@
  *   should export all the necessary building blocks like `LastValueAccumulation`
  *   class and `AggregatorKind` enum
  * - we might look for an alternate solution in this case (no proposal for now)
+ *
+ * Most of this code will be removed when https://github.com/open-telemetry/opentelemetry-js/issues/4616
+ * is solved.
  */
 /**
  * @typedef {import('@opentelemetry/api').HrTime} HrTime
@@ -33,10 +36,12 @@ const {Aggregation, DataPointType, View} = metrics;
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 /**
- * Copied from `@opentelemetry/sdk-metrics` since it's not exported
+ * TODO: Copied from `@opentelemetry/sdk-metrics` since it's not exported
  * https://github.com/open-telemetry/opentelemetry-js/blob/f86251d40fbf615be87319c8a1f5643afb820076/packages/sdk-metrics/src/aggregator/LastValue.ts#L34
  *
- * @todo remoce this class and require it when exported
+ * Remove when https://github.com/open-telemetry/opentelemetry-js/issues/4616 is fixed
+ *
+ * @todo remove this class when sdk.metrics exports it
  * @class
  * @implements {Accumulation}
  */
@@ -81,8 +86,9 @@ class LastValueAccumulation {
  * @implements {Aggregator<LastValueAccumulation>}
  */
 class SystemCpuUtilizationAggregator {
-    // TODO: hardcoded the value of `AggregatorKind` enum for GAUGE
-    // remove when exported
+    // TODO: Hardcoded the value of `AggregatorKind` enum for GAUGE. Remove
+    // when issue below is fixed
+    // Issue: https://github.com/open-telemetry/opentelemetry-js/issues/4616
     // https://github.com/open-telemetry/opentelemetry-js/blob/f86251d40fbf615be87319c8a1f5643afb820076/packages/sdk-metrics/src/aggregator/types.ts#L23
     kind = 2;
 
@@ -139,8 +145,19 @@ class SystemCpuUtilizationAggregator {
     }
 
     /**
-     * Does the sum of data points grouping by `system.cpu.logical_number` so we have the total
-     * utilization per CPU. Basically the value would be 1 - idle_value
+     * Groups data points by `system.cpu.logical_number` so we have the total
+     * utilization per CPU.
+     *
+     * We cannot sum up the utilization of all the states since `os.cpus()` is
+     * not returning all of the possible states but limited to: user, nice, sys, idle, irq
+     * https://nodejs.org/api/all.html#all_os_oscpus
+     *
+     * where in linux we have more: user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice
+     * https://man7.org/linux/man-pages/man5/proc.5.html
+     *
+     * So in order to have the most accurate metric of utilization we use
+     * the formula 1 - (idle utilization)
+     *
      * As an example given the data points:
      * - { value: 0.1, attributes: { 'system.cpu.logical_number': 0, 'system.cpu.state': 'idle' } }
      * - { value: 0.5, attributes: { 'system.cpu.logical_number': 0, 'system.cpu.state': 'system' } }
@@ -169,15 +186,6 @@ class SystemCpuUtilizationAggregator {
         accumulationByAttributes,
         endTime
     ) {
-        // We cannot sum up the utilization of all the states since `os.cpus()` is
-        // not returning all of the possible states but limited to: user, nice, sys, idle, irq
-        // https://nodejs.org/api/all.html#all_os_oscpus
-        //
-        // where in linux we have more: user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice
-        // https://man7.org/linux/man-pages/man5/proc.5.html
-        //
-        // So in order to have the most accurate metric of utilization we use
-        // the formula 1 - (idle utilization)
         return {
             descriptor,
             aggregationTemporality,
@@ -206,27 +214,41 @@ class SystemCpuUtilizationAggregation extends Aggregation {
 /** @type {HostMetrics} */
 let hostMetricsInstance;
 function enableHostMetrics() {
-    // TODO: make this configurable, user might collect host metrics with a separate utility
+    // NOTE: we set the scope name to the package name `@opentelemetry/host-metrics` like
+    // other instrumentations do. This way we can differentiate if the user collects the
+    // host metrics with a different utility or package
     hostMetricsInstance = new HostMetrics({
-        name: '',
+        name: '@opentelemetry/host-metrics',
     });
     hostMetricsInstance.start();
 }
 
+// It is known that host metrics sends a lot of data so for now we drop some
+// instruments that are not handled by Kibana and doing aggregations
+// for others that we want to include shorly (CPU metrics)
+// Ref (data amount issue): https://github.com/elastic/elastic-otel-node/issues/51
+// Ref (metrics in Kibana): https://github.com/elastic/kibana/pull/174700
+// TODO: if metrics filter config becomes a thing we may want to convert this to a
+// function that receives the filter as a param (or gets it from env)
 /** @type {metrics.View[]} */
 const HOST_METRICS_VIEWS = [
-    // drop `system.network.*` metrics for now
+    // drop `system.network.*` (not in Kibana)
     new View({
         instrumentName: 'system.network.*',
         aggregation: Aggregation.Drop(),
     }),
-    // drop `system.cpu.time` also
-    // TODO: check if we can do an aggregation here
+    // drop `system.cpu.time` (not in Kibana)
     new View({
         instrumentName: 'system.cpu.time',
         aggregation: Aggregation.Drop(),
     }),
-    // use the aggregation we craeted above
+    // drop `process.*` (not in Kibana)
+    new View({
+        instrumentName: 'process.*',
+        aggregation: Aggregation.Drop(),
+    }),
+    // Do an aggregation to avoid cardinality problems because of the possible
+    // permutations of state & logical_number attributes
     new View({
         instrumentName: 'system.cpu.utilization',
         aggregation: new SystemCpuUtilizationAggregation(),
