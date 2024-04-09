@@ -233,12 +233,8 @@ class SystemCpuUtilizationAggregation extends Aggregation {
 /** @type {HostMetrics} */
 let hostMetricsInstance;
 function enableHostMetrics() {
-    // NOTE: we set the scope name to the package name `@opentelemetry/host-metrics` like
-    // other instrumentations do. This way we can differentiate if the user collects the
-    // host metrics with a different utility or package
-    hostMetricsInstance = new HostMetrics({
-        name: '@opentelemetry/host-metrics',
-    });
+    // @ts-ignore - config interface expects a `name` property but there is a default value
+    hostMetricsInstance = new HostMetrics({});
     hostMetricsInstance.start();
 }
 
