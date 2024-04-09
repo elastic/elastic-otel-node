@@ -1,5 +1,5 @@
 // `npx eslint --print-config index.js` to print calculated config.
-{
+module.exports = {
   "root": true,
   "parserOptions": {
     "ecmaVersion": 2022, // Top-level await, etc.
@@ -17,11 +17,14 @@
   ],
   "plugins": [
     "import",
+    "license-header",
     "prettier",
     "promise",
     "n"
   ],
   "rules": {
+    "license-header/header": ["error", "./scripts/license-header.js"],
+
     // Restoring some config from standardjs that we want to maintain at least
     // for now -- to assist with transition to prettier.
     "no-unused-vars": [ // See taav for possible better 'no-unused-vars' rule.
@@ -82,9 +85,13 @@
     "import/no-webpack-loader-syntax": "error"
   },
   "ignorePatterns": [
+    "/.eslintrc.js",
+    "*.example.js", // a pattern for uncommited local dev files to avoid linting
+    "*.example.mjs", // a pattern for uncommited local dev files to avoid linting
     "/.nyc_output",
     "node_modules",
     "tmp",
-    "*.min.js"
+    "*.min.js",
+    "lib/luggite.js"
   ]
 }
