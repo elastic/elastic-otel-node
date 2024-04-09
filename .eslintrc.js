@@ -86,6 +86,8 @@ module.exports = {
   },
   "ignorePatterns": [
     "/.eslintrc.js",
+    "*.example.js", // a pattern for uncommited local dev files to avoid linting
+    "*.example.mjs", // a pattern for uncommited local dev files to avoid linting
     "/.nyc_output",
     "node_modules",
     "tmp",
