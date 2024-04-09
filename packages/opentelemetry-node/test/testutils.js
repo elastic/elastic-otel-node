@@ -340,9 +340,6 @@ class TestCollector {
             });
         });
 
-        // TODO: for now we do not need any type of sorting
-        // To do so we need to take into account that each metric has a different
-        // property depending of the DataPointType (GAUGE, HISTOGRAM, ...) they have
         return metrics;
     }
 
@@ -361,7 +358,6 @@ class TestCollector {
             });
         });
 
-        // TODO: sorting required? Or is incoming order sufficient? s/logs/sortedLogs/ if actively sorting.
         return logs;
     }
 }
