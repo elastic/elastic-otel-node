@@ -17,7 +17,6 @@
  * under the License.
  */
 
-// TODO: consider having a constants file
 const ELASTIC_SDK_VERSION = require('../package.json').version;
 const OTEL_SDK_VERSION =
     require('@opentelemetry/sdk-node/package.json').version;

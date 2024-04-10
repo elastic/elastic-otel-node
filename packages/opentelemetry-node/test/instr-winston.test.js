@@ -40,8 +40,6 @@ const testFixtures = [
             recs = stdout.trim().split(/\n/g).map(JSON.parse);
         },
         checkTelemetry: (t, col) => {
-            // We expect telemetry like this:
-            // TODO: waiting for log sending from https://github.com/open-telemetry/opentelemetry-js-contrib/pull/1837 to be in an otel-js-contrib release
             const spans = col.sortedSpans;
             t.equal(spans.length, 1);
 

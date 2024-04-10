@@ -49,7 +49,6 @@ class ElasticNodeSDK extends NodeSDK {
 
         // Setup & fix some env
         setupEnvironment();
-        // TODO detect service name
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
@@ -62,7 +61,6 @@ class ElasticNodeSDK extends NodeSDK {
                 processDetectorSync,
                 // hostDetectorSync is not currently in the OTel default, but may be added
                 hostDetectorSync,
-                // TODO cloud/container detectors by default
             ],
         };
 
