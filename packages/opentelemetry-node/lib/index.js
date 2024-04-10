@@ -19,10 +19,12 @@
 
 const {ElasticNodeSDK} = require('./sdk');
 const {getInstrumentations} = require('./instrumentations');
+const {createLogger} = require('./luggite');
 
 // TODO: this should reexport things from @otel/sdk-node (like 'api', 'core', etc.)
 
 module.exports = {
     ElasticNodeSDK,
     getInstrumentations,
+    createLogger,
 };

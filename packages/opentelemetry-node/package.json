@@ -33,10 +33,11 @@
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
-    "test-services:stop": "docker compose -f ./test/docker-compose.yaml down"
+    "test-services:stop": "docker compose -f ./test/docker-compose.yaml down",
+    "gen:types": "tsc ./lib/index.js --allowJs --skipLibCheck --declaration --emitDeclarationOnly --outDir types"
   },
   "main": "lib/index.js",
-  "types": "lib/types.d.ts",
+  "types": "types/index.d.ts",
   "dependencies": {
     "@opentelemetry/exporter-logs-otlp-proto": "^0.50.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.50.0",
