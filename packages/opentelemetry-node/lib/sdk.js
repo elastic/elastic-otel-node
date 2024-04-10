@@ -83,14 +83,15 @@ class ElasticNodeSDK extends NodeSDK {
         // TODO metrics exporter should do for metrics what `TracerProviderWithEnvExporters` does for traces, does that include `url` export endpoint?
         // TODO what `temporalityPreference`?
         // TODO make the Millis values configurable. What would otel java do?
-        // TODO config to disable metrics? E.g. otherwise `http.server.duration` will send every period forever and data can be distracting
-        const metricsDisabled = process.env.ETEL_METRICS_DISABLED === 'true'; // TODO hack for now
+
+        // Disable metrics by config
+        const metricsDisabled =
+            process.env.ELASTIC_OTEL_METRICS_DISABLED === 'true';
         if (!metricsDisabled) {
             const metricsInterval =
                 Number(process.env.ETEL_METRICS_INTERVAL_MS) || 30000;
             defaultConfig.metricReader =
                 new metrics.PeriodicExportingMetricReader({
-                    // exporter: new metrics.ConsoleMetricExporter(),
                     exporter: new OTLPMetricExporter(),
                     exportIntervalMillis: metricsInterval,
                     exportTimeoutMillis: metricsInterval, // TODO same val appropriate for timeout?
