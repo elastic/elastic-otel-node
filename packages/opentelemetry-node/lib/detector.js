@@ -19,6 +19,7 @@
 
 const {Resource} = require('@opentelemetry/resources');
 
+// @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
 
 class ElasticDistroDetector {
