@@ -108,10 +108,15 @@ class ElasticNodeSDK extends NodeSDK {
         // Once NodeSDK's constructor finish we can restore env
         restoreEnvironment();
 
+        /** @private */
         this._metricsDisabled = metricsDisabled;
+        /** @private */
         this._log = log;
     }
 
+    /**
+     * Starts the SDK
+     */
     start() {
         // TODO: make this preamble useful, or drop it
         this._log.info(
