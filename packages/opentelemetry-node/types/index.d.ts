@@ -1,3 +1,4 @@
 import { ElasticNodeSDK } from "./sdk";
 import { getInstrumentations } from "./instrumentations";
-export { ElasticNodeSDK, getInstrumentations };
+import { createLogger } from "./luggite";
+export { ElasticNodeSDK, getInstrumentations, createLogger };
