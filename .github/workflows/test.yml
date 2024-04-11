@@ -42,7 +42,7 @@ jobs:
           - '16'
           - '16.0'
           - '14'
-          - '14.17' # TODO: is this our actual min? same as elastic-apm-node
+          - '14.17'
 
     runs-on: ubuntu-latest
 
