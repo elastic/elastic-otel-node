@@ -24,7 +24,8 @@
   },
   "scripts": {
     "example": "cd ../../examples && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
-    "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files",
+    "lint": "npm run lint:all && git clean -Xf ./types",
+    "lint:all": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
