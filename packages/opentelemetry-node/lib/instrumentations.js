@@ -94,28 +94,28 @@ const INSTRUMENTATIONS = {
  * - if instrumentation name is present in keys and has an function as value this
  *   will be used as a factory and the object retuned by th function will replace
  *   the instrumentation
- * 
+ *
  * You can use this function if are developing your own telemetry script as an aid
- * to configure your instrumentations array 
- * 
+ * to configure your instrumentations array
+ *
  * Example:
- * 
+ *
  * ```js
  * const customInstrumentations = getInstrumentations({
  *      // HTTP instrumentation will get a specific config
  *     '@opentelemetry/instrumentation-http': {
  *          serverName: 'foo'
  *      },
- *      // Express insrumentation will be disabled and not returned 
+ *      // Express insrumentation will be disabled and not returned
  *      '@opentelemetry/instrumentation-express': {
  *          enabled: false,
  *      },
  *      // You can replace a instrumentation by using a funciton
  *      '@opentelemetry/instrumentation-mongodb': () => {
  *          return new MyMongoDBInstrumentation();
- *      } 
+ *      }
  * });
- * 
+ *
  * const sdk = new ElasticNodeSDK({
  *      instrumentations: [
  *          ...customInstrumentations,
@@ -123,7 +123,7 @@ const INSTRUMENTATIONS = {
  *      ]
  * });
  * ```
- * 
+ *
  * @param {Partial<InstrumentaionsMap>} [opts={}]
  * @returns {Array<Instrumentation>}
  */
