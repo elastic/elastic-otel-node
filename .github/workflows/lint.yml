@@ -27,3 +27,6 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run lint
+      # `opentelemetry-node` lint script overrides type definition
+      # files. Check those files are up to date
+      - run: git diff --exit-code
