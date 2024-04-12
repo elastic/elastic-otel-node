@@ -1,13 +1,13 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "noEmit": true,
     "allowJs": true,
     "checkJs": true,
     "target": "ESNext",
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "lib": ["ES2020"]
   },
   "exclude": ["node_modules"]

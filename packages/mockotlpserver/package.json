@@ -27,7 +27,7 @@
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
-    "lint:types": "tsc --skipLibCheck",
+    "lint:types": "tsc",
     "lint:deps": "dependency-check 'lib/**/*.js' -i protobufjs-cli",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",

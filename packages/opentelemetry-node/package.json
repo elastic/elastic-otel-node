@@ -26,17 +26,18 @@
     "example": "cd ../../examples && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
-    "lint:types": "tsc --skipLibCheck",
+    "lint:types": "tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:deps": "dependency-check start.js 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv -i @opentelemetry/winston-transport",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
-    "test-services:stop": "docker compose -f ./test/docker-compose.yaml down"
+    "test-services:stop": "docker compose -f ./test/docker-compose.yaml down",
+    "gen:types": "tsc"
   },
   "main": "lib/index.js",
-  "types": "lib/types.d.ts",
+  "types": "types/index.d.ts",
   "dependencies": {
     "@opentelemetry/exporter-logs-otlp-proto": "^0.50.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.50.0",
