@@ -5,9 +5,9 @@
 # (This is typically only run from the release.yml CI workflow.)
 #
 # Usage:
-#   ./scripts/github-release.sh PKG_DIR TAG_NAME
+#   ./scripts/github-release.sh PKG_DIR TAG_NAME DRY_RUN
 # Example:
-#   ./scripts/github-release.sh packages/opentelemetry-node v0.1.0
+#   ./scripts/github-release.sh packages/opentelemetry-node v0.1.0 true
 #
 # - For auth, this expects the 'GH_TOKEN' envvar to have been set.
 # - The 'TAG_NAME' is typically from the 'GITHUB_REF_NAME' variable
@@ -27,6 +27,7 @@ function fatal {
 
 readonly PKG_DIR="$1"
 readonly TAG_NAME="$2"
+readonly DRY_RUN="$3"
 
 TOP=$(cd $(dirname $0)/../ >/dev/null; pwd)
 JSON=$TOP/node_modules/.bin/json
@@ -66,7 +67,11 @@ fi
 
 echo
 echo "INFO: Creating '$PKG_NAME $TAG_NAME' GitHub release (latest=$IS_LATEST)"
-gh release create "$TAG_NAME" \
-  --title "$PKG_NAME $PKG_VER" \
-  --notes-file build/release-notes.md \
-  --latest=$IS_LATEST
+if [ "${DRY_RUN}" == "false" ] ; then
+  gh release create "$TAG_NAME" \
+    --title "$PKG_NAME $PKG_VER" \
+    --notes-file build/release-notes.md \
+    --latest=$IS_LATEST
+else
+  echo "DRY-RUN: gh release create $TAG_NAME"
+fi
