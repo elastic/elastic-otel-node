@@ -51,7 +51,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Notify in Slack
-        if: ${{ always() }}
+        # Only notify on failure, because on success the published GitHub
+        # Release will result in a notification from the GitHub Slack app
+        # (assuming '/github subscribe elastic/elastic-otel-node').
+        if: ${{ failure() }}
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
