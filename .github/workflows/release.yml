@@ -51,6 +51,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Notify in Slack
+        if: ${{ always() }}
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
