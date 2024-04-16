@@ -2,8 +2,11 @@
   "name": "@elastic/opentelemetry-node",
   "version": "0.1.0",
   "type": "commonjs",
-  "description": "Elastic distro of the OpenTelemetry SDK for Node.js",
-  "private": true,
+  "description": "Elastic OpenTelemetry distribution for Node.js",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -13,6 +16,7 @@
   "keywords": [
     "elastic",
     "opentelemetry",
+    "telemetry",
     "apm",
     "tracing",
     "metrics",
@@ -24,12 +28,13 @@
   },
   "scripts": {
     "example": "cd ../../examples && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
-    "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files",
+    "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files && npm run lint:changelog",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:deps": "dependency-check start.js 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv -i @opentelemetry/winston-transport",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
+    "lint:changelog": "../../scripts/extract-release-notes.sh .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
