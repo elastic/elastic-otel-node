@@ -44,12 +44,13 @@ jobs:
             totp/code/npmjs-elasticmachine code | TOTP_CODE
 
       - name: npm publish
-        run: npm publish $PUBLISH_FLAGS --otp=${{ env.TOTP_CODE }}
+        working-directory: ./packages/opentelemetry-node
+        run: npm publish --otp=${{ env.TOTP_CODE }}
         env:
           # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
           NODE_AUTH_TOKEN: ${{ env.NPMJS_TOKEN }}
 
-      - if: always()
+      - name: Notify in Slack
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
