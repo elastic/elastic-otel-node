@@ -44,8 +44,7 @@ jobs:
             totp/code/npmjs-elasticmachine code | TOTP_CODE
 
       - name: npm publish
-        # XXX --dry-run
-        run: npm publish --dry-run --otp=${{ env.TOTP_CODE }}
+        run: npm publish --otp=${{ env.TOTP_CODE }}
         env:
           # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
           NODE_AUTH_TOKEN: ${{ env.NPMJS_TOKEN }}
