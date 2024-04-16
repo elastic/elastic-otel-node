@@ -33,7 +33,7 @@ jobs:
       - run: npm ci --ignore-scripts
 
       - name: GitHub release
-        run: ./scripts/github-release.sh "packages/opentelemetry-node" "${{ env.GITHUB_REF_NAME }}" "${{ env.DRY_RUN }}"
+        run: ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}" "${{ env.DRY_RUN }}"
         env:
           GH_TOKEN: ${{ github.token }}
 
