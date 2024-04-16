@@ -109,35 +109,27 @@ npm ls --omit=dev --all --parseable \
                 }
                 console.log(`\n## ${pj.name}@${pj.version} (${licType})`)
 
-                // Special case for Apache-2.0: that is our license so we
-                // already have a copy that we can point to. Given we include
-                // a lot of "@opentelemetry/*" deps that all use Apache-2.0,
-                // this massively reduces the file size.
-                if (licType === "Apache-2.0") {
-                    console.log("\nThe Apache License, Version 2.0 is included [here](./LICENSE).\n");
-                } else {
-                    let licPath
-                    // npm-packlist always includes any file matching "licen[cs]e.*"
-                    // (case-insensitive) as a license file. However some of our
-                    // deps use "LICENSE-MIT.*", which we need to allow as well.
-                    const dir = fs.opendirSync(depDir)
-                    let dirent
-                    while (dirent = dir.readSync()) {
-                        if (dirent.isFile() && /^licen[cs]e(-\w+)?(\..*)?$/i.test(dirent.name)) {
-                            licPath = path.join(depDir, dirent.name)
-                            break
-                        }
+                let licPath
+                // npm-packlist always includes any file matching "licen[cs]e.*"
+                // (case-insensitive) as a license file. However some of our
+                // deps use "LICENSE-MIT.*", which we need to allow as well.
+                const dir = fs.opendirSync(depDir)
+                let dirent
+                while (dirent = dir.readSync()) {
+                    if (dirent.isFile() && /^licen[cs]e(-\w+)?(\..*)?$/i.test(dirent.name)) {
+                        licPath = path.join(depDir, dirent.name)
+                        break
                     }
-                    dir.close()
-                    if (!licPath && licFileFromPkgName[pj.name]) {
-                        licPath = path.join(process.env.MANUAL_LIC_DIR, licFileFromPkgName[pj.name])
-                    }
-                    if (!licPath && !allowNoLicFile.includes(path.basename(depDir))) {
-                        throw new Error(`cannot find license file for ${pj.name}@${pj.version} in ${depDir}`)
-                    }
-                    if (licPath) {
-                        console.log("\n```\n" + fs.readFileSync(licPath, "utf8").trimRight() + "\n```")
-                    }
+                }
+                dir.close()
+                if (!licPath && licFileFromPkgName[pj.name]) {
+                    licPath = path.join(process.env.MANUAL_LIC_DIR, licFileFromPkgName[pj.name])
+                }
+                if (!licPath && !allowNoLicFile.includes(path.basename(depDir))) {
+                    throw new Error(`cannot find license file for ${pj.name}@${pj.version} in ${depDir}`)
+                }
+                if (licPath) {
+                    console.log("\n```\n" + fs.readFileSync(licPath, "utf8").trimRight() + "\n```")
                 }
             })
         })
