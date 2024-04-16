@@ -20,7 +20,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     env:
-      DRY_RUN: "${{ startsWith(github.ref, 'refs/tags') }}"
+      DRY_RUN: "${{ ! startsWith(github.ref, 'refs/tags') }}"
     steps:
       - uses: actions/checkout@v4
         with:
