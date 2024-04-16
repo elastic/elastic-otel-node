@@ -51,14 +51,6 @@ const HOST_METRICS_VIEWS = [
         instrumentName: 'process.*',
         aggregation: Aggregation.Drop(),
     }),
-    // Host metrics does many reads between exports and that would turn into
-    // an outgoing traffic increase. Getting the last value is enough for now.
-    // There might be an issue with cardinality https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1700
-    // but we should check if this actually a problem in Elastic Observability
-    new View({
-        instrumentName: 'system.cpu.utilization',
-        aggregation: Aggregation.LastValue(),
-    }),
 ];
 
 module.exports = {
