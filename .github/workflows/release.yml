@@ -32,7 +32,7 @@ jobs:
 
       - run: npm ci --ignore-scripts
 
-      - name: GitHub release
+      - name: GitHub release (dry-run=${{ env.DRY_RUN }})
         run: ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}" "${{ env.DRY_RUN }}"
         env:
           GH_TOKEN: ${{ github.token }}
@@ -48,7 +48,7 @@ jobs:
             secret/jenkins-ci/npmjs/elasticmachine token | NPMJS_TOKEN ;
             totp/code/npmjs-elasticmachine code | TOTP_CODE
 
-      - name: npm publish
+      - name: npm publish (dry-run=${{ env.DRY_RUN }})
         run: |
           [ "${{ env.DRY_RUN }}" == "true" ] && PUBLISH_FLAGS="--dry-run" || PUBLISH_FLAGS=""
           echo "npm publish $PUBLISH_FLAGS --otp=${{ env.TOTP_CODE }}"
