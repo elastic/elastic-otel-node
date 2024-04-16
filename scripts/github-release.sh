@@ -5,9 +5,9 @@
 # (This is typically only run from the release.yml CI workflow.)
 #
 # Usage:
-#   ./scripts/github-release.sh PKG_DIR TAG_NAME DRY_RUN
+#   ./scripts/github-release.sh PKG_DIR TAG_NAME
 # Example:
-#   ./scripts/github-release.sh packages/opentelemetry-node v0.1.0 true
+#   ./scripts/github-release.sh packages/opentelemetry-node v0.1.0
 #
 # - For auth, this expects the 'GH_TOKEN' envvar to have been set.
 # - The 'TAG_NAME' is typically from the 'GITHUB_REF_NAME' variable
@@ -27,7 +27,6 @@ function fatal {
 
 readonly PKG_DIR="$1"
 readonly TAG_NAME="$2"
-readonly DRY_RUN="$3"
 
 TOP=$(cd $(dirname $0)/../ >/dev/null; pwd)
 JSON=$TOP/node_modules/.bin/json
@@ -36,21 +35,13 @@ if [[ ! -f "$PKG_DIR/package.json" ]]; then
   fatal "invalid PKG_DIR arg: '$PKG_DIR/package.json' does not exist"
 fi
 if [[ -z $(git tag -l "${TAG_NAME}") ]]; then
-  # dry_run=${{ ! startsWith(github.ref, 'refs/tags') }}
-  # therefore this validation is not required.
-  if [ "${DRY_RUN}" != "true" ] ; then
-    fatal "invalid TAG_NAME arg: '$TAG_NAME' git tag does not exist"
-  fi
+  fatal "invalid TAG_NAME arg: '$TAG_NAME' git tag does not exist"
 fi
 
 PKG_NAME=$($JSON -f "$PKG_DIR/package.json" name)
 PKG_VER=$($JSON -f "$PKG_DIR/package.json" version)
 if [[ "v$PKG_VER" != "$TAG_NAME" ]]; then
-  # dry_run=${{ ! startsWith(github.ref, 'refs/tags') }}
-  # therefore this validation is not required.
-  if [ "${DRY_RUN}" != "true" ] ; then
-    fatal "TAG_NAME, '$TAG_NAME', does not match version in package.json, '$PKG_VER'"
-  fi
+  fatal "TAG_NAME, '$TAG_NAME', does not match version in package.json, '$PKG_VER'"
 fi
 
 # Extract the changelog section for this version.
@@ -74,12 +65,8 @@ else
 fi
 
 echo
-echo "INFO: Creating '$PKG_NAME $TAG_NAME' GitHub release (latest=$IS_LATEST, dry-run=${DRY_RUN})"
-if [ "${DRY_RUN}" == "false" ] ; then
-  gh release create "$TAG_NAME" \
-    --title "$PKG_NAME $PKG_VER" \
-    --notes-file build/release-notes.md \
-    --latest=$IS_LATEST
-else
-  echo "DRY-RUN: gh release create $TAG_NAME"
-fi
+echo "INFO: Creating '$PKG_NAME $TAG_NAME' GitHub release (latest=$IS_LATEST)"
+gh release create "$TAG_NAME" \
+  --title "$PKG_NAME $PKG_VER" \
+  --notes-file build/release-notes.md \
+  --latest=$IS_LATEST
