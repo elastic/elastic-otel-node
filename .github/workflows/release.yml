@@ -25,13 +25,6 @@ jobs:
         with:
           node-version: 'v18.20.2'
 
-      - run: npm ci --ignore-scripts
-
-      - name: GitHub release
-        run: ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}"
-        env:
-          GH_TOKEN: ${{ github.token }}
-
       - name: Read NPM vault secrets
         uses: hashicorp/vault-action@v3.0.0
         with:
@@ -42,6 +35,13 @@ jobs:
           secrets: |
             secret/jenkins-ci/npmjs/elasticmachine token | NPMJS_TOKEN ;
             totp/code/npmjs-elasticmachine code | TOTP_CODE
+
+      - run: npm ci --ignore-scripts
+
+      - name: GitHub release
+        run: ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: npm publish
         working-directory: ./packages/opentelemetry-node
