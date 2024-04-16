@@ -36,13 +36,21 @@ if [[ ! -f "$PKG_DIR/package.json" ]]; then
   fatal "invalid PKG_DIR arg: '$PKG_DIR/package.json' does not exist"
 fi
 if [[ -z $(git tag -l "${TAG_NAME}") ]]; then
-  fatal "invalid TAG_NAME arg: '$TAG_NAME' git tag does not exist"
+  # dry_run=${{ ! startsWith(github.ref, 'refs/tags') }}
+  # therefore this validation is not required.
+  if [ "${DRY_RUN}" != "true" ] ; then
+    fatal "invalid TAG_NAME arg: '$TAG_NAME' git tag does not exist"
+  fi
 fi
 
 PKG_NAME=$($JSON -f "$PKG_DIR/package.json" name)
 PKG_VER=$($JSON -f "$PKG_DIR/package.json" version)
 if [[ "v$PKG_VER" != "$TAG_NAME" ]]; then
-  fatal "TAG_NAME, '$TAG_NAME', does not match version in package.json, '$PKG_VER'"
+  # dry_run=${{ ! startsWith(github.ref, 'refs/tags') }}
+  # therefore this validation is not required.
+  if [ "${DRY_RUN}" != "true" ] ; then
+    fatal "TAG_NAME, '$TAG_NAME', does not match version in package.json, '$PKG_VER'"
+  fi
 fi
 
 # Extract the changelog section for this version.
