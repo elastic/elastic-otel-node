@@ -51,7 +51,7 @@ jobs:
       - name: npm publish (dry-run=${{ env.DRY_RUN }})
         run: |
           [ "${{ env.DRY_RUN }}" == "true" ] && PUBLISH_FLAGS="--dry-run" || PUBLISH_FLAGS=""
-          echo "npm publish $PUBLISH_FLAGS --otp=${{ env.TOTP_CODE }}"
+          npm publish $PUBLISH_FLAGS --otp=${{ env.TOTP_CODE }}
         env:
           # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
           NODE_AUTH_TOKEN: ${{ env.NPMJS_TOKEN }}
