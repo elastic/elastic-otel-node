@@ -68,6 +68,8 @@ fi
 echo
 echo "INFO: Creating '$PKG_NAME $TAG_NAME' GitHub release (latest=$IS_LATEST)"
 if [ "${DRY_RUN}" == "false" ] ; then
+  echo "RUN gh release create $TAG_NAME"
+  exit 0
   gh release create "$TAG_NAME" \
     --title "$PKG_NAME $PKG_VER" \
     --notes-file build/release-notes.md \
