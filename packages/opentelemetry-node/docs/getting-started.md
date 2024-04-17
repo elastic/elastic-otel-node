@@ -24,7 +24,7 @@ that provides the interface to visualize and analyze the data). If you do not al
 have an Elastic deployment to use, follow [this APM Quick Start guide](https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html)
 to create a free trial on Elastic's cloud. From this deployment you will need
 the APM **`serverUrl`** and **`secretToken`** (or a configured `apiKey`) to use
-for configuring the APM agent.
+for configuring the SDK distribution.
 
 Note: Since version 7.14, Elastic [supports OTLP natively](https://www.elastic.co/blog/native-opentelemetry-support-in-elastic-observability).
 
@@ -46,17 +46,23 @@ Node.js [CLI option](https://nodejs.org/api/cli.html#-r---require-module).
 node --require @elastic/opentelemetry-node app.js
 ```
 
+## Configuration
+
 By default the SDK will send telemetry data via OpenTelemetry's protocol (OTLP)
-to the configured endpoint (by default it sends to <http://localhost:4317>):
+to the configured endpoint (by default it sends to <http://localhost:4317>). The
+endpoint configuration can be changed by setting the following environment vars:
+
+- `OTEL_EXPORTER_OTLP_ENDPOINT`: full URL of the endpoint where to send the data.
+- `OTEL_EXPORTER_OTLP_HEADERS`: coma separated list of `key=value` pairs which will
+  be added to te headers of every request.
 
 
-TODO: talk about the experimental loader
-
-## Advanced configuration
-
-
+As an example if you want to send telemetry data to your Elastic's APM deployment you
+may start the application like this
 
 ```sh
+export ELASTIC_APM_SERVER_URL="https://apm-server-host.co"
+export ELASTIC_APM_SECRET_TOKEN="secret_token"
 export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer ${ELASTIC_APM_SECRET_TOKEN}"
 node -r @elastic/opentelemetry-node/start.js my-app.js
@@ -65,6 +71,8 @@ node -r @elastic/opentelemetry-node/start.js my-app.js
 Or if using an API key, then:
 
 ```sh
+export ELASTIC_APM_SERVER_URL="https://apm-server-host.co"
+export ELASTIC_APM_API_KEY="api_key"
 export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=ApiKey ${ELASTIC_APM_API_KEY}"
 node -r @elastic/opentelemetry-node/start.js my-app.js
