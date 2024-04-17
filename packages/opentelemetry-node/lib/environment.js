@@ -17,6 +17,7 @@
  * under the License.
  */
 
+// @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
 const OTEL_SDK_VERSION =
     require('@opentelemetry/sdk-node/package.json').version;

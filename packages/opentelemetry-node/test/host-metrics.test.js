@@ -46,6 +46,9 @@ const testFixtures = [
             const networkMetrics = metrics.filter((metric) =>
                 metric.name.startsWith('system.network')
             );
+            const processMetrics = metrics.filter((metric) =>
+                metric.name.startsWith('process.')
+            );
             const cpuTimeMetrics = metrics.filter(
                 (metric) => metric.name === 'system.cpu.time'
             );
@@ -57,6 +60,7 @@ const testFixtures = [
                 networkMetrics.length === 0,
                 'system.network.* metrics are dropped'
             );
+            t.ok(processMetrics.length === 0, 'process.* metrics are dropped');
             t.ok(
                 cpuTimeMetrics.length === 0,
                 'system.cpu.time metric is dropped'
@@ -66,38 +70,31 @@ const testFixtures = [
                     metric.gauge?.dataPoints,
                     'data points are present in system.cpu.utilization metric'
                 );
+                console.log(metric.gauge?.dataPoints);
                 // Note: Skip this too-frequently flaky test for now. See https://github.com/elastic/elastic-otel-node/issues/73
-                // const allInRange = metric.gauge?.dataPoints?.every(
-                //     (dp) => 0 <= dp.asDouble && dp.asDouble <= 1
-                // );
-                // t.ok(
-                //     allInRange,
-                //     '"system.cpu.utilization" data points are in the range [0,1]'
-                // );
-                // if (!allInRange) {
-                //     // Note: extra output to debug flaky test (https://github.com/elastic/elastic-otel-node/issues/73).
-                //     t.comment(
-                //         'cpuUtilizationMetrics: ' +
-                //             JSON.stringify(cpuUtilizationMetrics)
-                //     );
-                // }
-                t.ok(
-                    metric.gauge?.dataPoints?.filter(
-                        (dp) =>
-                            dp.attributes && dp.attributes['system.cpu.state']
-                    ),
-                    'data points have no "system.cpu.state" attribute'
+                const allInRange = metric.gauge?.dataPoints?.every(
+                    (dp) => 0 <= dp.asDouble && dp.asDouble <= 1
                 );
-                t.equal(
-                    new Set(
-                        metric.gauge?.dataPoints?.map(
-                            (dp) =>
-                                dp.attributes &&
-                                dp.attributes['system.cpu.logical_number']
-                        )
-                    ).size,
-                    metric.gauge?.dataPoints?.length,
-                    'data points have different "system.cpu.logical_number"'
+                t.ok(
+                    allInRange,
+                    '"system.cpu.utilization" data points are in the range [0,1]'
+                );
+                if (!allInRange) {
+                    // Note: extra output to debug flaky test (https://github.com/elastic/elastic-otel-node/issues/73).
+                    t.comment(
+                        'cpuUtilizationMetrics: ' +
+                            JSON.stringify(cpuUtilizationMetrics)
+                    );
+                }
+
+                t.ok(
+                    metric.gauge?.dataPoints?.every(
+                        (dp) =>
+                            dp.attributes &&
+                            dp.attributes['system.cpu.state'] &&
+                            dp.attributes['system.cpu.logical_number']
+                    ),
+                    'data points have "system.cpu.state" and "system.cpu.logical_number" attributes'
                 );
             });
         },
