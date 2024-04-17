@@ -13,7 +13,7 @@ const redis = new Redis(process.env.REDIS_HOST, {
 const randomId = ((Math.random() * 2 ** 32) >>> 0).toString(16);
 const testKeyName = `test-${randomId}`;
 
-const tracer = trace.getTracer('fixture');
+const tracer = trace.getTracer('test');
 await tracer.startActiveSpan('manual', async (span) => {
     redis.set(testKeyName, 'bar');
     let val = await redis.get(testKeyName);
