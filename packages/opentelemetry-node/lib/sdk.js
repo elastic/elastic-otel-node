@@ -87,12 +87,14 @@ class ElasticNodeSDK extends NodeSDK {
             process.env.ELASTIC_OTEL_METRICS_DISABLED === 'true';
         if (!metricsDisabled) {
             const metricsInterval =
-                Number(process.env.ETEL_METRICS_INTERVAL_MS) || 30000;
+                Number(process.env.OTEL_METRIC_EXPORT_INTERVAL) || 30000;
+            const metricsTimeout =
+                Number(process.env.OTEL_METRIC_EXPORT_TIMEOUT) || 30000;
             defaultConfig.metricReader =
                 new metrics.PeriodicExportingMetricReader({
                     exporter: new OTLPMetricExporter(),
                     exportIntervalMillis: metricsInterval,
-                    exportTimeoutMillis: metricsInterval, // TODO same val appropriate for timeout?
+                    exportTimeoutMillis: metricsTimeout, // TODO same val appropriate for timeout?
                 });
             defaultConfig.views = [
                 // Add views for `host-metrics` to avoid excess of data being sent to the server

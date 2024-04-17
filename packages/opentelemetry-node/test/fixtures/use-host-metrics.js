@@ -34,7 +34,7 @@ const workInterval = setInterval(() => {
 
 // Finish after 1.5x the metrics export interval, to be sure that some
 // metrics have been reported for testing.
-const exportInterval = process.env.ETEL_METRICS_INTERVAL_MS || 30000;
+const exportInterval = process.env.OTEL_METRIC_EXPORT_INTERVAL || 30000;
 setTimeout(() => {
     console.log('finishing');
     clearInterval(workInterval);
