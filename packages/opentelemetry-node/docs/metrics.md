@@ -2,7 +2,7 @@
 
 ## Enabled by default
 
-In this distribution matrics are enabled by default and sent to the endpoint
+In this distribution metrics are enabled by default and sent to the endpoint
 configured by you. If you wish to disable metrics you can by setting the env
 variable `ELASTIC_OTEL_METRICS_DISABLED` to the string `true`.
 
@@ -19,13 +19,6 @@ node -r @elastic/opentelemetry-node/start.js my-app.js
 
 You can tune how often metrics data is exported to the endpoint and the max time
 to export data you can use the env vars already defined in [the spec](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#periodic-exporting-metricreader).
-
-Elastic OpenTelemetry Node.js Distribution defines different defautl values for
-these vars:
-
-- `OTEL_METRIC_EXPORT_INTERVAL`: defaut value is set to 30000 (30s).
-- `OTEL_METRIC_EXPORT_TIMEOUT`: defaut value is set to 30000 (30s).
-
 
 ## Host metrics
 

@@ -1,8 +1,8 @@
 # Introduction
 
-This is the official Node.js SDK OpenTelemetry distribution from Elastic. It is
+This is the official Node.js SDK OpenTelemetry Distribution from Elastic. It is
 a Node.js package that provides:
-- easy way to instrument your App with OpenTelemetry
+- easy way to instrument your application with OpenTelemetry
 - configuration defaults for best usage
 - utils on top the OTEL SDK for better customization
 
@@ -39,7 +39,7 @@ npm install --save @elastic/opentelemetry-node
 It’s important that the agent is started before you require **any** other modules
 in your Node.js application - i.e. before express, http, etc.
 
-The more straightforward way to get the SDK started is by using the `--require`
+The preferred way to get the SDK started is by using the `--require`
 Node.js [CLI option](https://nodejs.org/api/cli.html#-r---require-module).
 
 ```sh
@@ -54,7 +54,7 @@ endpoint configuration can be changed by setting the following environment vars:
 
 - `OTEL_EXPORTER_OTLP_ENDPOINT`: full URL of the endpoint where to send the data.
 - `OTEL_EXPORTER_OTLP_HEADERS`: coma separated list of `key=value` pairs which will
-  be added to te headers of every request.
+  be added to the headers of every request.
 
 
 As an example if you want to send telemetry data to your Elastic's APM deployment you
@@ -77,5 +77,3 @@ export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=ApiKey ${ELASTIC_APM_API_KEY}"
 node -r @elastic/opentelemetry-node/start.js my-app.js
 ```
-
-
