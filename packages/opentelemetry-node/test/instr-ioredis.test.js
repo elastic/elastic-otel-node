@@ -64,11 +64,9 @@ const testFixtures = [
         },
     },
 
-    // ----
-    // The following test cases test all the ways that one can get ESM
-    // instrumentation working with the distro, using ioredis ESM instr as
-    // the basic case.
-
+    // This duplicates the "ESM via --require" test case in esm-usage.test.js,
+    // but it is useful to have the ESM ioredis sanity test here as well when
+    // working on instr-ioredis.
     {
         name: 'use-ioredis.mjs (ESM via --require)',
         versionRanges: {
@@ -82,89 +80,7 @@ const testFixtures = [
         },
         verbose: true,
         checkTelemetry: assertUseIoredisMjsSpans,
-    },
-    {
-        name: 'use-ioredis.mjs (ESM via --import)',
-        versionRanges: {
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
-        },
-        args: ['./fixtures/use-ioredis.mjs'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
-            NODE_NO_WARNINGS: '1',
-        },
-        verbose: true,
-        checkTelemetry: assertUseIoredisMjsSpans,
-    },
-
-    {
-        name: 'use-ioredis.mjs (ESM via --require & --experimental-loader for older Node.js)',
-        versionRanges: {
-            // Only test this for older Node.js versions -- before `module.register()`
-            // existed, so `--experimental-loader=...` was needed for the IITM hook.
-            node: '<18.19.0 || >=20.0.0 <20.6.0',
-        },
-        args: ['./fixtures/use-ioredis.mjs'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS:
-                '--require=@elastic/opentelemetry-node --experimental-loader=@elastic/opentelemetry-node/hook.mjs',
-            NODE_NO_WARNINGS: '1',
-        },
-        verbose: true,
-        checkTelemetry: assertUseIoredisMjsSpans,
-    },
-    {
-        name: 'use-ioredis.mjs (ESM via --import & --experimental-loader for older Node.js)',
-        versionRanges: {
-            // --import was added in v18.18.0.
-            node: '>18.18.0 <18.19.0 || >=20.0.0 <20.6.0',
-        },
-        args: ['./fixtures/use-ioredis.mjs'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS:
-                '--import=@elastic/opentelemetry-node --experimental-loader=@elastic/opentelemetry-node/hook.mjs',
-            NODE_NO_WARNINGS: '1',
-        },
-        verbose: true,
-        checkTelemetry: assertUseIoredisMjsSpans,
-    },
-
-    // Test a couple cases where, with newer Node.js versions that support
-    // `module.register()`, we could possibly *double-register* the hook if
-    // the user also registered the hook via `--experimental-loader=...`.
-    {
-        name: 'use-ioredis.mjs (ESM via --import with possible double-hooking)',
-        versionRanges: {
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
-        },
-        args: ['./fixtures/use-ioredis.mjs'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS:
-                '--import=@elastic/opentelemetry-node --experimental-loader=@elastic/opentelemetry-node/hook.mjs',
-            NODE_NO_WARNINGS: '1',
-        },
-        verbose: true,
-        checkTelemetry: assertUseIoredisMjsSpans,
-    },
-    {
-        name: 'use-ioredis.mjs (ESM via --require with possible double-hooking)',
-        versionRanges: {
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
-        },
-        args: ['./fixtures/use-ioredis.mjs'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS:
-                '--require=@elastic/opentelemetry-node --experimental-loader=@elastic/opentelemetry-node/hook.mjs',
-            NODE_NO_WARNINGS: '1',
-        },
-        verbose: true,
-        checkTelemetry: assertUseIoredisMjsSpans,
-    },
+    }
 ];
 
 function assertUseIoredisMjsSpans(t, col) {
