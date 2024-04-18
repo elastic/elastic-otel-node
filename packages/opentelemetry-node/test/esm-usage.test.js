@@ -73,8 +73,8 @@ const testFixtures = [
                 // The minimum versions where `--experimental-loader` works at all.
                 '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 || >=20.2.0',
                 // The Node.js versions before `module.register()` existed.
-                '<18.19.0 || >=20.0.0 <20.6.0'
-            ]
+                '<18.19.0 || >=20.0.0 <20.6.0',
+            ],
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
@@ -95,7 +95,7 @@ const testFixtures = [
                 // The Node.js versions before `module.register()` existed,
                 // plus --import was added in v18.18.0.
                 '>=18.18.0 <18.19.0 || >=20.0.0 <20.6.0',
-            ]
+            ],
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,

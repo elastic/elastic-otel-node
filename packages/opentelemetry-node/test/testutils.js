@@ -482,17 +482,19 @@ function runTestFixtures(suite, testFixtures) {
                         name === 'node'
                             ? process.version
                             : safeGetPackageVersion(name);
-                    const verRanges = Array.isArray(tf.versionRanges[name]) ?
-                        tf.versionRanges[name] : [tf.versionRanges[name]]
+                    const verRanges = Array.isArray(tf.versionRanges[name])
+                        ? tf.versionRanges[name]
+                        : [tf.versionRanges[name]];
                     for (let verRange of verRanges) {
                         if (!semver.satisfies(ver, verRange)) {
                             t.comment(
-                                `SKIP ${name} ${ver} is not supported by this fixture (requires: ${verRanges.join(', ')})`
+                                `SKIP ${name} ${ver} is not supported by this fixture (requires: ${verRanges.join(
+                                    ', '
+                                )})`
                             );
                             t.end();
                             return;
                         }
-
                     }
                 }
             }
