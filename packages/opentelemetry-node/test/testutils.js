@@ -314,8 +314,22 @@ class TestCollector {
         return spans.sort((a, b) => {
             assert(typeof a.startTimeUnixNano === 'string');
             assert(typeof b.startTimeUnixNano === 'string');
-            const aStartInt = BigInt(a.startTimeUnixNano);
-            const bStartInt = BigInt(b.startTimeUnixNano);
+            let aStartInt = BigInt(a.startTimeUnixNano);
+            let bStartInt = BigInt(b.startTimeUnixNano);
+
+            if (aStartInt === bStartInt) {
+                // Fast-created spans that start in the same millisecond cannot
+                // reliably be sorted, because OTel JS currently doesn't have
+                // sub-ms resolution. Attempt to improve the sorting by using
+                // `spanId` and `parentSpanId`: a span cannot start before its
+                // parent.
+                if (a.parentSpanId && a.parentSpanId === b.spanId) {
+                    aStartInt += 1n
+                } else if (b.parentSpanId && b.parentSpanId === a.spanId) {
+                    bStartInt += 1n
+                }
+            }
+
             return aStartInt < bStartInt ? -1 : aStartInt > bStartInt ? 1 : 0;
         });
     }
@@ -425,6 +439,8 @@ class TestCollector {
  * @property {boolean} [verbose] Set to `true` to include `t.comment()`s showing
  *    the command run and its output. This can be helpful to run the script
  *    manually for dev/debugging.
+ * @property {boolean} [only] For development, the set of test fixtures run can
+ *    be limited by setting `only: true`.
  * @property {import('tape').TestOptions} [testOpts] Additional tape test opts, if any. https://github.com/ljharb/tape#testname-opts-cb
  * @property {Record<string,string>} [versionRanges] A mapping of required version
  *    ranges for either "node" or a given module name. If current versions don't
@@ -444,6 +460,13 @@ class TestCollector {
  * @param {Array<TestFixture>} testFixtures
  */
 function runTestFixtures(suite, testFixtures) {
+    // Handle fixtures with `only: true`, if any.
+    const onlyTestFixtures = testFixtures.filter(tf => Boolean(tf.only))
+    if (onlyTestFixtures.length > 0) {
+        suite.comment(`ONLY: limiting to "only" ${onlyTestFixtures.length} of ${testFixtures.length} testFixtures`);
+        testFixtures = onlyTestFixtures;
+    }
+
     testFixtures.forEach((tf) => {
         const testName = tf.name ?? quoteArgv(tf.args);
         const testOpts = Object.assign({}, tf.testOpts);
