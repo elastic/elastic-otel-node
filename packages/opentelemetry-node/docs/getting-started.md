@@ -1,6 +1,6 @@
 # Introduction
 
-This is the official Node.js SDK OpenTelemetry Distribution from Elastic. It is
+This is the Elastic OpenTelemetry Distribution for Node.js (the "Distro"). It is
 a Node.js package that provides:
 - easy way to instrument your application with OpenTelemetry
 - configuration defaults for best usage
