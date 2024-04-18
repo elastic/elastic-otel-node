@@ -46,7 +46,10 @@ function haveHookFromExperimentalLoader() {
             return true;
         }
     }
-    if (process.env.NODE_OPTIONS && USED_LOADER_OPT.test(process.env.NODE_OPTIONS)) {
+    if (
+        process.env.NODE_OPTIONS &&
+        USED_LOADER_OPT.test(process.env.NODE_OPTIONS)
+    ) {
         return true;
     }
     return false;

@@ -324,9 +324,9 @@ class TestCollector {
                 // `spanId` and `parentSpanId`: a span cannot start before its
                 // parent.
                 if (a.parentSpanId && a.parentSpanId === b.spanId) {
-                    aStartInt += 1n
+                    aStartInt += 1n;
                 } else if (b.parentSpanId && b.parentSpanId === a.spanId) {
-                    bStartInt += 1n
+                    bStartInt += 1n;
                 }
             }
 
@@ -461,9 +461,11 @@ class TestCollector {
  */
 function runTestFixtures(suite, testFixtures) {
     // Handle fixtures with `only: true`, if any.
-    const onlyTestFixtures = testFixtures.filter(tf => Boolean(tf.only))
+    const onlyTestFixtures = testFixtures.filter((tf) => Boolean(tf.only));
     if (onlyTestFixtures.length > 0) {
-        suite.comment(`ONLY: limiting to "only" ${onlyTestFixtures.length} of ${testFixtures.length} testFixtures`);
+        suite.comment(
+            `ONLY: limiting to "only" ${onlyTestFixtures.length} of ${testFixtures.length} testFixtures`
+        );
         testFixtures = onlyTestFixtures;
     }
 

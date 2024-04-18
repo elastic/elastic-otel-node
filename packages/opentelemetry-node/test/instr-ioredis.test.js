@@ -80,7 +80,7 @@ const testFixtures = [
         },
         verbose: true,
         checkTelemetry: assertUseIoredisMjsSpans,
-    }
+    },
 ];
 
 function assertUseIoredisMjsSpans(t, col) {
