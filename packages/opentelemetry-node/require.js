@@ -24,9 +24,17 @@ const register = require('module').register;
 const {pathToFileURL} = require('url');
 const {isMainThread} = require('worker_threads');
 
+// TODO log.trace relevant handling in here
+
+/**
+ * Return true iff it looks like the `@elastic/opentelemetry-node/hook.mjs`
+ * was loaded via node's `--experimental-loader` option.
+ *
+ * Dev Note: keep this in sync with "import.mjs".
+ */
 function haveHookFromExperimentalLoader() {
-    const PATTERN =
-        /--(experimental-)?loader\s*=?\s*@elastic\/opentelemetry-node\/hook.mjs/;
+    const USED_LOADER_OPT =
+        /--(experimental-)?loader(\s+|=)@elastic\/opentelemetry-node\/hook.mjs/;
     for (let i = 0; i < process.execArgv.length; i++) {
         const arg = process.execArgv[i];
         const nextArg = process.execArgv[i + 1];
@@ -34,25 +42,19 @@ function haveHookFromExperimentalLoader() {
             (arg === '--loader' || arg === '--experimental-loader') &&
             nextArg === '@elastic/opentelemetry-node/hook.mjs'
         ) {
-            // process._rawDebug('XXX yup: [%s, %s]', arg, nextArg);
             return true;
-        } else if (PATTERN.test(arg)) {
-            // process._rawDebug('XXX yup: [%s]', arg);
+        } else if (USED_LOADER_OPT.test(arg)) {
             return true;
         }
     }
-    if (process.env.NODE_OPTIONS && PATTERN.test(process.env.NODE_OPTIONS)) {
-        // process._rawDebug('XXX yup: NODE_OPTIONS');
+    if (process.env.NODE_OPTIONS && USED_LOADER_OPT.test(process.env.NODE_OPTIONS)) {
         return true;
     }
     return false;
 }
 
 if (isMainThread) {
-    // XXX logging
-
     if (typeof register === 'function' && !haveHookFromExperimentalLoader()) {
-        process._rawDebug('XXX require.js: module.register ESM hook');
         register('./hook.mjs', pathToFileURL(__filename).toString());
     }
 
