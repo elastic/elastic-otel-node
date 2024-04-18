@@ -80,7 +80,7 @@ class ElasticNodeSDK extends NodeSDK {
         // For now we configure periodic (60s) export via OTLP/proto.
         // TODO metrics exporter should do for metrics what `TracerProviderWithEnvExporters` does for traces, does that include `url` export endpoint?
         // TODO what `temporalityPreference`?
-        
+
         // Disable metrics by config
         const metricsDisabled =
             process.env.ELASTIC_OTEL_METRICS_DISABLED === 'true';
