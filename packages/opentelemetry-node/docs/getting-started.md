@@ -6,12 +6,11 @@ a Node.js package that provides:
 - configuration defaults for best usage
 - utils on top the OTEL SDK for better customization
 
-Use it to start OpenTelemetry SDK with your Node.js application to automatically
-capture errors, tracing data, and performance metrics. Traces and metrics are sent
-to the OTLP receiver of your choice, tipically a collector or even an Elastic
-Observability deployment -- hosted in Elastic's cloud or in your own on-premises
-deployment -- where you can monitor your application, create alerts, and quick
-identify root causes of service issues.
+Use the Distro to start the OpenTelemetry SDK with your Node.js application to automatically
+capture tracing data, performance metrics, and logs. Traces, metrics, and logs are sent
+to any OTLP collector you choose. Use an [Elastic Observability](https://www.elastic.co/observability)
+deployment -- hosted in Elastic's cloud or on-premises -- to monitor your applications, create alerts,
+and quickly identify root causes of service issues.
 
 
 # Getting Started
