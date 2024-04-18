@@ -64,12 +64,17 @@ const testFixtures = [
         checkTelemetry: assertUseIoredisMjsSpans,
     },
 
+    // Test the cases where the Node.js version means `--experimental-loader`
+    // is needed to register the `import`-hook.
     {
         name: 'ESM via --require & --experimental-loader for older Node.js',
         versionRanges: {
-            // Only test this for older Node.js versions -- before `module.register()`
-            // existed, so `--experimental-loader=...` was needed for the IITM hook.
-            node: '<18.19.0 || >=20.0.0 <20.6.0',
+            node: [
+                // The minimum versions where `--experimental-loader` works at all.
+                '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 || >=20.2.0',
+                // The Node.js versions before `module.register()` existed.
+                '<18.19.0 || >=20.0.0 <20.6.0'
+            ]
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
@@ -84,8 +89,13 @@ const testFixtures = [
     {
         name: 'ESM via --import & --experimental-loader for older Node.js',
         versionRanges: {
-            // --import was added in v18.18.0.
-            node: '>18.18.0 <18.19.0 || >=20.0.0 <20.6.0',
+            node: [
+                // The minimum versions where `--experimental-loader` works at all.
+                '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 || >=20.2.0',
+                // The Node.js versions before `module.register()` existed,
+                // plus --import was added in v18.18.0.
+                '>=18.18.0 <18.19.0 || >=20.0.0 <20.6.0',
+            ]
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,

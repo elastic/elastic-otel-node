@@ -442,9 +442,10 @@ class TestCollector {
  * @property {boolean} [only] For development, the set of test fixtures run can
  *    be limited by setting `only: true`.
  * @property {import('tape').TestOptions} [testOpts] Additional tape test opts, if any. https://github.com/ljharb/tape#testname-opts-cb
- * @property {Record<string,string>} [versionRanges] A mapping of required version
- *    ranges for either "node" or a given module name. If current versions don't
- *    satisfy, then the test will be skipped. E.g. this is common for ESM tests:
+ * @property {Record<string,string|Array<string>>} [versionRanges] A mapping of
+ *    required version ranges for either "node" or a given module name. If
+ *    current versions don't satisfy, then the test will be skipped. E.g. this
+ *    is common for ESM tests:
  *        versionRanges: {
  *          node: NODE_VER_RANGE_IITM
  *        }
@@ -481,12 +482,17 @@ function runTestFixtures(suite, testFixtures) {
                         name === 'node'
                             ? process.version
                             : safeGetPackageVersion(name);
-                    if (!semver.satisfies(ver, tf.versionRanges[name])) {
-                        t.comment(
-                            `SKIP ${name} ${ver} is not supported by this fixture (requires: ${tf.versionRanges[name]})`
-                        );
-                        t.end();
-                        return;
+                    const verRanges = Array.isArray(tf.versionRanges[name]) ?
+                        tf.versionRanges[name] : [tf.versionRanges[name]]
+                    for (let verRange of verRanges) {
+                        if (!semver.satisfies(ver, verRange)) {
+                            t.comment(
+                                `SKIP ${name} ${ver} is not supported by this fixture (requires: ${verRanges.join(', ')})`
+                            );
+                            t.end();
+                            return;
+                        }
+
                     }
                 }
             }
