@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r ../../start.js use-winston.js
+// Usage: node -r @elastic/opentelemetry-node use-winston.js
 
 const winston = require('winston');
 const otel = require('@opentelemetry/api');

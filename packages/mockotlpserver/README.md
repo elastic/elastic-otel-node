@@ -26,7 +26,7 @@ object structure of the received data. For example, using an example script
 that uses the OpenTelemetry NodeSDK to trace an HTTP request/response:
 
     cd ../../examples/
-    node -r @elastic/opentelemetry-node/start.js simple-http-request.js
+    node -r @elastic/opentelemetry-node simple-http-request.js
 
 <details>
 <summary>will yield output close to the following:</summary>
@@ -140,7 +140,7 @@ ExportTraceServiceRequest {
                 values: [
                   AnyValue { stringValue: '/Users/trentm/.nvm/versions/node/v18.18.2/bin/node' },
                   AnyValue { stringValue: '-r' },
-                  AnyValue { stringValue: '@elastic/opentelemetry-node/start.js' },
+                  AnyValue { stringValue: '@elastic/opentelemetry-node' },
                   AnyValue { stringValue: '/Users/trentm/el/elastic-otel-node/examples/simple-http-request.js' }
                 ]
               }
@@ -178,9 +178,9 @@ are supported by `mockotlpserver` as well. Use the `OTEL_EXPORTER_OTLP_PROTOCOL`
 to tell the NodeSDK to use a different protocol:
 
 ```
-cd ../../examples
-OTEL_EXPORTER_OTLP_PROTOCOL=http/json node -r @elastic/opentelemetry-node/start.js simple-http-request.js
-OTEL_EXPORTER_OTLP_PROTOCOL=grpc      node -r @elastic/opentelemetry-node/start.js simple-http-request.js
+cd ../../example
+OTEL_EXPORTER_OTLP_PROTOCOL=http/json node -r @elastic/opentelemetry-node simple-http-request.js
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc      node -r @elastic/opentelemetry-node simple-http-request.js
 ```
 
 If you look carefully, you can see some differences in the representation of some fields
@@ -193,7 +193,7 @@ exporter that currently honours that setting.
 
 <!--
 Try all the protocols:
-    for flav in http/proto http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry-node/start.js simple-http-request.js; done
+    for flav in http/proto http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry-node simple-http-request.js; done
 -->
 
 
@@ -242,7 +242,7 @@ timing and other details.
 node lib/cli.js -o inspect,trace-summary
 
 # example client
-(cd ../../examples; node -r @elastic/opentelemetry-node/start.js simple-http-request.js)
+(cd ../../examples; node -r @elastic/opentelemetry-node simple-http-request.js)
 
 # waterfall rendering
 ------ trace 299229 (2 spans) ------

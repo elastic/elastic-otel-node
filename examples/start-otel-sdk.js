@@ -26,7 +26,7 @@
  * wrapper around the OpenTelemetry Node SDK.
  *
  * Compare:
- *      node -r @elastic/opentelemetry-node/start.js simple-http-request.js
+ *      node -r @elastic/opentelemetry-node simple-http-request.js
  *      node -r ./start-otel-sdk.js                  simple-http-request.js
  *
  * TODO: Refer to elastic otel distro config docs once we have them.

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r ../../start.js use-mongodb.js
+// Usage: node -r @elastic/opentelemetry-node use-mongodb.js
 
 const otel = require('@opentelemetry/api');
 const {MongoClient} = require('mongodb');

@@ -18,7 +18,7 @@
  */
 
 // Usage:
-//  node -r @elastic/opentelemetry-node/start.js bunyan-logging-app.js
+//  node -r @elastic/opentelemetry-node bunyan-logging-app.js
 
 const path = require('path');
 const otel = require('@opentelemetry/api');

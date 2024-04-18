@@ -42,7 +42,7 @@ class MetricsSummaryPrinter extends Printer {
                 for (let metric of scopeMetric.metrics) {
                     if (metric.histogram) {
                         // TODO do we want to attempt a short summary of histogram buckets?
-                        // TODO handle multiple datapoints, dp per normalized attribute set. Highest prio. Run `node -r @elastic/opentelemetry-node/start.js http-server.js` for example data.
+                        // TODO handle multiple datapoints, dp per normalized attribute set. Highest prio. Run `node -r @elastic/opentelemetry-node http-server.js` for example data.
                         if (metric.histogram.dataPoints.length !== 1) {
                             this._log.warn(
                                 {metric},

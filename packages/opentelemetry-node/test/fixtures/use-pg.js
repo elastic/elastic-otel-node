@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r ../../start.js use-pg.js
+// Usage: node -r @elastic/opentelemetry-node use-pg.js
 
 const otel = require('@opentelemetry/api');
 const {Client} = require('pg');

@@ -36,7 +36,7 @@ const testFixtures = [
         args: ['./fixtures/use-mongodb.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         versionRanges: {
             // Ref: https://github.com/mongodb/node-mongodb-native/blob/a8370367f7470962a834ddf36f9a6c62621d6345/package.json#L118
