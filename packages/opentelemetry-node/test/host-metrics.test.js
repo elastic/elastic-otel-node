@@ -72,8 +72,6 @@ const testFixtures = [
                 );
 
                 // Note: Skip this too-frequently flaky test for now. See https://github.com/elastic/elastic-otel-node/issues/73
-                // Update: it still happens after removing the View. Some CPU utilizations for `idle` state
-                // repot values higher than 1.
                 //   {
                 //     "startTimeUnixNano": "1713354074349000000",
                 //     "timeUnixNano": "1713354074349000000",
