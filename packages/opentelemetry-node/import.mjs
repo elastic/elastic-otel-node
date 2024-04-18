@@ -20,7 +20,7 @@
 // Register ESM hook and start the SDK.
 // This is called for `--import @elastic/opentelemetry-node`.
 
-import {register} from 'node:module';
+import * as module from 'node:module';
 import {isMainThread} from 'node:worker_threads';
 
 // TODO log.trace relevant handling in here
@@ -56,8 +56,11 @@ function haveHookFromExperimentalLoader() {
 }
 
 if (isMainThread) {
-    if (typeof register === 'function' && !haveHookFromExperimentalLoader()) {
-        register('./hook.mjs', import.meta.url);
+    if (
+        typeof module.register === 'function' &&
+        !haveHookFromExperimentalLoader()
+    ) {
+        module.register('./hook.mjs', import.meta.url);
     }
 
     await import('./lib/start.js');
