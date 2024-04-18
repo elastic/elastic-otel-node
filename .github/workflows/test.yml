@@ -42,7 +42,7 @@ jobs:
           - '16'
           - '16.0'
           - '14'
-          - '14.17' # TODO: is this our actual min? same as elastic-apm-node
+          - '14.17'
 
     runs-on: ubuntu-latest
 
@@ -51,6 +51,19 @@ jobs:
         image: redis:7
         ports:
           - 6379:6379
+
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+
+      postgres:
+        image: postgres:16
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+          POSTGRES_USER: 'postgres'
 
     steps:
     - uses: actions/checkout@v4

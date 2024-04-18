@@ -25,11 +25,12 @@
     "node": ">=14.17.0"
   },
   "scripts": {
-    "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps",
+    "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
-    "lint:types": "tsc --skipLibCheck",
+    "lint:types": "tsc",
     "lint:deps": "dependency-check 'lib/**/*.js' -i protobufjs-cli",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
+    "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "start": "node lib/cli.js",
     "watch": "node --watch lib/cli.js",
     "example": "cd ../../examples && pwd && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
@@ -40,7 +41,7 @@
     "mockotlpserver": "lib/cli.js"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.10.4",
+    "@grpc/grpc-js": "^1.10.6",
     "@grpc/proto-loader": "^0.7.12",
     "@opentelemetry/core": "^1.21.0",
     "dashdash": "^2.0.0",

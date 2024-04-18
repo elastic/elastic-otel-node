@@ -2,8 +2,11 @@
   "name": "@elastic/opentelemetry-node",
   "version": "0.1.0",
   "type": "commonjs",
-  "description": "Elastic distro of the OpenTelemetry SDK for Node.js",
-  "private": true,
+  "description": "Elastic OpenTelemetry distribution for Node.js",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -13,6 +16,7 @@
   "keywords": [
     "elastic",
     "opentelemetry",
+    "telemetry",
     "apm",
     "tracing",
     "metrics",
@@ -24,15 +28,18 @@
   },
   "scripts": {
     "example": "cd ../../examples && node -r @elastic/opentelemetry-node simple-http-request.js",
-    "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps",
+    "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files && npm run lint:changelog",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
-    "lint:types": "tsc --skipLibCheck",
+    "lint:types": "tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "lint:deps": "dependency-check require.js import.mjs hook.mjs 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv",
+    "lint:deps": "dependency-check require.js import.mjs hook.mjs 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv -i @opentelemetry/winston-transport",
+    "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
+    "lint:changelog": "../../scripts/extract-release-notes.sh .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
-    "test-services:stop": "docker compose -f ./test/docker-compose.yaml down"
+    "test-services:stop": "docker compose -f ./test/docker-compose.yaml down",
+    "gen:types": "tsc"
   },
   "exports": {
     ".": {
@@ -43,19 +50,23 @@
     "./hook.mjs": "./hook.mjs",
     "./package.json": "./package.json"
   },
-  "types": "lib/types.d.ts",
+  "types": "types/index.d.ts",
   "dependencies": {
-    "@opentelemetry/exporter-logs-otlp-proto": "^0.49.1",
-    "@opentelemetry/exporter-metrics-otlp-proto": "^0.49.1",
+    "@opentelemetry/exporter-logs-otlp-proto": "^0.50.0",
+    "@opentelemetry/exporter-metrics-otlp-proto": "^0.50.0",
     "@opentelemetry/host-metrics": "^0.35.0",
-    "@opentelemetry/instrumentation-bunyan": "^0.36.0",
-    "@opentelemetry/instrumentation-express": "^0.36.1",
-    "@opentelemetry/instrumentation-fastify": "^0.34.0",
-    "@opentelemetry/instrumentation-http": "^0.49.1",
-    "@opentelemetry/instrumentation-ioredis": "^0.38.0",
+    "@opentelemetry/instrumentation-bunyan": "^0.37.0",
+    "@opentelemetry/instrumentation-express": "^0.37.0",
+    "@opentelemetry/instrumentation-fastify": "^0.35.0",
+    "@opentelemetry/instrumentation-http": "^0.50.0",
+    "@opentelemetry/instrumentation-ioredis": "^0.39.0",
+    "@opentelemetry/instrumentation-mongodb": "^0.42.0",
+    "@opentelemetry/instrumentation-pg": "^0.40.0",
+    "@opentelemetry/instrumentation-winston": "^0.36.0",
     "@opentelemetry/resources": "^1.20.0",
-    "@opentelemetry/sdk-logs": "^0.49.1",
-    "@opentelemetry/sdk-node": "^0.49.1",
+    "@opentelemetry/sdk-logs": "^0.50.0",
+    "@opentelemetry/sdk-node": "^0.50.0",
+    "@opentelemetry/winston-transport": "^0.2.0",
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
@@ -68,7 +79,10 @@
     "fastify": "^4.26.2",
     "ioredis": "^5.3.2",
     "module-details-from-path": "^1.0.3",
+    "mongodb": "^6.5.0",
+    "pg": "^8.11.5",
     "semver": "^7.6.0",
-    "tape": "^5.7.5"
+    "tape": "^5.7.5",
+    "winston": "^3.13.0"
   }
 }

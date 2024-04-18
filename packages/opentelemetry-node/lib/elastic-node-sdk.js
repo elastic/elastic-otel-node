@@ -1,3 +1,22 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Elasticsearch B.V. licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 /**
  * @typedef {import('@opentelemetry/sdk-node').NodeSDKConfiguration} NodeSDKConfiguration
  */
@@ -30,7 +49,6 @@ class ElasticNodeSDK extends NodeSDK {
 
         // Setup & fix some env
         setupEnvironment();
-        // TODO detect service name
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
@@ -43,7 +61,6 @@ class ElasticNodeSDK extends NodeSDK {
                 processDetectorSync,
                 // hostDetectorSync is not currently in the OTel default, but may be added
                 hostDetectorSync,
-                // TODO cloud/container detectors by default
             ],
         };
 
@@ -60,21 +77,25 @@ class ElasticNodeSDK extends NodeSDK {
         // Default metrics exporter.
         // Currently NodeSDK does not handle `OTEL_METRICS_EXPORTER`
         // https://opentelemetry.io/docs/concepts/sdk-configuration/general-sdk-configuration/#otel_metrics_exporter
-        // For now we configure periodic (30s) export via OTLP/proto.
+        // For now we configure periodic (60s) export via OTLP/proto.
         // TODO metrics exporter should do for metrics what `TracerProviderWithEnvExporters` does for traces, does that include `url` export endpoint?
         // TODO what `temporalityPreference`?
-        // TODO make the Millis values configurable. What would otel java do?
-        // TODO config to disable metrics? E.g. otherwise `http.server.duration` will send every period forever and data can be distracting
-        const metricsDisabled = process.env.ETEL_METRICS_DISABLED === 'true'; // TODO hack for now
+
+        // Disable metrics by config
+        const metricsDisabled =
+            process.env.ELASTIC_OTEL_METRICS_DISABLED === 'true';
         if (!metricsDisabled) {
+            // Note: Default values has been taken from the specs
+            // https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#periodic-exporting-metricreader
             const metricsInterval =
-                Number(process.env.ETEL_METRICS_INTERVAL_MS) || 30000;
+                Number(process.env.OTEL_METRIC_EXPORT_INTERVAL) || 60000;
+            const metricsTimeout =
+                Number(process.env.OTEL_METRIC_EXPORT_TIMEOUT) || 30000;
             defaultConfig.metricReader =
                 new metrics.PeriodicExportingMetricReader({
-                    // exporter: new metrics.ConsoleMetricExporter(),
                     exporter: new OTLPMetricExporter(),
                     exportIntervalMillis: metricsInterval,
-                    exportTimeoutMillis: metricsInterval, // TODO same val appropriate for timeout?
+                    exportTimeoutMillis: metricsTimeout,
                 });
             defaultConfig.views = [
                 // Add views for `host-metrics` to avoid excess of data being sent to the server
@@ -88,10 +109,15 @@ class ElasticNodeSDK extends NodeSDK {
         // Once NodeSDK's constructor finish we can restore env
         restoreEnvironment();
 
+        /** @private */
         this._metricsDisabled = metricsDisabled;
+        /** @private */
         this._log = log;
     }
 
+    /**
+     * Starts the SDK
+     */
     start() {
         // TODO: make this preamble useful, or drop it
         this._log.info(
