@@ -1,3 +1,3 @@
-import { ElasticNodeSDK } from "./sdk";
+import { ElasticNodeSDK } from "./elastic-node-sdk";
 import { getInstrumentations } from "./instrumentations";
 export { ElasticNodeSDK, getInstrumentations };

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-const {ElasticNodeSDK} = require('./sdk');
+const {ElasticNodeSDK} = require('./elastic-node-sdk');
 const {getInstrumentations} = require('./instrumentations');
 
 // TODO: this should reexport things from @otel/sdk-node (like 'api', 'core', etc.)
