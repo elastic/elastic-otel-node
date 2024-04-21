@@ -20,7 +20,7 @@
 /**
  * Setup and start the Elastic OpenTelemetry Node.js SDK distro.
  *
- * This is an alternative to the `node -r @elastic/opentelemetry-node`
+ * This is an alternative to the typical `node -r @elastic/opentelemetry-node`
  * convenience for starting the SDK. Starting the SDK manually via a local
  * file can be useful to allow configuring the SDK with code.
  *
@@ -28,9 +28,10 @@
  *      node -r ./start-elastic-sdk.js SCRIPT.js
  */
 
+const os = require('os');
 const path = require('path');
 
-// TODO see notes for isMainThread and module.register handling
+// TODO see isMainThread and module.register usage in require.js
 
 const {
     ElasticNodeSDK,
@@ -43,7 +44,7 @@ const {
 
 const sdk = new ElasticNodeSDK({
     serviceName: path.parse(process.argv[1]).name,
-    // One can **override** completelly the instrumentations provided by ElasticNodeSDK
+    // One can **override** completely the instrumentations provided by ElasticNodeSDK
     // by specifying `instrumentations`.
     instrumentations: [
         // Users can have the default instrumentations by calling `getInstrumentations`
@@ -75,7 +76,7 @@ process.on('SIGTERM', async () => {
     } catch (err) {
         console.warn('warning: error shutting down OTel SDK', err);
     }
-    process.exit();
+    process.exit(128 + os.constants.signals.SIGTERM);
 });
 
 process.once('beforeExit', async () => {

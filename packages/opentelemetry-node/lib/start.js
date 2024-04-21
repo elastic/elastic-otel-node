@@ -32,7 +32,7 @@ process.on('SIGTERM', async () => {
 });
 
 process.once('beforeExit', async () => {
-    // Flush recent telemetry data if about the shutdown.
+    // Flush recent telemetry data if about to shutdown.
     try {
         await sdk.shutdown();
     } catch (err) {
