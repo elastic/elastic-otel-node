@@ -36,7 +36,7 @@ const path = require('path');
 const {
     ElasticNodeSDK,
     getInstrumentations,
-} = require('@elastic/opentelemetry-node');
+} = require('@elastic/opentelemetry-node/sdk');
 
 const {
     ExpressInstrumentation,
@@ -58,15 +58,16 @@ const sdk = new ElasticNodeSDK({
             // But also a function could be used to handle more complex scenarios
             '@opentelemetry/instrumentation-express': () => {
                 // User can return `undefined` if he/she wants to disable it
-                if (process.env.ETEL_DISABLE_EXPRESS) {
+                if (process.env.DISABLE_EXPRESS) {
                     return undefined;
                 }
                 // Or return a new instrumentation to replace the default one
                 return new ExpressInstrumentation();
             },
         }),
-        // Users can apend their own instrumentations as they would do with the vanilla SDK.
-        // new AnotherInstrumentation(),
+        // Users can apend their own instrumentations as they would do with
+        // the OTel NodeSDK, for example:
+        //  new AnotherInstrumentation(),
     ],
 });
 
