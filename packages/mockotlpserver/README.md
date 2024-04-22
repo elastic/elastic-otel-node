@@ -178,7 +178,7 @@ are supported by `mockotlpserver` as well. Use the `OTEL_EXPORTER_OTLP_PROTOCOL`
 to tell the NodeSDK to use a different protocol:
 
 ```
-cd ../../example
+cd ../../examples
 OTEL_EXPORTER_OTLP_PROTOCOL=http/json node -r @elastic/opentelemetry-node simple-http-request.js
 OTEL_EXPORTER_OTLP_PROTOCOL=grpc      node -r @elastic/opentelemetry-node simple-http-request.js
 ```
