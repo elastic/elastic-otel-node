@@ -32,7 +32,7 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             OTEL_LOG_LEVEL: 'none',
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         // verbose: true,
         checkResult: (t, err, stdout, _stderr) => {

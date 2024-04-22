@@ -30,11 +30,11 @@ if (skip) {
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'use-ioredis',
+        name: 'use-ioredis.js (CommonJS)',
         args: ['./fixtures/use-ioredis.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -63,7 +63,33 @@ const testFixtures = [
             t.equal(spans[5].name, 'quit');
         },
     },
+
+    // This duplicates the "ESM via --require" test case in esm-usage.test.js,
+    // but it is useful to have the ESM ioredis sanity test here as well when
+    // working on instr-ioredis.
+    {
+        name: 'use-ioredis.mjs (ESM via --require)',
+        versionRanges: {
+            // TODO: issue on node docs that https://nodejs.org/api/all.html#all_module_moduleregisterspecifier-parenturl-options history doesn't show backport to v18.19.0
+            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
+        },
+        args: ['./fixtures/use-ioredis.mjs'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+        },
+        verbose: true,
+        checkTelemetry: assertUseIoredisMjsSpans,
+    },
 ];
+
+function assertUseIoredisMjsSpans(t, col) {
+    // Assert that we got the two redis spans expected from 'use-ioredis.mjs'.
+    const spans = col.sortedSpans;
+    t.equal(spans[1].name, 'set');
+    t.equal(spans[1].attributes['db.system'], 'redis');
+    t.equal(spans[2].name, 'get');
+}
 
 test('ioredis instrumentation', {skip}, (suite) => {
     runTestFixtures(suite, testFixtures);

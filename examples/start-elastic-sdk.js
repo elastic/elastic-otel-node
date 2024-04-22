@@ -20,7 +20,7 @@
 /**
  * Setup and start the Elastic OpenTelemetry Node.js SDK distro.
  *
- * This is an alternative to the `node -r @elastic/opentelemetry-node/start.js`
+ * This is an alternative to the typical `node -r @elastic/opentelemetry-node`
  * convenience for starting the SDK. Starting the SDK manually via a local
  * file can be useful to allow configuring the SDK with code.
  *
@@ -28,12 +28,15 @@
  *      node -r ./start-elastic-sdk.js SCRIPT.js
  */
 
+const os = require('os');
 const path = require('path');
+
+// TODO see isMainThread and module.register usage in require.js
 
 const {
     ElasticNodeSDK,
     getInstrumentations,
-} = require('@elastic/opentelemetry-node');
+} = require('@elastic/opentelemetry-node/sdk');
 
 const {
     ExpressInstrumentation,
@@ -41,7 +44,7 @@ const {
 
 const sdk = new ElasticNodeSDK({
     serviceName: path.parse(process.argv[1]).name,
-    // One can **override** completelly the instrumentations provided by ElasticNodeSDK
+    // One can **override** completely the instrumentations provided by ElasticNodeSDK
     // by specifying `instrumentations`.
     instrumentations: [
         // Users can have the default instrumentations by calling `getInstrumentations`
@@ -55,15 +58,16 @@ const sdk = new ElasticNodeSDK({
             // But also a function could be used to handle more complex scenarios
             '@opentelemetry/instrumentation-express': () => {
                 // User can return `undefined` if he/she wants to disable it
-                if (process.env.ETEL_DISABLE_EXPRESS) {
+                if (process.env.DISABLE_EXPRESS) {
                     return undefined;
                 }
                 // Or return a new instrumentation to replace the default one
                 return new ExpressInstrumentation();
             },
         }),
-        // Users can apend their own instrumentations as they would do with the vanilla SDK.
-        // new AnotherInstrumentation(),
+        // Users can apend their own instrumentations as they would do with
+        // the OTel NodeSDK, for example:
+        //  new AnotherInstrumentation(),
     ],
 });
 
@@ -73,7 +77,7 @@ process.on('SIGTERM', async () => {
     } catch (err) {
         console.warn('warning: error shutting down OTel SDK', err);
     }
-    process.exit();
+    process.exit(128 + os.constants.signals.SIGTERM);
 });
 
 process.once('beforeExit', async () => {

@@ -18,7 +18,7 @@
  */
 
 // Usage:
-//  node -r @elastic/opentelemetry-node/start.js express-app.js
+//  node -r @elastic/opentelemetry-node express-app.js
 //  curl -i http://127.0.0.1:3000/ping
 //  curl -i http://127.0.0.1:3000/hi/Bob
 //  curl -i http://127.0.0.1:3000/api/v1/things -X POST -d '"my-thing"' -H content-type:application/json

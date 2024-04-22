@@ -25,19 +25,18 @@
  * This is to demonstrate that `@elastic/opentelemetry-node` is a small
  * wrapper around the OpenTelemetry Node SDK.
  *
- * Compare:
- *      node -r @elastic/opentelemetry-node/start.js simple-http-request.js
- *      node -r ./start-otel-sdk.js                  simple-http-request.js
+ * Usage:
+ *      node -r ./start-otel-sdk.js         simple-http-request.js
  *
- * TODO: Refer to elastic otel distro config docs once we have them.
+ * By default this will send to the default OTLP endpoint: <http://localhost:4318>
+ * See the sdk-node configuration docs:
+ * https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node#configuration
  *
- * Note: By default these will send to the default OTLP endpoint at
- * <http://localhost:4318>. You can start a local mock OTLP server that will
- * print out received telemetry data via:
- *      cd ../packages/mockotlpserver
- *      npm start
+ * Compare to:
+ *      node -r @elastic/opentelemetry-node simple-http-request.js
  */
 
+const os = require('os');
 const path = require('path');
 const {NodeSDK} = require('@opentelemetry/sdk-node');
 const {
@@ -61,11 +60,11 @@ process.on('SIGTERM', async () => {
     } catch (err) {
         console.warn('warning: error shutting down OTel SDK', err);
     }
-    process.exit();
+    process.exit(128 + os.constants.signals.SIGTERM);
 });
 
 process.once('beforeExit', async () => {
-    // Flush recent telemetry data if about the shutdown.
+    // Flush recent telemetry data if about to shutdown.
     try {
         await sdk.shutdown();
     } catch (err) {

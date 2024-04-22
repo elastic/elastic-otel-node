@@ -33,8 +33,8 @@
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "start": "node lib/cli.js",
     "watch": "node --watch lib/cli.js",
-    "example": "cd ../../examples && pwd && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
-    "example3": "cd ../../examples && for flav in http/protobuf http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry-node/start.js simple-http-request.js; done"
+    "example": "cd ../../examples && pwd && node -r @elastic/opentelemetry-node simple-http-request.js",
+    "example3": "cd ../../examples && for flav in http/protobuf http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry-node simple-http-request.js; done"
   },
   "main": "lib/index.js",
   "bin": {

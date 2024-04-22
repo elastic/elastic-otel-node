@@ -32,7 +32,7 @@ const testFixtures = [
         args: ['./fixtures/use-host-metrics.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             // The default metrics interval is 30s, which makes for a slow test.
             // However, too low a value runs into possible:
             //      PeriodicExportingMetricReader: metrics collection errors TimeoutError: Operation timed out.

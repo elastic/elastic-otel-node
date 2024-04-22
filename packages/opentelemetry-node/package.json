@@ -27,12 +27,12 @@
     "node": ">=14"
   },
   "scripts": {
-    "example": "cd ../../examples && node -r @elastic/opentelemetry-node/start.js simple-http-request.js",
+    "example": "cd ../../examples && node -r @elastic/opentelemetry-node simple-http-request.js",
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files && npm run lint:changelog",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "lint:deps": "dependency-check start.js 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv -i @opentelemetry/winston-transport",
+    "lint:deps": "dependency-check require.js import.mjs hook.mjs 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv -i @opentelemetry/winston-transport",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "lint:changelog": "../../scripts/extract-release-notes.sh .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
@@ -41,7 +41,15 @@
     "test-services:stop": "docker compose -f ./test/docker-compose.yaml down",
     "gen:types": "tsc"
   },
-  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "import": "./import.mjs",
+      "require": "./require.js"
+    },
+    "./sdk": "./lib/index.js",
+    "./hook.mjs": "./hook.mjs",
+    "./package.json": "./package.json"
+  },
   "types": "types/index.d.ts",
   "dependencies": {
     "@opentelemetry/exporter-logs-otlp-proto": "^0.50.0",

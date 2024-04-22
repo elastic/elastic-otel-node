@@ -17,34 +17,28 @@
  * under the License.
  */
 
-// Usage: node -r @elastic/opentelemetry-node use-ioredis.js
+// Usage: node -r @elastic/opentelemetry-node use-ioredis.mjs
 
-const otel = require('@opentelemetry/api');
-const {Redis} = require('ioredis');
+import {trace} from '@opentelemetry/api';
+
+import assert from 'assert';
+import Redis from 'ioredis';
 
 const redis = new Redis(process.env.REDIS_HOST, {
     maxRetriesPerRequest: 5, // fail fast in testing
 });
 
-async function main() {
-    let val;
+// Randomize the key to avoid collisions with parallel testing.
+const randomId = ((Math.random() * 2 ** 32) >>> 0).toString(16);
+const testKeyName = `test-${randomId}`;
 
-    redis.set('foo', 'bar');
-    val = await redis.get('foo');
-    console.log('GET foo:', val);
-
-    redis.hset('myhash', 'field1', 'val1');
-    try {
-        val = await redis.get('myhash'); // Wrong command for type, should reject.
-    } catch (e) {
-        console.log('able to catch a GET error');
-    }
-
-    await redis.quit();
-}
-
-const tracer = otel.trace.getTracer('test');
-tracer.startActiveSpan('manual-parent-span', (span) => {
-    main();
+const tracer = trace.getTracer('test');
+await tracer.startActiveSpan('manual', async (span) => {
+    redis.set(testKeyName, 'bar');
+    let val = await redis.get(testKeyName);
+    assert(val === 'bar');
+    console.log('key "%s": "%s"', testKeyName, val);
     span.end();
 });
+
+await redis.quit();

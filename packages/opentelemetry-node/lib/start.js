@@ -18,7 +18,7 @@
  */
 
 const os = require('os');
-const {ElasticNodeSDK} = require('./lib/sdk.js');
+const {ElasticNodeSDK} = require('./elastic-node-sdk');
 
 const sdk = new ElasticNodeSDK();
 
@@ -32,7 +32,7 @@ process.on('SIGTERM', async () => {
 });
 
 process.once('beforeExit', async () => {
-    // Flush recent telemetry data if about the shutdown.
+    // Flush recent telemetry data if about to shutdown.
     try {
         await sdk.shutdown();
     } catch (err) {

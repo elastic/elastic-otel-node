@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r ../../start.js use-https-get.js
+// Usage: node -r @elastic/opentelemetry-node use-https-get.js
 const https = require('https');
 https.get('https://www.google.com/', (res) => {
     console.log('client response: %s %s', res.statusCode, res.headers);

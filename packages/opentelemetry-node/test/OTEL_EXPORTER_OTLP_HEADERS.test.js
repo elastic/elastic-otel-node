@@ -38,7 +38,7 @@ const testFixtures = [
         args: ['./fixtures/use-env.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_EXPORTER_OTLP_TRACES_HEADERS: 't-key=t-value,key=override',
             OTEL_EXPORTER_OTLP_METRICS_HEADERS: 'm-key=m-value',
             OTEL_EXPORTER_OTLP_LOGS_HEADERS: 'l-key=l-value',
@@ -67,7 +67,7 @@ const testFixtures = [
         args: ['./fixtures/use-env.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_EXPORTER_OTLP_TRACES_HEADERS: 't-key=t-value,User-Agent=t-ua',
             OTEL_EXPORTER_OTLP_METRICS_HEADERS: 'm-key=m-value,User-Agent=m-ua',
             OTEL_EXPORTER_OTLP_LOGS_HEADERS: 'l-key=l-value,User-Agent=l-ua',

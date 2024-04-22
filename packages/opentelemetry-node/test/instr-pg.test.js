@@ -34,7 +34,7 @@ const testFixtures = [
         args: ['./fixtures/use-pg.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=../start.js',
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {

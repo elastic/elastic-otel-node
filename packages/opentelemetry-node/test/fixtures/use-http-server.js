@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r ../../start.js use-http-server.js
+// Usage: node -r @elastic/opentelemetry-node use-http-server.js
 //
 // This starts a simple echo server, makes two requests to it, then stops the
 // server.
