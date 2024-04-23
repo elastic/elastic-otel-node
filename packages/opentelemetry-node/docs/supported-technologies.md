@@ -2,9 +2,8 @@
 
 ## Node.js versions
 
-Elastic OpenTelemety Node.js Distribution follows the runtime support table
-specified in OpenTelemetry Node.js SDK which we can summarise in support
-from Nodejs v14 and above. For more details you can check the [SDK README file](https://github.com/open-telemetry/opentelemetry-js?tab=readme-ov-file#supported-runtimes).
+The Elastic OpenTelemety Node.js Distribution supports Node.js v14 and later.
+This follows from the [OpenTelemetry JS supported runtimes](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes).
 
 ## Instrumentations
 
