@@ -66,7 +66,7 @@ export ELASTIC_APM_SERVER_URL="https://apm-server-host.co"
 export ELASTIC_APM_SECRET_TOKEN="secret_token"
 export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer ${ELASTIC_APM_SECRET_TOKEN}"
-node -r @elastic/opentelemetry-node/start.js my-app.js
+node -r @elastic/opentelemetry-node my-app.js
 ```
 
 Or if using an API key, then:
