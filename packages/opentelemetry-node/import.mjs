@@ -23,7 +23,7 @@
 import * as module from 'node:module';
 import {isMainThread} from 'node:worker_threads';
 
-const {log} = require('./lib/logging');
+import {log} from './lib/logging.js';
 
 /**
  * Return true iff it looks like the `@elastic/opentelemetry-node/hook.mjs`
