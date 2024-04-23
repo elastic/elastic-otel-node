@@ -17,7 +17,15 @@ This follows from the [OpenTelemetry JS supported runtimes](https://github.com/o
 | `@opentelemetry/instrumentation-bunyan`  | Instruments `bunyan` packages for version range `^1.0.0`     | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-bunyan#readme)|
 | `@opentelemetry/instrumentation-wiston`  | Instruments `wiston` packages for version range `>1 <4`      | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme)|
 
-## ECMAScript Modules
+## ECMAScript Modules (ESM)
 
-TODO: which is the ESM suport? do we commit to something?
+This distro includes *limited and experimental* support for instrumenting [ECMAScript module imports](https://nodejs.org/api/esm.html#modules-ecmascript-modules), i.e. modules that are loaded via `import ...` statements and `import('...')` (dynamic import). 
+
+<!-- TODO: add this to the above paragraph once we have an esm.md doc:
+See the [ECMAScript module support](./esm.md) document for details.
+-->
+
+Limitations:
+- For Node.js `>=20.6.0 || >=18.19.0`, support for hooking `import`s is automatically enabled. For earlier versions of Node.js, you must manually enable the `import`-hook via the `--experimental-loader=@elastic/opentelemetry-node/hook.mjs` option, e.g.: `node --experimental-loader=@elastic/opentelemetry-node/hook.mjs --require=@elastic/opentelemetry-node app.js`.
+- Currently only a subset of instrumentations support ESM: `express`, `ioredis`, `koa`, `pg`, `pino`. See [this OpenTelemetry JS tracking issue](https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1942) for progress.
 - 
