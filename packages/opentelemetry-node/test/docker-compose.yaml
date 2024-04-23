@@ -44,3 +44,18 @@ services:
       interval: 1s
       timeout: 10s
       retries: 30
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server
+    platform: linux/amd64
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Very(!)Secure
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
