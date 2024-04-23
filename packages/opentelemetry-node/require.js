@@ -24,7 +24,7 @@ const register = require('module').register;
 const {pathToFileURL} = require('url');
 const {isMainThread} = require('worker_threads');
 
-// TODO log.trace relevant handling in here
+const {log} = require('./lib/logging');
 
 /**
  * Return true iff it looks like the `@elastic/opentelemetry-node/hook.mjs`
@@ -42,8 +42,10 @@ function haveHookFromExperimentalLoader() {
             (arg === '--loader' || arg === '--experimental-loader') &&
             nextArg === '@elastic/opentelemetry-node/hook.mjs'
         ) {
+            log.trace('bootstrap-require: --loader hook args used');
             return true;
         } else if (USED_LOADER_OPT.test(arg)) {
+            log.trace('bootstrap-require: --loader hook arg used');
             return true;
         }
     }
@@ -51,6 +53,7 @@ function haveHookFromExperimentalLoader() {
         process.env.NODE_OPTIONS &&
         USED_LOADER_OPT.test(process.env.NODE_OPTIONS)
     ) {
+        log.trace('bootstrap-require: --loader arg used in NODE_OPTIONS');
         return true;
     }
     return false;
@@ -58,6 +61,7 @@ function haveHookFromExperimentalLoader() {
 
 if (isMainThread) {
     if (typeof register === 'function' && !haveHookFromExperimentalLoader()) {
+        log.trace('bootstrap-require: registering module hook');
         register('./hook.mjs', pathToFileURL(__filename).toString());
     }
 
