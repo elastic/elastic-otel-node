@@ -1,4 +1,4 @@
-# Suported Technologies
+# Supported Technologies
 
 ## Node.js versions
 
