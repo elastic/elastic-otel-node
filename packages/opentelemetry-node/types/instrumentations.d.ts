@@ -1,6 +1,7 @@
 export type Instrumentation = import('@opentelemetry/instrumentation').Instrumentation;
 export type InstrumentationFactory = () => Instrumentation;
 export type InstrumentaionsMap = {
+    "@opentelemetry/instrumentation-undici": import('@opentelemetry/instrumentation-undici').UndiciInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory;
