@@ -44,7 +44,7 @@ const testFixtures = [
             //  +51ms `- span fb837e "execSql master" (3.0ms, SPAN_KIND_CLIENT)
             const spans = col.sortedSpans;
             t.equal(spans.length, 2);
-            
+
             const s = spans.pop();
             t.equal(s.traceId, spans[0].traceId, 'traceId');
             t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');

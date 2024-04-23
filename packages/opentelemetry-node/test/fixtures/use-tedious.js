@@ -51,7 +51,6 @@ if (semver.gte(version, '4.0.0')) {
     };
 }
 
-
 async function main() {
     /** @type {import('tedious').Connection}*/
     const connection = await new Promise((resolve, reject) => {
@@ -76,15 +75,17 @@ async function main() {
     });
 
     // Perform a request and disconnect when we get the response
-    connection.execSql(new tedious.Request('select 1', (err, rowCount, rows) => {
-        connection.close();
+    connection.execSql(
+        new tedious.Request('select 1', (err, rowCount, rows) => {
+            connection.close();
 
-        if (err) {
-            throw err
-        } else {
-            console.log('SELECT result:', rowCount, rows);
-        }
-    }));
+            if (err) {
+                throw err;
+            } else {
+                console.log('SELECT result:', rowCount, rows);
+            }
+        })
+    );
 }
 
 const tracer = otel.trace.getTracer('test');
