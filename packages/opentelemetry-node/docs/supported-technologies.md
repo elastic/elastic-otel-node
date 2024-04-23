@@ -1,5 +1,9 @@
 # Supported Technologies
 
+## Elastic and Opentelemetry protocol(OTLP)
+
+Since version 7.14, Elastic [supports OTLP natively](https://www.elastic.co/blog/native-opentelemetry-support-in-elastic-observability).
+
 ## Node.js versions
 
 The Elastic OpenTelemety Node.js Distribution supports Node.js v14 and later.
@@ -7,15 +11,16 @@ This follows from the [OpenTelemetry JS supported runtimes](https://github.com/o
 
 ## Instrumentations
 
-| Name                                     | Short description                                            | Reference |
-| `@opentelemetry/instrumentation-http`    | Instruments Node.js `http` module for all supported versions |[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-http#readme)|
-| `@opentelemetry/instrumentation-express` | Instruments `express` package for version range `^4.0.0`     | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-express#readme)|
-| `@opentelemetry/instrumentation-fastify` | Instruments `fastify` package for version range `>=3 <5`     | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify#readme)|
-| `@opentelemetry/instrumentation-ioredis` | Instruments `ioredis` package for version range `>=2 <6`     | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-ioredis#readme)|
-| `@opentelemetry/instrumentation-pg`      | Instruments `pg` package for version range `>=8 <9`          | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-pg#readme)|
-| `@opentelemetry/instrumentation-mongodb` | Instruments `mongodb` packages for version range `>=3.3 <7`  | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-mongodb#readme)|
-| `@opentelemetry/instrumentation-bunyan`  | Instruments `bunyan` packages for version range `^1.0.0`     | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-bunyan#readme)|
-| `@opentelemetry/instrumentation-wiston`  | Instruments `wiston` packages for version range `>1 <4`      | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme)|
+| Name                                     | Short description                                               | Reference |
+| `@opentelemetry/instrumentation-http`    | Instruments Node.js `http` module for all supported versions    |[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-http#readme) |
+| `@opentelemetry/instrumentation-express` | Instruments `express` package for version range `^4.0.0`        | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-express#readme) |
+| `@opentelemetry/instrumentation-fastify` | Instruments `fastify` package for version range `>=3 <5`        | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify#readme) |
+| `@opentelemetry/instrumentation-ioredis` | Instruments `ioredis` package for version range `>=2 <6`        | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-ioredis#readme) |
+| `@opentelemetry/instrumentation-pg`      | Instruments `pg` package for version range `>=8 <9`             | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-pg#readme) |
+| `@opentelemetry/instrumentation-mongodb` | Instruments `mongodb` package for version range `>=3.3 <7`      | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-mongodb#readme) |
+| `@opentelemetry/instrumentation-bunyan`  | Instruments `bunyan` package for version range `^1.0.0`         | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-bunyan#readme) |
+| `@opentelemetry/instrumentation-winston` | Instruments `winston` package for version range `>1 <4`         | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme) |
+| `@opentelemetry/instrumentation-tedious` | Instruments `tedious` package for version range `>=1.11.0 <=15` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-tedious#readme) |
 
 ## ECMAScript Modules (ESM)
 

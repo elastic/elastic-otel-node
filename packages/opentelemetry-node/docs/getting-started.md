@@ -4,7 +4,6 @@ This is the Elastic OpenTelemetry Distribution for Node.js (the "Distro"). It is
 a Node.js package that provides:
 - easy way to instrument your application with OpenTelemetry
 - configuration defaults for best usage
-- utils on top the OTEL SDK for better customization
 
 Use the Distro to start the OpenTelemetry SDK with your Node.js application to automatically
 capture tracing data, performance metrics, and logs. Traces, metrics, and logs are sent
@@ -19,15 +18,15 @@ This getting started guide will show how to use this Distro to instrument your N
 
 An Elastic Observability deployment includes an OTLP endpoint to receive data. That data is processed and stored in Elasticsearch, and Kibana provides a web interface to visualize and analyze the date. If you do not already have
 a deployment to use, follow ...
+
+<!-- TODO: -->
+
 APM Server (which receives APM data from the APM agent running in your application),
 Elasticsearch (the database that stores all APM data), and Kibana (the application
 that provides the interface to visualize and analyze the data). If you do not already
 have an Elastic deployment to use, follow [this APM Quick Start guide](https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html)
 to create a free trial on Elastic's cloud. From this deployment you will need
-the APM **`serverUrl`** and **`secretToken`** (or a configured `apiKey`) to use
-for configuring the SDK distribution.
-
-Note: Since version 7.14, Elastic [supports OTLP natively](https://www.elastic.co/blog/native-opentelemetry-support-in-elastic-observability).
+the APM **`serverUrl`** and a configured **`apiKey`** to use for configuring the SDK distribution.
 
 ## Installation
 
@@ -62,19 +61,7 @@ As an example if you want to send telemetry data to your Elastic's APM deploymen
 may start the application like this
 
 ```sh
-export ELASTIC_APM_SERVER_URL="https://apm-server-host.co"
-export ELASTIC_APM_SECRET_TOKEN="secret_token"
-export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
-export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer ${ELASTIC_APM_SECRET_TOKEN}"
-node -r @elastic/opentelemetry-node my-app.js
-```
-
-Or if using an API key, then:
-
-```sh
-export ELASTIC_APM_SERVER_URL="https://apm-server-host.co"
-export ELASTIC_APM_API_KEY="api_key"
-export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
-export OTEL_EXPORTER_OTLP_HEADERS="Authorization=ApiKey ${ELASTIC_APM_API_KEY}"
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://apm-server-url.co"
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=ApiKey VnVhQ2ZHY0JDZGJr..."
 node -r @elastic/opentelemetry-node/start.js my-app.js
 ```
