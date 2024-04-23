@@ -15,8 +15,10 @@ and quickly identify root causes of service issues.
 
 # Getting Started
 
-This package works with any OTLP endpoint, for example: an [OTel Collector](https://opentelemetry.io/docs/collector/),
-but we recommend to use an Elastic Stack deployment. This is a deployment of
+This getting started guide will show how to use this Distro to instrument your Node.js application and send OpenTelemetry data to an Elastic Observability deployment. Note, however, that as an OpenTelemetry SDK, it supports sending data to any OTLP endpoint, e.g. an [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/).
+
+An Elastic Observability deployment includes an OTLP endpoint to receive data. That data is processed and stored in Elasticsearch, and Kibana provides a web interface to visualize and analyze the date. If you do not already have
+a deployment to use, follow ...
 APM Server (which receives APM data from the APM agent running in your application),
 Elasticsearch (the database that stores all APM data), and Kibana (the application
 that provides the interface to visualize and analyze the data). If you do not already
