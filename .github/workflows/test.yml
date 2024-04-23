@@ -65,6 +65,15 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: 'trust'
           POSTGRES_USER: 'postgres'
 
+      mssql:
+        image: mcr.microsoft.com/mssql/server
+        env:
+          ACCEPT_EULA: 'Y'
+          SA_PASSWORD: 'Very(!)Secure'
+          MSSQL_PID: 'Developer'
+        ports:
+          - "1433:1433"
+
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
