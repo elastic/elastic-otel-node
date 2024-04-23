@@ -118,14 +118,14 @@ function renderSpan(span, prefix = '') {
     // if (attrs['db.system']) { }
     // if (attrs['messaging.system']) { }
     // if (attrs['rpc.system']) { }
-    if ('http.url' in attrs) {
+    if ('http.request.method' in attrs || 'http.method' in attrs) {
+        const statusCode =
+            attrs['http.response.status_code'] || attrs['http.status_code'];
         extras.push(
             [
-                attrs['http.method'],
-                attrs['http.url'],
-                'http.status_code' in attrs
-                    ? `-> ${attrs['http.status_code']}`
-                    : null,
+                attrs['http.request.method'] || attrs['http.method'],
+                attrs['url.full'] || attrs['http.url'],
+                statusCode ? `-> ${statusCode}` : null,
             ]
                 .filter((p) => p)
                 .join(' ')

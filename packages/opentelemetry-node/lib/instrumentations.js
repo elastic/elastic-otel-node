@@ -24,6 +24,7 @@
  * @returns {Instrumentation}
  *
  * @typedef {{
+ *  "@opentelemetry/instrumentation-undici": import('@opentelemetry/instrumentation-undici').UndiciInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory,
@@ -35,6 +36,9 @@
  * }} InstrumentaionsMap
  */
 
+const {
+    UndiciInstrumentation,
+} = require('@opentelemetry/instrumentation-undici');
 const {
     BunyanInstrumentation,
 } = require('@opentelemetry/instrumentation-bunyan');
@@ -65,6 +69,8 @@ const {
 // the user's config and can default to something else if needed.
 /** @type {Record<keyof InstrumentaionsMap, (cfg: any) => Instrumentation>} */
 const INSTRUMENTATIONS = {
+    '@opentelemetry/instrumentation-undici': (cfg) =>
+        new UndiciInstrumentation(cfg),
     '@opentelemetry/instrumentation-bunyan': (cfg) =>
         new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-express': (cfg) =>
