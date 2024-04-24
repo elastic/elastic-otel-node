@@ -30,7 +30,7 @@
     "example": "cd ../../examples && node -r @elastic/opentelemetry-node simple-http-request.js",
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files && npm run lint:changelog",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
-    "lint:types": "tsc --outDir build/lint-types && diff -ur types build/lint-types",
+    "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:deps": "dependency-check require.js  hook.mjs 'lib/**/*.js' 'test/**/*.js' -i @types/tape -i dotenv -i @opentelemetry/winston-transport  # dep check does not like import.mjs",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
@@ -63,6 +63,7 @@
     "@opentelemetry/instrumentation-mongodb": "^0.42.0",
     "@opentelemetry/instrumentation-pg": "^0.40.0",
     "@opentelemetry/instrumentation-tedious": "^0.9.0",
+    "@opentelemetry/instrumentation-undici": "^0.1.0",
     "@opentelemetry/instrumentation-winston": "^0.36.0",
     "@opentelemetry/resources": "^1.20.0",
     "@opentelemetry/sdk-logs": "^0.50.0",
@@ -85,6 +86,7 @@
     "semver": "^7.6.0",
     "tape": "^5.7.5",
     "tedious": "^15.1.3",
+    "undici": "^6.14.1",
     "winston": "^3.13.0"
   }
 }
