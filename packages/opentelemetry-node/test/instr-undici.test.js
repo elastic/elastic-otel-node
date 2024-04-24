@@ -17,13 +17,30 @@
  * under the License.
  */
 
+const {satisfies} = require('semver');
 const test = require('tape');
+
 const {runTestFixtures} = require('./testutils');
+
+function getNodeVerRangeForCurrUndici() {
+    const undiciVer = require('undici/package.json').version;
+    if (satisfies(undiciVer, '>=6.13.0')) {
+        // See discussion at https://github.com/nodejs/undici/issues/3123
+        return '>=18.17.0';
+    } else if (satisfies(undiciVer, '>=6.0.0')) {
+        return '>=18.0.0';
+    } else if (satisfies(undiciVer, '>=5.28.0')) {
+        return '>=14.18.0';
+    }
+}
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
         name: 'use-undici-request.js',
+        versionRanges: {
+            node: getNodeVerRangeForCurrUndici(),
+        },
         args: ['./fixtures/use-undici-request.js'],
         cwd: __dirname,
         env: {
@@ -43,6 +60,9 @@ const testFixtures = [
     },
     {
         name: 'use-fetch.js (CommonJS)',
+        versionRanges: {
+            node: '>=18.0.0', // when `fetch()` was added
+        },
         args: ['./fixtures/use-fetch.js'],
         cwd: __dirname,
         env: {
@@ -62,13 +82,16 @@ const testFixtures = [
     },
     {
         name: 'use-fetch.mjs (ESM)',
+        versionRanges: {
+            // This does not depend on `module.register()` that was added in
+            // later Node.js versions, because undici is instrumented via
+            // diagnostic channels.
+            node: '>=18.0.0', // when `fetch()` was added
+        },
         args: ['./fixtures/use-fetch.mjs'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
-        },
-        versionRanges: {
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
