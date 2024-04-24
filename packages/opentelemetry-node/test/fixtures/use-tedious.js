@@ -23,7 +23,7 @@ const otel = require('@opentelemetry/api');
 const version = require('tedious/package.json').version;
 const tedious = require('tedious');
 
-const hostname = process.env.MSSQL_HOST;
+const hostname = process.env.MSSQL_HOST || 'localhost';
 let connOptions;
 
 if (semver.gte(version, '4.0.0')) {
