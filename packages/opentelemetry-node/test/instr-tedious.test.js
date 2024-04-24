@@ -18,6 +18,7 @@
  */
 
 const test = require('tape');
+const semver = require('semver');
 const { runTestFixtures } = require('./testutils');
 
 const tediousVer= require('tedious/package.json').version;
@@ -51,12 +52,6 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
-        },
-        versionRanges: {
-            // tedious@11 and later depend on @azure/identity v1 or v2. As of
-            // @azure/core-rest-pipeline@1.15.0 (a dep of @azure/identity), support for
-            // Node.js <16 has been broken.
-            node: '>=16',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
