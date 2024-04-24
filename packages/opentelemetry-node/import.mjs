@@ -23,13 +23,13 @@
 import * as module from 'node:module';
 import {isMainThread} from 'node:worker_threads';
 
-// TODO log.trace relevant handling in here
+import {log} from './lib/logging.js';
 
 /**
  * Return true iff it looks like the `@elastic/opentelemetry-node/hook.mjs`
  * was loaded via node's `--experimental-loader` option.
  *
- * Dev Note: keep this in sync with "import.mjs".
+ * Dev Note: keep this in sync with "require.js".
  */
 function haveHookFromExperimentalLoader() {
     const USED_LOADER_OPT =
@@ -41,8 +41,10 @@ function haveHookFromExperimentalLoader() {
             (arg === '--loader' || arg === '--experimental-loader') &&
             nextArg === '@elastic/opentelemetry-node/hook.mjs'
         ) {
+            log.trace('bootstrap-import: --loader hook args used');
             return true;
         } else if (USED_LOADER_OPT.test(arg)) {
+            log.trace('bootstrap-import: --loader hook arg used');
             return true;
         }
     }
@@ -50,6 +52,7 @@ function haveHookFromExperimentalLoader() {
         process.env.NODE_OPTIONS &&
         USED_LOADER_OPT.test(process.env.NODE_OPTIONS)
     ) {
+        log.trace('bootstrap-import: --loader arg used in NODE_OPTIONS');
         return true;
     }
     return false;
@@ -60,6 +63,7 @@ if (isMainThread) {
         typeof module.register === 'function' &&
         !haveHookFromExperimentalLoader()
     ) {
+        log.trace('bootstrap-import: registering module hook');
         module.register('./hook.mjs', import.meta.url);
     }
 

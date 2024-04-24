@@ -21,11 +21,13 @@
  * @typedef {import('@opentelemetry/sdk-node').NodeSDKConfiguration} NodeSDKConfiguration
  */
 
+const os = require('os');
+
 const {
     OTLPMetricExporter,
 } = require('@opentelemetry/exporter-metrics-otlp-proto');
 const {OTLPLogExporter} = require('@opentelemetry/exporter-logs-otlp-proto');
-const {metrics, NodeSDK} = require('@opentelemetry/sdk-node');
+const {metrics, NodeSDK, api} = require('@opentelemetry/sdk-node');
 const {
     envDetectorSync,
     hostDetectorSync,
@@ -33,19 +35,21 @@ const {
 } = require('@opentelemetry/resources');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
-const {setupLogger} = require('./logging');
+const {log, registerOTelDiagLogger} = require('./logging');
 const {distroDetectorSync} = require('./detector');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
+// @ts-ignore - compiler options do not allow lookp outside `lib` folder
+const DISTRO_VERSION = require('../package.json').version;
 
 class ElasticNodeSDK extends NodeSDK {
     /**
      * @param {Partial<NodeSDKConfiguration>} opts
      */
     constructor(opts = {}) {
-        const log = setupLogger();
         log.trace('ElasticNodeSDK opts:', opts);
+        registerOTelDiagLogger(api);
 
         // Setup & fix some env
         setupEnvironment();
@@ -119,10 +123,18 @@ class ElasticNodeSDK extends NodeSDK {
      * Starts the SDK
      */
     start() {
-        // TODO: make this preamble useful, or drop it
         this._log.info(
-            {preamble: true},
-            'starting Elastic OpenTelemetry Node.js SDK distro'
+            {
+                preamble: true,
+                distroVersion: DISTRO_VERSION,
+                env: {
+                    // For darwin: https://en.wikipedia.org/wiki/Darwin_%28operating_system%29#Release_history
+                    os: `${os.platform()} ${os.release()}`,
+                    arch: os.arch(),
+                    runtime: `Node.js ${process.version}`,
+                },
+            },
+            'start Elastic OpenTelemetry Node.js Distribution'
         );
         super.start();
 

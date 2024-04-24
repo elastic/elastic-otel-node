@@ -17,51 +17,66 @@
  * under the License.
  */
 
-const {api} = require('@opentelemetry/sdk-node');
+// This provides a `log` singleton Logger instance to be used for logging
+// by this SDK.
+//
+// Dev Note: This file is loaded very early in bootstrapping the SDK, typically
+// before ESM hooks are registered. To keep that code path simple, this file
+// should keep deps to a minimum.
 
 const luggite = require('./luggite');
 
+const _globalThis = typeof globalThis === 'object' ? globalThis : global;
+const _symLog = Symbol.for('elastic-otel-node.log');
+
+// Dev Note: `OTEL_LOG_LEVEL`s are not standardized.
+// https://github.com/open-telemetry/opentelemetry-specification/issues/920
+// https://github.com/open-telemetry/opentelemetry-specification/issues/2039
+const DEFAULT_OTEL_LOG_LEVEL = 'INFO';
+const LUGGITE_LEVEL_FROM_OTEL_LOG_LEVEL = {
+    NONE: luggite.FATAL + 1, // TODO: support 'silent' luggite level
+    ERROR: 'error',
+    WARN: 'warn',
+    INFO: 'info',
+    DEBUG: 'debug',
+    VERBOSE: 'trace',
+    ALL: 'trace',
+};
+
 /**
- * This is passed the user-provided value of `OTEL_LOG_LEVEL`. It should return
- * null if the value is unrecognized.
- *
- * Dev Note: `OTEL_LOG_LEVEL`s are not standardized.
- * https://github.com/open-telemetry/opentelemetry-specification/issues/920
- * https://github.com/open-telemetry/opentelemetry-specification/issues/2039
+ * Return an OTel log level to use, based on the OTEL_LOG_LEVEL envvar.
+ * This is normalized to upper-case, and defaults to INFO if the value is
+ * not set or unrecognized.
  */
-function luggiteLevelFromOtelLogLevel(otelLogLevel) {
-    const luggiteLevel =
-        {
-            NONE: luggite.FATAL + 1, // TODO: support 'silent' luggite level
-            ERROR: 'error',
-            WARN: 'warn',
-            INFO: 'info',
-            DEBUG: 'debug',
-            VERBOSE: 'trace',
-            ALL: 'trace',
-        }[otelLogLevel] || null;
-    return luggiteLevel;
+function otelLogLevelFromEnv() {
+    let otelLogLevel;
+    if (process.env.OTEL_LOG_LEVEL) {
+        otelLogLevel = process.env.OTEL_LOG_LEVEL.toUpperCase();
+        if (LUGGITE_LEVEL_FROM_OTEL_LOG_LEVEL[otelLogLevel] === undefined) {
+            otelLogLevel = null;
+        }
+    }
+    if (!otelLogLevel) {
+        otelLogLevel = DEFAULT_OTEL_LOG_LEVEL;
+    }
+    return otelLogLevel;
 }
 
 /**
  * Create a logger using the level from OTEL_LOG_LEVEL, default 'info'.
- * Also set this logger to handle `api.diag.*()` log methods.
  */
-function setupLogger() {
-    let level;
-    let diagLevel;
-    if (process.env.OTEL_LOG_LEVEL) {
-        const otelLogLevel = process.env.OTEL_LOG_LEVEL.toUpperCase();
-        level = luggiteLevelFromOtelLogLevel(otelLogLevel);
-        diagLevel = otelLogLevel;
-    }
-    if (!level) {
-        level = 'info'; // default level
-        diagLevel = 'INFO';
-    }
+function createLogger() {
+    const level =
+        LUGGITE_LEVEL_FROM_OTEL_LOG_LEVEL[otelLogLevelFromEnv()] || null;
+    return luggite.createLogger({name: 'elastic-otel-node', level});
+}
 
-    const log = luggite.createLogger({name: 'elastic-otel-node', level});
+/**
+ * Register the singleton `log` to handle OTel `api.diag.*()` calls.
+ */
+function registerOTelDiagLogger(api) {
     // TODO: when luggite supports .child, add a module/component attr for diag log output
+    const diagLevel = otelLogLevelFromEnv();
     api.diag.setLogger(
         {
             error: log.error.bind(log),
@@ -72,10 +87,19 @@ function setupLogger() {
         },
         api.DiagLogLevel[diagLevel]
     );
-
-    return log;
 }
 
+// ---- main line
+
+// Create, if necessary, and export a singleton `log` logger instance.
+if (_globalThis[_symLog] === undefined) {
+    _globalThis[_symLog] = createLogger();
+}
+const log = _globalThis[_symLog];
+
+// ---- exports
+
 module.exports = {
-    setupLogger,
+    log,
+    registerOTelDiagLogger,
 };
