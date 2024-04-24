@@ -19,9 +19,9 @@
 
 const test = require('tape');
 const semver = require('semver');
-const { runTestFixtures } = require('./testutils');
+const {runTestFixtures} = require('./testutils');
 
-const tediousVer= require('tedious/package.json').version;
+const tediousVer = require('tedious/package.json').version;
 let skip = process.env.MSSQL_HOST === undefined;
 
 if (skip) {
@@ -31,18 +31,18 @@ if (skip) {
 }
 
 if (
-    (semver.gte(tediousVer, '17.0.0') && semver.lt(process.version, '18.0.0')) ||
+    (semver.gte(tediousVer, '17.0.0') &&
+        semver.lt(process.version, '18.0.0')) ||
     // tedious@11 and later depend on @azure/identity v1 or v2. As of
     // @azure/core-rest-pipeline@1.15.0 (a dep of @azure/identity), support for
     // Node.js <16 has been broken.
     (semver.gte(tediousVer, '11.0.0') && semver.lt(process.version, '16.0.0'))
 ) {
     console.log(
-        `# SKIP tedious@${tediousVer} does not support node ${process.version}`,
+        `# SKIP tedious@${tediousVer} does not support node ${process.version}`
     );
     skip = true;
 }
-
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -73,7 +73,7 @@ const testFixtures = [
     },
 ];
 
-test('tedious instrumentation', { skip }, (suite) => {
+test('tedious instrumentation', {skip}, (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });
