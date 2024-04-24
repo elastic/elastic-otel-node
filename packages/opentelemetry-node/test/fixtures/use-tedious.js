@@ -20,7 +20,7 @@
 // Usage: node -r @elastic/opentelemetry-node use-tedious.js
 const semver = require('semver');
 const otel = require('@opentelemetry/api');
-const version = require('tedious/package').version;
+const version = require('tedious/package.json').version;
 const tedious = require('tedious');
 
 const hostname = process.env.MSSQL_HOST;
