@@ -24,5 +24,3 @@ to export data you can use the env vars already defined in [the spec](https://op
 
 Elastic OpenTelemetry Node.js Distribution also gathers metrics from the host
 machine with `@opentelemetry/host-metrics` pacakge.
-
-TODO: maybe explain the metrics exported?

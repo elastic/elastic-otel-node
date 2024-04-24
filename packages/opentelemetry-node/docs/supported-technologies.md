@@ -21,6 +21,7 @@ This follows from the [OpenTelemetry JS supported runtimes](https://github.com/o
 | `@opentelemetry/instrumentation-bunyan`  | Instruments `bunyan` package for version range `^1.0.0`         | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-bunyan#readme) |
 | `@opentelemetry/instrumentation-winston` | Instruments `winston` package for version range `>1 <4`         | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme) |
 | `@opentelemetry/instrumentation-tedious` | Instruments `tedious` package for version range `>=1.11.0 <=15` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-tedious#readme) |
+| `@opentelemetry/instrumentation-undici` | Instruments `undici` package for version range `>=5.12.0`        | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici#readme) |
 
 ## ECMAScript Modules (ESM)
 

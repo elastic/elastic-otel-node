@@ -17,16 +17,9 @@ and quickly identify root causes of service issues.
 This getting started guide will show how to use this Distro to instrument your Node.js application and send OpenTelemetry data to an Elastic Observability deployment. Note, however, that as an OpenTelemetry SDK, it supports sending data to any OTLP endpoint, e.g. an [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/).
 
 An Elastic Observability deployment includes an OTLP endpoint to receive data. That data is processed and stored in Elasticsearch, and Kibana provides a web interface to visualize and analyze the date. If you do not already have
-a deployment to use, follow ...
-
-<!-- TODO: -->
-
-APM Server (which receives APM data from the APM agent running in your application),
-Elasticsearch (the database that stores all APM data), and Kibana (the application
-that provides the interface to visualize and analyze the data). If you do not already
-have an Elastic deployment to use, follow [this APM Quick Start guide](https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html)
+a deployment to use, follow [this Quick Start guide](https://www.elastic.co/blog/getting-started-with-elastic-cloud)
 to create a free trial on Elastic's cloud. From this deployment you will need
-the APM **`serverUrl`** and a configured **`apiKey`** to use for configuring the SDK distribution.
+the APM **`serverUrl`** and a configured **`apmAgentKey`** to use for configuring the SDK distribution.
 
 ## Installation
 
