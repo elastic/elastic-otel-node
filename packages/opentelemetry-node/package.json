@@ -32,7 +32,7 @@
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "lint:deps": "dependency-check require.js import.mjs hook.mjs 'lib/**/*.js' 'test/**/*.js' -e mjs:../../dev-utils/mjs-detective -i @types/tape -i dotenv -i @opentelemetry/winston-transport",
+    "lint:deps": "dependency-check require.js import.mjs hook.mjs 'lib/**/*.js' 'test/**/*.js' -e mjs:../../scripts/parse-mjs-source -i @types/tape -i dotenv -i @opentelemetry/winston-transport",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "lint:changelog": "../../scripts/extract-release-notes.sh .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
