@@ -1,6 +1,6 @@
 {
   "name": "@elastic/opentelemetry-node",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "commonjs",
   "description": "Elastic OpenTelemetry distribution for Node.js",
   "publishConfig": {
@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elastic/elastic-otel-java.git",
+    "url": "git+https://github.com/elastic/elastic-otel-java.git",
     "directory": "packages/opentelemetry-node"
   },
   "keywords": [
