@@ -121,7 +121,7 @@ It is also possible to authenticate to an Elastic Observability endpoint using
 an "APM Agent key". These are revocable API keys. To create and manage
 APM Agent keys, see the "Agent Keys" tab in "APM Settings" in Kibana.
 
-[!Kibana's APM Agent Keys section](./img/kibana-apm-agent-keys.png)
+![Kibana's APM Agent Keys section](./img/kibana-apm-agent-keys.png)
 
 When using an APM Agent key, the `OTEL_EXPORTER_OTLP_HEADERS` is set using a
 different auth schema (`ApiKey` rather than `Bearer`). For example:
