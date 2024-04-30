@@ -33,8 +33,8 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '21'
-          - '21.0'
+          - '22'
+          - '22.0'
           - '20'
           - '20.0'
           - '18.18.2' # Skip >=18.19.0 until IITM issues are resolved.
