@@ -4,6 +4,11 @@
 
 (nothing yet)
 
+## v0.1.2
+
+- Correct "repository.url" setting in package.json, required for npm provenance
+  generation.
+
 ## v0.1.1
 
 - Trim files included in published npm package.

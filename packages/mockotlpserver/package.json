@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elastic/elastic-otel-node.git",
+    "url": "git+https://github.com/elastic/elastic-otel-node.git",
     "directory": "packages/mockotlpserver"
   },
   "keywords": [
