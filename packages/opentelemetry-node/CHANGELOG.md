@@ -4,6 +4,10 @@
 
 (nothing yet)
 
+## v0.1.1
+
+- Trim files included in published npm package.
+
 ## v0.1.0
 
 The first release of the Elastic OpenTelemetry Node.js distribution.
