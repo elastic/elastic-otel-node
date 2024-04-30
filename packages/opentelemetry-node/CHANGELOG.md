@@ -4,14 +4,19 @@
 
 (nothing yet)
 
+## v0.1.3
+
+- chore: Correct another issue with "repository.url" setting in package.json,
+  required for npm provenance generation.
+
 ## v0.1.2
 
-- Correct "repository.url" setting in package.json, required for npm provenance
-  generation.
+- chore: Correct "repository.url" setting in package.json, required for npm
+  provenance generation.
 
 ## v0.1.1
 
-- Trim files included in published npm package.
+- chore: Trim files included in published npm package.
 
 ## v0.1.0
 
