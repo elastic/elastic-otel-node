@@ -84,7 +84,7 @@ OTLP) to your configured observability backend.
 You'll need somewhere to send the gathered OpenTelemetry data, so it can be
 viewed and analyzed. The `@elastic/opentelemetry-node` package supports sending
 to any OTLP endpoint (e.g. an OpenTelemetry collector instance). This section
-shows create an [Elastic Observability](https://www.elastic.co/observability)
+shows how to create an [Elastic Observability](https://www.elastic.co/observability)
 cloud deployment and get the data you need to configure the Distro to send
 data to it.
 
