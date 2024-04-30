@@ -19,16 +19,27 @@ Some limitations / notes:
 
 # Usage
 
-    # 1. install
-    npm install --save @elastic/opentelemetry-node
+```sh
+# 1. install
+npm install --save @elastic/opentelemetry-node
 
-    # 2. configure via OTEL_ envvars, for example:
-    export OTEL_EXPORTER_OTLP_ENDPOINT=https://{your-otlp-endpoint.example.com}
-    export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer {your-Elastic-secret-token}"
-    export OTEL_SERVICE_NAME=my-service
+# 2. configure via OTEL_ envvars, for example:
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://{your-otlp-endpoint.example.com}
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization={authorization-information}"
+export OTEL_SERVICE_NAME=my-service
 
-    # 3. start
-    node -r @elastic/opentelemetry-node my-service.js
+# 3. start
+node -r @elastic/opentelemetry-node my-service.js
+```
+
+If using an [Elastic Observability deployment](./docs/getting-started.md#elastic-observability-setup)
+to which to send telemetry data, the `OTEL_EXPORTER_*` settings will look
+something like:
+
+```sh
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://{deployment-name}.apm.{cloud-region}.cloud.es.io
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer {deployment-secret-token}"
+```
 
 The Distro will automatically instrument popular modules (see [supported instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations)))
 used by your service, and send trace, metrics, and logs telemetry data (using
