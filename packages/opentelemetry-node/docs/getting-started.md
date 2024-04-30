@@ -58,6 +58,8 @@ If you don't have an Elastic Observability deployment or don't have the
 endpoint and auth data for your deployment, see the [Elastic Observability setup](#elastic-observability-setup)
 section below.
 
+See the [OpenTelemetry Environment Variable spec](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/) for other available configuration settings.
+
 ## Initialization
 
 For the Distro to automatically instrument modules used by your Node.js service,
@@ -69,6 +71,10 @@ Distro started is by using the `-r, --require` Node.js
 ```sh
 node --require @elastic/opentelemetry-node my-service.js
 ```
+
+The Distro will automatically instrument popular modules (see [supported instrumentations](./supported-technologies.md#instrumentations))
+used by your service, and send traces, metrics, and logs telemetry data (using
+OTLP) to your configured observability backend.
 
 <!-- TODO: link to a reference section on other ways to start the Distro once we have those docs. -->
 
