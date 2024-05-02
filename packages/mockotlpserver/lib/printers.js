@@ -161,7 +161,12 @@ class JSONPrinter extends Printer {
  * request and saves it to a file. **Warning**: Converting OTLP service requests to JSON is fraught.
  */
 class FilePrinter extends Printer {
-    constructor(log, indent, signals = ['trace'], dbDir = path.resolve(__dirname, '../db')) {
+    constructor(
+        log,
+        indent,
+        signals = ['trace'],
+        dbDir = path.resolve(__dirname, '../db')
+    ) {
         super(log);
         this._indent = indent || 0;
         this._signals = signals;

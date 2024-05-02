@@ -188,9 +188,6 @@ async function main() {
             case 'logs-summary':
                 printers.push(new LogsSummaryPrinter(log));
                 break;
-            case 'trace-summary':
-                printers.push(new TraceWaterfallPrinter(log));
-                break;
 
             case 'trace-web':
                 printers.push(new FilePrinter(log));
