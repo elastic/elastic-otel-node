@@ -91,7 +91,10 @@ class LogsSummaryPrinter extends Printer {
                             rec.severityNumber
                         } (${meta}): ${stylizeWithColor(rec.body, 'cyan')}`
                     );
-                    if (Object.keys(rec.attributes).length > 0) {
+                    if (
+                        rec.attributes &&
+                        Object.keys(rec.attributes).length > 0
+                    ) {
                         let attrSummary = util
                             .inspect(rec.attributes, {
                                 depth: 10,
