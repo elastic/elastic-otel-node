@@ -170,7 +170,7 @@ function bitrot() {
             n.endsWith('Instrumentation')
         )[0];
         const instr = new mod[instrClass]();
-        const initVal = instr.init(); // XXX grpc is weird here
+        const initVal = instr.init(); // grpc is weird here
         if (initVal === undefined) {
             if (!QUIET) console.log(`    (instr.init() returned undefined!)`);
             continue;
@@ -188,7 +188,7 @@ function bitrot() {
                         inmf.supportedVersions
                     )}`
                 );
-            // XXX keep printing these? Do they ever matter?
+            // TODO: keep printing these? Do they ever matter?
             for (let file of inmf.files) {
                 if (!QUIET)
                     console.log(
