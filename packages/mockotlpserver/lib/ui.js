@@ -47,7 +47,7 @@ class UiPrinter extends Printer {
     }
 
     /**
-     * Prints into files the spns belonging to a trace
+     * Prints into files the spans belonging to a trace
      * @param {import('./types').ExportTraceServiceRequest} traceReq
      */
     printTrace(traceReq) {
@@ -170,9 +170,15 @@ class UiService extends Service {
                     const traceFiles = fs.readdirSync(dataPath).filter((f) => {
                         return f.startsWith('trace-');
                     });
+                    const sortedFiles = traceFiles.sort((fileA, fileB) => {
+                        const statA = fs.statSync(`${dataPath}/${fileA}`);
+                        const statB = fs.statSync(`${dataPath}/${fileB}`);
+
+                        return new Date(statB.birthtime).getTime() - new Date(statA.birthtime).getTime();
+                    });
 
                     res.writeHead(200, {'Content-Type': 'application/json'});
-                    res.end(JSON.stringify(traceFiles));
+                    res.end(JSON.stringify(sortedFiles));
                     return;
                 } else if (req.url.startsWith('/api/traces/')) {
                     const traceId = req.url.replace('/api/traces/', '');
