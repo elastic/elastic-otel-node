@@ -31,8 +31,6 @@ const ETEL_PJ_PATH = path.resolve(
     'opentelemetry-node',
     'package.json'
 );
-const AIN_PJ_URL =
-    'https://raw.githubusercontent.com/open-telemetry/opentelemetry-js-contrib/main/metapackages/auto-instrumentations-node/package.json';
 const SKIP_INSTR_NAMES = [
     '@opentelemetry/instrumentation-aws-lambda', // supported versions isn't meaningful
     '@opentelemetry/instrumentation-redis', // the separate 'instrumentation-redis-4' handles the latest versions
@@ -101,10 +99,6 @@ function stylizeWithColor(str, color) {
     } else {
         return str;
     }
-}
-
-function stylizeWithoutColor(str, color) {
-    return str;
 }
 
 let stylize = stylizeWithColor;
