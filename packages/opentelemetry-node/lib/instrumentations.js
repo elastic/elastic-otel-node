@@ -30,6 +30,7 @@
  *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation-hapi').HapiInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentation | InstrumentationFactory
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentation | InstrumentationFactory
  *  "@opentelemetry/instrumentation-winston": import('@opentelemetry/instrumentation-winston').WinstonInstrumentationConfig | InstrumentationFactory,
@@ -44,6 +45,7 @@ const {
     BunyanInstrumentation,
 } = require('@opentelemetry/instrumentation-bunyan');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
+const {HapiInstrumentation} = require('@opentelemetry/instrumentation-hapi');
 const {
     IORedisInstrumentation,
 } = require('@opentelemetry/instrumentation-ioredis');
@@ -81,6 +83,8 @@ const INSTRUMENTATIONS = {
         new ExpressInstrumentation(cfg),
     '@opentelemetry/instrumentation-fastify': (cfg) =>
         new FastifyInstrumentation(cfg),
+    '@opentelemetry/instrumentation-hapi': (cfg) =>
+        new HapiInstrumentation(cfg),
     '@opentelemetry/instrumentation-http': (cfg) =>
         new HttpInstrumentation(cfg),
     '@opentelemetry/instrumentation-ioredis': (cfg) =>
