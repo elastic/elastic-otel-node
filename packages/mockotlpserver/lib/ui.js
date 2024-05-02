@@ -83,8 +83,8 @@ class UiService extends Service {
                         const statB = fs.statSync(`${dataPath}/${fileB}`);
 
                         return (
-                            new Date(statA.birthtime).getTime() -
-                            new Date(statB.birthtime).getTime()
+                            new Date(statB.birthtime).getTime() -
+                            new Date(statA.birthtime).getTime()
                         );
                     });
 
