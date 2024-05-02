@@ -21,100 +21,9 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 
-const Long = require('long');
-
-const {Printer} = require('./printers');
 const {Service} = require('./service');
 
 // helper functions
-
-/**
- * @typedef {Object} SpanTree
- * @property {import('./types').Span} span
- * @property {import('./types').Span[]} children
- */
-
-/**
- * @typedef {Object} TraceTree
- * @property {string} id
- * @property {SpanTree[]} children
- */
-
-class UiPrinter extends Printer {
-    constructor(log) {
-        super(log);
-        this._dbDir = path.resolve(__dirname, '../db');
-    }
-
-    /**
-     * Prints into files the spans belonging to a trace
-     * @param {import('./types').ExportTraceServiceRequest} traceReq
-     */
-    printTrace(traceReq) {
-        /** @type {Map<string, import('./types').Span[]>} */
-        const tracesMap = new Map();
-
-        // Group all spans by trace
-        traceReq.resourceSpans.forEach((resSpan) => {
-            resSpan.scopeSpans.forEach((scopeSpan) => {
-                scopeSpan.spans.forEach((span) => {
-                    const traceId = span.traceId.toString('hex');
-                    let traceSpans = tracesMap.get(traceId);
-
-                    if (!traceSpans) {
-                        traceSpans = [];
-                        tracesMap.set(traceId, traceSpans);
-                    }
-                    traceSpans.push(span);
-                });
-            });
-        });
-
-        // Write into a file
-        // TODO: manage lifetime of old trace ndjson files.
-        for (const [traceId, traceSpans] of tracesMap.entries()) {
-            const filePath = path.join(this._dbDir, `trace-${traceId}.ndjson`);
-            const stream = fs.createWriteStream(filePath, {
-                flags: 'a',
-                encoding: 'utf-8',
-            });
-
-            for (const span of traceSpans) {
-                const formatted = this._formatSpan(span);
-                stream.write(
-                    JSON.stringify(Object.assign({}, span, formatted)) + '\n'
-                );
-            }
-            stream.close();
-        }
-    }
-
-    /**
-     * @param {import('./types').Span} span
-     */
-    _formatSpan(span) {
-        const traceId = span.traceId.toString('hex');
-        const spanId = span.spanId.toString('hex');
-        const parentSpanId = span.parentSpanId?.toString('hex');
-        const formatted = {traceId, spanId};
-
-        if (parentSpanId) {
-            formatted.parentSpanId = parentSpanId;
-        }
-        formatted.startTimeUnixNano = new Long(
-            span.startTimeUnixNano.low,
-            span.startTimeUnixNano.high,
-            span.startTimeUnixNano.unsigned
-        ).toString();
-        formatted.endTimeUnixNano = new Long(
-            span.endTimeUnixNano.low,
-            span.endTimeUnixNano.high,
-            span.endTimeUnixNano.unsigned
-        ).toString();
-
-        return formatted;
-    }
-}
 
 /**
  * @param {http.ServerResponse} res
@@ -152,7 +61,6 @@ class UiService extends Service {
         super();
         this._opts = opts;
         this._server = null;
-        this._printer = new UiPrinter(opts.log);
     }
 
     async start() {
@@ -174,7 +82,7 @@ class UiService extends Service {
                         const statA = fs.statSync(`${dataPath}/${fileA}`);
                         const statB = fs.statSync(`${dataPath}/${fileB}`);
 
-                        return new Date(statB.birthtime).getTime() - new Date(statA.birthtime).getTime();
+                        return new Date(statA.birthtime).getTime() - new Date(statB.birthtime).getTime();
                     });
 
                     res.writeHead(200, {'Content-Type': 'application/json'});
@@ -216,8 +124,6 @@ class UiService extends Service {
                 fs.createReadStream(`${assetsPath}/404.html`).pipe(res);
             });
         });
-
-        this._printer.subscribe();
 
         return new Promise((resolve, reject) => {
             this._server.listen(port, hostname, () => {

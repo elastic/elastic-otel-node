@@ -24,7 +24,7 @@
 const dashdash = require('dashdash');
 
 const luggite = require('./luggite');
-const {JSONPrinter, InspectPrinter} = require('./printers');
+const {JSONPrinter, InspectPrinter, FilePrinter} = require('./printers');
 const {TraceWaterfallPrinter} = require('./waterfall');
 const {MetricsSummaryPrinter} = require('./metrics-summary');
 const {LogsSummaryPrinter} = require('./logs-summary');
@@ -123,20 +123,9 @@ async function main() {
         process.exit(0);
     }
 
-    
-    const hasWebPrinter = opts.o.some((printerName) => printerName.endsWith('web'));
-    console.log('hasWebPrinter', hasWebPrinter)
-    console.log(opts.o)
-
     const otlpServer = new MockOtlpServer({
         log,
-        // TODO: this is a shortcut to enable/disable the UI printer but
-        // the service is not started at all. The dev cann't check UI for previous traces.
-        // Another option could be to promote the UIPrinter to a new type `FilePrinter`
-        // which saves traces, metrics & logs into files. This would:
-        // - allow the UI work without printers
-        // - have more control on what's stored on disk
-        services: hasWebPrinter ? ['http', 'grpc', 'ui'] : ['http', 'grpc'],
+        services: ['http', 'grpc', 'ui'],
         grpcHostname: opts.hostname || DEFAULT_HOSTNAME,
         httpHostname: opts.hostname || DEFAULT_HOSTNAME,
         uiHostname: opts.hostname || DEFAULT_HOSTNAME,
@@ -198,6 +187,13 @@ async function main() {
                 break;
             case 'logs-summary':
                 printers.push(new LogsSummaryPrinter(log));
+                break;
+            case 'trace-summary':
+                printers.push(new TraceWaterfallPrinter(log));
+                break;
+
+            case 'trace-web':
+                printers.push(new FilePrinter(log));
                 break;
         }
     });
