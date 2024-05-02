@@ -1,5 +1,6 @@
 {
   "name": "elastic-otel-node",
+  "version": "0.1.0",
   "workspaces": [
     "packages/*",
     "examples"

@@ -1,103 +1,84 @@
-# Elastic OpenTelemetry Node.js Distribution
+# Elastic OpenTelemetry Distribution for Node.js
 
-This is the Elastic OpenTelemetry Node.js Distribution.  It is a light wrapper
-around the OpenTelemetry Node SDK that makes it easier to get started using
-OpenTelemetry in your Node.js applications, especially if you are using [Elastic
-Observability](https://www.elastic.co/observability) as your observability
-solution.
+This is the Elastic OpenTelemetry Distribution for Node.js (the "Distro").
+It is a light wrapper around the OpenTelemetry Node SDK that makes it easier to
+get started using OpenTelemetry in your Node.js applications, especially if you
+are using [Elastic Observability](https://www.elastic.co/observability) as your
+observability solution.
+
 
 # Current status
 
-Pre-alpha
+The current release is **alpha**, and not yet recommended for production use.
+We welcome your feedback! You can reach us either on the [issue tracker](https://github.com/elastic/elastic-otel-node/issues)
+or on [Elastic's Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
 
-# Install
-
-Eventually this will be `npm install @elastic/opentelemetry-node`.
-However, while still in early development, this package is not yet published
-to npm, so you'll need to access it via git:
-
-    git clone https://github.com/elastic/elastic-otel-node.git
-    cd elastic-otel-node/
-    npm ci
-
-and then install the package sub-directory:
-
-    npm install .../elastic-otel-node/packages/opentelemetry-node
-
-(TODO: update ^^ once published to npm.)
+Some limitations / notes:
+- We expect to support most every instrumentation included in [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations). However, currently only a subset is supported. See [the supported instrumentations here](./docs/supported-technologies.md#instrumentations).
 
 
 # Usage
 
-To start the SDK, it must be loaded before any of your application code. The
-recommended way to do that is via Node.js's [`-r, --require`
-option](https://nodejs.org/api/all.html#all_cli_-r---require-module):
-
-    node -r @elastic/opentelemetry-node my-app.js
-
-TODO: Link to coming user guide for related topics: ES module support, configuration reference, starting the SDK via
-
-
-# Configuring your telemetry endpoint
-
-By default the SDK will send telemetry data via OpenTelemetry's protocol (OTLP)
-to the configured endpoint (by default it sends to <http://localhost:4317>):
-
-    OTEL_EXPORTER_OTLP_ENDPOINT=... \
-        OTEL_EXPORTER_OTLP_HEADERS=... \
-        node -r @elastic/opentelemetry-node my-app.js
-
-You can send to any OTLP endpoint, for example: an [OTel Collector](https://opentelemetry.io/docs/collector/),
-or directly to an Elastic Observability deployment. Since version 7.14, Elastic
-[supports OTLP natively](https://www.elastic.co/blog/native-opentelemetry-support-in-elastic-observability).
-
-
-### Elastic Observability endpoint
-
-First, you will need an Elastic APM deployment. See: https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html
-You will need two pieces of information: the APM **server URL** (this is the OTLP endpoint) and your APM **secret code** (or **API key** if using API keys).
-Then configure your
-
 ```sh
-export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
-export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer ${ELASTIC_APM_SECRET_TOKEN}"
-node -r @elastic/opentelemetry-node my-app.js
+# 1. install
+npm install --save @elastic/opentelemetry-node
+
+# 2. configure via OTEL_ envvars, for example:
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://{your-otlp-endpoint.example.com}
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization={authorization-information}"
+export OTEL_SERVICE_NAME=my-service
+
+# 3. start
+node -r @elastic/opentelemetry-node my-service.js
 ```
 
-Or if using an API key, then:
+If using an [Elastic Observability deployment](./docs/getting-started.md#elastic-observability-setup)
+to which to send telemetry data, the `OTEL_EXPORTER_*` settings will look
+something like:
 
 ```sh
-export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
-export OTEL_EXPORTER_OTLP_HEADERS="Authorization=ApiKey ${ELASTIC_APM_API_KEY}"
-node -r @elastic/opentelemetry-node my-app.js
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://{deployment-name}.apm.{cloud-region}.cloud.es.io
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer {deployment-secret-token}"
 ```
 
+The Distro will automatically instrument popular modules (see [supported instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations)))
+used by your service, and send trace, metrics, and logs telemetry data (using
+OTLP) to your configured observability backend.
 
-### mockotlpserver endpoint
+The Distro can be configured via `OTEL_*` environment variables, per the
+[OpenTelemetry Environment Variable spec](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/).
 
-TODO: move this out to dev docs
-
-If you don't yet have an OTLP endpoint setup and just want to see the SDK
-working, you can run a *mock* OTLP server locally with the `mockotlpserver`
-utility in this repository:
-
-```sh
-git clone https://github.com/elastic/elastic-otel-node.git
-cd elastic-otel-node/
-npm ci
-cd packages/mockotlpserver
-npm start
-```
-
-Now running an application with this SDK will send to the mock endpoint, which
-prints out any received telemetry data, for example:
-
-```sh
-cd elastic-otel-node/examples
-node -r @elastic/opentelemetry-node simple-http-request.js
-```
-
-See [the mockotlpserver README](../mockotlpserver#readme) for more details.
+See the [Getting Started guide](./docs/getting-started.md) for more details.
 
 
+# Documentation
+
+- [Getting Started](./docs/getting-started.md)
+- [Supported Technologies](./docs/supported-technologies.md)
+- [Metrics](./docs/metrics.md)
+
+
+# Why this distribution?
+
+As mentioned above, this Distro is a wrapper around the [OpenTelemetry Node
+SDK (`@opentelemetry/sdk-node`)](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node). So why the separate package?
+A few reasons:
+
+- With this separate package we hope to experiment with making it easier to get
+  started with OpenTelemetry instrumentation in Node.js services. For example,
+  `@elastic/opentelemetry-node` includes a number of OTel packages as dependencies,
+  so the user only needs to install/update a single package -- at least for the
+  default use case. This is similar to the OTel
+  `@opentelemetry/auto-instrumentations-node` package.
+
+- Having a separate package will sometimes allow us to iterate more quickly with
+  changes in SDK behavior. However, our plan is to upstream any improvements to
+  the OpenTelemetry JS repositories.
+
+- Should it be necessary, having a separate package would allow us to more
+  quickly release a fix for a particular issue required by a customer of ours.
+
+- Providing an eventual easy migration path for customers of our current
+  non-OpenTelemetry-based [Node.js APM agent](https://github.com/elastic/apm-agent-nodejs)
+  to this SDK may be made easier by having our own package entry point.
 

@@ -1,6 +1,6 @@
 {
   "name": "@elastic/opentelemetry-node",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "type": "commonjs",
   "description": "Elastic OpenTelemetry distribution for Node.js",
   "publishConfig": {
@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elastic/elastic-otel-java.git",
+    "url": "git+https://github.com/elastic/elastic-otel-node.git",
     "directory": "packages/opentelemetry-node"
   },
   "keywords": [
@@ -26,6 +26,18 @@
   "engines": {
     "node": ">=14"
   },
+  "files": [
+    "lib",
+    "types",
+    "CHANGELOG.md",
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
+    "hook.mjs",
+    "import.mjs",
+    "package.json",
+    "require.js"
+  ],
   "scripts": {
     "example": "cd ../../examples && node -r @elastic/opentelemetry-node simple-http-request.js",
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files && npm run lint:changelog",
