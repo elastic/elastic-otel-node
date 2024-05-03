@@ -51,7 +51,7 @@ const PRINTER_NAMES = [
     'logs-summary',
     'summary',
 
-    'trace-web', // printers to be seen in a web page
+    'trace-file', // saving into fs for UI and other processing
 ];
 
 // This adds a custom cli option type to dashdash, to support `-o json,waterfall`
@@ -99,6 +99,11 @@ const OPTIONS = [
         type: 'string',
         help: `The hostname on which servers should listen, by default this is "${DEFAULT_HOSTNAME}".`,
     },
+    {
+        names: ['ui'],
+        type: 'bool',
+        help: `Start a web server to inspect traces with some charts.`,
+    },
 ];
 
 async function main() {
@@ -123,9 +128,15 @@ async function main() {
         process.exit(0);
     }
 
+    /** @type {Array<'http'|'grpc'|'ui'>} */
+    const services = ['http', 'grpc'];
+    if (opts.ui) {
+        services.push('ui');
+    }
+
     const otlpServer = new MockOtlpServer({
         log,
-        services: ['http', 'grpc', 'ui'],
+        services,
         grpcHostname: opts.hostname || DEFAULT_HOSTNAME,
         httpHostname: opts.hostname || DEFAULT_HOSTNAME,
         uiHostname: opts.hostname || DEFAULT_HOSTNAME,
@@ -189,7 +200,7 @@ async function main() {
                 printers.push(new LogsSummaryPrinter(log));
                 break;
 
-            case 'trace-web':
+            case 'trace-file':
                 printers.push(new FilePrinter(log));
                 break;
         }
