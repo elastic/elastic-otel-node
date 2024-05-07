@@ -95,7 +95,9 @@ function renderSpan(span, prefix = '') {
             unit = 'd ';
         }
         gutter = `${startOffset >= 0 ? '+' : ''}${Math.round(startOffset)}`;
-        gutter = `${' '.repeat(Math.max(4 - gutter.length, 0))}${gutter}${unit}`;
+        gutter = `${' '.repeat(
+            Math.max(4 - gutter.length, 0)
+        )}${gutter}${unit}`;
     } else {
         gutter = ' '.repeat(6);
     }
