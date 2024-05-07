@@ -26,6 +26,9 @@
  *      printer.subscribe();
  */
 
+const fs = require('fs');
+const path = require('path');
+
 const {
     diagchSub,
     CH_OTLP_V1_LOGS,
@@ -153,8 +156,63 @@ class JSONPrinter extends Printer {
     }
 }
 
+/**
+ * This printer converts to a possible JSON representation of each service
+ * request and saves it to a file. **Warning**: Converting OTLP service requests to JSON is fraught.
+ */
+class FilePrinter extends Printer {
+    constructor(
+        log,
+        indent,
+        signals = ['trace'],
+        dbDir = path.resolve(__dirname, '../db')
+    ) {
+        super(log);
+        this._indent = indent || 0;
+        this._signals = signals;
+        this._dbDir = dbDir;
+    }
+    printTrace(trace) {
+        if (!this._signals.includes('trace')) return;
+        const str = jsonStringifyTrace(trace, {
+            indent: this._indent,
+            normAttributes: true,
+        });
+        const normTrace = JSON.parse(str);
+        const tracesMap = new Map();
+        normTrace.resourceSpans.forEach((resSpan) => {
+            resSpan.scopeSpans.forEach((scopeSpan) => {
+                scopeSpan.spans.forEach((span) => {
+                    let traceSpans = tracesMap.get(span.traceId);
+
+                    if (!traceSpans) {
+                        traceSpans = [];
+                        tracesMap.set(span.traceId, traceSpans);
+                    }
+                    traceSpans.push(span);
+                });
+            });
+        });
+
+        // Group all spans from the same trace into an ndjson file.
+        for (const [traceId, traceSpans] of tracesMap.entries()) {
+            const filePath = path.join(this._dbDir, `trace-${traceId}.ndjson`);
+            const stream = fs.createWriteStream(filePath, {
+                flags: 'a',
+                encoding: 'utf-8',
+            });
+
+            for (const span of traceSpans) {
+                stream.write(JSON.stringify(span) + '\n');
+            }
+            stream.close();
+        }
+    }
+}
+
 module.exports = {
     Printer,
     JSONPrinter,
     InspectPrinter,
+    FilePrinter,
 };
