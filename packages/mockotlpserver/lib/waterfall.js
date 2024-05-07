@@ -77,25 +77,25 @@ function renderSpan(span, prefix = '') {
                     BigInt(lastRenderedSpan.startTimeUnixNano)
             ) / 1e6;
         let unit = 'ms';
-        if (startOffset >= 1000) {
+        if (Math.abs(startOffset) >= 1000) {
             startOffset /= 1000;
-            unit = 's';
+            unit = 's ';
         }
-        if (startOffset >= 1000) {
+        if (Math.abs(startOffset) >= 1000) {
             startOffset /= 60;
-            unit = 'm'; // minutes
+            unit = 'm '; // minutes
         }
-        if (startOffset >= 1000) {
+        if (Math.abs(startOffset) >= 1000) {
             startOffset /= 60;
-            unit = 'h';
+            unit = 'h ';
         }
-        if (startOffset >= 1000) {
+        if (Math.abs(startOffset) >= 1000) {
             // Seems unlikely we'll receive a trace with *days* of offset. :)
             startOffset /= 24;
-            unit = 'd';
+            unit = 'd ';
         }
-        gutter = `${startOffset >= 0 ? '+' : '-'}${Math.floor(startOffset)}`;
-        gutter = `${' '.repeat(4 - gutter.length)}${gutter}${unit}`;
+        gutter = `${startOffset >= 0 ? '+' : ''}${Math.round(startOffset)}`;
+        gutter = `${' '.repeat(Math.max(4 - gutter.length, 0))}${gutter}${unit}`;
     } else {
         gutter = ' '.repeat(6);
     }
