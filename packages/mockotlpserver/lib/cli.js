@@ -57,10 +57,10 @@ const PRINTER_NAMES = [
 /**
  * This adds a custom cli option type to dashdash, to support `-o json,waterfall`
  * options for specifying multiple printers (aka output modes).
- * 
- * @param {any} option 
- * @param {string} optstr 
- * @param {string} arg 
+ *
+ * @param {any} option
+ * @param {string} optstr
+ * @param {string} arg
  * @returns {Array<string>}
  */
 function parseCommaSepPrinters(option, optstr, arg) {
@@ -109,7 +109,7 @@ const OPTIONS = [
     {
         names: ['ui'],
         type: 'bool',
-        help: `Start a web server to inspect traces with some charts.`,
+        help: 'Start a web server to inspect traces with some charts.',
     },
 ];
 
@@ -159,7 +159,6 @@ async function main() {
     const printers = [];
 
     printersSet.forEach((printerName) => {
-        console.log(printerName)
         switch (printerName) {
             case 'trace-inspect':
                 printers.push(new InspectPrinter(log, ['trace']));
