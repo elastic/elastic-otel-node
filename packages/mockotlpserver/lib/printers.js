@@ -194,7 +194,7 @@ class FilePrinter extends Printer {
             });
         });
 
-        // Group als spans from the same trace into an ndjson file
+        // Group all spans from the same trace into an ndjson file.
         for (const [traceId, traceSpans] of tracesMap.entries()) {
             const filePath = path.join(this._dbDir, `trace-${traceId}.ndjson`);
             const stream = fs.createWriteStream(filePath, {

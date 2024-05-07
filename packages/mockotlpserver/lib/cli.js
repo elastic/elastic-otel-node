@@ -54,8 +54,15 @@ const PRINTER_NAMES = [
     'trace-file', // saving into fs for UI and other processing
 ];
 
-// This adds a custom cli option type to dashdash, to support `-o json,waterfall`
-// options for specifying multiple printers (aka output modes).
+/**
+ * This adds a custom cli option type to dashdash, to support `-o json,waterfall`
+ * options for specifying multiple printers (aka output modes).
+ * 
+ * @param {any} option 
+ * @param {string} optstr 
+ * @param {string} arg 
+ * @returns {Array<string>}
+ */
 function parseCommaSepPrinters(option, optstr, arg) {
     const printers = arg
         .trim()
@@ -130,8 +137,12 @@ async function main() {
 
     /** @type {Array<'http'|'grpc'|'ui'>} */
     const services = ['http', 'grpc'];
+    /** @type {Array<string>} */
+    const outputs = opts.o;
+
     if (opts.ui) {
         services.push('ui');
+        outputs.push('trace-file');
     }
 
     const otlpServer = new MockOtlpServer({
@@ -143,8 +154,12 @@ async function main() {
     });
     await otlpServer.start();
 
+    // Avoid duplication of printers
+    const printersSet = new Set(outputs);
     const printers = [];
-    opts.o.forEach((printerName) => {
+
+    printersSet.forEach((printerName) => {
+        console.log(printerName)
         switch (printerName) {
             case 'trace-inspect':
                 printers.push(new InspectPrinter(log, ['trace']));
