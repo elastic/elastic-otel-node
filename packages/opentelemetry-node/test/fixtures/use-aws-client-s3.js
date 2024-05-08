@@ -37,15 +37,11 @@
 //    # Run against a local server which returns a predefined list of buckets.
 //    TEST_LOCAL=true node use-client-s3.js
 
-
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
 const otel = require('@opentelemetry/api');
-const {
-    S3Client,
-    ListBucketsCommand,
-} = require('@aws-sdk/client-s3');
+const {S3Client, ListBucketsCommand} = require('@aws-sdk/client-s3');
 
 const useLocalServer = process.env.TEST_LOCAL === 'true';
 const assetsPath = path.resolve(__dirname, '../assets');
@@ -53,7 +49,7 @@ const assetsPath = path.resolve(__dirname, '../assets');
 let server;
 
 async function main() {
-    const localEndpoint = 'http://localhost:4566'
+    const localEndpoint = 'http://localhost:4566';
     const region = process.env.TEST_REGION || 'us-east-2';
     const endpoint = useLocalServer ? localEndpoint : null;
     const s3Client = new S3Client({
@@ -63,16 +59,18 @@ async function main() {
 
     const command = new ListBucketsCommand({});
     const data = await s3Client.send(command);
-    console.log({ data }, 'listBuckets');
+    console.log({data}, 'listBuckets');
 }
 
 // Start mock server if required
 if (useLocalServer) {
-    server = http.createServer((req,res) => {
+    server = http.createServer((req, res) => {
         // GET /?x-id=ListBuckets
         if (req.method === 'GET' && req.url === '/?x-id=ListBuckets') {
             res.writeHead(200, {'Content-Type': 'application/xml'});
-            fs.createReadStream(`${assetsPath}/aws-s3-list-buckets.xml`).pipe(res);
+            fs.createReadStream(`${assetsPath}/aws-s3-list-buckets.xml`).pipe(
+                res
+            );
             return;
         }
         res.writeHead(404, {'Content-Type': 'text/plain'});
@@ -80,7 +78,7 @@ if (useLocalServer) {
         res.end();
     });
 
-    server.listen(4566, 'localhost')
+    server.listen(4566, 'localhost');
 }
 
 const tracer = otel.trace.getTracer('test');

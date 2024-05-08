@@ -20,7 +20,7 @@
 // Test that 'aws-sdk' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {runTestFixtures, findObjInArray} = require('./testutils');
+const {runTestFixtures} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -47,7 +47,10 @@ const testFixtures = [
             const spans = col.sortedSpans;
             t.equal(spans.length, 4);
 
-            t.equal(spans[1].scope.name, '@opentelemetry/instrumentation-aws-sdk');
+            t.equal(
+                spans[1].scope.name,
+                '@opentelemetry/instrumentation-aws-sdk'
+            );
             t.equal(spans[1].name, 'S3.ListBuckets');
             t.equal(spans[1].kind, 'SPAN_KIND_CLIENT');
             t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
