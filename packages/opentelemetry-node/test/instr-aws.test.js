@@ -115,22 +115,35 @@ const testFixtures = [
     },
 ];
 
-// Mock HTTP server for tests
+
+// Set mappings of `METHOD url` for each client. The client is extracted
+// from the `user-agent` header
 const assetsPath = path.resolve(__dirname, './assets');
 const responsePaths = {
-    'GET /?x-id=ListBuckets': `${assetsPath}/aws-s3-list-buckets.xml`,
-    'POST /': `${assetsPath}/aws-sns-list-topics.xml`,
+    s3: {
+        'GET /?x-id=ListBuckets': `${assetsPath}/aws-s3-list-buckets.xml`,
+    },
+    sns: {
+        'POST /': `${assetsPath}/aws-sns-list-topics.xml`,
+    }
 };
+
+
+// Mock HTTP server for tests
 const server = http
     .createServer((req, res) => {
         const reqKey = `${req.method} ${req.url}`;
-        const resPath = responsePaths[reqKey];
+        const agent = req.headers['user-agent'];
+        const client = (agent.match(/api\/([^#]+)/) || [])[1];
+        const resPath = client && responsePaths[client] && responsePaths[client][reqKey];
+
         if (resPath) {
             const mime = `application/${path.extname(resPath).slice(1)}`;
             res.writeHead(200, {'Content-Type': mime});
             fs.createReadStream(resPath).pipe(res);
             return;
         }
+
         const message = `Handler for "${reqKey}" not found`;
         const json = `{"error":{"message":"${message}"}}`;
         console.log(message);
