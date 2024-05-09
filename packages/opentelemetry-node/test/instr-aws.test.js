@@ -240,19 +240,22 @@ const server = http
 
 // Wait for all fixtures to finish before closing the server
 // TODO: looks like a nice feature for `runTestFixtures`
-let pendingFixtures = testFixtures.length;
-testFixtures.forEach((fixt) => {
-    const origCheck = fixt.checkResult || (() => undefined);
-    fixt.checkResult = (t, err, stdout, stderr) => {
-        origCheck.call(this, t, err, stdout, stderr);
-        pendingFixtures--;
-        if (pendingFixtures === 0) {
-            server.close();
-        }
-    };
-});
+// let pendingFixtures = testFixtures.length;
+// testFixtures.forEach((fixt) => {
+//     const origCheck = fixt.checkResult || (() => undefined);
+//     fixt.checkResult = (t, err, stdout, stderr) => {
+//         origCheck.call(this, t, err, stdout, stderr);
+//         pendingFixtures--;
+//         if (pendingFixtures === 0) {
+//             server.close();
+//         }
+//     };
+// });
 
 test('express instrumentation', (suite) => {
-    runTestFixtures(suite, testFixtures);
+    const events = runTestFixtures(suite, testFixtures);
+    events.on('all:completed', () => {
+        server.close();
+    });
     suite.end();
 });

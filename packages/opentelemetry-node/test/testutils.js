@@ -24,6 +24,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const {execFile} = require('child_process');
+const EventEmitter = require('events');
 
 const moduleDetailsFromPath = require('module-details-from-path');
 const semver = require('semver');
@@ -459,6 +460,7 @@ class TestCollector {
  *
  * @param {import('tape').Test} suite
  * @param {Array<TestFixture>} testFixtures
+ * @returns {import('events').EventEmitter}
  */
 function runTestFixtures(suite, testFixtures) {
     // Handle fixtures with `only: true`, if any.
@@ -470,7 +472,17 @@ function runTestFixtures(suite, testFixtures) {
         testFixtures = onlyTestFixtures;
     }
 
+    const eventsEmitter = new EventEmitter();
+    let runningFixtures = testFixtures.length;
+
+    eventsEmitter.on('fixture:complete', () => {
+        runningFixtures -= 1;
+        if (runningFixtures === 0) {
+            eventsEmitter.emit('all:completed')
+        }
+    });
     testFixtures.forEach((tf) => {
+        eventsEmitter.emit('fixture:start', tf);
         const testName = tf.name ?? quoteArgv(tf.args);
         const testOpts = Object.assign({}, tf.testOpts);
         suite.test(testName, testOpts, async (t) => {
@@ -493,6 +505,7 @@ function runTestFixtures(suite, testFixtures) {
                                 )})`
                             );
                             t.end();
+                            eventsEmitter.emit('fixture:complete', tf);
                             return;
                         }
                     }
@@ -593,12 +606,15 @@ function runTestFixtures(suite, testFixtures) {
                         }
                         await otlpServer.close();
                         t.end();
+                        eventsEmitter.emit('fixture:complete', tf);
                         resolve();
                     }
                 );
             });
         });
     });
+
+    return eventsEmitter;
 }
 
 module.exports = {
