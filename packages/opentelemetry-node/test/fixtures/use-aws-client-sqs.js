@@ -36,11 +36,7 @@
 //    node use-aws-client-sqs.js
 
 const otel = require('@opentelemetry/api');
-const {
-    SQSClient,
-    ListQueuesCommand,
-} = require('@aws-sdk/client-sqs');
-
+const {SQSClient, ListQueuesCommand} = require('@aws-sdk/client-sqs');
 
 async function main() {
     const region = process.env.TEST_REGION || 'us-east-2';

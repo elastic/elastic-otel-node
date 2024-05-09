@@ -141,7 +141,7 @@ const testFixtures = [
             t.equal(spans[1].kind, 'SPAN_KIND_CLIENT');
             t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
             t.equal(spans[1].parentSpanId, spans[0].spanId);
-            console.log(spans[1].attributes)
+            console.log(spans[1].attributes);
             t.deepEqual(spans[1].attributes, {
                 'rpc.system': 'aws-api',
                 'rpc.method': 'ListQueues',
@@ -149,12 +149,11 @@ const testFixtures = [
                 'messaging.system': 'aws.sqs',
                 'messaging.destination_kind': 'queue',
                 'aws.region': 'us-east-2',
-                'http.status_code': 200
+                'http.status_code': 200,
             });
         },
     },
 ];
-
 
 // Set mappings of `METHOD url` for each client. The client is extracted
 // from the `user-agent` header
@@ -168,9 +167,8 @@ const responsePaths = {
     },
     sqs: {
         'POST /': `${assetsPath}/aws-sqs-list-queues.json`,
-    }
+    },
 };
-
 
 // Mock HTTP server for tests
 const server = http
@@ -178,7 +176,8 @@ const server = http
         const reqKey = `${req.method} ${req.url}`;
         const agent = req.headers['user-agent'];
         const client = (agent.match(/api\/([^#]+)/) || [])[1];
-        const resPath = client && responsePaths[client] && responsePaths[client][reqKey];
+        const resPath =
+            client && responsePaths[client] && responsePaths[client][reqKey];
 
         if (resPath) {
             const mime = `application/${path.extname(resPath).slice(1)}`;
@@ -187,7 +186,9 @@ const server = http
             return;
         }
 
-        const message = client ? `Handler for "${reqKey}" not found` : 'Unknown AWS client';
+        const message = client
+            ? `Handler for "${reqKey}" not found`
+            : 'Unknown AWS client';
         const json = `{"error":{"message":"${message}"}}`;
         res.writeHead(404, {'Content-Type': 'application/json'});
         res.write(json);
