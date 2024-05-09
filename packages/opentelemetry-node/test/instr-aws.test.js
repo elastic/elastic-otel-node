@@ -167,7 +167,7 @@ const testFixtures = [
         checkTelemetry: (t, col) => {
             // We expect spans like this
             //          span b592a3 "manual-parent-span" (26.1ms, SPAN_KIND_INTERNAL)
-            //     +4ms `- span bbe07e "SQS.ListQueues" (21.5ms, SPAN_KIND_CLIENT)
+            //     +4ms `- span bbe07e "DynamoDB.ListTables" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "POST" (7.0ms, SPAN_KIND_CLIENT, POST http://localhost:4566/ -> 200)
             const spans = col.sortedSpans;
             t.equal(spans.length, 3);
@@ -237,20 +237,6 @@ const server = http
         res.end();
     })
     .listen(4566, 'localhost');
-
-// Wait for all fixtures to finish before closing the server
-// TODO: looks like a nice feature for `runTestFixtures`
-// let pendingFixtures = testFixtures.length;
-// testFixtures.forEach((fixt) => {
-//     const origCheck = fixt.checkResult || (() => undefined);
-//     fixt.checkResult = (t, err, stdout, stderr) => {
-//         origCheck.call(this, t, err, stdout, stderr);
-//         pendingFixtures--;
-//         if (pendingFixtures === 0) {
-//             server.close();
-//         }
-//     };
-// });
 
 test('express instrumentation', (suite) => {
     const events = runTestFixtures(suite, testFixtures);
