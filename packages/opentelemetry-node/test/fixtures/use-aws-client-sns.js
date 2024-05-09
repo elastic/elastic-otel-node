@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r @elastic/opentelemetry-node use-aws-client-s3.js
+// Usage: node -r @elastic/opentelemetry-node use-aws-client-sns.js
 
 // This script can also be used for manual testing of APM instrumentation of S3
 // against a real S3 account. This can be useful because tests are done against
@@ -33,22 +33,22 @@
 //
 // Usage:
 //    # Run against the default configured AWS profile, listing all available buckets.
-//    node use-aws-client-s3.js
+//    node use-aws-client-sns.js
 
 const otel = require('@opentelemetry/api');
-const {S3Client, ListBucketsCommand} = require('@aws-sdk/client-s3');
+const {SNSClient, ListTopicsCommand} = require('@aws-sdk/client-sns');
 
 async function main() {
     const region = process.env.TEST_REGION || 'us-east-2';
     const endpoint = process.env.TEST_ENDPOINT || null;
-    const s3Client = new S3Client({
+    const snsClient = new SNSClient({
         region,
         endpoint,
     });
 
-    const command = new ListBucketsCommand({});
-    const data = await s3Client.send(command);
-    console.log({data}, 'listBuckets');
+    const command = new ListTopicsCommand({});
+    const data = await snsClient.send(command);
+    console.log({data}, 'listTopics');
 }
 
 const tracer = otel.trace.getTracer('test');
