@@ -113,6 +113,46 @@ const testFixtures = [
             });
         },
     },
+    {
+        name: 'use-aws-client-sqs',
+        args: ['./fixtures/use-aws-client-sqs.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            AWS_ACCESS_KEY_ID: 'fake',
+            AWS_SECRET_ACCESS_KEY: 'fake',
+            TEST_ENDPOINT,
+            TEST_REGION,
+        },
+        // verbose: true,
+        checkTelemetry: (t, col) => {
+            // We expect spans like this
+            //          span b592a3 "manual-parent-span" (26.1ms, SPAN_KIND_INTERNAL)
+            //     +4ms `- span bbe07e "SQS.ListQueues" (21.5ms, SPAN_KIND_CLIENT)
+            //    +10ms   `- span b3b885 "POST" (7.0ms, SPAN_KIND_CLIENT, POST http://localhost:4566/ -> 200)
+            const spans = col.sortedSpans;
+            t.equal(spans.length, 3);
+
+            t.equal(
+                spans[1].scope.name,
+                '@opentelemetry/instrumentation-aws-sdk'
+            );
+            t.equal(spans[1].name, 'SQS.ListQueues');
+            t.equal(spans[1].kind, 'SPAN_KIND_CLIENT');
+            t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
+            t.equal(spans[1].parentSpanId, spans[0].spanId);
+            console.log(spans[1].attributes)
+            t.deepEqual(spans[1].attributes, {
+                'rpc.system': 'aws-api',
+                'rpc.method': 'ListQueues',
+                'rpc.service': 'SQS',
+                'messaging.system': 'aws.sqs',
+                'messaging.destination_kind': 'queue',
+                'aws.region': 'us-east-2',
+                'http.status_code': 200
+            });
+        },
+    },
 ];
 
 
@@ -125,6 +165,9 @@ const responsePaths = {
     },
     sns: {
         'POST /': `${assetsPath}/aws-sns-list-topics.xml`,
+    },
+    sqs: {
+        'POST /': `${assetsPath}/aws-sqs-list-queues.json`,
     }
 };
 
@@ -144,9 +187,8 @@ const server = http
             return;
         }
 
-        const message = `Handler for "${reqKey}" not found`;
+        const message = client ? `Handler for "${reqKey}" not found` : 'Unknown AWS client';
         const json = `{"error":{"message":"${message}"}}`;
-        console.log(message);
         res.writeHead(404, {'Content-Type': 'application/json'});
         res.write(json);
         res.end();

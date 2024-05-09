@@ -17,11 +17,11 @@
  * under the License.
  */
 
-// Usage: node -r @elastic/opentelemetry-node use-aws-client-sns.js
+// Usage: node -r @elastic/opentelemetry-node use-aws-client-sqs.js
 
-// This script can also be used for manual testing of APM instrumentation of SNS
-// against a real SNS account. This can be useful because tests are done against
-// a local HTTP server that *simulates* SNS with imperfect fidelity.
+// This script can also be used for manual testing of APM instrumentation of SQS
+// against a real SQS account. This can be useful because tests are done against
+// a local HTTP server that *simulates* SQS with imperfect fidelity.
 //
 // Auth note: By default this uses the AWS profile/configuration from the
 // environment. If you do not have that configured (i.e. do not have
@@ -33,22 +33,26 @@
 //
 // Usage:
 //    # Run against the default configured AWS profile, listing all available buckets.
-//    node use-aws-client-sns.js
+//    node use-aws-client-sqs.js
 
 const otel = require('@opentelemetry/api');
-const {SNSClient, ListTopicsCommand} = require('@aws-sdk/client-sns');
+const {
+    SQSClient,
+    ListQueuesCommand,
+} = require('@aws-sdk/client-sqs');
+
 
 async function main() {
     const region = process.env.TEST_REGION || 'us-east-2';
     const endpoint = process.env.TEST_ENDPOINT || null;
-    const snsClient = new SNSClient({
+    const sqsClient = new SQSClient({
         region,
         endpoint,
     });
 
-    const command = new ListTopicsCommand({});
-    const data = await snsClient.send(command);
-    console.log({data}, 'listTopics');
+    const command = new ListQueuesCommand({});
+    const data = await sqsClient.send(command);
+    console.log({data}, 'listQueues');
 }
 
 const tracer = otel.trace.getTracer('test');
