@@ -478,7 +478,7 @@ function runTestFixtures(suite, testFixtures) {
     eventsEmitter.on('fixture:complete', () => {
         runningFixtures -= 1;
         if (runningFixtures === 0) {
-            eventsEmitter.emit('all:completed')
+            eventsEmitter.emit('all:completed');
         }
     });
     testFixtures.forEach((tf) => {
