@@ -238,10 +238,8 @@ const server = http
     })
     .listen(4566, 'localhost');
 
-test('express instrumentation', (suite) => {
-    const events = runTestFixtures(suite, testFixtures);
-    events.on('all:completed', () => {
-        server.close();
-    });
+test('express instrumentation', async (suite) => {
+    await runTestFixtures(suite, testFixtures);
+    server.close();
     suite.end();
 });

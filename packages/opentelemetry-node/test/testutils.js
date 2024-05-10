@@ -24,7 +24,6 @@
 const assert = require('assert');
 const fs = require('fs');
 const {execFile} = require('child_process');
-const EventEmitter = require('events');
 
 const moduleDetailsFromPath = require('module-details-from-path');
 const semver = require('semver');
@@ -460,7 +459,7 @@ class TestCollector {
  *
  * @param {import('tape').Test} suite
  * @param {Array<TestFixture>} testFixtures
- * @returns {import('events').EventEmitter}
+ * @returns {Promise<undefined>}
  */
 function runTestFixtures(suite, testFixtures) {
     // Handle fixtures with `only: true`, if any.
@@ -472,149 +471,148 @@ function runTestFixtures(suite, testFixtures) {
         testFixtures = onlyTestFixtures;
     }
 
-    const eventsEmitter = new EventEmitter();
-    let runningFixtures = testFixtures.length;
-
-    eventsEmitter.on('fixture:complete', () => {
-        runningFixtures -= 1;
-        if (runningFixtures === 0) {
-            eventsEmitter.emit('all:completed');
-        }
-    });
-    testFixtures.forEach((tf) => {
-        eventsEmitter.emit('fixture:start', tf);
-        const testName = tf.name ?? quoteArgv(tf.args);
-        const testOpts = Object.assign({}, tf.testOpts);
-        suite.test(testName, testOpts, async (t) => {
-            // Handle "tf.versionRanges"-based skips here, because `tape` doesn't
-            // print any message for `testOpts.skip`.
-            if (tf.versionRanges) {
-                for (const name in tf.versionRanges) {
-                    const ver =
-                        name === 'node'
-                            ? process.version
-                            : safeGetPackageVersion(name);
-                    const verRanges = Array.isArray(tf.versionRanges[name])
-                        ? tf.versionRanges[name]
-                        : [tf.versionRanges[name]];
-                    for (let verRange of verRanges) {
-                        if (!semver.satisfies(ver, verRange)) {
-                            t.comment(
-                                `SKIP ${name} ${ver} is not supported by this fixture (requires: ${verRanges.join(
-                                    ', '
-                                )})`
-                            );
-                            t.end();
-                            eventsEmitter.emit('fixture:complete', tf);
-                            return;
+    // Wrap each test suite in a promise so we can await for it
+    const suitePromises = testFixtures.map((tf) => {
+        // eslint-disable-next-line -- named `outerResolve` to differentiate from the one in inner Promise
+        return new Promise((outerResolve) => {
+            const testName = tf.name ?? quoteArgv(tf.args);
+            const testOpts = Object.assign({}, tf.testOpts);
+            suite.test(testName, testOpts, async (t) => {
+                // Handle "tf.versionRanges"-based skips here, because `tape` doesn't
+                // print any message for `testOpts.skip`.
+                if (tf.versionRanges) {
+                    for (const name in tf.versionRanges) {
+                        const ver =
+                            name === 'node'
+                                ? process.version
+                                : safeGetPackageVersion(name);
+                        const verRanges = Array.isArray(tf.versionRanges[name])
+                            ? tf.versionRanges[name]
+                            : [tf.versionRanges[name]];
+                        for (let verRange of verRanges) {
+                            if (!semver.satisfies(ver, verRange)) {
+                                t.comment(
+                                    `SKIP ${name} ${ver} is not supported by this fixture (requires: ${verRanges.join(
+                                        ', '
+                                    )})`
+                                );
+                                t.end();
+                                return;
+                            }
                         }
                     }
                 }
-            }
 
-            const collector = new TestCollector();
-            const otlpServer = new MockOtlpServer({
-                // Pass in a logger solely to reduce the level to warn.
-                log: luggite.createLogger({
-                    name: 'mockotlpserver',
-                    level: 'warn',
-                }),
-                services: ['http'],
-                httpHostname: '127.0.0.1', // avoid default 'localhost' because possible IPv6
-                httpPort: 0,
-                onTrace: collector.onTrace.bind(collector),
-                onMetrics: collector.onMetrics.bind(collector),
-                onLogs: collector.onLogs.bind(collector),
-            });
-            await otlpServer.start();
+                const collector = new TestCollector();
+                const otlpServer = new MockOtlpServer({
+                    // Pass in a logger solely to reduce the level to warn.
+                    log: luggite.createLogger({
+                        name: 'mockotlpserver',
+                        level: 'warn',
+                    }),
+                    services: ['http'],
+                    httpHostname: '127.0.0.1', // avoid default 'localhost' because possible IPv6
+                    httpPort: 0,
+                    onTrace: collector.onTrace.bind(collector),
+                    onMetrics: collector.onMetrics.bind(collector),
+                    onLogs: collector.onLogs.bind(collector),
+                });
+                await otlpServer.start();
 
-            const cwd = tf.cwd || process.cwd();
-            if (tf.verbose) {
-                t.comment(
-                    `running: (cd "${cwd}" && ${quoteEnv(
-                        tf.env
-                    )} node ${quoteArgv(tf.args)})`
-                );
-            }
-            const start = Date.now();
-            return new Promise((resolve) => {
-                execFile(
-                    process.execPath,
-                    tf.args,
-                    {
-                        cwd,
-                        timeout: tf.timeout || undefined,
-                        killSignal: 'SIGINT',
-                        env: Object.assign(
-                            {},
-                            process.env,
-                            {
-                                OTEL_EXPORTER_OTLP_ENDPOINT:
-                                    otlpServer.httpUrl.href,
-                                OTEL_EXPORTER_OTLP_PROTOCOL: 'http/json',
-                            },
+                const cwd = tf.cwd || process.cwd();
+                if (tf.verbose) {
+                    t.comment(
+                        `running: (cd "${cwd}" && ${quoteEnv(
                             tf.env
-                        ),
-                        maxBuffer: tf.maxBuffer,
-                    },
-                    async function done(err, stdout, stderr) {
-                        if (tf.verbose) {
-                            t.comment(
-                                `elapsed: ${(Date.now() - start) / 1000}s`
-                            );
-                            if (err) {
-                                t.comment(`err:\n|${formatForTComment(err)}`);
-                            }
-                            if (stdout) {
+                        )} node ${quoteArgv(tf.args)})`
+                    );
+                }
+                const start = Date.now();
+                return new Promise((resolve) => {
+                    execFile(
+                        process.execPath,
+                        tf.args,
+                        {
+                            cwd,
+                            timeout: tf.timeout || undefined,
+                            killSignal: 'SIGINT',
+                            env: Object.assign(
+                                {},
+                                process.env,
+                                {
+                                    OTEL_EXPORTER_OTLP_ENDPOINT:
+                                        otlpServer.httpUrl.href,
+                                    OTEL_EXPORTER_OTLP_PROTOCOL: 'http/json',
+                                },
+                                tf.env
+                            ),
+                            maxBuffer: tf.maxBuffer,
+                        },
+                        async function done(err, stdout, stderr) {
+                            if (tf.verbose) {
                                 t.comment(
-                                    `stdout:\n|${formatForTComment(stdout)}`
+                                    `elapsed: ${(Date.now() - start) / 1000}s`
                                 );
-                            } else {
-                                t.comment('stdout: <empty>');
-                            }
-                            if (stderr) {
-                                t.comment(
-                                    `stderr:\n|${formatForTComment(stderr)}`
-                                );
-                            } else {
-                                t.comment('stderr: <empty>');
-                            }
-                        }
-                        if (tf.checkResult) {
-                            await tf.checkResult(t, err, stdout, stderr);
-                        } else {
-                            t.error(err, `exited successfully: err=${err}`);
-                            if (err) {
-                                if (!tf.verbose) {
+                                if (err) {
+                                    t.comment(
+                                        `err:\n|${formatForTComment(err)}`
+                                    );
+                                }
+                                if (stdout) {
                                     t.comment(
                                         `stdout:\n|${formatForTComment(stdout)}`
                                     );
+                                } else {
+                                    t.comment('stdout: <empty>');
+                                }
+                                if (stderr) {
                                     t.comment(
                                         `stderr:\n|${formatForTComment(stderr)}`
                                     );
+                                } else {
+                                    t.comment('stderr: <empty>');
                                 }
                             }
-                        }
-                        if (tf.checkTelemetry) {
-                            if (!tf.checkResult && err) {
-                                t.comment(
-                                    'skip checkTelemetry because process errored out'
-                                );
+                            if (tf.checkResult) {
+                                await tf.checkResult(t, err, stdout, stderr);
                             } else {
-                                await tf.checkTelemetry(t, collector);
+                                t.error(err, `exited successfully: err=${err}`);
+                                if (err) {
+                                    if (!tf.verbose) {
+                                        t.comment(
+                                            `stdout:\n|${formatForTComment(
+                                                stdout
+                                            )}`
+                                        );
+                                        t.comment(
+                                            `stderr:\n|${formatForTComment(
+                                                stderr
+                                            )}`
+                                        );
+                                    }
+                                }
                             }
+                            if (tf.checkTelemetry) {
+                                if (!tf.checkResult && err) {
+                                    t.comment(
+                                        'skip checkTelemetry because process errored out'
+                                    );
+                                } else {
+                                    await tf.checkTelemetry(t, collector);
+                                }
+                            }
+                            await otlpServer.close();
+                            t.end();
+                            resolve();
+                            outerResolve();
                         }
-                        await otlpServer.close();
-                        t.end();
-                        eventsEmitter.emit('fixture:complete', tf);
-                        resolve();
-                    }
-                );
+                    );
+                });
             });
         });
     });
 
-    return eventsEmitter;
+    return Promise.all(suitePromises);
 }
 
 module.exports = {
