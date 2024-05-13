@@ -251,7 +251,7 @@ function createServer() {
 }
 
 // -- main line
-test('express instrumentation', async (suite) => {
+test('aws sdk instrumentation', async (suite) => {
     await runTestFixtures(suite, testFixtures);
     server.close();
     suite.end();
