@@ -26,9 +26,19 @@ const path = require('path');
 const test = require('tape');
 const {runTestFixtures} = require('./testutils');
 
-const TEST_ENDPOINT = 'http://localhost:4566';
 const TEST_REGION = 'us-east-2';
 
+const server = createServer();
+const addr = server.address();
+// Using the IPv6 address for tests we get the error
+// { errno: -3008, code: 'ENOTFOUND', syscall: 'getaddrinfo', hostname: '[::]', '$metadata': { attempts: 1, totalRetryDelay: 0 } }
+// so we only use the port in that case
+const endpoint = [6, 'IPv6'].includes(addr.family)
+    ? `http://localhost:${addr.port}`
+    : `http://${addr.address}:${addr.port}`;
+
+
+console.log(endpoint)
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
@@ -39,7 +49,7 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             AWS_ACCESS_KEY_ID: 'fake',
             AWS_SECRET_ACCESS_KEY: 'fake',
-            TEST_ENDPOINT,
+            TEST_ENDPOINT: endpoint,
             TEST_REGION,
         },
         // verbose: true,
@@ -83,7 +93,7 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             AWS_ACCESS_KEY_ID: 'fake',
             AWS_SECRET_ACCESS_KEY: 'fake',
-            TEST_ENDPOINT,
+            TEST_ENDPOINT: endpoint,
             TEST_REGION,
         },
         // verbose: true,
@@ -121,7 +131,7 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             AWS_ACCESS_KEY_ID: 'fake',
             AWS_SECRET_ACCESS_KEY: 'fake',
-            TEST_ENDPOINT,
+            TEST_ENDPOINT: endpoint,
             TEST_REGION,
         },
         // verbose: true,
@@ -160,7 +170,7 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             AWS_ACCESS_KEY_ID: 'fake',
             AWS_SECRET_ACCESS_KEY: 'fake',
-            TEST_ENDPOINT,
+            TEST_ENDPOINT: endpoint,
             TEST_REGION,
         },
         // verbose: true,
@@ -194,27 +204,28 @@ const testFixtures = [
     },
 ];
 
-// Set mappings of `METHOD url` for each client. The client is extracted
-// from the `user-agent` header
-const assetsPath = path.resolve(__dirname, './assets');
-const responsePaths = {
-    s3: {
-        'GET /?x-id=ListBuckets': `${assetsPath}/aws-s3-list-buckets.xml`,
-    },
-    sns: {
-        'POST /': `${assetsPath}/aws-sns-list-topics.xml`,
-    },
-    sqs: {
-        'POST /': `${assetsPath}/aws-sqs-list-queues.json`,
-    },
-    dynamodb: {
-        'POST /': `${assetsPath}/aws-dynamodb-list-tables.json`,
-    },
-};
 
-// Mock HTTP server for tests
-const server = http
-    .createServer((req, res) => {
+// -- helper functions
+
+function createServer() {
+    // Set mappings of `METHOD url` for each client. The client is extracted
+    // from the `user-agent` header
+    const assetsPath = path.resolve(__dirname, './assets');
+    const responsePaths = {
+        s3: {
+            'GET /?x-id=ListBuckets': `${assetsPath}/aws-s3-list-buckets.xml`,
+        },
+        sns: {
+            'POST /': `${assetsPath}/aws-sns-list-topics.xml`,
+        },
+        sqs: {
+            'POST /': `${assetsPath}/aws-sqs-list-queues.json`,
+        },
+        dynamodb: {
+            'POST /': `${assetsPath}/aws-dynamodb-list-tables.json`,
+        },
+    };
+    return http.createServer((req, res) => {
         const reqKey = `${req.method} ${req.url}`;
         const agent = req.headers['user-agent'];
         const client = (agent.match(/api\/([^#]+)/) || [])[1];
@@ -236,8 +247,11 @@ const server = http
         res.write(json);
         res.end();
     })
-    .listen(4566, 'localhost');
+    .listen();
+}
 
+
+// -- main line
 test('express instrumentation', async (suite) => {
     await runTestFixtures(suite, testFixtures);
     server.close();
