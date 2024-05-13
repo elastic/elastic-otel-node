@@ -37,8 +37,6 @@ const endpoint = [6, 'IPv6'].includes(addr.family)
     ? `http://localhost:${addr.port}`
     : `http://${addr.address}:${addr.port}`;
 
-
-console.log(endpoint)
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
@@ -204,7 +202,6 @@ const testFixtures = [
     },
 ];
 
-
 // -- helper functions
 
 function createServer() {
@@ -225,31 +222,33 @@ function createServer() {
             'POST /': `${assetsPath}/aws-dynamodb-list-tables.json`,
         },
     };
-    return http.createServer((req, res) => {
-        const reqKey = `${req.method} ${req.url}`;
-        const agent = req.headers['user-agent'];
-        const client = (agent.match(/api\/([^#]+)/) || [])[1];
-        const resPath =
-            client && responsePaths[client] && responsePaths[client][reqKey];
+    return http
+        .createServer((req, res) => {
+            const reqKey = `${req.method} ${req.url}`;
+            const agent = req.headers['user-agent'];
+            const client = (agent.match(/api\/([^#]+)/) || [])[1];
+            const resPath =
+                client &&
+                responsePaths[client] &&
+                responsePaths[client][reqKey];
 
-        if (resPath) {
-            const mime = `application/${path.extname(resPath).slice(1)}`;
-            res.writeHead(200, {'Content-Type': mime});
-            fs.createReadStream(resPath).pipe(res);
-            return;
-        }
+            if (resPath) {
+                const mime = `application/${path.extname(resPath).slice(1)}`;
+                res.writeHead(200, {'Content-Type': mime});
+                fs.createReadStream(resPath).pipe(res);
+                return;
+            }
 
-        const message = client
-            ? `Handler for "${reqKey}" not found`
-            : 'Unknown AWS client';
-        const json = `{"error":{"message":"${message}"}}`;
-        res.writeHead(404, {'Content-Type': 'application/json'});
-        res.write(json);
-        res.end();
-    })
-    .listen();
+            const message = client
+                ? `Handler for "${reqKey}" not found`
+                : 'Unknown AWS client';
+            const json = `{"error":{"message":"${message}"}}`;
+            res.writeHead(404, {'Content-Type': 'application/json'});
+            res.write(json);
+            res.end();
+        })
+        .listen();
 }
-
 
 // -- main line
 test('express instrumentation', async (suite) => {
