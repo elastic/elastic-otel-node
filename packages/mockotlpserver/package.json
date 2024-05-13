@@ -46,7 +46,7 @@
     "@opentelemetry/core": "^1.21.0",
     "dashdash": "^2.0.0",
     "long": "^5.2.3",
-    "protobufjs": "^7.2.6",
+    "protobufjs": "^7.3.0",
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
