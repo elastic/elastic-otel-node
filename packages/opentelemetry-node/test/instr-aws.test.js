@@ -29,13 +29,7 @@ const {runTestFixtures} = require('./testutils');
 const TEST_REGION = 'us-east-2';
 
 const server = createServer();
-const addr = server.address();
-// Using the IPv6 address for tests we get the error
-// { errno: -3008, code: 'ENOTFOUND', syscall: 'getaddrinfo', hostname: '[::]', '$metadata': { attempts: 1, totalRetryDelay: 0 } }
-// so we only use the port in that case
-const endpoint = [6, 'IPv6'].includes(addr.family)
-    ? `http://localhost:${addr.port}`
-    : `http://${addr.address}:${addr.port}`;
+const endpoint = `http://127.0.0.1:${server.address().port}`;
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
