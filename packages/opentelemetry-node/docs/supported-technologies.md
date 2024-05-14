@@ -30,6 +30,8 @@ This follows from the [OpenTelemetry JS supported runtimes](https://github.com/o
 | `@opentelemetry/instrumentation-winston` | Instruments `winston` package for version range `>1 <4`         | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme) |
 | `@opentelemetry/instrumentation-tedious` | Instruments `tedious` package for version range `>=1.11.0 <=15` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-tedious#readme) |
 | `@opentelemetry/instrumentation-undici`  | Instruments `undici` package for version range `>=5.12.0`       | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici#readme) |
+| `@opentelemetry/instrumentation-aws-sdk`  | Instruments `aws-sdk` version 2 and `@aws-sdk/client-*` version 3      | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-aws-sdk#readme) |
+| `@opentelemetry/instrumentation-redis-4`  | Instruments `redis` package for version range `^4.0.0`       | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-redis-4#readme) |
 
 
 ## ECMAScript Modules (ESM)

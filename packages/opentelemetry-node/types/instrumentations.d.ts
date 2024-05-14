@@ -13,6 +13,7 @@ export type InstrumentaionsMap = {
     "@opentelemetry/instrumentation-winston": import('@opentelemetry/instrumentation-winston').WinstonInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentation | InstrumentationFactory;
     "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsInstrumentation | InstrumentationFactory;
+    "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentation | InstrumentationFactory;
 };
 /**
  * With this method you can disable, configure and replace the instrumentations

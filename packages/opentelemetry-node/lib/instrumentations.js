@@ -36,6 +36,7 @@
  *  "@opentelemetry/instrumentation-winston": import('@opentelemetry/instrumentation-winston').WinstonInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentation | InstrumentationFactory,
  * }} InstrumentaionsMap
  *
  */
@@ -68,6 +69,9 @@ const {
     TediousInstrumentation,
 } = require('@opentelemetry/instrumentation-tedious');
 const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
+const {
+    RedisInstrumentation,
+} = require('@opentelemetry/instrumentation-redis-4');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -101,6 +105,8 @@ const INSTRUMENTATIONS = {
         new TediousInstrumentation(cfg),
     '@opentelemetry/instrumentation-aws-sdk': (cfg) =>
         new AwsInstrumentation(cfg),
+    '@opentelemetry/instrumentation-redis-4': (cfg) =>
+        new RedisInstrumentation(cfg),
 };
 
 /**
