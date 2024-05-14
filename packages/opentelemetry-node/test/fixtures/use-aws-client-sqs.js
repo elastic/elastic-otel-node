@@ -51,8 +51,4 @@ async function main() {
     console.log({data}, 'listQueues');
 }
 
-const tracer = otel.trace.getTracer('test');
-tracer.startActiveSpan('manual-parent-span', async (span) => {
-    await main();
-    span.end();
-});
+main();

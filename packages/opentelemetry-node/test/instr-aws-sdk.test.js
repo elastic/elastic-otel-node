@@ -51,30 +51,21 @@ const testFixtures = [
             //     +4ms `- span bbe07e "S3.ListBuckets" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "GET" (7.0ms, SPAN_KIND_CLIENT, GET http://localhost:4566/?x-id=ListBuckets -> 200)
             const spans = col.sortedSpans;
-            t.equal(spans.length, 3);
+            t.equal(spans.length, 2);
 
             t.equal(
-                spans[1].scope.name,
+                spans[0].scope.name,
                 '@opentelemetry/instrumentation-aws-sdk'
             );
-            t.equal(spans[1].name, 'S3.ListBuckets');
-            t.equal(spans[1].kind, 'SPAN_KIND_CLIENT');
-            t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
-            t.equal(spans[1].parentSpanId, spans[0].spanId);
-            t.deepEqual(spans[1].attributes, {
+            t.equal(spans[0].name, 'S3.ListBuckets');
+            t.equal(spans[0].kind, 'SPAN_KIND_CLIENT');
+            t.deepEqual(spans[0].attributes, {
                 'rpc.system': 'aws-api',
                 'rpc.method': 'ListBuckets',
                 'rpc.service': 'S3',
                 'aws.region': 'us-east-2',
                 'http.status_code': 200,
             });
-
-            // NOTE: should we remove these assertions? aren't they testinh HTTP instr and not AWS?
-            t.equal(spans[2].scope.name, '@opentelemetry/instrumentation-http');
-            t.equal(spans[2].name, 'GET');
-            t.equal(spans[2].kind, 'SPAN_KIND_CLIENT');
-            t.equal(spans[2].traceId, spans[0].traceId, 'same trace');
-            t.equal(spans[2].parentSpanId, spans[1].spanId);
         },
     },
     {
@@ -95,17 +86,15 @@ const testFixtures = [
             //     +4ms `- span bbe07e "SNS ListBuckets" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "POST" (7.0ms, SPAN_KIND_CLIENT, POST http://localhost:4566/ -> 200)
             const spans = col.sortedSpans;
-            t.equal(spans.length, 3);
+            t.equal(spans.length, 2);
 
             t.equal(
-                spans[1].scope.name,
+                spans[0].scope.name,
                 '@opentelemetry/instrumentation-aws-sdk'
             );
-            t.equal(spans[1].name, 'SNS ListTopics');
-            t.equal(spans[1].kind, 'SPAN_KIND_CLIENT');
-            t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
-            t.equal(spans[1].parentSpanId, spans[0].spanId);
-            t.deepEqual(spans[1].attributes, {
+            t.equal(spans[0].name, 'SNS ListTopics');
+            t.equal(spans[0].kind, 'SPAN_KIND_CLIENT');
+            t.deepEqual(spans[0].attributes, {
                 'rpc.system': 'aws-api',
                 'rpc.method': 'ListTopics',
                 'rpc.service': 'SNS',
@@ -133,17 +122,15 @@ const testFixtures = [
             //     +4ms `- span bbe07e "SQS.ListQueues" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "POST" (7.0ms, SPAN_KIND_CLIENT, POST http://localhost:4566/ -> 200)
             const spans = col.sortedSpans;
-            t.equal(spans.length, 3);
+            t.equal(spans.length, 2);
 
             t.equal(
-                spans[1].scope.name,
+                spans[0].scope.name,
                 '@opentelemetry/instrumentation-aws-sdk'
             );
-            t.equal(spans[1].name, 'SQS.ListQueues');
-            t.equal(spans[1].kind, 'SPAN_KIND_CLIENT');
-            t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
-            t.equal(spans[1].parentSpanId, spans[0].spanId);
-            t.deepEqual(spans[1].attributes, {
+            t.equal(spans[0].name, 'SQS.ListQueues');
+            t.equal(spans[0].kind, 'SPAN_KIND_CLIENT');
+            t.deepEqual(spans[0].attributes, {
                 'rpc.system': 'aws-api',
                 'rpc.method': 'ListQueues',
                 'rpc.service': 'SQS',
@@ -172,17 +159,15 @@ const testFixtures = [
             //     +4ms `- span bbe07e "DynamoDB.ListTables" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "POST" (7.0ms, SPAN_KIND_CLIENT, POST http://localhost:4566/ -> 200)
             const spans = col.sortedSpans;
-            t.equal(spans.length, 3);
+            t.equal(spans.length, 2);
 
             t.equal(
-                spans[1].scope.name,
+                spans[0].scope.name,
                 '@opentelemetry/instrumentation-aws-sdk'
             );
-            t.equal(spans[1].name, 'DynamoDB.ListTables');
-            t.equal(spans[1].kind, 'SPAN_KIND_CLIENT');
-            t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
-            t.equal(spans[1].parentSpanId, spans[0].spanId);
-            t.deepEqual(spans[1].attributes, {
+            t.equal(spans[0].name, 'DynamoDB.ListTables');
+            t.equal(spans[0].kind, 'SPAN_KIND_CLIENT');
+            t.deepEqual(spans[0].attributes, {
                 'rpc.system': 'aws-api',
                 'rpc.method': 'ListTables',
                 'rpc.service': 'DynamoDB',
@@ -245,7 +230,7 @@ function createServer() {
 }
 
 // -- main line
-test('aws sdk instrumentation', async (suite) => {
+test('aws-sdk instrumentation', async (suite) => {
     await runTestFixtures(suite, testFixtures);
     server.close();
     suite.end();
