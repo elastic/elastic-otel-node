@@ -35,7 +35,6 @@
 //    # Run against the default configured AWS profile, listing all available buckets.
 //    node use-aws-client-s3.js
 
-const otel = require('@opentelemetry/api');
 const {S3Client, ListBucketsCommand} = require('@aws-sdk/client-s3');
 
 async function main() {

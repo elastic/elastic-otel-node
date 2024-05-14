@@ -35,7 +35,6 @@
 //    # Run against the default configured AWS profile, listing all available buckets.
 //    node use-aws-client-sqs.js
 
-const otel = require('@opentelemetry/api');
 const {SQSClient, ListQueuesCommand} = require('@aws-sdk/client-sqs');
 
 async function main() {

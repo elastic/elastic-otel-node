@@ -35,7 +35,6 @@
 //    # Run against the default configured AWS profile, listing all available buckets.
 //    node use-aws-client-dynamodb.js
 
-const otel = require('@opentelemetry/api');
 const {DynamoDBClient, ListTablesCommand} = require('@aws-sdk/client-dynamodb');
 
 async function main() {

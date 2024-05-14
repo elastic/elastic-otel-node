@@ -35,7 +35,6 @@
 //    # Run against the default configured AWS profile, listing all available buckets.
 //    node use-aws-client-sns.js
 
-const otel = require('@opentelemetry/api');
 const {SNSClient, ListTopicsCommand} = require('@aws-sdk/client-sns');
 
 async function main() {
