@@ -34,8 +34,10 @@
  *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentation | InstrumentationFactory
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentation | InstrumentationFactory
  *  "@opentelemetry/instrumentation-winston": import('@opentelemetry/instrumentation-winston').WinstonInstrumentationConfig | InstrumentationFactory,
- * "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsInstrumentation | InstrumentationFactory,
  * }} InstrumentaionsMap
+ *
  */
 
 const {
@@ -65,6 +67,7 @@ const {
 const {
     TediousInstrumentation,
 } = require('@opentelemetry/instrumentation-tedious');
+const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -96,6 +99,8 @@ const INSTRUMENTATIONS = {
         new WinstonInstrumentation(cfg),
     '@opentelemetry/instrumentation-tedious': (cfg) =>
         new TediousInstrumentation(cfg),
+    '@opentelemetry/instrumentation-aws-sdk': (cfg) =>
+        new AwsInstrumentation(cfg),
 };
 
 /**

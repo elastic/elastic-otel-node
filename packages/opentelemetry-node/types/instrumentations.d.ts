@@ -12,6 +12,7 @@ export type InstrumentaionsMap = {
     "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentation | InstrumentationFactory;
     "@opentelemetry/instrumentation-winston": import('@opentelemetry/instrumentation-winston').WinstonInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentation | InstrumentationFactory;
+    "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsInstrumentation | InstrumentationFactory;
 };
 /**
  * With this method you can disable, configure and replace the instrumentations
