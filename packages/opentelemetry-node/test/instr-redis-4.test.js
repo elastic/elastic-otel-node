@@ -67,7 +67,6 @@ const testFixtures = [
     {
         name: 'use-redis.mjs (ESM via --require)',
         versionRanges: {
-            // TODO: issue on node docs that https://nodejs.org/api/all.html#all_module_moduleregisterspecifier-parenturl-options history doesn't show backport to v18.19.0
             node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
         },
         args: ['./fixtures/use-redis.mjs'],
