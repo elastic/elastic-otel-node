@@ -70,7 +70,7 @@
     "@opentelemetry/instrumentation": "^0.51.0",
     "@opentelemetry/instrumentation-aws-sdk": "^0.41.0",
     "@opentelemetry/instrumentation-bunyan": "^0.38.0",
-    "@opentelemetry/instrumentation-express": "^0.38.0",
+    "@opentelemetry/instrumentation-express": "^0.39.0",
     "@opentelemetry/instrumentation-fastify": "^0.36.0",
     "@opentelemetry/instrumentation-hapi": "^0.38.0",
     "@opentelemetry/instrumentation-http": "^0.51.0",
