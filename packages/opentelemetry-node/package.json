@@ -90,7 +90,7 @@
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.572.0",
     "@aws-sdk/client-s3": "^3.569.0",
-    "@aws-sdk/client-sns": "^3.572.0",
+    "@aws-sdk/client-sns": "^3.577.0",
     "@aws-sdk/client-sqs": "^3.572.0",
     "@elastic/mockotlpserver": "*",
     "@hapi/hapi": "^21.3.9",
