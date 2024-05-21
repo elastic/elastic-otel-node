@@ -2,25 +2,7 @@
 id: otelNodeGetStarted
 slug: /otel-nodejs/get-started
 title: Get started
-description: tbd
 ---
-
-# Introduction
-
-The Elastic OpenTelemetry Distribution for Node.js (the "Distro") is a Node.js
-package that provides:
-
-- an easy way to instrument your application with OpenTelemetry, and
-- configuration defaults for best usage.
-
-Use the Distro to start the OpenTelemetry SDK with your Node.js application to automatically
-capture tracing data, performance metrics, and logs. Traces, metrics, and logs are sent
-to any OTLP collector you choose. Use an [Elastic Observability](https://www.elastic.co/observability)
-deployment -- hosted in Elastic's cloud or on-premises -- to monitor your applications, create alerts,
-and quickly identify root causes of service issues.
-
-
-# Getting Started
 
 This getting started guide will show how to use this Distro to instrument your Node.js application and send OpenTelemetry data to an Elastic Observability deployment. Note, however, that as an OpenTelemetry SDK, it supports sending data to any OTLP endpoint, e.g. an [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/).
 
@@ -86,7 +68,7 @@ OTLP) to your configured observability backend.
 {/* TODO: link to a reference section on other ways to start the Distro once we have those docs. */}
 
 
-# Elastic Observability setup
+## Elastic Observability setup
 
 You'll need somewhere to send the gathered OpenTelemetry data, so it can be
 viewed and analyzed. The `@elastic/opentelemetry-node` package supports sending
@@ -122,7 +104,7 @@ can find these in Kibana's APM tutorial.
 Use these environment variables in the [Configuration](#configuration) step
 above to configure the Distro.
 
-## Authenticate using an APM Agent key (API key)
+### Authenticate using an APM Agent key (API key)
 
 It is also possible to authenticate to an Elastic Observability endpoint using
 an "APM Agent key". These are revocable API keys. To create and manage
