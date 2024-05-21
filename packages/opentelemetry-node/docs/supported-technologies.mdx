@@ -1,3 +1,10 @@
+---
+id: otelNodeSupportedTech
+slug: /otel-nodejs/supported-technologies
+title: Supported Technologies
+description: tbd
+---
+
 # Supported Technologies
 
 ## Elastic stack versions
@@ -38,9 +45,8 @@ This follows from the [OpenTelemetry JS supported runtimes](https://github.com/o
 
 This Distro includes *limited and experimental* support for instrumenting [ECMAScript module imports](https://nodejs.org/api/esm.html#modules-ecmascript-modules), i.e. modules that are loaded via `import ...` statements and `import('...')` (dynamic import).
 
-<!-- TODO: add this to the above paragraph once we have an esm.md doc:
-See the [ECMAScript module support](./esm.md) document for details.
--->
+{/* TODO: add this to the above paragraph once we have an esm.md doc:
+See the [ECMAScript module support](./esm.md) document for details. */}
 
 Limitations:
 - For Node.js `>=20.6.0 || >=18.19.0`, support for hooking `import`s is automatically enabled. For earlier versions of Node.js, you must manually enable the `import`-hook via the `--experimental-loader=@elastic/opentelemetry-node/hook.mjs` option, e.g.: `node --experimental-loader=@elastic/opentelemetry-node/hook.mjs --require=@elastic/opentelemetry-node app.js`.
