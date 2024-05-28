@@ -88,7 +88,7 @@
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.572.0",
+    "@aws-sdk/client-dynamodb": "^3.584.0",
     "@aws-sdk/client-s3": "^3.569.0",
     "@aws-sdk/client-sns": "^3.572.0",
     "@aws-sdk/client-sqs": "^3.572.0",
