@@ -17,6 +17,10 @@ updates:
         dependency-type: "development"
         patterns:
         - "eslint*"
+      aws-sdk:
+        dependency-type: "development"
+        patterns:
+        - "@aws-sdk/client-*"
       patch-level:
         update-types:
         - "patch"
