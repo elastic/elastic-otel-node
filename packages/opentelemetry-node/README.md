@@ -14,7 +14,7 @@ We welcome your feedback! You can reach us either on the [issue tracker](https:/
 or on [Elastic's Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
 
 Some limitations / notes:
-- We expect to support most every instrumentation included in [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations). However, currently only a subset is supported. See [the supported instrumentations here](./docs/supported-technologies.md#instrumentations).
+- We expect to support most every instrumentation included in [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations). However, currently only a subset is supported. See [the supported instrumentations here](./docs/supported-technologies.mdx#instrumentations).
 
 
 # Usage
@@ -32,7 +32,7 @@ export OTEL_SERVICE_NAME=my-service
 node -r @elastic/opentelemetry-node my-service.js
 ```
 
-If using an [Elastic Observability deployment](./docs/getting-started.md#elastic-observability-setup)
+If using an [Elastic Observability deployment](./docs/getting-started.mdx#elastic-observability-setup)
 to which to send telemetry data, the `OTEL_EXPORTER_*` settings will look
 something like:
 
@@ -48,14 +48,14 @@ OTLP) to your configured observability backend.
 The Distro can be configured via `OTEL_*` environment variables, per the
 [OpenTelemetry Environment Variable spec](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/).
 
-See the [Getting Started guide](./docs/getting-started.md) for more details.
+See the [Getting Started guide](./docs/getting-started.mdx) for more details.
 
 
 # Documentation
 
-- [Getting Started](./docs/getting-started.md)
-- [Supported Technologies](./docs/supported-technologies.md)
-- [Metrics](./docs/metrics.md)
+- [Getting Started](./docs/getting-started.mdx)
+- [Supported Technologies](./docs/supported-technologies.mdx)
+- [Metrics](./docs/metrics.mdx)
 
 
 # Why this distribution?
@@ -81,4 +81,3 @@ A few reasons:
 - Providing an eventual easy migration path for customers of our current
   non-OpenTelemetry-based [Node.js APM agent](https://github.com/elastic/apm-agent-nodejs)
   to this SDK may be made easier by having our own package entry point.
-

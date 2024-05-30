@@ -1,0 +1,21 @@
+{
+  "mission": "Node.js",
+  "id": "elastic-otel-node",
+  "landingPageId": "otelNodeLanding",
+  "icon": "faceHappy",
+  "description": "Elastic OpenTelemetry Distribution for Node.js",
+  "items": [
+    {
+      "label": "Get started",
+      "pageId": "otelNodeGetStarted"
+    },
+    {
+      "label": "Supported technologies",
+      "pageId": "otelNodeSupportedTech"
+    },
+    {
+      "label": "Metrics",
+      "pageId": "otelNodeMetrics"
+    }
+  ]
+}
