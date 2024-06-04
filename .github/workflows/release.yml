@@ -56,11 +56,8 @@ jobs:
         # Release will result in a notification from the GitHub Slack app
         # (assuming '/github subscribe elastic/elastic-otel-node').
         if: ${{ failure() }}
-        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+        uses: elastic/oblt-actions/slack/notify-result@v1.7.0
         with:
-          vaultUrl: ${{ secrets.VAULT_ADDR }}
-          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
-          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          slackChannel: "#apm-agent-node"
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
           message: '[${{ github.repository }}] Release `@elastic/opentelemetry-node` *${{ github.ref_name }}*'
-
