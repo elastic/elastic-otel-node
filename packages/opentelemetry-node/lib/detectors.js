@@ -40,7 +40,9 @@ const {
     azureFunctionsDetector,
     azureVmDetector,
 } = require('@opentelemetry/resource-detector-azure');
-const {containerDetector} = require('@opentelemetry/resource-detector-container');
+const {
+    containerDetector,
+} = require('@opentelemetry/resource-detector-container');
 const {gcpDetector} = require('@opentelemetry/resource-detector-gcp');
 const {
     envDetectorSync,
@@ -48,7 +50,7 @@ const {
     processDetectorSync,
     Resource,
 } = require('@opentelemetry/resources');
-const { log } = require('./logging');
+const {log} = require('./logging');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
@@ -65,7 +67,7 @@ const defaultDetectors = {
                 'telemetry.distro.name': 'elastic',
                 'telemetry.distro.version': ELASTIC_SDK_VERSION,
             });
-        }
+        },
     },
     env: envDetectorSync,
     process: processDetectorSync,
@@ -113,7 +115,9 @@ function getDetectors() {
             detectors.push(defaultDetectors[key]);
         } else {
             // XXX: warning instead of error? @opentelemetry/auto-instrumentations-node use error
-            log.error(`Invalid resource detector "${key}" specified in the environment variable OTEL_NODE_RESOURCE_DETECTORS`)
+            log.error(
+                `Invalid resource detector "${key}" specified in the environment variable OTEL_NODE_RESOURCE_DETECTORS`
+            );
         }
     }
     return detectors.flat();
