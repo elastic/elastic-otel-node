@@ -40,6 +40,7 @@ const {
     azureFunctionsDetector,
     azureVmDetector,
 } = require('@opentelemetry/resource-detector-azure');
+const {containerDetector} = require('@opentelemetry/resource-detector-container');
 const {gcpDetector} = require('@opentelemetry/resource-detector-gcp');
 const {
     envDetectorSync,
@@ -70,6 +71,7 @@ const defaultDetectors = {
     process: processDetectorSync,
     // hostDetectorSync is not currently in the OTel default, but may be added
     host: hostDetectorSync,
+    container: containerDetector,
     // cloud detectors
     alibaba: alibabaCloudEcsDetector,
     aws: [
