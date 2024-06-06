@@ -28,15 +28,10 @@ const {
 } = require('@opentelemetry/exporter-metrics-otlp-proto');
 const {OTLPLogExporter} = require('@opentelemetry/exporter-logs-otlp-proto');
 const {metrics, NodeSDK, api} = require('@opentelemetry/sdk-node');
-const {
-    envDetectorSync,
-    hostDetectorSync,
-    processDetectorSync,
-} = require('@opentelemetry/resources');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
 const {log, registerOTelDiagLogger} = require('./logging');
-const {distroDetectorSync} = require('./detector');
+const {getDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
@@ -57,20 +52,15 @@ class ElasticNodeSDK extends NodeSDK {
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
         /** @type {Partial<NodeSDKConfiguration>} */
+        // log.trace('XXXX --- setting default config start');
         const defaultConfig = {
-            resourceDetectors: [
-                // Elastic's own detector to add some metadata
-                distroDetectorSync,
-                envDetectorSync,
-                processDetectorSync,
-                // hostDetectorSync is not currently in the OTel default, but may be added
-                hostDetectorSync,
-            ],
+            // if no detectors in `opts` get them based on env
+            // TODO: check how to shut detector warnings even if the env is set to "info"
+            resourceDetectors: opts.resourceDetectors || getDetectors(),
+            // if no instrumentations in `opts` get them based on env
+            instrumentations: opts.instrumentations || getInstrumentations(),
         };
-
-        // Use user's instrumetations or get the default ones
-        defaultConfig.instrumentations =
-            opts.instrumentations || getInstrumentations();
+        // log.trace('XXXX --- setting default config finish');
 
         // Default logs exporter.
         // TODO: handle other protocols per OTEL_ exporter envvars (or get core NodeSDK to do it). Currently hardcoding to http/proto
