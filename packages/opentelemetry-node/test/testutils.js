@@ -252,6 +252,10 @@ function quoteEnv(env) {
  */
 
 /**
+ * @typedef {import('@opentelemetry/api').Span} Span 
+ */
+
+/**
  * CollectorStore represents a place where all observability data is saved.
  * From that store we can get all info sent from the agent to the server:
  * - traces
@@ -263,7 +267,7 @@ function quoteEnv(env) {
  * TODO: Likewise for this Span type.
  *
  * @typedef {Object} CollectorStore
- * @property {import('@opentelemetry/api').Span[]} sortedSpans
+ * @property {Span[]} sortedSpans
  * @property {CollectedMetric[]} metrics
  * @property {import('@opentelemetry/api-logs').LogRecord[]} logs
  */
@@ -375,6 +379,33 @@ class TestCollector {
         return logs;
     }
 }
+
+/**
+ * Tells if the span is from a resource detector. Usefull to filter out
+ * when testing instrumentations
+ * XXX: export it or integrate with the collector so tests are not aware of these
+ * extra spans at the beginning
+ * @param {Span} span
+ * @returns {boolean}
+ */
+function isResourceDetectorSpan(span) {
+    const attribs = span && span.attributes;
+
+    if (!attribs) {
+        return false;
+    }
+
+    /** @type {string} */
+    const httpUrl = attribs['http.url']
+    const isGCP =  httpUrl && httpUrl.endsWith('/computeMetadata/v1/instance');
+
+    // NOTE: for now is only GCP
+    return isGCP;
+}
+
+// XXX: Alternative to the filter function which did not work
+const RESOURCE_DETECTOR_SPAN_COUNT = 2;
+
 
 /**
  * @callback CheckResultCallback
@@ -622,4 +653,6 @@ module.exports = {
     formatForTComment,
     safeGetPackageVersion,
     runTestFixtures,
+    isResourceDetectorSpan,
+    RESOURCE_DETECTOR_SPAN_COUNT,
 };
