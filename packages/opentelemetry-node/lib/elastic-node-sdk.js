@@ -52,7 +52,6 @@ class ElasticNodeSDK extends NodeSDK {
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
         /** @type {Partial<NodeSDKConfiguration>} */
-        // log.trace('XXXX --- setting default config start');
         const defaultConfig = {
             // if no detectors in `opts` get them based on env
             // TODO: check how to shut detector warnings even if the env is set to "info"
@@ -60,7 +59,6 @@ class ElasticNodeSDK extends NodeSDK {
             // if no instrumentations in `opts` get them based on env
             instrumentations: opts.instrumentations || getInstrumentations(),
         };
-        // log.trace('XXXX --- setting default config finish');
 
         // Default logs exporter.
         // TODO: handle other protocols per OTEL_ exporter envvars (or get core NodeSDK to do it). Currently hardcoding to http/proto
