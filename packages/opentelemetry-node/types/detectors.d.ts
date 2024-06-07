@@ -14,6 +14,7 @@ export type DetectorSyncOrig = import('@opentelemetry/resources').DetectorSync;
  */
 export type DetectorSync = DetectorOrig | DetectorSyncOrig;
 /**
+ * @param {Array<DetectorSync>} [detectors]
  * @returns {Array<DetectorSync>}
  */
-export function getDetectors(): Array<DetectorSync>;
+export function resolveDetectors(detectors?: Array<DetectorSync>): Array<DetectorSync>;
