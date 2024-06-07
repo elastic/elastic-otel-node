@@ -47,7 +47,9 @@ const {gcpDetector} = require('@opentelemetry/resource-detector-gcp');
 const {
     envDetectorSync,
     hostDetectorSync,
+    osDetectorSync,
     processDetectorSync,
+    serviceInstanceIdDetectorSync,
     Resource,
 } = require('@opentelemetry/resources');
 const {log} = require('./logging');
@@ -55,26 +57,28 @@ const {log} = require('./logging');
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
 
+// Elastic's own detector to add distro related metadata
+/** @type {DetectorSync} */
+const distroDetectorSync = {
+    detect() {
+        // TODO: change to semconv resource attribs when
+        // `@opentelemetry/semantic-conventions` gets updated with the attribs used
+        // https://github.com/open-telemetry/opentelemetry-js/issues/4235
+        return new Resource({
+            'telemetry.distro.name': 'elastic',
+            'telemetry.distro.version': ELASTIC_SDK_VERSION,
+        });
+    },
+};
+
 /** @type {Record<string, DetectorSync | Array<DetectorSync>>} */
 const defaultDetectors = {
-    // Elastic's own detector to add distro related metadata
-    distro: {
-        detect() {
-            // TODO: change to semconv resource attribs when
-            // `@opentelemetry/semantic-conventions` gets updated with the attribs used
-            // https://github.com/open-telemetry/opentelemetry-js/issues/4235
-            return new Resource({
-                'telemetry.distro.name': 'elastic',
-                'telemetry.distro.version': ELASTIC_SDK_VERSION,
-            });
-        },
-    },
     env: envDetectorSync,
     process: processDetectorSync,
-    // hostDetectorSync is not currently in the OTel default, but may be added
+    serviceinstance: serviceInstanceIdDetectorSync,
+    os: osDetectorSync,
     host: hostDetectorSync,
     container: containerDetector,
-    // cloud detectors
     alibaba: alibabaCloudEcsDetector,
     aws: [
         awsBeanstalkDetector,
@@ -88,9 +92,15 @@ const defaultDetectors = {
 };
 
 /**
+ * @param {Array<DetectorSync>} [detectors]
  * @returns {Array<DetectorSync>}
  */
-function getDetectors() {
+function resolveDetectors(detectors) {
+    if (detectors) {
+        detectors.push(distroDetectorSync);
+        return detectors;
+    }
+
     const detectorsFromEnv =
         process.env['OTEL_NODE_RESOURCE_DETECTORS'] || 'all';
 
@@ -98,31 +108,25 @@ function getDetectors() {
         return [];
     }
 
-    // XXX: by using `defaultDetectors` as a map it impicitly adds a new possible value which is
-    // not in https://opentelemetry.io/docs/zero-code/js/configuration/
-    // this value is `distro` and if used in the env var it will include our distro detector
-    // ```
-    // OTEL_NODE_RESOURCE_DETECTORS=distro,env,host,aws node ./app.js
-    // ```
     const detectorKeys =
         detectorsFromEnv === 'all'
             ? Object.keys(defaultDetectors)
             : detectorsFromEnv.split(',');
-    const detectors = [];
+    /** @type {Array<DetectorSync | DetectorSync[]>} */
+    const resolvedDetectors = [distroDetectorSync];
 
     for (const key of detectorKeys) {
         if (defaultDetectors[key]) {
-            detectors.push(defaultDetectors[key]);
+            resolvedDetectors.push(defaultDetectors[key]);
         } else {
-            // XXX: warning instead of error? @opentelemetry/auto-instrumentations-node use error
-            log.error(
+            log.debug(
                 `Invalid resource detector "${key}" specified in the environment variable OTEL_NODE_RESOURCE_DETECTORS`
             );
         }
     }
-    return detectors.flat();
+    return resolvedDetectors.flat();
 }
 
 module.exports = {
-    getDetectors,
+    resolveDetectors,
 };

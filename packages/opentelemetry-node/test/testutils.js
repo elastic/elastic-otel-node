@@ -252,7 +252,7 @@ function quoteEnv(env) {
  */
 
 /**
- * @typedef {import('@opentelemetry/api').Span} Span 
+ * @typedef {import('@opentelemetry/api').Span} Span
  */
 
 /**
@@ -315,7 +315,7 @@ class TestCollector {
                 });
             });
         });
-        return spans.sort((a, b) => {
+        spans.sort((a, b) => {
             assert(typeof a.startTimeUnixNano === 'string');
             assert(typeof b.startTimeUnixNano === 'string');
             let aStartInt = BigInt(a.startTimeUnixNano);
@@ -335,6 +335,16 @@ class TestCollector {
             }
 
             return aStartInt < bStartInt ? -1 : aStartInt > bStartInt ? 1 : 0;
+        });
+
+        // NOTE: some resource detectors are starting spans and this affects
+        // the tests we have implmented until now (2024-06)
+        // - internal components like detector shouldn't be crating traces
+        return spans.filter((s) => {
+            const attrs = s.attributes;
+            const url = attrs && attrs['http.url'];
+            // GCP detector does request to a specific path
+            return !url || !url.endsWith('/computeMetadata/v1/instance');
         });
     }
 
@@ -379,33 +389,6 @@ class TestCollector {
         return logs;
     }
 }
-
-/**
- * Tells if the span is from a resource detector. Usefull to filter out
- * when testing instrumentations
- * XXX: export it or integrate with the collector so tests are not aware of these
- * extra spans at the beginning
- * @param {Span} span
- * @returns {boolean}
- */
-function isResourceDetectorSpan(span) {
-    const attribs = span && span.attributes;
-
-    if (!attribs) {
-        return false;
-    }
-
-    /** @type {string} */
-    const httpUrl = attribs['http.url']
-    const isGCP =  httpUrl && httpUrl.endsWith('/computeMetadata/v1/instance');
-
-    // NOTE: for now is only GCP
-    return isGCP;
-}
-
-// XXX: Alternative to the filter function which did not work
-const RESOURCE_DETECTOR_SPAN_COUNT = 2;
-
 
 /**
  * @callback CheckResultCallback
@@ -653,6 +636,4 @@ module.exports = {
     formatForTComment,
     safeGetPackageVersion,
     runTestFixtures,
-    isResourceDetectorSpan,
-    RESOURCE_DETECTOR_SPAN_COUNT,
 };

@@ -20,7 +20,7 @@
 // Test that 'http' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {runTestFixtures, isResourceDetectorSpan, RESOURCE_DETECTOR_SPAN_COUNT} = require('./testutils');
+const {runTestFixtures} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -33,7 +33,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans.filter((s) => !isResourceDetectorSpan(s));
+            const spans = col.sortedSpans;
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
@@ -51,8 +51,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            // const spans = col.sortedSpans.slice(RESOURCE_DETECTOR_SPAN_COUNT);
-            const spans = col.sortedSpans.filter((s) => !isResourceDetectorSpan(s));
+            const spans = col.sortedSpans;
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
@@ -78,7 +77,7 @@ const testFixtures = [
             //            span bc8a2c "POST" (3.8ms, SPAN_KIND_CLIENT, POST http://127.0.0.1:64972/echo -> 200)
             //      +2ms `- span 4e7adf "POST" (1.1ms, SPAN_KIND_SERVER, POST http://127.0.0.1:64972/echo -> 200)
             // const spans = col.sortedSpans.slice(RESOURCE_DETECTOR_SPAN_COUNT);
-            const spans = col.sortedSpans.filter((s) => !isResourceDetectorSpan(s));
+            const spans = col.sortedSpans;
             t.equal(spans.length, 4);
             t.equal(spans[0].scope.name, '@opentelemetry/instrumentation-http');
             t.equal(spans[0].name, 'GET');

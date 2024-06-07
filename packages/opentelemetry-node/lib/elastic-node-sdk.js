@@ -31,7 +31,7 @@ const {metrics, NodeSDK, api} = require('@opentelemetry/sdk-node');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
 const {log, registerOTelDiagLogger} = require('./logging');
-const {getDetectors} = require('./detectors');
+const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
@@ -53,9 +53,7 @@ class ElasticNodeSDK extends NodeSDK {
         //   `spanProcessor` nor `traceExporter` are passed in.
         /** @type {Partial<NodeSDKConfiguration>} */
         const defaultConfig = {
-            // if no detectors in `opts` get them based on env
-            // TODO: check how to shut detector warnings even if the env is set to "info"
-            resourceDetectors: opts.resourceDetectors || getDetectors(),
+            resourceDetectors: resolveDetectors(opts.resourceDetectors),
             // if no instrumentations in `opts` get them based on env
             instrumentations: opts.instrumentations || getInstrumentations(),
         };
