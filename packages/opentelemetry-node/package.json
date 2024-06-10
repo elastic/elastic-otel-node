@@ -51,7 +51,7 @@
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
     "test-services:stop": "docker compose -f ./test/docker-compose.yaml down",
-    "gen:types": "tsc"
+    "gen:types": "rm -rf types && tsc"
   },
   "exports": {
     ".": {
