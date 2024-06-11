@@ -37,14 +37,11 @@ const testFixtures = [
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
-            const hasLog = (text) => getLogs(lines).some((log) => log.msg.includes(text));
+            const hasLog = (text) =>
+                getLogs(lines).some((log) => log.msg.includes(text));
             // Note: `testutils.js` sets the default protocol to 'http/json' via env var OTEL_EXPORTER_OTLP_PROTOCOL
-            t.ok(
-                hasLog('Logs exporter protocol set to http/json'),
-            );
-            t.ok(
-                hasLog('Metrics exporter protocol set to http/json'),
-            );
+            t.ok(hasLog('Logs exporter protocol set to http/json'));
+            t.ok(hasLog('Metrics exporter protocol set to http/json'));
         },
     },
     {
@@ -54,19 +51,16 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_LOG_LEVEL: 'verbose',
-            OTEL_EXPORTER_OTLP_PROTOCOL: 'grpc'
+            OTEL_EXPORTER_OTLP_PROTOCOL: 'grpc',
         },
         // verbose: true,
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
-            const hasLog = (text) => getLogs(lines).some((log) => log.msg.includes(text));
-            t.ok(
-                hasLog('Logs exporter protocol set to grpc'),
-            );
-            t.ok(
-                hasLog('Metrics exporter protocol set to grpc'),
-            );
+            const hasLog = (text) =>
+                getLogs(lines).some((log) => log.msg.includes(text));
+            t.ok(hasLog('Logs exporter protocol set to grpc'));
+            t.ok(hasLog('Metrics exporter protocol set to grpc'));
         },
     },
     {
@@ -76,20 +70,17 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_LOG_LEVEL: 'verbose',
-            OTEL_EXPORTER_OTLP_LOGS_PROTOCOL: 'grpc'
+            OTEL_EXPORTER_OTLP_LOGS_PROTOCOL: 'grpc',
         },
         // verbose: true,
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
-            const hasLog = (text) => getLogs(lines).some((log) => log.msg.includes(text));
-            t.ok(
-                hasLog('Logs exporter protocol set to grpc'),
-            );
+            const hasLog = (text) =>
+                getLogs(lines).some((log) => log.msg.includes(text));
+            t.ok(hasLog('Logs exporter protocol set to grpc'));
             // Note: `testutils.js` sets the default protocol to 'http/json' via env var OTEL_EXPORTER_OTLP_PROTOCOL
-            t.ok(
-                hasLog('Metrics exporter protocol set to http/json'),
-            );
+            t.ok(hasLog('Metrics exporter protocol set to http/json'));
         },
     },
     {
@@ -99,20 +90,17 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_LOG_LEVEL: 'verbose',
-            OTEL_EXPORTER_OTLP_METRICS_PROTOCOL: 'grpc'
+            OTEL_EXPORTER_OTLP_METRICS_PROTOCOL: 'grpc',
         },
         // verbose: true,
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
-            const hasLog = (text) => getLogs(lines).some((log) => log.msg.includes(text));
+            const hasLog = (text) =>
+                getLogs(lines).some((log) => log.msg.includes(text));
             // Note: `testutils.js` sets the default protocol to 'http/json' via env var OTEL_EXPORTER_OTLP_PROTOCOL
-            t.ok(
-                hasLog('Logs exporter protocol set to http/json'),
-            );
-            t.ok(
-                hasLog('Metrics exporter protocol set to grpc'),
-            );
+            t.ok(hasLog('Logs exporter protocol set to http/json'));
+            t.ok(hasLog('Metrics exporter protocol set to grpc'));
         },
     },
     {
@@ -127,13 +115,10 @@ const testFixtures = [
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
-            const hasLog = (text) => getLogs(lines).some((log) => log.msg.includes(text));
-            t.ok(
-                hasLog('Logs exporter protocol "bogus" unknown.'),
-            );
-            t.ok(
-                hasLog('Metrics exporter protocol "bogus" unknown.'),
-            );
+            const hasLog = (text) =>
+                getLogs(lines).some((log) => log.msg.includes(text));
+            t.ok(hasLog('Logs exporter protocol "bogus" unknown.'));
+            t.ok(hasLog('Metrics exporter protocol "bogus" unknown.'));
         },
     },
     {
@@ -148,10 +133,9 @@ const testFixtures = [
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
-            const hasLog = (text) => getLogs(lines).some((log) => log.msg.includes(text));
-            t.ok(
-                hasLog('Logs exporter protocol "bogus" unknown.'),
-            );
+            const hasLog = (text) =>
+                getLogs(lines).some((log) => log.msg.includes(text));
+            t.ok(hasLog('Logs exporter protocol "bogus" unknown.'));
         },
     },
     {
@@ -166,10 +150,9 @@ const testFixtures = [
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
-            const hasLog = (text) => getLogs(lines).some((log) => log.msg.includes(text));
-            t.ok(
-                hasLog('Metrics exporter protocol "bogus" unknown.'),
-            );
+            const hasLog = (text) =>
+                getLogs(lines).some((log) => log.msg.includes(text));
+            t.ok(hasLog('Metrics exporter protocol "bogus" unknown.'));
         },
     },
 ];

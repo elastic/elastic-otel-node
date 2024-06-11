@@ -111,14 +111,17 @@ class ElasticNodeSDK extends NodeSDK {
                 process.env.OTEL_EXPORTER_OTLP_METRICS_PROTOCOL ||
                 process.env.OTEL_EXPORTER_OTLP_PROTOCOL ||
                 'http/protobuf';
-            let metricExporterType = exporterPkgNameFromEnvVar[metricsExportProtocol];
+            let metricExporterType =
+                exporterPkgNameFromEnvVar[metricsExportProtocol];
             if (!metricExporterType) {
                 log.warn(
                     `Metrics exporter protocol "${metricsExportProtocol}" unknown. Using default "http/protobuf" protocol`
                 );
                 metricExporterType = 'proto';
             }
-            log.trace(`Metrics exporter protocol set to ${metricsExportProtocol}`);
+            log.trace(
+                `Metrics exporter protocol set to ${metricsExportProtocol}`
+            );
             const {OTLPMetricExporter} = require(
                 `@opentelemetry/exporter-metrics-otlp-${metricExporterType}`
             );
