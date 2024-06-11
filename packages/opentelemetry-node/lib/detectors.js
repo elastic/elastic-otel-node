@@ -103,15 +103,14 @@ function resolveDetectors(detectors) {
 
     const detectorsFromEnv =
         process.env['OTEL_NODE_RESOURCE_DETECTORS'] || 'all';
+    let detectorKeys = detectorsFromEnv.split(',').map((s) => s.trim());
 
-    if (detectorsFromEnv === 'none') {
+    if (detectorKeys.some((k) => k === 'all')) {
+        detectorKeys = Object.keys(defaultDetectors);
+    } else if (detectorKeys.some((k) => k === 'none')) {
         return [];
     }
 
-    const detectorKeys =
-        detectorsFromEnv === 'all'
-            ? Object.keys(defaultDetectors)
-            : detectorsFromEnv.split(',');
     /** @type {Array<DetectorSync | DetectorSync[]>} */
     const resolvedDetectors = [distroDetectorSync];
 
