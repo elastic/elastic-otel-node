@@ -337,9 +337,8 @@ class TestCollector {
             return aStartInt < bStartInt ? -1 : aStartInt > bStartInt ? 1 : 0;
         });
 
-        // NOTE: some resource detectors are starting spans and this affects
-        // the tests we have implmented until now (2024-06)
-        // - internal components like detector shouldn't be crating traces
+        // NOTE: Ignore spans from the GCP detector for testing. It shouldn't be
+        // creating spans, but that should be fixed upstream.
         return spans.filter((s) => {
             const attrs = s.attributes;
             const url = attrs && attrs['http.url'];
