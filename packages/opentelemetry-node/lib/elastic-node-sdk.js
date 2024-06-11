@@ -54,10 +54,6 @@ class ElasticNodeSDK extends NodeSDK {
             instrumentations: opts.instrumentations || getInstrumentations(),
         };
 
-        // Use user's instrumetations or get the default ones
-        defaultConfig.instrumentations =
-            opts.instrumentations || getInstrumentations();
-
         // Protocols for exporters. Default is `http/proto`
         const exporterPkgNameFromEnvVar = {
             grpc: 'grpc',
