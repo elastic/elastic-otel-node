@@ -69,7 +69,7 @@ class ElasticNodeSDK extends NodeSDK {
             opts.instrumentations || getInstrumentations();
 
         // Protocols for exporters. Default is `http/proto`
-        const OTLPProtocolMap = {
+        const exporterPkgNameFromEnvVar = {
             grpc: 'grpc',
             'http/json': 'http',
             'http/protobuf': 'proto',
@@ -79,13 +79,14 @@ class ElasticNodeSDK extends NodeSDK {
             process.env.OTEL_EXPORTER_OTLP_LOGS_PROTOCOL ||
             process.env.OTEL_EXPORTER_OTLP_PROTOCOL ||
             'http/protobuf';
-        let logExporterType = OTLPProtocolMap[logsExportProtocol];
+        let logExporterType = exporterPkgNameFromEnvVar[logsExportProtocol];
         if (!logExporterType) {
             log.warn(
                 `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
             );
             logExporterType = 'proto';
         }
+        log.trace(`Logs exporter protocol set to ${logsExportProtocol}`);
         const {OTLPLogExporter} = require(
             `@opentelemetry/exporter-logs-otlp-${logExporterType}`
         );
@@ -110,13 +111,14 @@ class ElasticNodeSDK extends NodeSDK {
                 process.env.OTEL_EXPORTER_OTLP_METRICS_PROTOCOL ||
                 process.env.OTEL_EXPORTER_OTLP_PROTOCOL ||
                 'http/protobuf';
-            let metricExporterType = OTLPProtocolMap[metricsExportProtocol];
+            let metricExporterType = exporterPkgNameFromEnvVar[metricsExportProtocol];
             if (!metricExporterType) {
                 log.warn(
                     `Metrics exporter protocol "${metricsExportProtocol}" unknown. Using default "http/protobuf" protocol`
                 );
                 metricExporterType = 'proto';
             }
+            log.trace(`Metrics exporter protocol set to ${metricsExportProtocol}`);
             const {OTLPMetricExporter} = require(
                 `@opentelemetry/exporter-metrics-otlp-${metricExporterType}`
             );
