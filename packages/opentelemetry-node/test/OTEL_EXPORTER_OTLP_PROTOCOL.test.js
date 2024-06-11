@@ -17,9 +17,6 @@
  * under the License.
  */
 
-// Test that `User-Agent` is properly set into `OTEL_EXPORTER_OTLP_*_HEADERS`
-// environment vars vif not defined.
-
 const {test} = require('tape');
 const {runTestFixtures} = require('./testutils');
 
