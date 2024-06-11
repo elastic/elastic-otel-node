@@ -9,3 +9,9 @@ export function setupEnvironment(): void;
  * Restores any value stashed in the stup process
  */
 export function restoreEnvironment(): void;
+/**
+ * Gets the env var value also checking in the vars pending to be restored
+ * @param {string} name
+ * @returns {string | undefined}
+ */
+export function getEnvVar(name: string): string | undefined;
