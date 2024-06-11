@@ -24,15 +24,10 @@
 const os = require('os');
 
 const {metrics, NodeSDK, api} = require('@opentelemetry/sdk-node');
-const {
-    envDetectorSync,
-    hostDetectorSync,
-    processDetectorSync,
-} = require('@opentelemetry/resources');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
 const {log, registerOTelDiagLogger} = require('./logging');
-const {distroDetectorSync} = require('./detector');
+const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
@@ -54,14 +49,9 @@ class ElasticNodeSDK extends NodeSDK {
         //   `spanProcessor` nor `traceExporter` are passed in.
         /** @type {Partial<NodeSDKConfiguration>} */
         const defaultConfig = {
-            resourceDetectors: [
-                // Elastic's own detector to add some metadata
-                distroDetectorSync,
-                envDetectorSync,
-                processDetectorSync,
-                // hostDetectorSync is not currently in the OTel default, but may be added
-                hostDetectorSync,
-            ],
+            resourceDetectors: resolveDetectors(opts.resourceDetectors),
+            // if no instrumentations in `opts` get them based on env
+            instrumentations: opts.instrumentations || getInstrumentations(),
         };
 
         // Use user's instrumetations or get the default ones

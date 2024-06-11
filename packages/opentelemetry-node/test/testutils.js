@@ -252,6 +252,10 @@ function quoteEnv(env) {
  */
 
 /**
+ * @typedef {import('@opentelemetry/api').Span} Span
+ */
+
+/**
  * CollectorStore represents a place where all observability data is saved.
  * From that store we can get all info sent from the agent to the server:
  * - traces
@@ -263,7 +267,7 @@ function quoteEnv(env) {
  * TODO: Likewise for this Span type.
  *
  * @typedef {Object} CollectorStore
- * @property {import('@opentelemetry/api').Span[]} sortedSpans
+ * @property {Span[]} sortedSpans
  * @property {CollectedMetric[]} metrics
  * @property {import('@opentelemetry/api-logs').LogRecord[]} logs
  */
@@ -311,7 +315,7 @@ class TestCollector {
                 });
             });
         });
-        return spans.sort((a, b) => {
+        spans.sort((a, b) => {
             assert(typeof a.startTimeUnixNano === 'string');
             assert(typeof b.startTimeUnixNano === 'string');
             let aStartInt = BigInt(a.startTimeUnixNano);
@@ -331,6 +335,15 @@ class TestCollector {
             }
 
             return aStartInt < bStartInt ? -1 : aStartInt > bStartInt ? 1 : 0;
+        });
+
+        // NOTE: Ignore spans from the GCP detector for testing. It shouldn't be
+        // creating spans, but that should be fixed upstream.
+        return spans.filter((s) => {
+            const attrs = s.attributes;
+            const url = attrs && attrs['http.url'];
+            // GCP detector does request to a specific path
+            return !url || !url.endsWith('/computeMetadata/v1/instance');
         });
     }
 

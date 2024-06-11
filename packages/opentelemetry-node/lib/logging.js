@@ -95,6 +95,7 @@ function registerOTelDiagLogger(api) {
 if (_globalThis[_symLog] === undefined) {
     _globalThis[_symLog] = createLogger();
 }
+/** @type {import('./luggite').Logger} */
 const log = _globalThis[_symLog];
 
 // ---- exports
