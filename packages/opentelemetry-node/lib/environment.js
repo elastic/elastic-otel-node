@@ -117,7 +117,8 @@ function setupEnvironment() {
         delete process.env.OTEL_LOG_LEVEL;
     }
     if ('OTEL_NODE_RESOURCE_DETECTORS' in process.env) {
-        envToRestore['OTEL_NODE_RESOURCE_DETECTORS'] = process.env.OTEL_NODE_RESOURCE_DETECTORS;
+        envToRestore['OTEL_NODE_RESOURCE_DETECTORS'] =
+            process.env.OTEL_NODE_RESOURCE_DETECTORS;
         // Make sure NodeSDK doesn't see this envvar and logs some false errors
         // about detectors. It is restored below.
         // Ref: https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-sdk-node/src/utils.ts#L35-L41
