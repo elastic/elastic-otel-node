@@ -51,7 +51,7 @@
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
     "test-services:stop": "docker compose -f ./test/docker-compose.yaml down",
-    "gen:types": "tsc"
+    "gen:types": "rm -rf types && tsc"
   },
   "exports": {
     ".": {
@@ -81,6 +81,11 @@
     "@opentelemetry/instrumentation-tedious": "^0.11.0",
     "@opentelemetry/instrumentation-undici": "^0.3.0",
     "@opentelemetry/instrumentation-winston": "^0.38.0",
+    "@opentelemetry/resource-detector-alibaba-cloud": "^0.28.9",
+    "@opentelemetry/resource-detector-aws": "^1.5.0",
+    "@opentelemetry/resource-detector-azure": "^0.2.7",
+    "@opentelemetry/resource-detector-container": "^0.3.10",
+    "@opentelemetry/resource-detector-gcp": "^0.29.9",
     "@opentelemetry/resources": "^1.20.0",
     "@opentelemetry/sdk-logs": "^0.52.0",
     "@opentelemetry/sdk-node": "^0.52.0",

@@ -84,6 +84,7 @@ npm ls --omit=dev --all --parseable \
             "assert-plus": "license.assert-plus.txt",
             "pg-types": "license.pg-types.txt",
             "undici-types": "license.undici.txt",
+            "tr46": "license.MIT.txt",
         }
         const allowNoLicFile = [
             "binary-search" // CC is a public domain dedication, no need for license text.
