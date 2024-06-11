@@ -119,7 +119,7 @@ function resolveDetectors(detectors) {
         if (defaultDetectors[key]) {
             resolvedDetectors.push(defaultDetectors[key]);
         } else {
-            log.debug(
+            log.warn(
                 `Invalid resource detector "${key}" specified in the environment variable OTEL_NODE_RESOURCE_DETECTORS`
             );
         }
