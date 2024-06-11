@@ -52,6 +52,8 @@ const {
     serviceInstanceIdDetectorSync,
     Resource,
 } = require('@opentelemetry/resources');
+
+const {getEnvVar} = require('./environment');
 const {log} = require('./logging');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
@@ -102,7 +104,7 @@ function resolveDetectors(detectors) {
     }
 
     const detectorsFromEnv =
-        process.env['OTEL_NODE_RESOURCE_DETECTORS'] || 'all';
+    getEnvVar('OTEL_NODE_RESOURCE_DETECTORS') || 'all';
     let detectorKeys = detectorsFromEnv.split(',').map((s) => s.trim());
 
     if (detectorKeys.some((k) => k === 'all')) {
@@ -113,7 +115,6 @@ function resolveDetectors(detectors) {
 
     /** @type {Array<DetectorSync | DetectorSync[]>} */
     const resolvedDetectors = [distroDetectorSync];
-
     for (const key of detectorKeys) {
         if (defaultDetectors[key]) {
             resolvedDetectors.push(defaultDetectors[key]);
