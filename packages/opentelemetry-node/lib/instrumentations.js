@@ -104,7 +104,8 @@ const INSTRUMENTATIONS = {
         new IORedisInstrumentation(cfg),
     '@opentelemetry/instrumentation-mongodb': (cfg) =>
         new MongoDBInstrumentation(cfg),
-    '@opentelemetry/instrumentation-pino': (cfg) => new PinoInstrumentation(cfg),
+    '@opentelemetry/instrumentation-pino': (cfg) =>
+        new PinoInstrumentation(cfg),
     '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
     '@opentelemetry/instrumentation-winston': (cfg) =>
         new WinstonInstrumentation(cfg),
