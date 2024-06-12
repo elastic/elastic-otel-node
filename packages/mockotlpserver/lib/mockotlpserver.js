@@ -128,7 +128,7 @@ class MockOtlpServer {
                     });
                     await this._grpcService.start();
                     this.grpcUrl = this._grpcService.url;
-                    this._log.info(`OTLP/HTTP listening at ${this.grpcUrl}`);
+                    this._log.info(`OTLP/gRPC listening at ${this.grpcUrl}`);
                     break;
 
                 case 'ui':

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Owner>
+    <ID>e8b7247768fa8b2d077fb1ffb57840ffbe9c101ba73ef4613ac2b4633399a0a5</ID>
+    <DisplayName>elastic</DisplayName>
+  </Owner>
+  <Buckets>
+    <Bucket>
+      <Name>elastic.co</Name>
+      <CreationDate>2024-05-09T11:52:36.573Z</CreationDate>
+    </Bucket>
+  </Buckets>
+</ListAllMyBucketsResult>

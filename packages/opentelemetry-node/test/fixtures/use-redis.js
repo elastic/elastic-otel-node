@@ -17,23 +17,37 @@
  * under the License.
  */
 
-const {Resource} = require('@opentelemetry/resources');
+// Usage: node -r @elastic/opentelemetry-node use-redis.js
 
-// @ts-ignore - compiler options do not allow lookp outside `lib` folder
-const ELASTIC_SDK_VERSION = require('../package.json').version;
+const otel = require('@opentelemetry/api');
+const redis = require('redis');
 
-class ElasticDistroDetector {
-    detect() {
-        // TODO: change to semconv resource attribs when
-        // `@opentelemetry/semantic-conventions` gets updated with the attribs used
-        // https://github.com/open-telemetry/opentelemetry-js/issues/4235
-        return new Resource({
-            'telemetry.distro.name': 'elastic',
-            'telemetry.distro.version': ELASTIC_SDK_VERSION,
-        });
+const client = redis.createClient({
+    socket: {
+        port: '6379',
+        host: process.env.REDIS_HOST,
+    },
+});
+
+async function main() {
+    await client.connect();
+    await client.set('bar', 'baz');
+
+    let val;
+    val = await client.get('bar');
+    console.log('GET bar:', val);
+    client.hSet('ahash', 'field1', 'val1');
+    try {
+        val = await client.get('ahash'); // Wrong command for type, should reject.
+    } catch (e) {
+        console.log('able to catch a GET error');
     }
+
+    await client.quit();
 }
 
-module.exports = {
-    distroDetectorSync: new ElasticDistroDetector(),
-};
+const tracer = otel.trace.getTracer('test');
+tracer.startActiveSpan('manual-parent-span', async (span) => {
+    await main();
+    span.end();
+});

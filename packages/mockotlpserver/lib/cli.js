@@ -24,7 +24,7 @@
 const dashdash = require('dashdash');
 
 const luggite = require('./luggite');
-const {JSONPrinter, InspectPrinter} = require('./printers');
+const {JSONPrinter, InspectPrinter, FilePrinter} = require('./printers');
 const {TraceWaterfallPrinter} = require('./waterfall');
 const {MetricsSummaryPrinter} = require('./metrics-summary');
 const {LogsSummaryPrinter} = require('./logs-summary');
@@ -50,10 +50,19 @@ const PRINTER_NAMES = [
     'metrics-summary',
     'logs-summary',
     'summary',
+
+    'trace-file', // saving into fs for UI and other processing
 ];
 
-// This adds a custom cli option type to dashdash, to support `-o json,waterfall`
-// options for specifying multiple printers (aka output modes).
+/**
+ * This adds a custom cli option type to dashdash, to support `-o json,waterfall`
+ * options for specifying multiple printers (aka output modes).
+ *
+ * @param {any} option
+ * @param {string} optstr
+ * @param {string} arg
+ * @returns {Array<string>}
+ */
 function parseCommaSepPrinters(option, optstr, arg) {
     const printers = arg
         .trim()
@@ -97,6 +106,11 @@ const OPTIONS = [
         type: 'string',
         help: `The hostname on which servers should listen, by default this is "${DEFAULT_HOSTNAME}".`,
     },
+    {
+        names: ['ui'],
+        type: 'bool',
+        help: 'Start a web server to inspect traces with some charts.',
+    },
 ];
 
 async function main() {
@@ -121,17 +135,30 @@ async function main() {
         process.exit(0);
     }
 
+    /** @type {Array<'http'|'grpc'|'ui'>} */
+    const services = ['http', 'grpc'];
+    /** @type {Array<string>} */
+    const outputs = opts.o;
+
+    if (opts.ui) {
+        services.push('ui');
+        outputs.push('trace-file');
+    }
+
     const otlpServer = new MockOtlpServer({
         log,
-        services: ['http', 'grpc', 'ui'],
+        services,
         grpcHostname: opts.hostname || DEFAULT_HOSTNAME,
         httpHostname: opts.hostname || DEFAULT_HOSTNAME,
         uiHostname: opts.hostname || DEFAULT_HOSTNAME,
     });
     await otlpServer.start();
 
+    // Avoid duplication of printers
+    const printersSet = new Set(outputs);
     const printers = [];
-    opts.o.forEach((printerName) => {
+
+    printersSet.forEach((printerName) => {
         switch (printerName) {
             case 'trace-inspect':
                 printers.push(new InspectPrinter(log, ['trace']));
@@ -185,6 +212,10 @@ async function main() {
                 break;
             case 'logs-summary':
                 printers.push(new LogsSummaryPrinter(log));
+                break;
+
+            case 'trace-file':
+                printers.push(new FilePrinter(log));
                 break;
         }
     });

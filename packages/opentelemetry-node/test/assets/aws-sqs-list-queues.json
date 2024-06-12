@@ -1,0 +1,11 @@
+{
+    "QueueUrls": [
+        "https://sqs.us-east-1.amazonaws.com/177715257436/etel",
+        "https://sqs.us-east-1.amazonaws.com/177715257436/etel1648169377027",
+        "https://sqs.us-east-1.amazonaws.com/177715257436/etel1648169549830",
+        "https://sqs.us-east-1.amazonaws.com/177715257436/etel1648227401019",
+        "https://sqs.us-east-1.amazonaws.com/177715257436/etel1648248132466",
+        "https://sqs.us-east-1.amazonaws.com/177715257436/etel1649201932174",
+        "https://sqs.us-east-1.amazonaws.com/177715257436/etel2"
+    ]
+}

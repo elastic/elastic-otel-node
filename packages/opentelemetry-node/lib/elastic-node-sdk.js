@@ -23,20 +23,11 @@
 
 const os = require('os');
 
-const {
-    OTLPMetricExporter,
-} = require('@opentelemetry/exporter-metrics-otlp-proto');
-const {OTLPLogExporter} = require('@opentelemetry/exporter-logs-otlp-proto');
 const {metrics, NodeSDK, api} = require('@opentelemetry/sdk-node');
-const {
-    envDetectorSync,
-    hostDetectorSync,
-    processDetectorSync,
-} = require('@opentelemetry/resources');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
 const {log, registerOTelDiagLogger} = require('./logging');
-const {distroDetectorSync} = require('./detector');
+const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
@@ -58,22 +49,33 @@ class ElasticNodeSDK extends NodeSDK {
         //   `spanProcessor` nor `traceExporter` are passed in.
         /** @type {Partial<NodeSDKConfiguration>} */
         const defaultConfig = {
-            resourceDetectors: [
-                // Elastic's own detector to add some metadata
-                distroDetectorSync,
-                envDetectorSync,
-                processDetectorSync,
-                // hostDetectorSync is not currently in the OTel default, but may be added
-                hostDetectorSync,
-            ],
+            resourceDetectors: resolveDetectors(opts.resourceDetectors),
+            // if no instrumentations in `opts` get them based on env
+            instrumentations: opts.instrumentations || getInstrumentations(),
         };
 
-        // Use user's instrumetations or get the default ones
-        defaultConfig.instrumentations =
-            opts.instrumentations || getInstrumentations();
-
-        // Default logs exporter.
-        // TODO: handle other protocols per OTEL_ exporter envvars (or get core NodeSDK to do it). Currently hardcoding to http/proto
+        // Protocols for exporters. Default is `http/proto`
+        const exporterPkgNameFromEnvVar = {
+            grpc: 'grpc',
+            'http/json': 'http',
+            'http/protobuf': 'proto',
+        };
+        // Get logs exporter protocol based on environment.
+        const logsExportProtocol =
+            process.env.OTEL_EXPORTER_OTLP_LOGS_PROTOCOL ||
+            process.env.OTEL_EXPORTER_OTLP_PROTOCOL ||
+            'http/protobuf';
+        let logExporterType = exporterPkgNameFromEnvVar[logsExportProtocol];
+        if (!logExporterType) {
+            log.warn(
+                `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+            );
+            logExporterType = 'proto';
+        }
+        log.trace(`Logs exporter protocol set to ${logsExportProtocol}`);
+        const {OTLPLogExporter} = require(
+            `@opentelemetry/exporter-logs-otlp-${logExporterType}`
+        );
         defaultConfig.logRecordProcessor = new BatchLogRecordProcessor(
             new OTLPLogExporter()
         );
@@ -89,6 +91,26 @@ class ElasticNodeSDK extends NodeSDK {
         const metricsDisabled =
             process.env.ELASTIC_OTEL_METRICS_DISABLED === 'true';
         if (!metricsDisabled) {
+            // Get metrics exporter protocol based on environment.
+
+            const metricsExportProtocol =
+                process.env.OTEL_EXPORTER_OTLP_METRICS_PROTOCOL ||
+                process.env.OTEL_EXPORTER_OTLP_PROTOCOL ||
+                'http/protobuf';
+            let metricExporterType =
+                exporterPkgNameFromEnvVar[metricsExportProtocol];
+            if (!metricExporterType) {
+                log.warn(
+                    `Metrics exporter protocol "${metricsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+                );
+                metricExporterType = 'proto';
+            }
+            log.trace(
+                `Metrics exporter protocol set to ${metricsExportProtocol}`
+            );
+            const {OTLPMetricExporter} = require(
+                `@opentelemetry/exporter-metrics-otlp-${metricExporterType}`
+            );
             // Note: Default values has been taken from the specs
             // https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#periodic-exporting-metricreader
             const metricsInterval =

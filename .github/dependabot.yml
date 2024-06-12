@@ -12,6 +12,10 @@ updates:
       # 'npm run maint:update-otel-deps' instead. See
       # https://github.com/elastic/elastic-otel-node/pull/68 for details.
       - dependency-name: "@opentelemetry/*"
+      # AWS SDK-related deps are handled in the less-frequent dependabot block
+      # below.
+      - dependency-name: "@aws-sdk/*"
+      - dependency-name: "@smithy/*"
     groups:
       eslint:
         dependency-type: "development"
@@ -20,6 +24,21 @@ updates:
       patch-level:
         update-types:
         - "patch"
+
+  # Less frequent updates to some less important but frequently-released deps.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-name: "@aws-sdk/*"
+      - dependency-name: "@smithy/*"
+    groups:
+      aws-sdk:
+        dependency-type: "development"
+        patterns:
+        - "@aws-sdk/*"
+        - "@smithy/*"
 
   # GitHub actions
   - package-ecosystem: "github-actions"

@@ -1,4 +1,8 @@
-# Metrics
+---
+id: otelNodeMetrics
+slug: /otel-nodejs/metrics
+title: Metrics
+---
 
 ## Enabled by default
 
@@ -20,7 +24,7 @@ node -r @elastic/opentelemetry-node/start.js my-app.js
 You can tune how often metrics data is exported to the endpoint and the max time
 to export data you can use the env vars already defined in [the spec](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#periodic-exporting-metricreader).
 
-## Host metrics
+## Host metrics
 
 Elastic OpenTelemetry Node.js Distribution also gathers metrics from the host
 machine with `@opentelemetry/host-metrics` pacakge.

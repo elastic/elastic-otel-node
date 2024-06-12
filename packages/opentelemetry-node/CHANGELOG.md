@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-(nothing yet)
+- feat: Add instrumentation for `@hapi/hapi` (instrumentation-hapi).
 
 ## v0.1.3
 

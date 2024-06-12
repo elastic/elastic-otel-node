@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ListTopicsResponse xmlns="http://sns.amazonaws.com/doc/2010-03-31/">
+    <ListTopicsResult>
+        <Topics>
+            <member>
+                <TopicArn>arn:aws:sns:us-west-2:957491831129:etel</TopicArn>
+            </member>
+            <member>
+                <TopicArn>arn:aws:sns:us-west-2:957491831129:etel1234</TopicArn>
+            </member>
+            <member>
+                <TopicArn>arn:aws:sns:us-west-2:957491831129:estelnode</TopicArn>
+            </member>
+        </Topics>
+    </ListTopicsResult>
+    <ResponseMetadata>
+        <RequestId>54514f94-b07d-5f0b-9c8a-1ff85ff4ac65</RequestId>
+    </ResponseMetadata>
+</ListTopicsResponse>

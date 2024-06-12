@@ -116,6 +116,14 @@ function setupEnvironment() {
         // logger. It is restored below.
         delete process.env.OTEL_LOG_LEVEL;
     }
+    if ('OTEL_NODE_RESOURCE_DETECTORS' in process.env) {
+        envToRestore['OTEL_NODE_RESOURCE_DETECTORS'] =
+            process.env.OTEL_NODE_RESOURCE_DETECTORS;
+        // Make sure NodeSDK doesn't see this envvar and logs some false errors
+        // about detectors. It is restored below.
+        // Ref: https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-sdk-node/src/utils.ts#L35-L41
+        delete process.env.OTEL_NODE_RESOURCE_DETECTORS;
+    }
 }
 
 /**
@@ -127,7 +135,17 @@ function restoreEnvironment() {
     });
 }
 
+/**
+ * Gets the env var value also checking in the vars pending to be restored
+ * @param {string} name
+ * @returns {string | undefined}
+ */
+function getEnvVar(name) {
+    return process.env[name] || envToRestore[name];
+}
+
 module.exports = {
     setupEnvironment,
     restoreEnvironment,
+    getEnvVar,
 };
