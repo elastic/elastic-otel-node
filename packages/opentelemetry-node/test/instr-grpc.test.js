@@ -46,7 +46,7 @@ const testFixtures = [
                 t.equal(span.attributes['rpc.grpc.status_code'], 0);
             }
         },
-    }
+    },
 ];
 
 test('grpc instrumentation', (suite) => {
