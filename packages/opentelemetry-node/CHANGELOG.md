@@ -1,8 +1,17 @@
 # @elastic/opentelemetry-node Changelog
 
-## Unreleased
+## v0.2.0
 
-- feat: Add instrumentation for `@hapi/hapi` (instrumentation-hapi).
+- feat: Add the following `@opentelemetry/instrumentation-*` instrumentations:
+  `hapi`, `aws-sdk`, `redis-4`, `grpc`, `pino`.
+- feat: Add cloud/container resource detectors -- the same set included in
+  `@opentelemetry/auto-instrumentations-node`. These are enabled by default.
+  Use `OTEL_NODE_RESOURCE_DETECTORS` to set an explicit list of detectors.
+  (#214)
+- feat: Add missing exporters for logs and metrics signals. This means that
+  `OTEL_EXPORTER_OTLP_PROTOCOL=grpc` and `OTEL_EXPORTER_OTLP_PROTOCOL=http/json`
+  now work. Before this change only the default `http/proto` OTLP export
+  protocol would work out of the box.
 
 ## v0.1.3
 
