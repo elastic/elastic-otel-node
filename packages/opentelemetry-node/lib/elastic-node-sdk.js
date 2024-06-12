@@ -23,10 +23,6 @@
 
 const os = require('os');
 
-const {
-    OTLPMetricExporter,
-} = require('@opentelemetry/exporter-metrics-otlp-proto');
-const {OTLPLogExporter} = require('@opentelemetry/exporter-logs-otlp-proto');
 const {metrics, NodeSDK, api} = require('@opentelemetry/sdk-node');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
@@ -58,8 +54,28 @@ class ElasticNodeSDK extends NodeSDK {
             instrumentations: opts.instrumentations || getInstrumentations(),
         };
 
-        // Default logs exporter.
-        // TODO: handle other protocols per OTEL_ exporter envvars (or get core NodeSDK to do it). Currently hardcoding to http/proto
+        // Protocols for exporters. Default is `http/proto`
+        const exporterPkgNameFromEnvVar = {
+            grpc: 'grpc',
+            'http/json': 'http',
+            'http/protobuf': 'proto',
+        };
+        // Get logs exporter protocol based on environment.
+        const logsExportProtocol =
+            process.env.OTEL_EXPORTER_OTLP_LOGS_PROTOCOL ||
+            process.env.OTEL_EXPORTER_OTLP_PROTOCOL ||
+            'http/protobuf';
+        let logExporterType = exporterPkgNameFromEnvVar[logsExportProtocol];
+        if (!logExporterType) {
+            log.warn(
+                `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+            );
+            logExporterType = 'proto';
+        }
+        log.trace(`Logs exporter protocol set to ${logsExportProtocol}`);
+        const {OTLPLogExporter} = require(
+            `@opentelemetry/exporter-logs-otlp-${logExporterType}`
+        );
         defaultConfig.logRecordProcessor = new BatchLogRecordProcessor(
             new OTLPLogExporter()
         );
@@ -75,6 +91,26 @@ class ElasticNodeSDK extends NodeSDK {
         const metricsDisabled =
             process.env.ELASTIC_OTEL_METRICS_DISABLED === 'true';
         if (!metricsDisabled) {
+            // Get metrics exporter protocol based on environment.
+
+            const metricsExportProtocol =
+                process.env.OTEL_EXPORTER_OTLP_METRICS_PROTOCOL ||
+                process.env.OTEL_EXPORTER_OTLP_PROTOCOL ||
+                'http/protobuf';
+            let metricExporterType =
+                exporterPkgNameFromEnvVar[metricsExportProtocol];
+            if (!metricExporterType) {
+                log.warn(
+                    `Metrics exporter protocol "${metricsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+                );
+                metricExporterType = 'proto';
+            }
+            log.trace(
+                `Metrics exporter protocol set to ${metricsExportProtocol}`
+            );
+            const {OTLPMetricExporter} = require(
+                `@opentelemetry/exporter-metrics-otlp-${metricExporterType}`
+            );
             // Note: Default values has been taken from the specs
             // https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#periodic-exporting-metricreader
             const metricsInterval =
