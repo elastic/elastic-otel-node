@@ -33,6 +33,7 @@
  *  "@opentelemetry/instrumentation-grpc": import('@opentelemetry/instrumentation-grpc').GrpcInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation-hapi').HapiInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentation | InstrumentationFactory
+ *  "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentation | InstrumentationFactory
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentation | InstrumentationFactory
  *  "@opentelemetry/instrumentation-winston": import('@opentelemetry/instrumentation-winston').WinstonInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentation | InstrumentationFactory,
@@ -63,6 +64,7 @@ const {
 const {
     MongoDBInstrumentation,
 } = require('@opentelemetry/instrumentation-mongodb');
+const {PinoInstrumentation} = require('@opentelemetry/instrumentation-pino');
 const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
 const {
     WinstonInstrumentation,
@@ -102,6 +104,7 @@ const INSTRUMENTATIONS = {
         new IORedisInstrumentation(cfg),
     '@opentelemetry/instrumentation-mongodb': (cfg) =>
         new MongoDBInstrumentation(cfg),
+    '@opentelemetry/instrumentation-pino': (cfg) => new PinoInstrumentation(cfg),
     '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
     '@opentelemetry/instrumentation-winston': (cfg) =>
         new WinstonInstrumentation(cfg),
