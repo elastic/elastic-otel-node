@@ -24,58 +24,58 @@
  * @returns {Instrumentation}
  *
  * @typedef {{
- *  "@opentelemetry/instrumentation-undici": import('@opentelemetry/instrumentation-undici').UndiciInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory,
- *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
- *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-grpc": import('@opentelemetry/instrumentation-grpc').GrpcInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation-hapi').HapiInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentation | InstrumentationFactory
- *  "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentation | InstrumentationFactory
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentation | InstrumentationFactory
- *  "@opentelemetry/instrumentation-winston": import('@opentelemetry/instrumentation-winston').WinstonInstrumentationConfig | InstrumentationFactory,
- *  "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentation | InstrumentationFactory,
- *  "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentation | InstrumentationFactory
  *  "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentation | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-undici": import('@opentelemetry/instrumentation-undici').UndiciInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-winston": import('@opentelemetry/instrumentation-winston').WinstonInstrumentationConfig | InstrumentationFactory,
  * }} InstrumentaionsMap
  *
  */
 
-const {
-    UndiciInstrumentation,
-} = require('@opentelemetry/instrumentation-undici');
+const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
 const {
     BunyanInstrumentation,
 } = require('@opentelemetry/instrumentation-bunyan');
-const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
-const {GrpcInstrumentation} = require('@opentelemetry/instrumentation-grpc');
-const {HapiInstrumentation} = require('@opentelemetry/instrumentation-hapi');
-const {
-    IORedisInstrumentation,
-} = require('@opentelemetry/instrumentation-ioredis');
 const {
     ExpressInstrumentation,
 } = require('@opentelemetry/instrumentation-express');
 const {
     FastifyInstrumentation,
 } = require('@opentelemetry/instrumentation-fastify');
+const {GrpcInstrumentation} = require('@opentelemetry/instrumentation-grpc');
+const {HapiInstrumentation} = require('@opentelemetry/instrumentation-hapi');
+const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
+const {
+    IORedisInstrumentation,
+} = require('@opentelemetry/instrumentation-ioredis');
 const {
     MongoDBInstrumentation,
 } = require('@opentelemetry/instrumentation-mongodb');
-const {PinoInstrumentation} = require('@opentelemetry/instrumentation-pino');
 const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
-const {
-    WinstonInstrumentation,
-} = require('@opentelemetry/instrumentation-winston');
-const {
-    TediousInstrumentation,
-} = require('@opentelemetry/instrumentation-tedious');
-const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
+const {PinoInstrumentation} = require('@opentelemetry/instrumentation-pino');
 const {
     RedisInstrumentation,
 } = require('@opentelemetry/instrumentation-redis-4');
+const {
+    TediousInstrumentation,
+} = require('@opentelemetry/instrumentation-tedious');
+const {
+    UndiciInstrumentation,
+} = require('@opentelemetry/instrumentation-undici');
+const {
+    WinstonInstrumentation,
+} = require('@opentelemetry/instrumentation-winston');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -86,8 +86,8 @@ const {
 // the user's config and can default to something else if needed.
 /** @type {Record<keyof InstrumentaionsMap, (cfg: any) => Instrumentation>} */
 const INSTRUMENTATIONS = {
-    '@opentelemetry/instrumentation-undici': (cfg) =>
-        new UndiciInstrumentation(cfg),
+    '@opentelemetry/instrumentation-aws-sdk': (cfg) =>
+        new AwsInstrumentation(cfg),
     '@opentelemetry/instrumentation-bunyan': (cfg) =>
         new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-express': (cfg) =>
@@ -104,17 +104,17 @@ const INSTRUMENTATIONS = {
         new IORedisInstrumentation(cfg),
     '@opentelemetry/instrumentation-mongodb': (cfg) =>
         new MongoDBInstrumentation(cfg),
+    '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
     '@opentelemetry/instrumentation-pino': (cfg) =>
         new PinoInstrumentation(cfg),
-    '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
-    '@opentelemetry/instrumentation-winston': (cfg) =>
-        new WinstonInstrumentation(cfg),
-    '@opentelemetry/instrumentation-tedious': (cfg) =>
-        new TediousInstrumentation(cfg),
-    '@opentelemetry/instrumentation-aws-sdk': (cfg) =>
-        new AwsInstrumentation(cfg),
     '@opentelemetry/instrumentation-redis-4': (cfg) =>
         new RedisInstrumentation(cfg),
+    '@opentelemetry/instrumentation-tedious': (cfg) =>
+        new TediousInstrumentation(cfg),
+    '@opentelemetry/instrumentation-undici': (cfg) =>
+        new UndiciInstrumentation(cfg),
+    '@opentelemetry/instrumentation-winston': (cfg) =>
+        new WinstonInstrumentation(cfg),
 };
 
 /**
