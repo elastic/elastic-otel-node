@@ -56,6 +56,10 @@ function getAllWorkspaceDirs() {
         .map(path.dirname);
 }
 
+function datestamp() {
+    return new Date().toISOString().split('T')[0].replace(/-/g, '');
+}
+
 /**
  * Update dependencies & devDependencies in npm workspaces defined by
  * "./packages.json#packages". Use `patterns` to limit to a set of matching
@@ -331,7 +335,13 @@ function updateNpmWorkspacesDeps({patterns, allowRangeBumpFor0x, dryRun}) {
             })
             .join('\n    ');
     console.log(
-        `\nSummary of changes (possible commit message):\n--\n${commitMsg}\n--`
+        `\nPossible commands to create a PR for these changes:
+\`\`\`
+git checkout -b ${process.env.USER}/update-otel-deps-${datestamp()}
+git commit -am '${commitMsg}'
+gh pr create --fill -w
+\`\`\`
+`
     );
 }
 
