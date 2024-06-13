@@ -132,7 +132,7 @@ function getNpmInfo(name) {
         );
     }
 
-    const stdout = execSync(`npm info -j "${name}"`);
+    const stdout = execSync(`npm info -j "${name}"`).toString('utf8');
     const npmInfo = JSON.parse(stdout);
 
     cache[name] = {
