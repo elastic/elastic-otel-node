@@ -321,7 +321,7 @@ function updateNpmWorkspacesDeps({patterns, allowRangeBumpFor0x, dryRun}) {
     }
 
     // Summary/commit message.
-    let commitMsg = `chore(deps): update deps${matchStr}\n\n`;
+    let commitMsg = `chore(deps): update deps${matchStr}\n\nSummary of changes:\n\n`;
     commitMsg +=
         '    ' +
         Array.from(summaryStrs)
@@ -338,7 +338,8 @@ function updateNpmWorkspacesDeps({patterns, allowRangeBumpFor0x, dryRun}) {
         `\nPossible commands to create a PR for these changes:
 \`\`\`
 git checkout -b ${process.env.USER}/update-otel-deps-${datestamp()}
-git commit -am '${commitMsg}'
+git commit -am '${commitMsg}
+'
 gh pr create --fill -w
 \`\`\`
 `
