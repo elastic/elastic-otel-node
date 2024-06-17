@@ -20,7 +20,11 @@
 // Test that 'express' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {filterOutDnsNetSpans, runTestFixtures, findObjInArray} = require('./testutils');
+const {
+    filterOutDnsNetSpans,
+    runTestFixtures,
+    findObjInArray,
+} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
