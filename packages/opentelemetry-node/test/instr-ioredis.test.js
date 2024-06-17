@@ -85,7 +85,7 @@ const testFixtures = [
 
 function assertUseIoredisMjsSpans(t, col) {
     // Assert that we got the two redis spans expected from 'use-ioredis.mjs'.
-    const spans = col.sortedSpans;
+    const spans = filterOutDnsNetSpans(col.sortedSpans);
     t.equal(spans[1].name, 'set');
     t.equal(spans[1].attributes['db.system'], 'redis');
     t.equal(spans[2].name, 'get');
