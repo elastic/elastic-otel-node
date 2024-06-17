@@ -19,7 +19,7 @@
 
 const test = require('tape');
 const semver = require('semver');
-const {runTestFixtures} = require('./testutils');
+const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 const tediousVer = require('tedious/package.json').version;
 let skip = process.env.MSSQL_HOST === undefined;
@@ -59,15 +59,7 @@ const testFixtures = [
             // ------ trace d1755e (2 spans) ------
             //           span 6bb8d8 "manual-parent-span" (54.3ms, SPAN_KIND_INTERNAL)
             //  +51ms `- span fb837e "execSql master" (3.0ms, SPAN_KIND_CLIENT)
-            let spans = col.sortedSpans;
-            // Filter out instr-dns and instr-net spans for testing.
-            spans = spans.filter(
-                (s) =>
-                    ![
-                        '@opentelemetry/instrumentation-net',
-                        '@opentelemetry/instrumentation-dns',
-                    ].includes(s.scope.name)
-            );
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans.length, 2);
 
             const s = spans.pop();

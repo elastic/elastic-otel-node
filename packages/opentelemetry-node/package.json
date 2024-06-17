@@ -49,7 +49,7 @@
     "lint:changelog": "../../scripts/extract-release-notes.sh .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
-    "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d",
+    "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d --wait",
     "test-services:stop": "docker compose -f ./test/docker-compose.yaml down",
     "gen:types": "rm -rf types && tsc"
   },

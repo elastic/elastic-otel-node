@@ -37,6 +37,22 @@ const {
 const luggite = require('../lib/luggite');
 
 /**
+ * Filter out instr-dns and instr-net spans for testing.
+ * Eventually it would be preferable to have each test run with instr-dns
+ * and instr-net turned off, if that is what they want to test.
+ */
+function filterOutDnsNetSpans(spans) {
+    // Filter out instr-dns and instr-net spans for testing.
+    return spans.filter(
+        (s) =>
+            ![
+                '@opentelemetry/instrumentation-net',
+                '@opentelemetry/instrumentation-dns',
+            ].includes(s.scope.name)
+    );
+}
+
+/**
  * Lookup the property "str" (given in dot-notation) in the object "obj".
  * If the property isn't found, then `undefined` is returned.
  *
@@ -629,6 +645,7 @@ function runTestFixtures(suite, testFixtures) {
 }
 
 module.exports = {
+    filterOutDnsNetSpans,
     dottedLookup,
     findObjInArray,
     findObjsInArray,

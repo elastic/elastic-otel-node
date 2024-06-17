@@ -18,7 +18,7 @@
  */
 
 const test = require('tape');
-const {runTestFixtures} = require('./testutils');
+const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 const skip = process.env.REDIS_HOST === undefined;
 if (skip) {
@@ -46,7 +46,7 @@ const testFixtures = [
             // +2ms `- span 8aa27e "redis-GET" (0.7ms, SPAN_KIND_CLIENT)
             // +1ms `- span e9d2b9 "redis-HSET" (0.9ms, SPAN_KIND_CLIENT)
             // +0ms `- span 0a31fa "redis-GET" (0.8ms, STATUS_CODE_ERROR, SPAN_KIND_CLIENT)
-            const spans = col.sortedSpans;
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans.length, 6);
             spans.slice(1).forEach((s) => {
                 t.equal(s.traceId, spans[0].traceId, 'traceId');
@@ -77,7 +77,7 @@ const testFixtures = [
         verbose: true,
         checkTelemetry: (t, col) => {
             // Assert that we got the three redis spans expected from 'use-redis.mjs'.
-            const spans = col.sortedSpans;
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans[1].name, 'redis-connect');
             t.equal(spans[1].attributes['db.system'], 'redis');
             t.equal(spans[2].name, 'redis-SET');
