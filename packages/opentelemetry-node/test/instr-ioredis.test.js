@@ -18,7 +18,7 @@
  */
 
 const test = require('tape');
-const {runTestFixtures} = require('./testutils');
+const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 const skip = process.env.REDIS_HOST === undefined;
 if (skip) {
@@ -46,7 +46,7 @@ const testFixtures = [
             //      +12ms `- span 525234 "hset" (0.8ms, SPAN_KIND_CLIENT)
             //       +1ms `- span 4711cd "get" (1.1ms, STATUS_CODE_ERROR, SPAN_KIND_CLIENT)
             //       +1ms `- span e00e0f "quit" (0.6ms, SPAN_KIND_CLIENT)
-            const spans = col.sortedSpans;
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans.length, 6);
             spans.slice(1).forEach((s) => {
                 t.equal(s.traceId, spans[0].traceId, 'traceId');
@@ -85,7 +85,7 @@ const testFixtures = [
 
 function assertUseIoredisMjsSpans(t, col) {
     // Assert that we got the two redis spans expected from 'use-ioredis.mjs'.
-    const spans = col.sortedSpans;
+    const spans = filterOutDnsNetSpans(col.sortedSpans);
     t.equal(spans[1].name, 'set');
     t.equal(spans[1].attributes['db.system'], 'redis');
     t.equal(spans[2].name, 'get');

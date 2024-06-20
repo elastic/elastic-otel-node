@@ -1,5 +1,26 @@
 # @elastic/opentelemetry-node Changelog
 
+## Unreleased
+
+- feat: Add the following instrumentations:
+    ```
+    @opentelemetry/instrumentation-connect
+    @opentelemetry/instrumentation-cucumber
+    @opentelemetry/instrumentation-dataloader
+    @opentelemetry/instrumentation-dns
+    @opentelemetry/instrumentation-generic-pool
+    @opentelemetry/instrumentation-knex
+    @opentelemetry/instrumentation-koa
+    @opentelemetry/instrumentation-lru-memoizer
+    @opentelemetry/instrumentation-memcached
+    @opentelemetry/instrumentation-nestjs-core
+    @opentelemetry/instrumentation-net
+    @opentelemetry/instrumentation-restify
+    @opentelemetry/instrumentation-router
+    @opentelemetry/instrumentation-socket.io
+    ```
+
+
 ## v0.2.0
 
 - feat: Add the following `@opentelemetry/instrumentation-*` instrumentations:

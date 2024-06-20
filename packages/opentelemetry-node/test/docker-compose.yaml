@@ -26,7 +26,7 @@ services:
     ports:
       - "27017:27017"
     healthcheck:
-      test: ["CMD", "mongo", "--quiet"]
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok", "--quiet"]
       interval: 1s
       timeout: 10s
       retries: 30
