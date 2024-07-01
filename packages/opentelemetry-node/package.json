@@ -113,10 +113,10 @@
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.602.0",
-    "@aws-sdk/client-s3": "^3.600.0",
-    "@aws-sdk/client-sns": "^3.600.0",
-    "@aws-sdk/client-sqs": "^3.600.0",
+    "@aws-sdk/client-dynamodb": "^3.606.0",
+    "@aws-sdk/client-s3": "^3.606.0",
+    "@aws-sdk/client-sns": "^3.606.0",
+    "@aws-sdk/client-sqs": "^3.606.0",
     "@elastic/mockotlpserver": "*",
     "@grpc/grpc-js": "^1.10.9",
     "@grpc/proto-loader": "^0.7.13",
