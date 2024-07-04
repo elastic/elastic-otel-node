@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "scripts": {},
   "devDependencies": {
+    "@elastic/elasticsearch": "^8.14.0",
     "@elastic/opentelemetry-node": "*",
     "bunyan": "^1.8.15",
     "express": "^4.19.2"
