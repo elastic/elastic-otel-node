@@ -39,6 +39,10 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
+        versionRanges: {
+            // Min-supported node by @elastic/elasticsearch@8.15.0.
+            node: '>=18',
+        },
         // verbose: true,
         checkTelemetry: (t, col) => {
             // Expected a trace like this:
