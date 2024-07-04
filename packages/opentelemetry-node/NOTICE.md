@@ -1,4 +1,4 @@
-Elastic OpenTelemetry Node.js Distribution
+Elastic Distribution for OpenTelemetry Node.js
 Copyright 2023-2024 Elasticsearch B.V.
 
 This project is licensed under the Apache License, Version 2.0 - https://www.apache.org/licenses/LICENSE-2.0

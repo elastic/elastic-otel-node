@@ -3,7 +3,7 @@
   "id": "elastic-otel-node",
   "landingPageId": "otelNodeLanding",
   "icon": "faceHappy",
-  "description": "Elastic OpenTelemetry Distribution for Node.js",
+  "description": "Elastic Distribution for OpenTelemetry Node.js",
   "items": [
     {
       "label": "Get started",
