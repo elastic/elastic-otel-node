@@ -55,7 +55,6 @@ const testFixtures = [
             // });
         },
     },
-
 ];
 
 test('elasticsearch instrumentation', {skip}, (suite) => {
