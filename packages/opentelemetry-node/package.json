@@ -117,6 +117,7 @@
     "@aws-sdk/client-s3": "^3.606.0",
     "@aws-sdk/client-sns": "^3.606.0",
     "@aws-sdk/client-sqs": "^3.606.0",
+    "@elastic/elasticsearch": "^8.14.0",
     "@elastic/mockotlpserver": "*",
     "@grpc/grpc-js": "^1.10.10",
     "@grpc/proto-loader": "^0.7.13",
