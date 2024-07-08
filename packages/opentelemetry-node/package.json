@@ -2,7 +2,7 @@
   "name": "@elastic/opentelemetry-node",
   "version": "0.2.0",
   "type": "commonjs",
-  "description": "Elastic OpenTelemetry distribution for Node.js",
+  "description": "Elastic Distribution for OpenTelemetry Node.js",
   "publishConfig": {
     "access": "public",
     "provenance": true
