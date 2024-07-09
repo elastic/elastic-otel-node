@@ -46,6 +46,7 @@
  *  "@opentelemetry/instrumentation-net": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentationConfig | InstrumentationFactory
  *  "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentationConfig | InstrumentationFactory
+ *  "@opentelemetry/instrumentation-redis": import('@opentelemetry/instrumentation-redis').RedisInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-restify": import('@opentelemetry/instrumentation-restify').RestifyInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-router": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
@@ -79,7 +80,8 @@ const {NestInstrumentation} = require('@opentelemetry/instrumentation-nestjs-cor
 const {NetInstrumentation} = require('@opentelemetry/instrumentation-net');
 const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
 const {PinoInstrumentation} = require('@opentelemetry/instrumentation-pino');
-const {RedisInstrumentation} = require('@opentelemetry/instrumentation-redis-4');
+const {RedisInstrumentation} = require('@opentelemetry/instrumentation-redis');
+const {RedisInstrumentation: RedisFourInstrumentation} = require('@opentelemetry/instrumentation-redis-4');
 const {RestifyInstrumentation} = require('@opentelemetry/instrumentation-restify');
 const {RouterInstrumentation} = require('@opentelemetry/instrumentation-router');
 const {SocketIoInstrumentation} = require('@opentelemetry/instrumentation-socket.io');
@@ -118,7 +120,8 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-net': (cfg) => new NetInstrumentation(cfg),
     '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
     '@opentelemetry/instrumentation-pino': (cfg) => new PinoInstrumentation(cfg),
-    '@opentelemetry/instrumentation-redis-4': (cfg) => new RedisInstrumentation(cfg),
+    '@opentelemetry/instrumentation-redis': (cfg) => new RedisInstrumentation(cfg),
+    '@opentelemetry/instrumentation-redis-4': (cfg) => new RedisFourInstrumentation(cfg),
     '@opentelemetry/instrumentation-restify': (cfg) => new RestifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-router': (cfg) => new RouterInstrumentation(cfg),
     '@opentelemetry/instrumentation-socket.io': (cfg) => new SocketIoInstrumentation(cfg),
