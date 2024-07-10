@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mockotlpserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: mockotlpserver
+  template:
+    metadata:
+      labels:
+        app: mockotlpserver
+    spec:
+      containers:
+      - name: mockotlpserver
+        image: localhost:5001/mockotlpserver
+        ports:
+        - containerPort: 4317
+        - containerPort: 4318
