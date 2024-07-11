@@ -1,0 +1,37 @@
+# A Kubernetes deployment config for this app.
+# Usage:
+#     docker build -t example-app-manual .
+#     docker tag example-app-manual localhost:5001/example-app-manual
+#     docker push localhost:5001/example-app-manual
+#     kubectl apply -f ./deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: example-app-manual
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-app-manual
+  template:
+    metadata:
+      labels:
+        app: example-app-manual
+    spec:
+      containers:
+      - name: example-app-manual
+        image: localhost:5001/example-app-manual
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_OPTIONS
+          value: "--require=@elastic/opentelemetry-node"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://mockotlpserver:4318"
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 3000
+          initialDelaySeconds: 1
+          periodSeconds: 10
