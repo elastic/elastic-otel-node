@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mockotlpserver
+spec:
+  selector:
+    app: mockotlpserver
+  ports:
+  - name: otlp-grpc
+    protocol: TCP
+    port: 4317
+    targetPort: 4317
+  - name: otlp-http
+    protocol: TCP
+    port: 4318
+    targetPort: 4318
