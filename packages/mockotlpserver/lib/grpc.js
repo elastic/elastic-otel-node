@@ -25,8 +25,8 @@ const loader = require('@grpc/proto-loader');
 const {
     diagchGet,
     CH_OTLP_V1_TRACE,
-    // CH_OTLP_V1_METRICS,
-    // CH_OTLP_V1_LOGS,
+    CH_OTLP_V1_METRICS,
+    CH_OTLP_V1_LOGS,
 } = require('./diagch');
 const {Service} = require('./service');
 
@@ -67,17 +67,32 @@ function intakeTraces(call, callback) {
             rejected_spans: 0,
         },
     });
-    // We publish into diagnostics channel after returning a response to the client to avoid not returning
-    // a response if one of the handlers throws (the hanlders run synchronously in the
-    // same context).
-    // https://nodejs.org/api/diagnostics_channel.html#channelpublishmessage
-    // TODO: maybe surround with try/catch to not blow up the server?
+    // Publish *after* `callback(...response...)` to avoid delay and possible
+    // crash in the message handlers.
     diagchGet(CH_OTLP_V1_TRACE).publish(call.request);
 }
 
-// function intakeMetrics(call, callback) {
-//   // TODO: check proto
-// }
+function intakeMetrics(call, callback) {
+    callback(null, {
+        partial_success: {
+            rejected_spans: 0,
+        },
+    });
+    // Publish *after* `callback(...response...)` to avoid delay and possible
+    // crash in the message handlers.
+    diagchGet(CH_OTLP_V1_METRICS).publish(call.request);
+}
+
+function intakeLogs(call, callback) {
+    callback(null, {
+        partial_success: {
+            rejected_spans: 0,
+        },
+    });
+    // Publish *after* `callback(...response...)` to avoid delay and possible
+    // crash in the message handlers.
+    diagchGet(CH_OTLP_V1_LOGS).publish(call.request);
+}
 
 // function intakeLogs(call, callback) {
 //   // TODO: check proto
@@ -102,6 +117,12 @@ class GrpcService extends Service {
         this._grpcServer = new grpc.Server();
         this._grpcServer.addService(packages.trace.TraceService.service, {
             Export: intakeTraces,
+        });
+        this._grpcServer.addService(packages.metrics.MetricsService.service, {
+            Export: intakeMetrics,
+        });
+        this._grpcServer.addService(packages.logs.LogsService.service, {
+            Export: intakeLogs,
         });
 
         return new Promise((resolve, reject) => {
