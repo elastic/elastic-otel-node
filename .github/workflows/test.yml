@@ -78,10 +78,9 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
-    #XXX
-    # - name: Update npm to a version that supports workspaces (v7 or later)
-    #   if: ${{ matrix.node < 16 }}
-    #   run: npm install -g npm@9 # npm@9 supports node >=14.17.0
+    - name: Update npm to a version that supports package-lock lockfileVersion=2.
+      if: ${{ startsWith(matrix.node, '14') }}
+      run: npm install -g npm@9 # npm@9 supports node >=14.17.0
     - run: npm run ci-all
     - run: npm test
 
