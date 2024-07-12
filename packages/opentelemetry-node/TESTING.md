@@ -21,7 +21,7 @@ instrumentation).
 
 Ideally tests pass all the time. However, periodically there will be flaky
 tests -- i.e. tests that fail occasionally and are being investigated. Those
-tests are [labeled with "flakey-test"](https://github.com/elastic/elastic-otel-node/labels/flaky-test).
+tests are [labeled with "flaky-test"](https://github.com/elastic/elastic-otel-node/labels/flaky-test).
 
 Ideally this list is zero most of the time. However, collecting data on flaky
 tests to come up with a correct fix is often better than just skipping and

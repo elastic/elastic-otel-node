@@ -1,6 +1,6 @@
-# Elastic OpenTelemetry Distribution for Node.js
+# Elastic Distribution for OpenTelemetry Node.js
 
-This is the Elastic OpenTelemetry Distribution for Node.js (the "Distro").
+This is the Elastic Distribution for OpenTelemetry Node.js (the "Distro").
 It is a light wrapper around the OpenTelemetry Node SDK that makes it easier to
 get started using OpenTelemetry in your Node.js applications, especially if you
 are using [Elastic Observability](https://www.elastic.co/observability) as your

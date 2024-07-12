@@ -1,6 +1,6 @@
 {
   "name": "@elastic/mockotlpserver",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "commonjs",
   "description": "Elastic OLTP mock server for Node.js",
   "private": true,
@@ -41,7 +41,7 @@
     "mockotlpserver": "lib/cli.js"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.10.8",
+    "@grpc/grpc-js": "^1.10.10",
     "@grpc/proto-loader": "^0.7.12",
     "@opentelemetry/core": "^1.21.0",
     "dashdash": "^2.0.0",

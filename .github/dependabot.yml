@@ -16,11 +16,16 @@ updates:
       # below.
       - dependency-name: "@aws-sdk/*"
       - dependency-name: "@smithy/*"
+      # eslint-related deps are skipped until we have upgraded to eslint@9
+      # https://github.com/elastic/elastic-otel-node/pull/155
+      - dependency-name: "eslint*"
+      - dependency-name: "@eslint/*"
     groups:
-      eslint:
-        dependency-type: "development"
-        patterns:
-        - "eslint*"
+      # eslint:
+      #   dependency-type: "development"
+      #   patterns:
+      #   - "eslint*"
+      #   - "@eslint/*"
       patch-level:
         update-types:
         - "patch"

@@ -1,7 +1,9 @@
 # @elastic/mockotlpserver Changelog
 
-## untagged
+## v0.3.0
 
+- Update gRPC server to accept metrics (MetricsService) and logs (LogsService).
+  (https://github.com/elastic/elastic-otel-node/pull/277)
 - Added a start at better metrics support:
     - The `jsonN` output modes will some a somewhat normalized JSON
       representation (similar to what is done to normalize trace request data).

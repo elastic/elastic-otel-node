@@ -381,6 +381,15 @@ function jsonStringifyLogs(logs, opts) {
                     rv = Buffer.from(v.data).toString('hex');
                 }
                 break;
+            case 'timeUnixNano':
+            case 'observedTimeUnixNano':
+                // OTLP/gRPC time fields are `Long` (https://github.com/dcodeIO/Long.js),
+                // converted to a plain object. Convert them to a string to
+                // match the other flavour.
+                if (typeof v === 'object' && 'low' in v) {
+                    rv = new Long(v.low, v.high, v.unsigned).toString();
+                }
+                break;
         }
         return rv;
     };
