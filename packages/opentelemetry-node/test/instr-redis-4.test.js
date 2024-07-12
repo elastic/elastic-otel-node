@@ -67,7 +67,7 @@ const testFixtures = [
     {
         name: 'use-redis.mjs (ESM via --require)',
         versionRanges: {
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
+            node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
         },
         args: ['./fixtures/use-redis.mjs'],
         cwd: __dirname,
