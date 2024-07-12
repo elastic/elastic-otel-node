@@ -44,7 +44,7 @@ npm run lint:fix
 tl;dr:
 
 ```shell
-npm ci
+npm run ci-all   # run 'npm ci' in all package dirs
 cd packages/opentelemetry-node
 npm run test-services:start  # requires Docker
 npm test

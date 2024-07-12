@@ -14,7 +14,7 @@ provides a CLI tool for this.
 ```sh
 git clone https://github.com/elastic/elastic-otel-node.git
 cd elastic-otel-node/
-npm ci
+npm run ci-all
 cd packages/mockotlpserver
 npm start -- --help  # mockotlpserver CLI options
 npm start
