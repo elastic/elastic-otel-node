@@ -78,9 +78,10 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
-    - name: Update npm to a version that supports workspaces (v7 or later)
-      if: ${{ matrix.node < 16 }}
-      run: npm install -g npm@9 # npm@9 supports node >=14.17.0
+    #XXX
+    # - name: Update npm to a version that supports workspaces (v7 or later)
+    #   if: ${{ matrix.node < 16 }}
+    #   run: npm install -g npm@9 # npm@9 supports node >=14.17.0
     - run: npm run ci-all
     - run: npm test
 
