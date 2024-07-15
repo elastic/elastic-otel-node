@@ -12,7 +12,8 @@
     "lint:eslint": "eslint --ext=js,mjs,cjs scripts # requires node >=16.0.0",
     "lint:fix": "eslint --ext=js,mjs,cjs .eslintrc.js scripts examples --fix && npm run --if-present --workspaces lint:fix",
     "test": "npm run --if-present --workspaces test",
-    "maint:update-otel-deps": "node scripts/update-otel-deps.js"
+    "maint:update-otel-deps": "node scripts/update-otel-deps.js",
+    "maint:update-protos": "node scripts/update-protos.js"
   },
   "dependencies": {
     "@elastic/opentelemetry-node": "file:./packages/opentelemetry-node"
