@@ -1396,6 +1396,9 @@ export namespace opentelemetry {
                     /** Span parentSpanId */
                     parentSpanId?: (Uint8Array|null);
 
+                    /** Span flags */
+                    flags?: (number|null);
+
                     /** Span name */
                     name?: (string|null);
 
@@ -1450,6 +1453,9 @@ export namespace opentelemetry {
 
                     /** Span parentSpanId. */
                     public parentSpanId?: (Uint8Array|null);
+
+                    /** Span flags. */
+                    public flags?: (number|null);
 
                     /** Span name. */
                     public name?: (string|null);
@@ -1706,6 +1712,9 @@ export namespace opentelemetry {
 
                         /** Link droppedAttributesCount */
                         droppedAttributesCount?: (number|null);
+
+                        /** Link flags */
+                        flags?: (number|null);
                     }
 
                     /** Represents a Link. */
@@ -1731,6 +1740,9 @@ export namespace opentelemetry {
 
                         /** Link droppedAttributesCount. */
                         public droppedAttributesCount?: (number|null);
+
+                        /** Link flags. */
+                        public flags?: (number|null);
 
                         /**
                          * Creates a new Link instance using the specified properties.
@@ -1922,6 +1934,14 @@ export namespace opentelemetry {
                         STATUS_CODE_OK = 1,
                         STATUS_CODE_ERROR = 2
                     }
+                }
+
+                /** SpanFlags enum. */
+                enum SpanFlags {
+                    SPAN_FLAGS_DO_NOT_USE = 0,
+                    SPAN_FLAGS_TRACE_FLAGS_MASK = 255,
+                    SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK = 256,
+                    SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK = 512
                 }
             }
         }
@@ -2940,6 +2960,9 @@ export namespace opentelemetry {
 
                     /** Metric summary */
                     summary?: (opentelemetry.proto.metrics.v1.ISummary|null);
+
+                    /** Metric metadata */
+                    metadata?: (opentelemetry.proto.common.v1.IKeyValue[]|null);
                 }
 
                 /** Represents a Metric. */
@@ -2974,6 +2997,9 @@ export namespace opentelemetry {
 
                     /** Metric summary. */
                     public summary?: (opentelemetry.proto.metrics.v1.ISummary|null);
+
+                    /** Metric metadata. */
+                    public metadata: opentelemetry.proto.common.v1.IKeyValue[];
 
                     /** Metric data. */
                     public data?: ("gauge"|"sum"|"histogram"|"exponentialHistogram"|"summary");
