@@ -1,3 +1,11 @@
+////
+Goal of this doc:
+Provide all the information a user needs to determine if the product is a good enough fit for their use case to merit further exploration
+
+Assumptions we're comfortable making about the reader:
+- Already knows what both Elastic and OpenTelemetry are
+////
+
 [[intro]]
 == Elastic Distribution for OpenTelemetry Node.js
 
@@ -5,24 +13,39 @@
 <titleabbrev>Introduction</titleabbrev>
 ++++
 
-[WARNING]
-.Alpha release
-====
-This project is not yet recommended for production use.
-Functionality may be changed or removed in future releases.
-Alpha releases are not subject to the support SLA of official GA features.
+:language: Node.js
+:distro_name: Elastic Distribution for OpenTelemetry {language}
 
-We welcome your feedback! You can reach us by https://github.com/elastic/elastic-otel-node/issues[opening an issue] or starting a discussion thread on the https://discuss.elastic.co/tags/c/observability/apm/58/nodejs[Elastic Discuss forum].
-====
+include::release-status.asciidoc[]
 
-The Elastic Distribution for OpenTelemetry Node.js (the "Distro") is a Node.js
-package that provides:
+////
+Intro
+////
+The {distro_name} ("the distro") is a {language} package that provides:
 
-* an easy way to instrument your application with OpenTelemetry, and
-* configuration defaults for best usage.
+* An easy way to instrument your application with OpenTelemetry.
+* Configuration defaults for best usage.
 
-Use the Distro to start the OpenTelemetry SDK with your Node.js application to automatically
-capture tracing data, performance metrics, and logs. Traces, metrics, and logs are sent
-to any OTLP collector you choose. Use an https://www.elastic.co/observability[Elastic Observability]
-deployment -- hosted in Elastic's cloud or on-premises -- to monitor your applications, create alerts,
-and quickly identify root causes of service issues.
+////
+What is it?
+Why use it?
+////
+A _distribution_ is a wrapper around an upstream OpenTelemetry repository with some customizations. The {distro_name} is a wrapper around the https://opentelemetry.io/docs/languages/js[OpenTelemetry SDK for {language}] and includes the following customizations:
+
+* Uses Elastic-specific processors that ensure optimal compatibility when exporting OpenTelemetry signal data to an Elastic backend like Elastic APM server.
+* Preconfigures the collection of tracing and metrics signals, applying some opinionated defaults, such as which sources are collected by default.
+* Ensures that the OpenTelemetry protocol (OTLP) exporter is enabled by default.
+
+NOTE: For more details about OpenTelemetry distributions in general, visit the https://opentelemetry.io/docs/concepts/distributions[OpenTelemetry documentation].
+
+////
+How to use it?
+////
+Use the distro to start the OpenTelemetry SDK with your {language} application to automatically capture tracing data, performance metrics, and logs. Traces, metrics, and logs are sent to any OTLP collector you choose.
+
+Start with helpful defaults to begin collecting and exporting OpenTelemetry signals quickly. Then, further refine how you use the distro using extension methods that allow you to fully control the creation of the underlying tracer and metric providers.
+
+After you start sending data to Elastic, use an {observability-guide}/index.html[Elastic Observability] deployment -- hosted on Elastic Cloud or on-premises -- to monitor your applications, create alerts, and quickly identify root causes of service issues.
+
+:!language:
+:!distro_name:

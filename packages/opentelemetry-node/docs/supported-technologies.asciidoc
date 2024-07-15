@@ -1,23 +1,40 @@
+////
+Goal of this doc:
+???
+
+Assumptions we're comfortable making about the reader:
+- ???
+- ???
+- ???
+////
+
 [[supported-technologies]]
-== Supported Technologies
+== Supported technologies
+
+:language: Node.js
+:distro_name: Elastic Distribution for OpenTelemetry {language}
+
+include::release-status.asciidoc[]
 
 [discrete]
 [[supported-technologies-elastic-stack-versions]]
-=== Elastic stack versions
+=== Elastic Stack versions
 
-The Elastic Distribution for OpenTelemetry Node.js (the "Distro") sends data
+The Elastic Distribution for OpenTelemetry Node.js ("the distro") sends data
 via OpenTelemetry protocol (OTLP). Since version 7.14, Elastic Observability
 https://www.elastic.co/blog/native-opentelemetry-support-in-elastic-observability[supports OTLP natively].
 
 Note that OpenTelemetry support is being improved in the 8.x versions of the
-Elastic stack, so it is strongly recommended to be using a recent 8.x version.
+Elastic Stack, so it is strongly recommended to be using a recent 8.x version.
 
 [discrete]
 [[supported-technologies-nodejs-versions]]
 === Node.js versions
 
+// tag::node-version[]
 The Elastic Distribution for OpenTelemety Node.js supports Node.js v14 and later.
 This follows from the https://github.com/open-telemetry/opentelemetry-js#supported-runtimes[OpenTelemetry JS supported runtimes].
+// end::node-version[]
 
 [discrete]
 [[supported-technologies-instrumentations]]

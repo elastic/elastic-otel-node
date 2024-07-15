@@ -1,103 +1,120 @@
+////
+Goal of this doc:
+The user is able to successfully see data from their Node application make it to the Elastic UI via the Elastic Distribution for OpenTelemetry Node.js
+
+Assumptions we're comfortable making about the reader:
+- They know what both Elastic and OpenTelemetry are
+- They have Node and NPM installed
+////
+
 [[get-started]]
 == Get started
 
-This getting started guide will show how to use the Elastic Distribution for OpenTelemetry Node.js (the "Distro") to instrument your Node.js application and send OpenTelemetry data to an Elastic Observability deployment. Note, however, that as an OpenTelemetry SDK, it supports sending data to any OTLP endpoint, e.g. an https://opentelemetry.io/docs/collector/[OpenTelemetry Collector].
+:language: Node.js
+:distro_name: Elastic Distribution for OpenTelemetry {language}
 
+include::release-status.asciidoc[]
+
+This guide shows you how to use the Elastic Distribution for OpenTelemetry {language} ("the distro") to instrument your {language} application and send OpenTelemetry data to an Elastic Observability deployment.
+
+[NOTE]
+====
+As an OpenTelemetry SDK, the distro supports sending data to any OpenTelemetry protocol (OTLP) endpoint (for example, an https://opentelemetry.io/docs/collector/[OpenTelemetry Collector]).
+====
+
+////
+What does a user need to know and/or do before they install the distro?
+////
+[discrete]
+[[get-started-prereq]]
+=== Prerequisites
+
+Before getting started:
+
+// Familiarity with OpenTelemetry
+* *Familiarize yourself with the OpenTelemetry SDK.* The distro is a lightweight wrapper around the OpenTelemetry SDK. You should be broadly familiar with the OpenTelemetry SDK concepts and instrumenting applications using the Microsoft diagnostic APIs. If you are not familiar with this, start with the https://opentelemetry.io/docs/languages/net[OpenTelemetry SDK documentation].
++
+// Any dependencies (including supported versions)
+* *Check your Node.js version*.
+include::supported-technologies.asciidoc[tag=node-version]
++
+* *Set up Elastic Observability*. You'll need somewhere to send the gathered OpenTelemetry data, so it can be viewed and analyzed. While the `@elastic/opentelemetry-node` package supports sending to any OTLP endpoint, this doc assumes you're using Elastic Observability. You can use an existing Elastic deployment that uses version 7.14 or higher or set up a new one.
++
+[%collapsible]
+.*Expand for setup instructions*
+====
+This section shows how to create an https://www.elastic.co/observability[Elastic Observability] cloud deployment and get the data you need to configure the distro to send data to it.
+
+. Register at https://cloud.elastic.co/registration[cloud.elastic.co], if you haven't already. This supports starting **free trial**.
+. After registering, click "Create deployment" at `<https://cloud.elastic.co/home>`.  Once that is created, click "Open" to visit your Kibana home page, e.g. `https://{DEPLOYMENT_NAME}.kb.{REGION}.cloud.es.io/app/home#/getting_started`.
+====
+
+////
+Other prereqs?
+////
+
+////
+How does a user install the distro?
+////
 [discrete]
 [[get-started-install]]
-=== Installation
+=== Install
+
+////
+Step-by-step instructions
+////
+Install the `@elastic/opentelemetry-node` package:
 
 [source,sh]
 ----
 npm install --save @elastic/opentelemetry-node
 ----
 
-The Distro is a single package that includes all the OpenTelemetry JS packages
+The distro is a single package that includes all the OpenTelemetry JS packages
 that are needed for most cases.
 
 // TODO: refer to advanced section of "start the SDK" when we have that doc.
 
+////
+Any additional info related to installation
+Is this relevant to the Node distro?
+////
+[NOTE]
+.The Elastic distro and the OpenTelemetry SDK
+====
+The distro includes a transitive dependency on the OpenTelemetry SDK, so you do not _need_ to add the OpenTelemetry SDK package to your project directly. However, you _can_ explicitly add the OpenTelemetry SDK as a dependency if you want to opt into newer SDK versions. If you do this, the OpenTelemetry SDK dependency must
+be defined _before_ the {distro_name} is defined.
+====
+
+////
+Are there any configuration options that are _required_?
+What does the _minimal_ configuration / set up look like?
+What should they expect to see after setting up and running the distro?
+How do they know it worked as expected?
+////
 [discrete]
-[[get-started-configuration]]
-=== Configuration
+[[get-started-send-data-to-Elastic]]
+=== Send data to Elastic
 
-The Distro is a wrapper around the https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node[OpenTelemetry Node.js SDK]
-and other OpenTelemetry JS packages. It is typically configured with `OTEL_*`
-environment variables defined by the OpenTelemetry spec. The most common
-configuration settings are `OTEL_EXPORTER_OTLP_*` to set the endpoint for
-sending data and `OTEL_SERVICE_NAME` to identify your service.
-
-The Distro will send telemetry data via OpenTelemetry's protocol (OTLP) to the
-configured endpoint (by default it sends to < http://localhost:4317 >). The
-endpoint can be changed by setting the following environment vars:
-
-* `OTEL_EXPORTER_OTLP_ENDPOINT`: full URL of the endpoint where to send the data
-* `OTEL_EXPORTER_OTLP_HEADERS`: Comma-separated list of `key=value` pairs which
-will be added to the headers of every request. Typically this is used for
-authentication information.
-
-For example, to send telemetry data to your Elastic Observability deployment you
-might start the application like this:
-
-[source,sh]
-----
-export OTEL_EXPORTER_OTLP_ENDPOINT=https://{your-otlp-endpoint.example.com}
-export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer {your-Elastic-secret-token}"
-export OTEL_SERVICE_NAME=my-service
-----
-
-If you don't have an Elastic Observability deployment or don't have the
-endpoint and auth data for your deployment, see the <<get-started-elastic-observability-setup>>
-section below.
-
-See the https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/[OpenTelemetry Environment Variable spec] for other available configuration settings.
+After installing the distro, configure and initialize it to start
+sending data to Elastic.
 
 [discrete]
-[[get-started-initialization]]
-=== Initialization
+[[get-started-configure]]
+==== Configure the distro
 
-For the Distro to automatically instrument modules used by your Node.js service,
-it must be started before your service code `require`s its dependencies --
-e.g. before `express`, `http`, etc. are loaded. The recommended way to get the
-Distro started is by using the `-r, --require` Node.js
-https://nodejs.org/api/cli.html#-r---require-module[CLI option].
+To configure the distro you'll need the deployment's OTLP endpoint and
+authorization data to set the appropriate `OTLP_*` environment variables:
 
-[source,sh]
-----
-node --require @elastic/opentelemetry-node my-service.js
-----
+include::configure.asciidoc[tag=minimal-options]
 
-The Distro will automatically instrument popular modules (see <<supported-technologies>>)
-used by your service, and send traces, metrics, and logs telemetry data (using
-OTLP) to your configured observability backend.
+When sending data to Elastic, you can find the values of these variables in Kibana's APM tutorial.
+In Kibana:
 
-// TODO: link to a reference section on other ways to start the Distro once we have those docs.
-
-[discrete]
-[[get-started-elastic-observability-setup]]
-=== Elastic Observability setup
-
-You'll need somewhere to send the gathered OpenTelemetry data, so it can be
-viewed and analyzed. The `@elastic/opentelemetry-node` package supports sending
-to any OTLP endpoint (e.g. an OpenTelemetry collector instance). This section
-shows how to create an https://www.elastic.co/observability[Elastic Observability]
-cloud deployment and get the data you need to configure the Distro to send
-data to it.
-
-. Register at https://cloud.elastic.co/registration[cloud.elastic.co], if you haven't already. This supports starting **free trial**.
-. After registering, click "Create deployment" at `<https://cloud.elastic.co/home>`.  Once that is created, click "Open" to visit your Kibana home page, e.g. `https://{DEPLOYMENT_NAME}.kb.{REGION}.cloud.es.io/app/home#/getting_started`.
-+
-To configure the Distro you'll need the deployment's OTLP endpoint and
-authorization data to set the appropriate `OTLP_*` environment variables. You
-can find these in Kibana's APM tutorial.
-+
-image::img/otlp-endpoint-settings.png[Kibana's APM tutorial showing OTel settings]
-
-. In Kibana:
-** Search for "APM Tutorial",
-** Scroll down to the "APM Agents" section and select the "OpenTelemetry" tab,
-** The appropriate values for `OTEL_EXPORTER_OTLP_ENDPOINT` and
-`OTEL_EXPORTER_OTLP_HEADERS` are shown there.
+. Search for _APM Tutorial_
+. Scroll down to the _APM Agents_ section and select the *OpenTelemetry* tab
+. The appropriate values for `OTEL_EXPORTER_OTLP_ENDPOINT` and
+`OTEL_EXPORTER_OTLP_HEADERS` are shown there
 +
 For example:
 +
@@ -107,24 +124,61 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer P....l"
 ----
 
-Use these environment variables in the <<get-started-configuration>> step
-above to configure the Distro.
+image::img/otlp-endpoint-settings.png[Kibana's APM tutorial showing OTel settings]
+
+[NOTE]
+====
+For more information on authentication methods, refer to <<configure-auth-methods>>.
+====
 
 [discrete]
-[[get-started-api-key]]
-==== Authenticate using an APM Agent key (API key)
+[[get-started-initialization]]
+==== Initialize the distro
 
-It is also possible to authenticate to an Elastic Observability endpoint using
-an "APM Agent key". These are revocable API keys. To create and manage
-APM Agent keys, see the "Agent Keys" tab in "APM Settings" in Kibana.
+For the distro to automatically instrument modules used by your Node.js service,
+it must be started before you `require` your service code's dependencies --
+for example, before `express` or `http` are loaded.
 
-image::img/kibana-apm-agent-keys.png[Kibana's APM Agent Keys section]
-
-When using an APM Agent key, the `OTEL_EXPORTER_OTLP_HEADERS` is set using a
-different auth schema (`ApiKey` rather than `Bearer`). For example:
+The recommended way to get the
+distro started is by using the `-r, --require` Node.js
+https://nodejs.org/api/cli.html#-r---require-module[CLI option]:
 
 [source,sh]
 ----
-export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.es.io
-export OTEL_EXPORTER_OTLP_HEADERS="Authorization=ApiKey TkpXUkx...dVZGQQ=="
+node --require @elastic/opentelemetry-node my-service.js
 ----
+
+The distro will automatically instrument popular modules (listed in <<supported-technologies>>)
+used by your service, and send traces, metrics, and logs telemetry data (using
+OTLP) to your configured observability backend.
+
+// TODO: link to a reference section on other ways to start the distro once we have those docs.
+
+[discrete]
+[[get-started-asp-net-core-view-traces]]
+=== View traces
+
+To view traces, you can use the Elastic APM UI:
+
+////
+Step-by-step instructions
+////
+
+
+////
+What should they do next?
+////
+[discrete]
+[[get-started-next-steps]]
+=== Next steps
+
+////
+// Examples:
+//
+// See all configuration options
+// Learn more about interpreting data
+// Other
+////
+
+:!language:
+:!distro_name:

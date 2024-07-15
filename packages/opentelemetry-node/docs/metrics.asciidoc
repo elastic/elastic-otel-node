@@ -1,5 +1,20 @@
+////
+Goal of this doc:
+???
+
+Assumptions we're comfortable making about the reader:
+- ???
+- ???
+- ???
+////
+
 [[metrics]]
 == Metrics
+
+:language: Node.js
+:distro_name: Elastic Distribution for OpenTelemetry {language}
+
+include::release-status.asciidoc[]
 
 [discrete]
 [[metrics-enabled-by-default]]
