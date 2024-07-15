@@ -3,8 +3,9 @@ Goal of this doc:
 The user is able to successfully see data from their Node application make it to the Elastic UI via the Elastic Distribution for OpenTelemetry Node.js
 
 Assumptions we're comfortable making about the reader:
-- They know what both Elastic and OpenTelemetry are
-- They have Node and NPM installed
+* They are familiar with Elastic
+* They are familiar with OpenTelemetry
+* They have Node and NPM installed
 ////
 
 [[get-started]]
@@ -26,7 +27,7 @@ As an OpenTelemetry SDK, the distro supports sending data to any OpenTelemetry p
 What does a user need to know and/or do before they install the distro?
 ////
 [discrete]
-[[get-started-prereq]]
+[[get-started-prerequisites]]
 === Prerequisites
 
 Before getting started:
@@ -38,7 +39,7 @@ Before getting started:
 * *Check your Node.js version*.
 include::supported-technologies.asciidoc[tag=node-version]
 +
-* *Set up Elastic Observability*. You'll need somewhere to send the gathered OpenTelemetry data, so it can be viewed and analyzed. While the `@elastic/opentelemetry-node` package supports sending to any OTLP endpoint, this doc assumes you're using Elastic Observability. You can use an existing Elastic deployment that uses version 7.14 or higher or set up a new one.
+* *Set up Elastic Observability*. You'll need somewhere to send the gathered OpenTelemetry data, so it can be viewed and analyzed. This doc assumes you're using an https://www.elastic.co/observability[Elastic Observability] cloud deployment. You can use an existing one or set up a new one.
 +
 [[elastic-observability-setup]]
 [%collapsible]
@@ -47,7 +48,8 @@ include::supported-technologies.asciidoc[tag=node-version]
 This section shows how to create an https://www.elastic.co/observability[Elastic Observability] cloud deployment and get the data you need to configure the distro to send data to it.
 
 . Register at https://cloud.elastic.co/registration[cloud.elastic.co], if you haven't already. This supports starting **free trial**.
-. After registering, click "Create deployment" at `<https://cloud.elastic.co/home>`.  Once that is created, click "Open" to visit your Kibana home page, e.g. `https://{DEPLOYMENT_NAME}.kb.{REGION}.cloud.es.io/app/home#/getting_started`.
+. After registering, click *Create deployment* at `<https://cloud.elastic.co/home>`.
+. Once that is created, click *Open* to visit your Kibana home page, e.g. `https://{DEPLOYMENT_NAME}.kb.{REGION}.cloud.es.io/app/home#/getting_started`.
 ====
 
 ////
@@ -88,23 +90,39 @@ be defined _before_ the {distro_name} is defined.
 ====
 
 ////
-Are there any configuration options that are _required_?
-What does the _minimal_ configuration / set up look like?
-What should they expect to see after setting up and running the distro?
-How do they know it worked as expected?
+What does the user need to do in their application to prepare to send data to Elastic?
 ////
 [discrete]
-[[get-started-send-data-to-Elastic]]
+[[get-started-send-data]]
 === Send data to Elastic
 
 After installing the distro, configure and initialize it to start
 sending data to Elastic.
 
+////
+Are there any dependencies that need to be installed in addition to the distro?
+
+I think the answer here is no because the dependencies are already defined in the
+distro package so the user shouldn't have to individually install any other packages.
+If that's true, delete this section.
+
+[discrete]
+[[get-started-add-dependencies]]
+==== Add dependencies
+////
+
+////
+What does the _minimal_ configuration / setup look like?
+Are there any configuration options that are _required_?
+////
 [discrete]
 [[get-started-configure]]
 ==== Configure the distro
 
-To configure the distro you'll need the deployment's OTLP endpoint and
+////
+Step-by-step instructions
+////
+To configure the distro, at a minimum you'll need the deployment's OTLP endpoint and
 authorization data to set the appropriate `OTLP_*` environment variables:
 
 include::configure.asciidoc[tag=minimal-options]
@@ -127,11 +145,13 @@ export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer P....l"
 
 image::img/otlp-endpoint-settings.png[Kibana's APM tutorial showing OTel settings]
 
-[NOTE]
-====
-For more information on authentication methods, refer to <<configure-auth-methods>>.
-====
+For more information on all the available configuration options, refer to <<configure>>.
 
+////
+Does the user need to do something after configuring the distro
+for data to start being sent Elastic?
+If no, delete this section.
+////
 [discrete]
 [[get-started-initialization]]
 ==== Initialize the distro
@@ -155,6 +175,10 @@ OTLP) to your configured observability backend.
 
 // TODO: link to a reference section on other ways to start the distro once we have those docs.
 
+////
+What should they expect to see after setting up and running the distro?
+How do they know it worked as expected?
+////
 [discrete]
 [[get-started-asp-net-core-view-traces]]
 === View traces
@@ -165,6 +189,9 @@ To view traces, you can use the Elastic APM UI:
 Step-by-step instructions
 ////
 
+////
+Optional: Add an image
+////
 
 ////
 What should they do next?
