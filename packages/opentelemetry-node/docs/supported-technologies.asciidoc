@@ -37,7 +37,7 @@ This follows from the https://github.com/open-telemetry/opentelemetry-js#support
 // end::node-version[]
 
 [discrete]
-[[supported-technologies-instrumentations]]
+[[instrumentations]]
 === Instrumentations
 
 [%header]

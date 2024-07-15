@@ -14,7 +14,7 @@ We welcome your feedback! You can reach us either on the [issue tracker](https:/
 or on [Elastic's Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
 
 Some limitations / notes:
-- We expect to support most every instrumentation included in [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations). However, currently only a subset is supported. See [the supported instrumentations here](./docs/supported-technologies.mdx#instrumentations).
+- We expect to support most every instrumentation included in [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations). However, currently only a subset is supported. See [the supported instrumentations here](./docs/supported-technologies.asciidoc#instrumentations).
 
 
 # Usage
@@ -32,7 +32,7 @@ export OTEL_SERVICE_NAME=my-service
 node -r @elastic/opentelemetry-node my-service.js
 ```
 
-If using an [Elastic Observability deployment](./docs/getting-started.mdx#elastic-observability-setup)
+If using an [Elastic Observability deployment](./docs/get-started.asciidoc#elastic-observability-setup)
 to which to send telemetry data, the `OTEL_EXPORTER_*` settings will look
 something like:
 
@@ -41,21 +41,21 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=https://{deployment-name}.apm.{cloud-region}.
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer {deployment-secret-token}"
 ```
 
-The Distro will automatically instrument popular modules (see [supported instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations)))
+The Distro will automatically instrument popular modules (see [supported instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations))
 used by your service, and send trace, metrics, and logs telemetry data (using
 OTLP) to your configured observability backend.
 
 The Distro can be configured via `OTEL_*` environment variables, per the
 [OpenTelemetry Environment Variable spec](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/).
 
-See the [Getting Started guide](./docs/getting-started.mdx) for more details.
+See the [Getting Started guide](./docs/get-started.asciidoc) for more details.
 
 
 # Documentation
 
-- [Getting Started](./docs/getting-started.mdx)
-- [Supported Technologies](./docs/supported-technologies.mdx)
-- [Metrics](./docs/metrics.mdx)
+- [Getting Started](./docs/get-started.asciidoc)
+- [Supported Technologies](./docs/supported-technologies.asciidoc)
+- [Metrics](./docs/metrics.asciidoc)
 
 
 # Why this distribution?
