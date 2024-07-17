@@ -21,7 +21,7 @@ Intro
 The {distro_name} ("the distro") offers a lot of flexibility...
 
 ////
-How do users set configuration options?
+How users set configuration options
 ////
 [discrete]
 [[configure-methods]]
@@ -32,6 +32,7 @@ mechanisms https://opentelemetry.io/docs/languages/js/automatic/configuration/[d
 The distro can be further configured using advanced settings when you need complete control of its behavior.
 
 ////
+TO DO:
 Are there other ways to define configuration options?
 For example like in https://github.com/colleenmcginnis/elastic-otel-dotnet/blob/prep-docs/docs/configure.asciidoc#configuration-methods
 If not, we can condense this and the next section.
@@ -40,16 +41,21 @@ You can set configuration options using a few different methods:
 
 * <<configure-environment-variables,Setting environment variables>>
 
+////
+✅ Configure via env variable
+////
 [discrete]
 [[configure-environment-variables]]
 ==== Environment variables
 
-// What and why
+// ✅ What is this method?
 The distro can be configured using environment variables.
-// Is this true?
+// TO DO:
+// Why someone would use this?
+// (Context: This is what's mentioned in the .NET distro docs.)
 This is a cross-platform way to configure the distro and is especially useful in containerized environments.
 
-// How?
+// ✅ How
 The distro is typically configured with `OTEL_*` environment variables defined by the OpenTelemetry spec.
 Environment variables are read at startup and can be used to configure the Elastic distribution.
 
@@ -65,7 +71,7 @@ be added to the headers of every request. This is typically this is used for
 // end::minimal-options[]
 
 ////
-Example
+✅ Example
 ////
 For example, to send telemetry data to your Elastic Observability deployment you
 might start the application like this:
@@ -81,19 +87,20 @@ For details of the various options available and their corresponding environment
 see <<configure-configuration-options>>.
 
 ////
-If configuration options are defined in multiple places, which takes precedence?
+TO DO: If configuration options are defined in multiple places, which takes precedence?
 ////
 
 ////
-What are the available configuration options?
+List all available configuration options
 ////
 [discrete]
 [[configure-configuration-options]]
 === Configuration options
 
-Because the {distro_name} ("the distro") is a wrapper around the https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node[OpenTelemetry {language} SDK] and other OpenTelemetry JavaScript packages, it supports `OTEL_*` environment variables per the https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/[OpenTelemetry Environment Variable] spec.
+Because the {distro_name} ("the distro") is an extension of the https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node[OpenTelemetry {language} SDK] and other OpenTelemetry JavaScript packages, it supports `OTEL_*` environment variables per the https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/[OpenTelemetry Environment Variable] spec.
 
 ////
+TO DO:
 Are there Elastic-specific custom configuration options
 in addition to the general OpenTelemetry SDK
 configuration options? Or are all the customizations
@@ -107,10 +114,12 @@ If not, you can delete this section.
 The distro supports the following Elastic-specific options:
 
 ////
+TO DO:
 List config options
 ////
 
 ////
+TO DO:
 Are there multiple authentication methods when sending data to Elastic?
 If no, delete this section.
 ////
@@ -124,27 +133,27 @@ When sending data to Elastic, there are two ways you can authenticate: using a s
 [[configure-secret-token]]
 ==== Use a secret token
 
-// What is this?
+// TO DO: What is this?
 // ??
 
-// Why would you choose this method?
+// TO DO: Why would you choose this method?
 // ??
 
-// How do you authenticate using this method?
+// TO DO: How do you authenticate using this method?
 // ??
 
 [discrete]
 [[configure-api-key]]
 ==== Use an APM agent key (API key)
 
-// What is this?
+// ✅ What is this?
 It is also possible to authenticate to an Elastic Observability endpoint using
 an _APM agent key_. These are revocable API keys.
 
-// Why would you choose this method?
+// TO DO: Why would you choose this method?
 // ??
 
-// How do you authenticate using this method?
+// ✅ How do you authenticate using this method?
 To create and manage APM Agent keys in Kibana:
 
 . Go to *APM Settings*.
@@ -155,6 +164,7 @@ image::img/kibana-apm-agent-keys.png[Kibana's APM Agent Keys section]
 When using an APM Agent key, the `OTEL_EXPORTER_OTLP_HEADERS` is set using a
 different auth schema (`ApiKey` rather than `Bearer`). For example:
 
+// ✅ Code example
 [source,sh]
 ----
 export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.es.io

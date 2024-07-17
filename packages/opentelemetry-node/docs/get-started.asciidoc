@@ -20,11 +20,11 @@ This guide shows you how to use the Elastic Distribution for OpenTelemetry {lang
 
 [NOTE]
 ====
-As an OpenTelemetry SDK, the distro supports sending data to any OpenTelemetry protocol (OTLP) endpoint (for example, an https://opentelemetry.io/docs/collector/[OpenTelemetry Collector]).
+As an OpenTelemetry SDK, the distro supports sending data to any OpenTelemetry protocol (OTLP) endpoint (https://opentelemetry.io/docs/collector/[OpenTelemetry Collector]), but this guide assumes you are sending data to Elastic.
 ====
 
 ////
-What does a user need to know and/or do before they install the distro?
+✅ What the user needs to know and/or do before they install the distro
 ////
 [discrete]
 [[get-started-prerequisites]]
@@ -53,18 +53,14 @@ This section shows how to create an https://www.elastic.co/observability[Elastic
 ====
 
 ////
-Other prereqs?
-////
-
-////
-How does a user install the distro?
+✅ How to install the distro
 ////
 [discrete]
 [[get-started-install]]
 === Install
 
 ////
-Step-by-step instructions
+✅ Step-by-step instructions
 ////
 Install the `@elastic/opentelemetry-node` package:
 
@@ -76,11 +72,10 @@ npm install --save @elastic/opentelemetry-node
 The distro is a single package that includes all the OpenTelemetry JS packages
 that are needed for most cases.
 
-// TODO: refer to advanced section of "start the SDK" when we have that doc.
+// TO DO: refer to advanced section of "start the SDK" when we have that doc.
 
 ////
-Any additional info related to installation
-Is this relevant to the Node distro?
+✅ Any additional info related to installation
 ////
 [NOTE]
 .The Elastic distro and the OpenTelemetry SDK
@@ -90,7 +85,7 @@ be defined _before_ the {distro_name} is defined.
 ====
 
 ////
-What does the user need to do in their application to prepare to send data to Elastic?
+✅ Start-to-finish operation
 ////
 [discrete]
 [[get-started-send-data]]
@@ -104,7 +99,7 @@ Are there any dependencies that need to be installed in addition to the distro?
 
 I think the answer here is no because the dependencies are already defined in the
 distro package so the user shouldn't have to individually install any other packages.
-If that's true, delete this section.
+If that's true, delete this comment.
 
 [discrete]
 [[get-started-add-dependencies]]
@@ -112,15 +107,14 @@ If that's true, delete this section.
 ////
 
 ////
-What does the _minimal_ configuration / setup look like?
-Are there any configuration options that are _required_?
+✅ Provide _minimal_ configuration/setup
 ////
 [discrete]
 [[get-started-configure]]
 ==== Configure the distro
 
 ////
-Step-by-step instructions
+✅ Step-by-step instructions
 ////
 To configure the distro, at a minimum you'll need the deployment's OTLP endpoint and
 authorization data to set the appropriate `OTLP_*` environment variables:
@@ -148,9 +142,7 @@ image::img/otlp-endpoint-settings.png[Kibana's APM tutorial showing OTel setting
 For more information on all the available configuration options, refer to <<configure>>.
 
 ////
-Does the user need to do something after configuring the distro
-for data to start being sent Elastic?
-If no, delete this section.
+✅ Start sending data to Elastic
 ////
 [discrete]
 [[get-started-initialization]]
@@ -160,6 +152,9 @@ For the distro to automatically instrument modules used by your Node.js service,
 it must be started before you `require` your service code's dependencies --
 for example, before `express` or `http` are loaded.
 
+////
+✅ Step-by-step instructions
+////
 The recommended way to get the
 distro started is by using the `-r, --require` Node.js
 https://nodejs.org/api/cli.html#-r---require-module[CLI option]:
@@ -176,6 +171,7 @@ OTLP) to your configured observability backend.
 // TODO: link to a reference section on other ways to start the distro once we have those docs.
 
 ////
+TO DO:
 What should they expect to see after setting up and running the distro?
 How do they know it worked as expected?
 ////
@@ -186,7 +182,7 @@ How do they know it worked as expected?
 To view traces, you can use the Elastic APM UI:
 
 ////
-Step-by-step instructions
+TO DO: Step-by-step instructions
 ////
 
 ////
@@ -194,6 +190,7 @@ Optional: Add an image
 ////
 
 ////
+TO DO:
 What should they do next?
 ////
 [discrete]
