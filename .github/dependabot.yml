@@ -20,6 +20,12 @@ updates:
       # https://github.com/elastic/elastic-otel-node/pull/155
       - dependency-name: "eslint*"
       - dependency-name: "@eslint/*"
+      # Packages whose major versions have dropped support for Node.js versions
+      # that this package needs.
+      - dependency-name: "glob" # glob@11 dropped 14, 16, 18
+        versions: [ ">=11" ]
+      - dependency-name: "minimatch" # minimatch@10 dropped 14, 16, 18
+        versions: [ ">=10" ]
     groups:
       # eslint:
       #   dependency-type: "development"
