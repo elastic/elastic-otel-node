@@ -111,7 +111,7 @@ function setupEnvironment() {
         serializeKeyValuePairs(logsHeaders);
 
     if ('OTEL_LOG_LEVEL' in process.env) {
-        envToRestore['OTEL_LOG_LEVEL'] = process.env.OTEL_LOG_LEVEL;
+        envToRestore.OTEL_LOG_LEVEL = process.env.OTEL_LOG_LEVEL;
         // Make sure NodeSDK doesn't see this envvar and overwrite our diag
         // logger. It is restored below.
         delete process.env.OTEL_LOG_LEVEL;

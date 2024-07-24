@@ -17,10 +17,16 @@
  * under the License.
  */
 
-const config = require('../../.eslintrc.js');
-config.rules['license-header/header'] = [
-    'error',
-    '../../scripts/license-header.js',
-];
+const config = require('../../eslint.config.js');
+
+config.forEach((conf) => {
+    if (conf.rules?.['license-header/header']) {
+        // conf.files = ['lib/**/*.js'];
+        conf.rules['license-header/header'] = [
+            'error',
+            '../../scripts/license-header.js',
+        ];
+    }
+});
 
 module.exports = config;
