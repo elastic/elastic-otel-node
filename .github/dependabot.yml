@@ -12,15 +12,22 @@ updates:
       # 'npm run maint:update-otel-deps' instead. See
       # https://github.com/elastic/elastic-otel-node/pull/68 for details.
       - dependency-name: "@opentelemetry/*"
-      # AWS SDK-related deps are handled in the less-frequent dependabot block
-      # below.
-      - dependency-name: "@aws-sdk/*"
-      - dependency-name: "@smithy/*"
       # eslint-related deps are skipped until we have upgraded to eslint@9
       # https://github.com/elastic/elastic-otel-node/pull/155
       - dependency-name: "eslint*"
       - dependency-name: "@eslint/*"
+      # Packages whose major versions have dropped support for Node.js versions
+      # that this package needs.
+      - dependency-name: "glob" # glob@11 dropped 14, 16, 18
+        versions: [ ">=11" ]
+      - dependency-name: "minimatch" # minimatch@10 dropped 14, 16, 18
+        versions: [ ">=10" ]
     groups:
+      aws-sdk:
+        dependency-type: "development"
+        patterns:
+        - "@aws-sdk/*"
+        - "@smithy/*"
       # eslint:
       #   dependency-type: "development"
       #   patterns:
@@ -29,21 +36,6 @@ updates:
       patch-level:
         update-types:
         - "patch"
-
-  # Less frequent updates to some less important but frequently-released deps.
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    allow:
-      - dependency-name: "@aws-sdk/*"
-      - dependency-name: "@smithy/*"
-    groups:
-      aws-sdk:
-        dependency-type: "development"
-        patterns:
-        - "@aws-sdk/*"
-        - "@smithy/*"
 
   # GitHub actions
   - package-ecosystem: "github-actions"

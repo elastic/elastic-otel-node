@@ -1,5 +1,9 @@
 # @elastic/mockotlpserver Changelog
 
+## untagged
+
+- Update opentelemetry-proto protos to v1.3.2.
+
 ## v0.3.0
 
 - Update gRPC server to accept metrics (MetricsService) and logs (LogsService).

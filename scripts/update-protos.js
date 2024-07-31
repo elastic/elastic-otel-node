@@ -47,7 +47,7 @@ const {tmpdir} = require('os');
 // SCRIPT PARAMS
 const REPO_NAME = 'opentelemetry-proto';
 const REPO_URL = `https://github.com/open-telemetry/${REPO_NAME}.git`;
-const HASH_TAG = 'v0.20.0';
+const HASH_TAG = 'v1.3.2';
 
 // HELPER FUNCTIONS
 /**
