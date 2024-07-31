@@ -32,6 +32,10 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_LOG_LEVEL: 'none',
         },
+        versionRanges: {
+            // pino@9.3.0 breaks 14.17.0 compat.
+            node: '>=14.18.0',
+        },
         // verbose: true,
         checkResult: (t, err, stdout, _stderr) => {
             t.error(err, `exited successfully: err=${err}`);
