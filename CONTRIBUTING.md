@@ -29,6 +29,7 @@ obvious at first sight.
 Ensure your code contribution pass our linting (style and static checking):
 
 ```
+npm run ci-all
 npm run lint
 ```
 
@@ -44,7 +45,7 @@ npm run lint:fix
 tl;dr:
 
 ```shell
-npm run ci-all   # run 'npm ci' in all package dirs
+npm run ci-all   # runs 'npm ci' in all package dirs; see note 1
 cd packages/opentelemetry-node
 npm run test-services:start  # requires Docker
 npm test
@@ -52,6 +53,8 @@ npm run test-services:stop
 ```
 
 See [TESTING.md](./TESTING.md) for full details.
+
+> *Note 1*: While this repo holds multiple packages, it is *not* using npm workspaces. This means that one must `npm ci` (or `npm install`) in each package directory separately. See [this issue](https://github.com/elastic/elastic-otel-node/pull/279) for why npm workspaces are not being used.
 
 
 ## Commit message guidelines
