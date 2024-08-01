@@ -21,6 +21,7 @@ to instrument your {language} application and send OpenTelemetry data to an Elas
 
 This doc will guide you through the minimal configuration options to get the Elastic distro set up in your application.
 You do _not_ need any existing experience with OpenTelemetry to set up the Elastic distro initially.
+If you need more control over your configuration after getting set up, you can learn more in https://opentelemetry.io/docs/languages/js[OpenTelemetry SDK documentation].
 
 [NOTE]
 ====
@@ -134,11 +135,11 @@ OTLP) to your configured observability backend.
 ////
 [discrete]
 [[get-started-confirm]]
-=== Confirm the distro is working
+=== Confirm that the distro is working
 
 To confirm that the distro has successfully connected to Elastic:
 
-. Go to *APM* → *Traces*.
+. Go to *Applications* → *Services*.
 . You should see the name of the service to which you just added the distro.
 It can take several minutes after initializing the distro for the service to show up in this list.
 . Click on the name in the list to see trace data.

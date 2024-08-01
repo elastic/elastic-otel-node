@@ -31,9 +31,9 @@ The {distro_name} ("the distro") is a {language} package that provides:
 ✅ What is it?
 ✅ Why use it?
 ////
-A _distribution_ is a wrapper around an upstream OpenTelemetry repository with some customizations. The {distro_name} is a wrapper around the https://opentelemetry.io/docs/languages/js[OpenTelemetry SDK for {language}]. With the Elastic distro you have access to all the features of the OpenTelemetry SDK for {language} plus:
+A _distribution_ is a customized version of an upstream OpenTelemetry repository with some customizations. The {distro_name} is an extension of the https://opentelemetry.io/docs/languages/js[OpenTelemetry SDK for {language}]. With the Elastic distro you have access to all the features of the OpenTelemetry SDK for {language} plus:
 
-* Potential access to SDK improvements and bug fixes contributed by the Elastic team _before_ the changes are available upstream in the OpenTelemetry JavaScript repositories.
+* Access to SDK improvements and bug fixes contributed by the Elastic team _before_ the changes are available upstream in the OpenTelemetry JavaScript repositories.
 * A single package that includes several OpenTelemetry packages as dependencies, so you only need to install and update a single package (for most use cases).
 // * Preconfigures the collection of tracing and metrics signals, applying some opinionated defaults, such as which sources are collected by default.
 
