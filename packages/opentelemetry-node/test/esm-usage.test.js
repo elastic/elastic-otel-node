@@ -39,7 +39,7 @@ const testFixtures = [
         name: 'ESM via --require',
         versionRanges: {
             // TODO: issue on node docs that https://nodejs.org/api/all.html#all_module_moduleregisterspecifier-parenturl-options history doesn't show backport to v18.19.0
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
+            node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
@@ -52,7 +52,7 @@ const testFixtures = [
     {
         name: 'ESM via --import',
         versionRanges: {
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
+            node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
@@ -114,7 +114,7 @@ const testFixtures = [
     {
         name: 'ESM via --import with possible double-hooking',
         versionRanges: {
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
+            node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
@@ -129,7 +129,7 @@ const testFixtures = [
     {
         name: 'ESM via --require with possible double-hooking',
         versionRanges: {
-            node: '>=20.6.0 || >=18.19.0', // when `module.register()` was added
+            node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
