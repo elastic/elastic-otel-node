@@ -1,6 +1,6 @@
 # @elastic/opentelemetry-node Changelog
 
-## Unreleased
+## v0.3.0
 
 - Bump minimum supported Node.js version to v14.18.0.
   (Previously it was v14.17.0.)
