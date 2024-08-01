@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Bump minimum supported Node.js version to v14.18.0.
+  (Previously it was v14.17.0.)
+
 - feat: Add the following instrumentations:
     ```
     @opentelemetry/instrumentation-connect
@@ -15,11 +18,11 @@
     @opentelemetry/instrumentation-memcached
     @opentelemetry/instrumentation-nestjs-core
     @opentelemetry/instrumentation-net
+    @opentelemetry/instrumentation-redis
     @opentelemetry/instrumentation-restify
     @opentelemetry/instrumentation-router
     @opentelemetry/instrumentation-socket.io
     ```
-
 
 ## v0.2.0
 

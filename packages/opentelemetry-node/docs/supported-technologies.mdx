@@ -15,8 +15,14 @@ Elastic stack, so it is strongly recommended to be using a recent 8.x version.
 
 ## Node.js versions
 
-The Elastic Distribution for OpenTelemety Node.js supports Node.js v14 and later.
+The Elastic Distribution for OpenTelemety Node.js supports Node.js v14.18.0 and later.
 This follows from the [OpenTelemetry JS supported runtimes](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes).
+
+<!--
+Dev Notes on supported Node.js versions:
+- v14.18.0 or later is required for `node:`-prefixed core module loading, as
+  used by gaxios@6.7.0, a transitive dep of `@opentelemetry/resource-detector-gcp`.
+-->
 
 
 ## Instrumentations

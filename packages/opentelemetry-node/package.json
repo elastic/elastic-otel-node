@@ -24,7 +24,7 @@
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",
   "engines": {
-    "node": ">=14"
+    "node": ">=14.18.0"
   },
   "files": [
     "lib",
