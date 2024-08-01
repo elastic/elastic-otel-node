@@ -118,7 +118,7 @@
     "@aws-sdk/client-s3": "^3.614.0",
     "@aws-sdk/client-sns": "^3.614.0",
     "@aws-sdk/client-sqs": "^3.614.0",
-    "@elastic/mockotlpserver": "*",
+    "@elastic/mockotlpserver": "../mockotlpserver",
     "@grpc/grpc-js": "^1.11.1",
     "@grpc/proto-loader": "^0.7.13",
     "@hapi/hapi": "^21.3.10",

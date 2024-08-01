@@ -1,6 +1,39 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
+    directory: "/packages/opentelemetry-node"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "elastic/apm-agent-node-js"
+    groups:
+      opentelemetry:
+        patterns:
+        - "@opentelemetry/*"
+        - "@smithy/*"
+      aws-sdk:
+        dependency-type: "development"
+        patterns:
+        - "@aws-sdk/*"
+        - "@smithy/*"
+      patch-level:
+        update-types:
+        - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/mockotlpserver"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "elastic/apm-agent-node-js"
+    groups:
+      repo-root:
+        patterns:
+        - "*"
+
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -8,10 +41,6 @@ updates:
     reviewers:
       - "elastic/apm-agent-node-js"
     ignore:
-      # Ignore otel deps updates because dependabot messes it up. Use
-      # 'npm run maint:update-otel-deps' instead. See
-      # https://github.com/elastic/elastic-otel-node/pull/68 for details.
-      - dependency-name: "@opentelemetry/*"
       # eslint-related deps are skipped until we have upgraded to eslint@9
       # https://github.com/elastic/elastic-otel-node/pull/155
       - dependency-name: "eslint*"
@@ -23,21 +52,27 @@ updates:
       - dependency-name: "minimatch" # minimatch@10 dropped 14, 16, 18
         versions: [ ">=10" ]
     groups:
-      aws-sdk:
-        dependency-type: "development"
-        patterns:
-        - "@aws-sdk/*"
-        - "@smithy/*"
       # eslint:
       #   dependency-type: "development"
       #   patterns:
       #   - "eslint*"
       #   - "@eslint/*"
-      patch-level:
-        update-types:
-        - "patch"
+      repo-root:
+        patterns:
+        - "*"
 
-  # GitHub actions
+  - package-ecosystem: "npm"
+    directory: "/examples"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "elastic/apm-agent-node-js"
+    groups:
+      examples:
+        patterns:
+        - "*"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     reviewers:

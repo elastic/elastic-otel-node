@@ -23,11 +23,15 @@
  * Update '@opentelemetry/*' deps in all workspaces.
  *
  * Usage:
- *      # You should do a clean 'npm ci' before running this.
+ *      # You should do a clean 'npm run ci-all' before running this.
  *      node scripts/update-otel-deps.js
  *
  * You can set the `DEBUG=1` envvar to get some debug output.
  */
+
+// NOTE: It is hoped this script is no longer needed and that dependabot is
+// sufficient, now that npm workspaces are not being used. After a while with
+// successful updates of '@opentelemetry/*' deps, this script can be removed.
 
 const assert = require('assert');
 const fs = require('fs');

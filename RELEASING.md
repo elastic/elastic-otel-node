@@ -1,9 +1,10 @@
 # How to release packages in this repo
 
-This is a monorepo with multiple packages. Currently each package releases
-independently -- i.e. their versioning is not tied to each other. A release of
-a package consists of (a) a repo git tag at the appropriate commit and (b) one
-or more release artifacts (typically a release published to npmjs.com).
+This repository holds multiple npm packages (though npm workspaces are not
+being used). Currently each package releases independently -- i.e. their
+versioning is not tied to each other. A release of a package consists of (a) a
+repo git tag at the appropriate commit and (b) one or more release artifacts
+(typically a release published to npmjs.com).
 
 By far the primary package in this repo is [`@elastic/opentelemetry-node`](./packages/opentelemetry-node/).
 The tag name for a release of the primary package will not use a prefix; other
@@ -23,7 +24,7 @@ Assuming "x.y.z" is the release verison:
 
 2. Create a PR with these changes:
     - Bump the "version" in "packages/opentelemetry-node/package.json".
-    - Run `npm install` at the top-level to update "package-lock.json".
+    - Run `npm install` in "packages/opentelemetry-node/" to update "packages/opentelemetry-node/package-lock.json".
     - Update "packages/opentelemetry-node/CHANGELOG.md" as necessary.
     - Name the PR something like "release @elastic/opentelemetry-node@x.y.z".
 
@@ -36,7 +37,7 @@ Assuming "x.y.z" is the release verison:
     ```
     The GitHub Actions "release" workflow will handle the release
     steps -- including the `npm publish`. See the appropriate run at:
-    https://github.com/elastic/elastic-otel-node/actions/workflows/release.yml)
+    https://github.com/elastic/elastic-otel-node/actions/workflows/release.yml
 
 
 ## How to release other packages
