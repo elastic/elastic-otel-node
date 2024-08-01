@@ -46,7 +46,9 @@ services:
       retries: 30
 
   mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    # Tags listed at https://hub.docker.com/r/microsoft/mssql-server
+    # Docs: https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker
+    image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
     platform: linux/amd64
     environment:
       - ACCEPT_EULA=Y
@@ -54,7 +56,7 @@ services:
     ports:
       - "1433:1433"
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
-      interval: 30s
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
+      interval: 1s
       timeout: 10s
-      retries: 5
+      retries: 30

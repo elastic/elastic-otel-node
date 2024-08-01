@@ -55,7 +55,7 @@ npmVer=$(npm --version)
 npmMajorVer=$(echo "$npmVer" | cut -d. -f1)
 npmMinorVer=$(echo "$npmVer" | cut -d. -f2)
 if [[ $npmMajorVer -lt 8 || ($npmMajorVer -eq 8 && $npmMinorVer -lt 7) ]]; then
-    fatal "npm version is too old for 'npm ci --omit=dev': $npmVer"
+    fatal "npm version is too old for 'npm ls --omit=dev': $npmVer"
 fi
 
 # Directory holding some "license.*.txt" files for inclusion below.

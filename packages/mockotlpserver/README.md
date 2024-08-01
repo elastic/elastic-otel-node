@@ -10,9 +10,8 @@ console. Various output formats are supported.
 this repo.)
 
     git clone git@github.com:elastic/elastic-otel-node.git
-    cd elastic-otel-node
+    cd elastic-otel-node/packages/mockotlpserver
     npm ci
-    cd packages/mockotlpserver
 
 # CLI Usage
 
@@ -25,7 +24,9 @@ format (used under the hood for `console.log`). This shows the complete
 object structure of the received data. For example, using an example script
 that uses the OpenTelemetry NodeSDK to trace an HTTP request/response:
 
-    cd ../../examples/
+    cd ../../
+    npm run ci-all
+    cd examples/
     node -r @elastic/opentelemetry-node simple-http-request.js
 
 <details>

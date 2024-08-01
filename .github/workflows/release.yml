@@ -26,25 +26,14 @@ jobs:
           node-version: 'v18.20.2'
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm ci --ignore-scripts
-
-      - name: Read NPM vault secrets
-        uses: hashicorp/vault-action@v3.0.0
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          secrets: |
-            secret/jenkins-ci/npmjs/elasticmachine token | NPMJS_TOKEN ;
-            totp/code/npmjs-elasticmachine code | TOTP_CODE
+      - run: npm run ci-all
 
       - name: npm publish
         working-directory: ./packages/opentelemetry-node
-        run: npm publish --otp=${{ env.TOTP_CODE }}
+        run: npm publish
         env:
           # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
-          NODE_AUTH_TOKEN: ${{ env.NPMJS_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: GitHub release
         run: ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}"
