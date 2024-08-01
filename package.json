@@ -7,11 +7,11 @@
   "scripts": {
     "ci-all": "set -e; ls -d . packages/* examples | while read d; do (cd $d; echo; echo \"> $d\"; npm ci); done",
     "clean-all": "ls -d . packages/* examples | while read d; do (cd $d; echo \"> $d\"; rm -rf node_modules); done",
+    "each": "echo XXX each",
     "lint": "npm run lint:eslint && ls -d packages/* | while read d; do (cd $d; npm run lint); done",
     "lint:eslint": "eslint --ext=js,mjs,cjs scripts examples # requires node >=16.0.0",
     "lint:fix": "eslint --ext=js,mjs,cjs .eslintrc.js scripts examples --fix && ls -d packages/* | while read d; do (cd $d; npm run lint:fix); done",
     "test": "ls -d packages/opentelemetry-node | while read d; do (cd $d; npm test); done",
-    "maint:update-otel-deps": "node scripts/update-otel-deps.js",
     "maint:update-protos": "node scripts/update-protos.js"
   },
   "devDependencies": {
