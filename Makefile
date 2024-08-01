@@ -3,7 +3,7 @@
 
 .PHONY: all
 all:
-	npm ci
+	npm run ci-all
 
 .PHONY: lint
 lint:
