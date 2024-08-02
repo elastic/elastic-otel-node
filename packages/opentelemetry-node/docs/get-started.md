@@ -118,8 +118,9 @@ To confirm that the distro has successfully connected to Elastic:
 1. Go to **APM** → **Services**.
 1. You should see the name of the service to which you just added the distro. It can take several minutes after initializing the distro for the service to show up in this list.
 1. Click on the name in the list to see trace data.
-    > ![NOTE]
-    > There may be no trace data to visualize unless you have _used_ your application since initializing the distro.
+
+> ![NOTE]
+> There may be no trace data to visualize unless you have _used_ your application since initializing the distro.
 
 > [!TIP]
 > Alternatively, if you are able to see the stdout from your service, you can look for an "INFO" level log message, `start Elastic Distribution for OpenTelemetry Node.js`, at startup to confirm that the distro is up and running.

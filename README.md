@@ -6,3 +6,9 @@ and working with OpenTelemetry. Primarily that includes
 Elastic Distribution for OpenTelemetry Node.js. It may also
 include other Elastic-authored instrumentations or other utilities.
 
+## Read the docs
+
+* [Get started](./get-started.md)
+* [Configuration](./configure.md)
+* [Supported technologies](./supported-technologies.md)
+* [Metrics](./metrics.md)
