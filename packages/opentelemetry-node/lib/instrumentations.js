@@ -89,6 +89,9 @@ const {TediousInstrumentation} = require('@opentelemetry/instrumentation-tedious
 const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici');
 const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
 
+const {getEnvVar} = require('./environment');
+const {log} = require('./logging');
+
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
 // https://github.com/open-telemetry/opentelemetry-js/blob/1b4999f386e0240b7f65350e8360ccc2930b0fe6/experimental/packages/opentelemetry-instrumentation/src/platform/node/instrumentation.ts#L71
@@ -130,6 +133,29 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-winston': (cfg) => new WinstonInstrumentation(cfg),
 };
 /* eslint-enable prettier/prettier */
+
+/**
+ * Reads a string in the format `value1,value2` and parses
+ * it into an array. This is the format specified for comma separated
+ * list for OTEL environment vars. Example:
+ * https://opentelemetry.io/docs/languages/sdk-configuration/general/#otel_propagators
+ *
+ * If the param is not defined or falsy it returns an empty array. The resulting
+ * array has only nonempty string.
+ *
+ * @param {string | undefined} str
+ * @returns {Array<string>}
+ */
+function parseStringList(str) {
+    if (!str) {
+        return [];
+    }
+
+    return str
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => s);
+}
 
 /**
  * With this method you can disable, configure and replace the instrumentations
@@ -180,7 +206,39 @@ function getInstrumentations(opts = {}) {
     /** @type {Array<Instrumentation>} */
     const instrumentations = [];
 
+    const getInstrName = (name) => `@opentelemetry/instrumentation-${name}`;
+    const enabledFromEnv = getEnvVar('OTEL_NODE_ENABLED_INSTRUMENTATIONS');
+    const disabledFromEnv = getEnvVar('OTEL_NODE_DISABLED_INSTRUMENTATIONS');
+    const enabledList = parseStringList(enabledFromEnv).map(getInstrName);
+    const disabledList = parseStringList(disabledFromEnv).map(getInstrName);
+
+    for (const name of enabledList) {
+        if (!INSTRUMENTATIONS[name]) {
+            log.warn(
+                `Invalid instrumentation "${name}" specified in the environment variable OTEL_NODE_ENABLED_INSTRUMENTATIONS`
+            );
+        }
+    }
+    for (const name of disabledList) {
+        if (!INSTRUMENTATIONS[name]) {
+            log.warn(
+                `Invalid instrumentation "${name}" specified in the environment variable OTEL_NODE_DISABLED_INSTRUMENTATIONS`
+            );
+        }
+    }
+
     Object.keys(INSTRUMENTATIONS).forEach((name) => {
+        // 1st check what was configured via env
+        if (disabledList.length && disabledList.includes(name)) {
+            return;
+        }
+
+        if (enabledList.length && !enabledList.includes(name)) {
+            return;
+        }
+
+        // 2nd check the configuration passed
+        // XXX: discuss what takes precedence if `opts` argument id passed in
         const isFactory = typeof opts[name] === 'function';
         const isObject = typeof opts[name] === 'object';
         const instrFactory = isFactory ? opts[name] : INSTRUMENTATIONS[name];
@@ -195,6 +253,7 @@ function getInstrumentations(opts = {}) {
         }
 
         if (instr) {
+            log.debug(`Enabling instrumentation "${name}"`);
             instrumentations.push(instr);
         }
     });
