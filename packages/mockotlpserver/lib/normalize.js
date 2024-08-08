@@ -88,6 +88,13 @@ function normAttrValue(v) {
             obj[keyValue.key] = normAttrValue(keyValue.value);
         }
         return obj;
+    } else if ('bytesValue' in v) {
+        // 'bytesValue' is used to encode Uint8Array's. At least with the proto
+        // flavour, `v.bytesValue` is a Node.js Buffer.
+        // https://nodejs.org/api/all.html#all_buffer_buffers-and-typedarrays says:
+        // > Buffer instances are also JavaScript Uint8Array and TypedArray instances.
+        // However, returning just `v.bytesValue` behaves differently.
+        return new Uint8Array(v.bytesValue);
     } else if (Object.keys(v).length === 0) {
         // Representing an empty value:
         // - proto serialization: KeyValue { key: 'signal', value: AnyValue {} }
