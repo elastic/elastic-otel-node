@@ -18,7 +18,7 @@
  */
 
 // Test that `User-Agent` is properly set into `OTEL_EXPORTER_OTLP_*_HEADERS`
-// environment vars vif not defined.
+// environment vars if not defined.
 
 const {test} = require('tape');
 const {runTestFixtures} = require('./testutils');
@@ -39,7 +39,7 @@ const testFixtures = [
             const getLine = (text) => lines.find((l) => l.includes(text));
             t.notOk(
                 getLine('Invalid resource detector'),
-                'should not print any warnign'
+                'should not print any warning'
             );
         },
     },
@@ -51,22 +51,22 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_NODE_RESOURCE_DETECTORS: 'gcp, aws, bogus',
         },
-        verbose: true,
+        // verbose: true,
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
             const getLine = (text) => lines.find((l) => l.includes(text));
             t.ok(
                 getLine('Invalid resource detector \\"bogus\\"'),
-                'should print a warnign for the bogus value'
+                'should print a warning for the bogus value'
             );
             t.notOk(
                 getLine('Invalid resource detector \\"gcp\\"'),
-                'should not print a warnign for GCP detector'
+                'should not print a warning for GCP detector'
             );
             t.notOk(
                 getLine('Invalid resource detector \\"aws\\"'),
-                'should not print a warnign for AWS detector'
+                'should not print a warning for AWS detector'
             );
         },
     },
