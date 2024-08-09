@@ -36,7 +36,6 @@ const testFixtures = [
             const lines = stdout.split('\n');
             const getLine = (text) => lines.find((l) => l.includes(text));
 
-            // NOTE: checking th 1st and last instrumentation keys of the map to avoid lots of asserts
             t.ok(
                 getLine(
                     'Enabling instrumentation \\"@opentelemetry/instrumentation-aws-sdk\\"'
@@ -52,68 +51,131 @@ const testFixtures = [
         },
     },
     {
-        name: 'scenario with values in OTEL_(EN|DIS)ABLE_INSTRUMENTATIONS',
+        name: 'basic scenario with values only in OTEL_ENABLED_INSTRUMENTATIONS',
         args: ['./fixtures/use-env.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_LOG_LEVEL: 'debug',
-            OTEL_NODE_ENABLED_INSTRUMENTATIONS:
-                'http, express ,mongodb, knex, enable-bogus',
-            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'knex, koa, disable-bogus',
+            OTEL_NODE_ENABLED_INSTRUMENTATIONS: 'http, express , bogus',
+        },
+        // verbose: true,
+        checkResult: (t, err, stdout, stderr) => {
+            t.error(err);
+            const lines = stdout.split('\n');
+            const getLine = (text) => lines.find((l) => l.includes(text));
+
+            t.ok(
+                getLine(
+                    'Enabling instrumentation \\"@opentelemetry/instrumentation-http\\"'
+                ),
+                'should enable instrumentation passed in env var'
+            );
+            t.ok(
+                getLine(
+                    'Enabling instrumentation \\"@opentelemetry/instrumentation-express\\"'
+                ),
+                'should enable instrumentation passed with surroinding spaces in env var'
+            );
+            t.ok(
+                getLine(
+                    'Unknown instrumentation \\"@opentelemetry/instrumentation-bogus\\"'
+                ),
+                'should print a log for the bogus value in enable env var'
+            );
+            t.notOk(
+                getLine(
+                    'Enabling instrumentation \\"@opentelemetry/instrumentation-fastify\\"'
+                ),
+                'should not enable instrumentations not in the list'
+            );
+        },
+    },
+    {
+        name: 'basic scenario with values only in OTEL_DISABLED_INSTRUMENTATIONS',
+        args: ['./fixtures/use-env.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            OTEL_LOG_LEVEL: 'debug',
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'fastify, express  , bogus',
         },
         verbose: true,
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');
             const getLine = (text) => lines.find((l) => l.includes(text));
-            t.ok(
+
+            t.notOk(
                 getLine(
-                    'Invalid instrumentation \\"@opentelemetry/instrumentation-enable-bogus\\"'
+                    'Enabling instrumentation \\"@opentelemetry/instrumentation-fastify\\"'
                 ),
-                'should print a warning for the bogus value in enable env var'
+                'should disable instrumentation passed in env var'
             );
-            t.ok(
+            t.notOk(
                 getLine(
-                    'Invalid instrumentation \\"@opentelemetry/instrumentation-disable-bogus\\"'
+                    'Enabling instrumentation \\"@opentelemetry/instrumentation-express\\"'
                 ),
-                'should print a warning for the bogus value in enable env var'
+                'should disable instrumentation passed with surroinding spaces in env var'
             );
             t.ok(
                 getLine(
                     'Enabling instrumentation \\"@opentelemetry/instrumentation-http\\"'
                 ),
-                'should enable http instrumentation'
+                'should enable instrumentation not set in the var'
+            );
+            t.ok(
+                getLine(
+                    'Unknown instrumentation \\"@opentelemetry/instrumentation-bogus\\"'
+                ),
+                'should print a log for the bogus value in enable env var'
+            );
+        },
+    },
+    {
+        name: 'scenario with values in both env vars',
+        args: ['./fixtures/use-env.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            OTEL_LOG_LEVEL: 'debug',
+            OTEL_NODE_ENABLED_INSTRUMENTATIONS: 'http, express ,mongodb',
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'mongodb, koa',
+        },
+        // verbose: true,
+        checkResult: (t, err, stdout, stderr) => {
+            t.error(err);
+            const lines = stdout.split('\n');
+            const getLine = (text) => lines.find((l) => l.includes(text));
+            t.ok(
+                getLine(
+                    'Enabling instrumentation \\"@opentelemetry/instrumentation-http\\"'
+                ),
+                'should enable http instrumentation set in OTEL_NODE_ENABLED_INSTRUMENTATIONS'
             );
             t.ok(
                 getLine(
                     'Enabling instrumentation \\"@opentelemetry/instrumentation-express\\"'
                 ),
-                'should enable express instrumentation'
+                'should enable express instrumentation set in OTEL_NODE_ENABLED_INSTRUMENTATIONS'
             );
             t.ok(
                 getLine(
                     'Enabling instrumentation \\"@opentelemetry/instrumentation-mongodb\\"'
                 ),
-                'should enable mongodb instrumentation'
-            );
-            t.notOk(
-                getLine(
-                    'Enabling instrumentation \\"@opentelemetry/instrumentation-knex\\"'
-                ),
-                'should not enable knex instrumentation'
+                'should enable mongodb instrumentation set in OTEL_NODE_ENABLED_INSTRUMENTATIONS'
             );
             t.notOk(
                 getLine(
                     'Enabling instrumentation \\"@opentelemetry/instrumentation-ioredis\\"'
                 ),
-                'should not enable instrumentations that are not defined in env vars'
+                'should not enable instrumentations that are not defined in OTEL_NODE_ENABLED_INSTRUMENTATIONS'
             );
         },
     },
 ];
 
-test('OTEL_NODE_RESOUCE_DETECTORS', (suite) => {
+test('OTEL_NODE_ENABLED_INSTRUMENTATIONS, OTEL_NODE_DISABLED_INSTRUMENTATIONS', (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });

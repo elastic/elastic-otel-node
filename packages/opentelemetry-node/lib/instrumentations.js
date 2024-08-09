@@ -89,7 +89,6 @@ const {TediousInstrumentation} = require('@opentelemetry/instrumentation-tedious
 const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici');
 const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
 
-const {getEnvVar} = require('./environment');
 const {log} = require('./logging');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
@@ -143,18 +142,29 @@ const INSTRUMENTATIONS = {
  * If the param is not defined or falsy it returns an empty array. The resulting
  * array has only nonempty string.
  *
- * @param {string | undefined} str
- * @returns {Array<string>}
+ * @param {string} envvar
+ * @returns {Array<string> | undefined}
  */
-function parseStringList(str) {
-    if (!str) {
-        return [];
+function getInstrumentationsFromEnv(envvar) {
+    if (process.env[envvar]) {
+        const instrumentations = process.env[envvar]
+            .split(',')
+            .map((s) => s.trim())
+            .filter((s) => s)
+            .map((s) => `@opentelemetry/instrumentation-${s}`);
+
+        for (const name of instrumentations) {
+            if (!INSTRUMENTATIONS[name]) {
+                log.warn(
+                    `Unknown instrumentation "${name}" specified in the environment variable ${envvar}`
+                );
+            }
+        }
+
+        return instrumentations;
     }
 
-    return str
-        .split(',')
-        .map((s) => s.trim())
-        .filter((s) => s);
+    return undefined;
 }
 
 /**
@@ -205,49 +215,42 @@ function parseStringList(str) {
 function getInstrumentations(opts = {}) {
     /** @type {Array<Instrumentation>} */
     const instrumentations = [];
-
-    const getInstrName = (name) => `@opentelemetry/instrumentation-${name}`;
-    const enabledFromEnv = getEnvVar('OTEL_NODE_ENABLED_INSTRUMENTATIONS');
-    const disabledFromEnv = getEnvVar('OTEL_NODE_DISABLED_INSTRUMENTATIONS');
-    const enabledList = parseStringList(enabledFromEnv).map(getInstrName);
-    const disabledList = parseStringList(disabledFromEnv).map(getInstrName);
-
-    for (const name of enabledList) {
-        if (!INSTRUMENTATIONS[name]) {
-            log.warn(
-                `Invalid instrumentation "${name}" specified in the environment variable OTEL_NODE_ENABLED_INSTRUMENTATIONS`
-            );
-        }
-    }
-    for (const name of disabledList) {
-        if (!INSTRUMENTATIONS[name]) {
-            log.warn(
-                `Invalid instrumentation "${name}" specified in the environment variable OTEL_NODE_DISABLED_INSTRUMENTATIONS`
-            );
-        }
-    }
+    const enabledFromEnv = getInstrumentationsFromEnv(
+        'OTEL_NODE_ENABLED_INSTRUMENTATIONS'
+    );
+    const disabledFromEnv = getInstrumentationsFromEnv(
+        'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
+    );
 
     Object.keys(INSTRUMENTATIONS).forEach((name) => {
-        // 1st check what was configured via env
-        if (disabledList.length && disabledList.includes(name)) {
+        // Skip if the env configuration says so
+        if (enabledFromEnv && !enabledFromEnv.includes(name)) {
             return;
         }
-
-        if (enabledList.length && !enabledList.includes(name)) {
-            return;
+        if (disabledFromEnv && disabledFromEnv.includes(name)) {
+            // Do not skip if it was in the enable list
+            if (!enabledFromEnv) {
+                return;
+            }
         }
 
-        // 2nd check the configuration passed
-        // XXX: discuss what takes precedence if `opts` argument id passed in
         const isFactory = typeof opts[name] === 'function';
         const isObject = typeof opts[name] === 'object';
         const instrFactory = isFactory ? opts[name] : INSTRUMENTATIONS[name];
         const instrConfig = isObject ? opts[name] : undefined;
 
-        // We should instantiate a instrumentation if:
-        // - there is no config passed (elastic SDK will use its defaults)
-        // - the configuration passed is not disabling it
+        // We should instantiate a instrumentation:
+        // - if set via OTEL_NODE_ENABLED_INSTRUMENTATIONS
+        //      - overriding any config that might be passed
+        // - otherwise
+        //      - of there is no config passed (elastic SDK will use its defaults)
+        //      - if the configuration passed is not disabling it
         let instr;
+
+        if (instrConfig && enabledFromEnv) {
+            instrConfig.enabled = true;
+        }
+
         if (!instrConfig || instrConfig.enabled !== false) {
             instr = instrFactory(instrConfig);
         }
