@@ -2,6 +2,7 @@
 
 ## untagged
 
+- Support `bytesValue` attributes.
 - Support `boolValue` attributes. I first saw this with:
     ```
     KeyValue { key: 'llm.is_streaming', value: AnyValue { boolValue: false } },
