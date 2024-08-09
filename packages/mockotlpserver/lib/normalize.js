@@ -64,6 +64,8 @@ const statusCodeEnumFromVal = {
 function normAttrValue(v) {
     if ('stringValue' in v) {
         return v.stringValue;
+    } else if ('boolValue' in v) {
+        return v.boolValue;
     } else if ('arrayValue' in v) {
         return v.arrayValue.values.map(normAttrValue);
     } else if ('intValue' in v) {
