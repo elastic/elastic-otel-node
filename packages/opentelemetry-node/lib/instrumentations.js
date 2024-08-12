@@ -223,15 +223,13 @@ function getInstrumentations(opts = {}) {
     );
 
     Object.keys(INSTRUMENTATIONS).forEach((name) => {
-        // Skip if the env configuration says so
+        // Skip if env has an `enabled` list and does not include this one
         if (enabledFromEnv && !enabledFromEnv.includes(name)) {
             return;
         }
+        // Skip if env has an `disabled` list and it's present (overriding enabled list)
         if (disabledFromEnv && disabledFromEnv.includes(name)) {
-            // Do not skip if it was in the enable list
-            if (!enabledFromEnv) {
-                return;
-            }
+            return;
         }
 
         const isFactory = typeof opts[name] === 'function';
@@ -242,6 +240,7 @@ function getInstrumentations(opts = {}) {
         // We should instantiate a instrumentation:
         // - if set via OTEL_NODE_ENABLED_INSTRUMENTATIONS
         //      - overriding any config that might be passed
+        //      NOTE: factories are not overwritten
         // - otherwise
         //      - of there is no config passed (elastic SDK will use its defaults)
         //      - if the configuration passed is not disabling it

@@ -159,11 +159,11 @@ const testFixtures = [
                 ),
                 'should enable express instrumentation set in OTEL_NODE_ENABLED_INSTRUMENTATIONS'
             );
-            t.ok(
+            t.notOk(
                 getLine(
                     'Enabling instrumentation \\"@opentelemetry/instrumentation-mongodb\\"'
                 ),
-                'should enable mongodb instrumentation set in OTEL_NODE_ENABLED_INSTRUMENTATIONS'
+                'mongodb: OTEL_NODE_DISABLED_INSTRUMENTATIONS wins over OTEL_NODE_ENABLED_INSTRUMENTATIONS'
             );
             t.notOk(
                 getLine(
