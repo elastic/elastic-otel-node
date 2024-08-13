@@ -89,6 +89,8 @@ const {TediousInstrumentation} = require('@opentelemetry/instrumentation-tedious
 const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici');
 const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
 
+const {log} = require('./logging');
+
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
 // https://github.com/open-telemetry/opentelemetry-js/blob/1b4999f386e0240b7f65350e8360ccc2930b0fe6/experimental/packages/opentelemetry-instrumentation/src/platform/node/instrumentation.ts#L71
@@ -130,6 +132,40 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-winston': (cfg) => new WinstonInstrumentation(cfg),
 };
 /* eslint-enable prettier/prettier */
+
+/**
+ * Reads a string in the format `value1,value2` and parses
+ * it into an array. This is the format specified for comma separated
+ * list for OTEL environment vars. Example:
+ * https://opentelemetry.io/docs/languages/sdk-configuration/general/#otel_propagators
+ *
+ * If the param is not defined or falsy it returns an empty array. The resulting
+ * array has only nonempty string.
+ *
+ * @param {string} envvar
+ * @returns {Array<string> | undefined}
+ */
+function getInstrumentationsFromEnv(envvar) {
+    if (process.env[envvar]) {
+        const instrumentations = process.env[envvar]
+            .split(',')
+            .map((s) => s.trim())
+            .filter((s) => s)
+            .map((s) => `@opentelemetry/instrumentation-${s}`);
+
+        for (const name of instrumentations) {
+            if (!INSTRUMENTATIONS[name]) {
+                log.warn(
+                    `Unknown instrumentation "${name}" specified in the environment variable ${envvar}`
+                );
+            }
+        }
+
+        return instrumentations;
+    }
+
+    return undefined;
+}
 
 /**
  * With this method you can disable, configure and replace the instrumentations
@@ -179,22 +215,47 @@ const INSTRUMENTATIONS = {
 function getInstrumentations(opts = {}) {
     /** @type {Array<Instrumentation>} */
     const instrumentations = [];
+    const enabledFromEnv = getInstrumentationsFromEnv(
+        'OTEL_NODE_ENABLED_INSTRUMENTATIONS'
+    );
+    const disabledFromEnv = getInstrumentationsFromEnv(
+        'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
+    );
 
     Object.keys(INSTRUMENTATIONS).forEach((name) => {
+        // Skip if env has an `enabled` list and does not include this one
+        if (enabledFromEnv && !enabledFromEnv.includes(name)) {
+            return;
+        }
+        // Skip if env has an `disabled` list and it's present (overriding enabled list)
+        if (disabledFromEnv && disabledFromEnv.includes(name)) {
+            return;
+        }
+
         const isFactory = typeof opts[name] === 'function';
         const isObject = typeof opts[name] === 'object';
         const instrFactory = isFactory ? opts[name] : INSTRUMENTATIONS[name];
         const instrConfig = isObject ? opts[name] : undefined;
 
-        // We should instantiate a instrumentation if:
-        // - there is no config passed (elastic SDK will use its defaults)
-        // - the configuration passed is not disabling it
+        // We should instantiate a instrumentation:
+        // - if set via OTEL_NODE_ENABLED_INSTRUMENTATIONS
+        //      - overriding any config that might be passed
+        //      NOTE: factories are not overwritten
+        // - otherwise
+        //      - of there is no config passed (elastic SDK will use its defaults)
+        //      - if the configuration passed is not disabling it
         let instr;
+
+        if (instrConfig && enabledFromEnv) {
+            instrConfig.enabled = true;
+        }
+
         if (!instrConfig || instrConfig.enabled !== false) {
             instr = instrFactory(instrConfig);
         }
 
         if (instr) {
+            log.debug(`Enabling instrumentation "${name}"`);
             instrumentations.push(instr);
         }
     });
