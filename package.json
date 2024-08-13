@@ -1,25 +1,21 @@
 {
   "name": "elastic-otel-node",
   "version": "0.1.0",
-  "workspaces": [
-    "packages/*",
-    "examples"
-  ],
+  "description": "a monorepo for Elastic Node.js things for OpenTelemetry, you probably want ./packages/opentelemetry-node",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "lint": "npm run lint:eslint && npm run --if-present --workspaces lint",
-    "lint:eslint": "eslint --ext=js,mjs,cjs scripts # requires node >=16.0.0",
-    "lint:fix": "eslint --ext=js,mjs,cjs .eslintrc.js scripts examples --fix && npm run --if-present --workspaces lint:fix",
-    "test": "npm run --if-present --workspaces test",
-    "maint:update-otel-deps": "node scripts/update-otel-deps.js",
+    "ci-all": "set -e; ls -d . packages/* examples | while read d; do (cd $d; echo; echo \"> $d\"; npm ci); done",
+    "clean-all": "ls -d . packages/* examples | while read d; do (cd $d; echo \"> $d\"; rm -rf node_modules); done",
+    "oneach": "./scripts/oneach.sh",
+    "lint": "npm run lint:eslint && ls -d packages/* | while read d; do (cd $d; npm run lint); done",
+    "lint:eslint": "eslint --ext=js,mjs,cjs scripts examples # requires node >=16.0.0",
+    "lint:fix": "eslint --ext=js,mjs,cjs .eslintrc.js scripts examples --fix && ls -d packages/* | while read d; do (cd $d; npm run lint:fix); done",
+    "test": "ls -d packages/opentelemetry-node | while read d; do (cd $d; npm test); done",
     "maint:update-protos": "node scripts/update-protos.js"
   },
-  "dependencies": {
-    "@elastic/opentelemetry-node": "file:./packages/opentelemetry-node"
-  },
   "devDependencies": {
-    "@types/node": "^20.14.10",
+    "@types/node": "^22.2.0",
     "dependency-check": "^4.1.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -28,10 +24,10 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-promise": "^6.1.1",
-    "glob": "^11.0.0",
+    "glob": "^10.4.5",
     "json": "^11.0.0",
     "minimatch": "^9.0.5",
-    "semver": "^7.6.2",
+    "semver": "^7.6.3",
     "typescript": "^4.4.4"
   }
 }

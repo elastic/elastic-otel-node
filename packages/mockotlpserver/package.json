@@ -41,7 +41,7 @@
     "mockotlpserver": "lib/cli.js"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.10.11",
+    "@grpc/grpc-js": "^1.11.1",
     "@grpc/proto-loader": "^0.7.12",
     "@opentelemetry/core": "^1.21.0",
     "dashdash": "^2.0.0",

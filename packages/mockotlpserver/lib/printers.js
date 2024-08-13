@@ -101,7 +101,7 @@ class InspectPrinter extends Printer {
         super(log);
         /** @private */
         this._inspectOpts = {
-            depth: 13, // Need 13 to get full metrics data structure.
+            depth: 100, // Need 13 for full metrics data structure, more for some logs.
             breakLength: process.stdout.columns || 120,
         };
         this._signals = signals;

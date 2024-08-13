@@ -37,12 +37,12 @@ jobs:
           - '22.0'
           - '20'
           - '20.0'
-          - '18.18.2' # Skip >=18.19.0 until IITM issues are resolved.
+          - '18'
           - '18.0'
           - '16'
           - '16.0'
           - '14'
-          - '14.17'
+          - '14.18.0'
 
     runs-on: ubuntu-latest
 
@@ -78,10 +78,10 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
-    - name: Update npm to a version that supports workspaces (v7 or later)
-      if: ${{ matrix.node < 16 }}
+    - name: Update npm to a version that supports package-lock lockfileVersion=2.
+      if: ${{ startsWith(matrix.node, '14') }}
       run: npm install -g npm@9 # npm@9 supports node >=14.17.0
-    - run: npm ci
+    - run: npm run ci-all
     - run: npm test
 
   # TODO: test-windows eventually

@@ -2,6 +2,11 @@
 
 ## untagged
 
+- Support `bytesValue` attributes.
+- Support `boolValue` attributes. I first saw this with:
+    ```
+    KeyValue { key: 'llm.is_streaming', value: AnyValue { boolValue: false } },
+    ```
 - Update opentelemetry-proto protos to v1.3.2.
 
 ## v0.3.0
