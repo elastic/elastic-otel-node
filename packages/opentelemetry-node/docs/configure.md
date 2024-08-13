@@ -9,10 +9,7 @@ Assumptions we're comfortable making about the reader:
 
 # Configuration
 
-> [!WARNING]
-> The Elastic Distribution for OpenTelemetry Node.js is not yet recommended for production use. Functionality may be changed or removed in future releases. Alpha releases are not subject to the support SLA of official GA features.
->
-> We welcome your feedback! You can reach us by [opening a GitHub issue](https://github.com/elastic/elastic-otel-node/issues) or starting a discussion thread on the [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
+Configure the Elastic Distribution for OpenTelemetry Node.js (the distro) to send data to Elastic.
 
 <!-- ✅ How users set configuration options -->
 ## Configuration method
@@ -45,7 +42,7 @@ export OTEL_SERVICE_NAME=my-service
 <!-- ✅ List all available configuration options -->
 ## Configuration options
 
-Because the Elastic Distribution for OpenTelemetry Node.js ("the distro") is an extension of the [OpenTelemetry Node.js SDK](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node) and other OpenTelemetry JavaScript packages, it supports `OTEL_*` environment variables per the [OpenTelemetry Environment Variable](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/) spec.
+Because the Elastic Distribution for OpenTelemetry Node.js (the distro) is an extension of the [OpenTelemetry Node.js SDK](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node) and other OpenTelemetry JavaScript packages, it supports `OTEL_*` environment variables per the [OpenTelemetry Environment Variable](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/) spec.
 
 <!--
 TODO:
@@ -67,40 +64,15 @@ The distro supports the following Elastic-specific options:
 <!-- ✅ List auth methods -->
 ## Authentication methods
 
-When sending data to Elastic, there are two ways you can authenticate: using a secret token or using an APM agent key.
-
-### Use a secret token
-
-<!-- ✅ What is this -->
-<!-- ✅ Why use this -->
-[Secret tokens](https://elastic.co/guide/en/observability/current/apm-secret-token.html) are used to authorize
-requests to the APM Server. Both the distro and APM Server must be configured with the same secret token for
-the request to be accepted.
-
-<!-- ✅ How do you authenticate using this method? -->
-
-You can find the values of these variables in Kibana's APM tutorial.
-In Kibana:
-
-1. Search for _APM Tutorial_.
-1. Scroll down to the _APM Agents_ section and select the **OpenTelemetry** tab.
-1. The appropriate values for `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS` are shown there. For example:
-    ```sh
-    export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.es.io
-    export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer P....l"
-    ```
+When sending data to Elastic, there are two ways you can authenticate: using an APM agent key or using a secret token.
 
 ### Use an APM agent key (API key)
 
-<!-- ✅ What is this? -->
-It is also possible to authenticate to an Elastic Observability endpoint using
-an [APM agent key](https://elastic.co/guide/en/observability/current/apm-api-key.html).
-These are revocable API keys.
-
-<!--
-TODO: Why would you choose this method?
-Use this method only if it's enabled?
--->
+<!-- ✅ What and why -->
+[APM agent keys](https://www.elastic.co/guide/en/observability/current/apm-api-key.html) are
+used to authorize requests to an Elastic Observability endpoint.
+APM agent keys are revocable, you can have more than one of them, and
+you can add or remove them without restarting APM Server.
 
 <!-- ✅ How do you authenticate using this method? -->
 To create and manage APM Agent keys in Kibana:
@@ -118,3 +90,22 @@ different auth schema (`ApiKey` rather than `Bearer`). For example:
 export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.es.io
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=ApiKey TkpXUkx...dVZGQQ=="
 ```
+
+### Use a secret token
+
+<!-- ✅ What and why -->
+[Secret tokens](https://elastic.co/guide/en/observability/current/apm-secret-token.html) are used to authorize
+requests to the APM Server. Both the distro and APM Server must be configured with the same secret token for
+the request to be accepted.
+
+<!-- ✅ How do you authenticate using this method? -->
+You can find the values of these variables in Kibana's APM tutorial.
+In Kibana:
+
+1. Search for _APM Tutorial_.
+1. Scroll down to the _APM Agents_ section and select the **OpenTelemetry** tab.
+1. The appropriate values for `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_HEADERS` are shown there. For example:
+    ```sh
+    export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.es.io
+    export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer P....l"
+    ```

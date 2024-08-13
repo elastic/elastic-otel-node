@@ -1,23 +1,10 @@
-<!--
-Goal of this doc:
-???
-
-Assumptions we're comfortable making about the reader:
-- ???
-- ???
-- ???
--->
+<!-- Goal of this doc: ??? -->
 
 # Metrics
 
-> [!WARNING]
->  The Elastic Distribution for OpenTelemetry Node.js is not yet recommended for production use. Functionality may be changed or removed in future releases. Alpha releases are not subject to the support SLA of official GA features.
->
-> We welcome your feedback! You can reach us by [opening a GitHub issue](https://github.com/elastic/elastic-otel-node/issues) or starting a discussion thread on the [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
-
 ## Enabled by default
 
-In this distribution metrics are enabled by default and sent to the endpoint
+In the Elastic Distribution for Node.js (the distro) metrics are enabled by default and sent to the endpoint
 configured by you. If you wish to disable metrics you can by setting the env
 variable `ELASTIC_OTEL_METRICS_DISABLED` to the string `true`.
 
@@ -36,4 +23,4 @@ to export data you can use the env vars already defined in [the spec](https://op
 ## Host metrics
 
 The Elastic Distribution for OpenTelemetry Node.js also gathers metrics from the
-host machine with `@opentelemetry/host-metrics` pacakge.
+host machine with `@opentelemetry/host-metrics` package.

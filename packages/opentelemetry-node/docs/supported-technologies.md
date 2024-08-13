@@ -1,23 +1,10 @@
-<!--
-Goal of this doc:
-???
-
-Assumptions we're comfortable making about the reader:
-- ???
-- ???
-- ???
--->
+<!-- Goal of this doc: ??? -->
 
 # Supported technologies
 
-> [!WARNING]
->  The Elastic Distribution for OpenTelemetry Node.js is not yet recommended for production use. Functionality may be changed or removed in future releases. Alpha releases are not subject to the support SLA of official GA features.
->
-> We welcome your feedback! You can reach us by [opening a GitHub issue](https://github.com/elastic/elastic-otel-node/issues) or starting a discussion thread on the [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
-
 ## Elastic Stack versions
 
-The Elastic Distribution for OpenTelemetry Node.js ("the distro") sends data
+The Elastic Distribution for OpenTelemetry Node.js (the distro) sends data
 via OpenTelemetry protocol (OTLP). Since version 7.14, Elastic Observability
 [supports OTLP natively](https://www.elastic.co/blog/native-opentelemetry-support-in-elastic-observability).
 

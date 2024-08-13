@@ -10,17 +10,12 @@ Assumptions we're comfortable making about the reader:
 
 # Get started
 
-> [!WARNING]
->  The Elastic Distribution for OpenTelemetry Node.js is not yet recommended for production use. Functionality may be changed or removed in future releases. Alpha releases are not subject to the support SLA of official GA features.
->
-> We welcome your feedback! You can reach us by [opening a GitHub issue](https://github.com/elastic/elastic-otel-node/issues) or starting a discussion thread on the [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
-
-This guide shows you how to use the Elastic Distribution for OpenTelemetry Node.js ("the distro")
+This guide shows you how to use the Elastic Distribution for OpenTelemetry Node.js (the distro)
 to instrument your Node.js application and send OpenTelemetry data to an Elastic Observability deployment.
 
-This doc will guide you through the minimal configuration options to get the Elastic distro set up in your application.
-You do _not_ need any existing experience with OpenTelemetry to set up the Elastic distro initially.
-If you need more control over your configuration after getting set up, you can learn more in [OpenTelemetry SDK documentation](https://opentelemetry.io/docs/languages/js).
+**Already familiar with OpenTelemetry?** It's an explicit goal of this distribution to introduce _no new concepts_ outside those defined by the wider OpenTelemetry community.
+
+**New to OpenTelemetry?** This section will guide you through the _minimal_ configuration options to get the distro set up in your application. You do _not_ need any existing experience with OpenTelemetry to set up the distro initially. If you need more control over your configuration after getting set up, you can learn more in the [OpenTelemetry documentation](https://opentelemetry.io/docs/languages/js).
 
 > [!NOTE]
 > As an OpenTelemetry SDK, the distro supports sending data to any OpenTelemetry protocol (OTLP) endpoint ([OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)), but this guide assumes you are sending data to Elastic.
