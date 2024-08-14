@@ -1,4 +1,4 @@
-# Contributing to the Elastic Distribution for OpenTelemetry Node.js
+# Contributing to the Elastic Distribution of OpenTelemetry Node.js
 
 This distribution is open source and we love to receive contributions.
 There are many ways to contribute: submitting bug reports and feature requests,

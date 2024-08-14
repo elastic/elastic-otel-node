@@ -156,7 +156,7 @@ class ElasticNodeSDK extends NodeSDK {
                     runtime: `Node.js ${process.version}`,
                 },
             },
-            'start Elastic Distribution for OpenTelemetry Node.js'
+            'start Elastic Distribution of OpenTelemetry Node.js'
         );
         super.start();
 
