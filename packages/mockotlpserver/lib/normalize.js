@@ -66,6 +66,8 @@ function normAttrValue(v) {
         return v.stringValue;
     } else if ('boolValue' in v) {
         return v.boolValue;
+    } else if ('doubleValue' in v) {
+        return v.doubleValue;
     } else if ('arrayValue' in v) {
         return v.arrayValue.values.map(normAttrValue);
     } else if ('intValue' in v) {
@@ -102,7 +104,9 @@ function normAttrValue(v) {
         // This normalization will use `null`.
         return null;
     }
-    throw new Error(`unexpected type of attributes value: ${v}`);
+    throw new Error(
+        `unexpected type of attributes value: ${JSON.stringify(v)}`
+    );
 }
 
 /**
