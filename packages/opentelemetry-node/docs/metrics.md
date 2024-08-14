@@ -4,7 +4,7 @@
 
 ## Enabled by default
 
-In the Elastic Distribution for Node.js (the distro) metrics are enabled by default and sent to the endpoint
+In the Elastic Distribution for Node.js (EDOT Node.js) metrics are enabled by default and sent to the endpoint
 configured by you. If you wish to disable metrics you can by setting the env
 variable `ELASTIC_OTEL_METRICS_DISABLED` to the string `true`.
 
@@ -22,5 +22,5 @@ to export data you can use the env vars already defined in [the spec](https://op
 
 ## Host metrics
 
-The Elastic Distribution for OpenTelemetry Node.js also gathers metrics from the
+EDOT Node.js also gathers metrics from the
 host machine with `@opentelemetry/host-metrics` package.

@@ -4,7 +4,7 @@
 
 ## Elastic Stack versions
 
-The Elastic Distribution for OpenTelemetry Node.js (the distro) sends data
+The Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js) sends data
 via OpenTelemetry protocol (OTLP). Since version 7.14, Elastic Observability
 [supports OTLP natively](https://www.elastic.co/blog/native-opentelemetry-support-in-elastic-observability).
 

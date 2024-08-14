@@ -1,6 +1,6 @@
 <!--
 Goal of this doc:
-The user is able to successfully see data from their Node application make it to the Elastic UI via the Elastic Distribution for OpenTelemetry Node.js
+The user is able to successfully see data from their Node application make it to the Elastic UI via the Elastic Distribution of OpenTelemetry Node.js
 
 Assumptions we're comfortable making about the reader:
 * They are familiar with Elastic
@@ -10,17 +10,17 @@ Assumptions we're comfortable making about the reader:
 
 # Get started
 
-This guide shows you how to use the Elastic Distribution for OpenTelemetry Node.js (the distro)
+This guide shows you how to use the Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js)
 to instrument your Node.js application and send OpenTelemetry data to an Elastic Observability deployment.
 
 **Already familiar with OpenTelemetry?** It's an explicit goal of this distribution to introduce _no new concepts_ outside those defined by the wider OpenTelemetry community.
 
-**New to OpenTelemetry?** This section will guide you through the _minimal_ configuration options to get the distro set up in your application. You do _not_ need any existing experience with OpenTelemetry to set up the distro initially. If you need more control over your configuration after getting set up, you can learn more in the [OpenTelemetry documentation](https://opentelemetry.io/docs/languages/js).
+**New to OpenTelemetry?** This section will guide you through the _minimal_ configuration options to get EDOT Node.js set up in your application. You do _not_ need any existing experience with OpenTelemetry to set up EDOT Node.js initially. If you need more control over your configuration after getting set up, you can learn more in the [OpenTelemetry documentation](https://opentelemetry.io/docs/languages/js).
 
 > [!NOTE]
-> As an OpenTelemetry SDK, the distro supports sending data to any OpenTelemetry protocol (OTLP) endpoint ([OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)), but this guide assumes you are sending data to Elastic.
+> As an OpenTelemetry SDK, EDOT Node.js supports sending data to any OpenTelemetry protocol (OTLP) endpoint ([OpenTelemetry Collector](https://opentelemetry.io/docs/collector/)), but this guide assumes you are sending data to Elastic.
 
-<!-- ✅ What the user needs to know and/or do before they install the distro -->
+<!-- ✅ What the user needs to know and/or do before they install EDOT Node.js -->
 ## Prerequisites
 
 Before getting started, you'll need somewhere to send the gathered OpenTelemetry data, so it can be viewed and analyzed. This doc assumes you're using an [Elastic Observability](https://www.elastic.co/observability) cloud deployment. You can use an existing one or set up a new one.
@@ -37,7 +37,7 @@ To create your first Elastic Observability deployment:
 
 </details>
 
-<!-- ✅ How to install the distro -->
+<!-- ✅ How to install EDOT Node.js -->
 ## Install
 
 <!-- ✅ Step-by-step instructions -->
@@ -47,7 +47,7 @@ Install the `@elastic/opentelemetry-node` package:
 npm install --save @elastic/opentelemetry-node
 ```
 
-The distro is a single package that includes all the OpenTelemetry JS packages
+EDOT Node.js is a single package that includes all the OpenTelemetry JS packages
 that are needed for most cases.
 
 <!-- TODO: refer to advanced section of "start the SDK" when we have that doc. -->
@@ -55,14 +55,14 @@ that are needed for most cases.
 <!-- ✅ Start-to-finish operation -->
 ## Send data to Elastic
 
-After installing the distro, configure and initialize it to start
+After installing EDOT Node.js, configure and initialize it to start
 sending data to Elastic.
 
 <!-- ✅ Provide _minimal_ configuration/setup -->
-### Configure the distro
+### Configure EDOT Node.js
 
 <!-- ✅ Step-by-step instructions -->
-To configure the distro, at a minimum you'll need your Elastic Observability cloud deployment's OTLP endpoint and
+To configure EDOT Node.js, at a minimum you'll need your Elastic Observability cloud deployment's OTLP endpoint and
 authorization data to set the appropriate `OTLP_*` environment variables:
 
 * `OTEL_EXPORTER_OTLP_ENDPOINT`: The full URL of the endpoint where data will be sent.
@@ -84,9 +84,9 @@ In Kibana:
 For more information on all the available configuration options, refer to [Configuration](./configure.md).
 
 <!-- ✅ Start sending data to Elastic -->
-### Initialize the distro
+### Initialize EDOT Node.js
 
-For the distro to automatically instrument modules used by your Node.js service,
+For EDOT Node.js to automatically instrument modules used by your Node.js service,
 it must be started before you `require` your service code's dependencies --
 for example, before `express` or `http` are loaded.
 
@@ -99,31 +99,31 @@ distro started is by using the `-r, --require` Node.js
 node --require @elastic/opentelemetry-node my-service.js
 ```
 
-The distro will automatically instrument popular modules (listed in [Supported technologies](./supported-technologies.md))
+EDOT Node.js will automatically instrument popular modules (listed in [Supported technologies](./supported-technologies.md))
 used by your service, and send traces, metrics, and logs telemetry data (using
 OTLP) to your configured observability backend.
 
-<!-- TODO: link to a reference section on other ways to start the distro once we have those docs. -->
+<!-- TODO: link to a reference section on other ways to start EDOT Node.js once we have those docs. -->
 
 <!-- ✅ What success looks like -->
-## Confirm that the distro is working
+## Confirm that EDOT Node.js is working
 
-To confirm that the distro has successfully connected to Elastic:
+To confirm that EDOT Node.js has successfully connected to Elastic:
 
 1. Go to **APM** → **Services**.
-1. You should see the name of the service to which you just added the distro. It can take several minutes after initializing the distro for the service to show up in this list.
+1. You should see the name of the service to which you just added EDOT Node.js. It can take several minutes after initializing EDOT Node.js for the service to show up in this list.
 1. Click on the name in the list to see trace data.
 
 > ![NOTE]
-> There may be no trace data to visualize unless you have _used_ your application since initializing the distro.
+> There may be no trace data to visualize unless you have _used_ your application since initializing EDOT Node.js.
 
 > [!TIP]
-> Alternatively, if you are able to see the stdout from your service, you can look for an "INFO" level log message, `start Elastic Distribution for OpenTelemetry Node.js`, at startup to confirm that the distro is up and running.
+> Alternatively, if you are able to see the stdout from your service, you can look for an "INFO" level log message, `start Elastic Distribution of OpenTelemetry Node.js`, at startup to confirm that EDOT Node.js is up and running.
 
 <!-- ✅ What they should do next -->
 ## Next steps
 
-* Learn how to configure the distro and browse all [configuration options](./configure.md).
+* Learn how to configure EDOT Node.js and browse all [configuration options](./configure.md).
 * Learn more about viewing and interpreting APM data in the [Observability guide](https://elastic.co/guide/en/observability/current/apm.html).
 * Have a question? Start a discussion thread on the [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
 <!-- TODO: Link to a more specific OpenTelemetry <-> Elastic Observability doc if/when it exists -->

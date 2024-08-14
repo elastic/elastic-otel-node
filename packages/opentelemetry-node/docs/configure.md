@@ -9,20 +9,20 @@ Assumptions we're comfortable making about the reader:
 
 # Configuration
 
-Configure the Elastic Distribution for OpenTelemetry Node.js (the distro) to send data to Elastic.
+Configure the Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js) to send data to Elastic.
 
 <!-- ✅ How users set configuration options -->
 ## Configuration method
 
 Configuration of the OpenTelemetry SDK should be performed through the
 mechanisms [documented on the OpenTelemetry website](https://opentelemetry.io/docs/languages/js/automatic/configuration/).
-The distro can be further configured using advanced settings when you need complete control of its behavior.
+EDOT Node.js can be further configured using advanced settings when you need complete control of its behavior.
 
 <!-- ✅ How -->
-The distro is typically configured with `OTEL_*` environment variables defined by the OpenTelemetry spec.
-Environment variables are read at startup and can be used to configure the Elastic distribution.
+EDOT Node.js is typically configured with `OTEL_*` environment variables defined by the OpenTelemetry spec.
+Environment variables are read at startup and can be used to configure EDOT Node.js.
 
-The distro will send telemetry data via OpenTelemetry's protocol (OTLP) to the
+EDOT Node.js will send telemetry data via OpenTelemetry's protocol (OTLP) to the
 configured endpoint (by default it sends to <http://localhost:4317>). The
 endpoint can be changed by setting the following environment vars:
 
@@ -42,7 +42,7 @@ export OTEL_SERVICE_NAME=my-service
 <!-- ✅ List all available configuration options -->
 ## Configuration options
 
-Because the Elastic Distribution for OpenTelemetry Node.js (the distro) is an extension of the [OpenTelemetry Node.js SDK](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node) and other OpenTelemetry JavaScript packages, it supports `OTEL_*` environment variables per the [OpenTelemetry Environment Variable](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/) spec.
+Because the EDOT Node.js is an extension of the [OpenTelemetry Node.js SDK](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node) and other OpenTelemetry JavaScript packages, it supports `OTEL_*` environment variables per the [OpenTelemetry Environment Variable](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/) spec.
 
 <!--
 TODO:
@@ -56,7 +56,7 @@ If not, you can delete this section.
 [[configure-distro-options]]
 === Elastic-specific configuration options
 
-The distro supports the following Elastic-specific options:
+EDOT Node.js supports the following Elastic-specific options:
 
 (List config options)
 -->
@@ -95,7 +95,7 @@ export OTEL_EXPORTER_OTLP_HEADERS="Authorization=ApiKey TkpXUkx...dVZGQQ=="
 
 <!-- ✅ What and why -->
 [Secret tokens](https://elastic.co/guide/en/observability/current/apm-secret-token.html) are used to authorize
-requests to the APM Server. Both the distro and APM Server must be configured with the same secret token for
+requests to the APM Server. Both EDOT Node.js and APM Server must be configured with the same secret token for
 the request to be accepted.
 
 <!-- ✅ How do you authenticate using this method? -->
