@@ -2,6 +2,12 @@
 
 ## untagged
 
+- Fix normalization of *empty* `kvlistValue` attributes.
+- Improve "logs-summary" rendering of "Events" (log records with a `event.name`
+  attribute) and log record `Body` fields that are multi-line strings or
+  structured objects. Before this change the summary rendering was assuming
+  the `Body` was a single-line string (typical of log record messages).
+- Support `doubleValue` attributes.
 - Support `bytesValue` attributes.
 - Support `boolValue` attributes. I first saw this with:
     ```
