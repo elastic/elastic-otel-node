@@ -86,8 +86,10 @@ function normAttrValue(v) {
         }
     } else if ('kvlistValue' in v) {
         const obj = {};
-        for (let keyValue of v.kvlistValue.values) {
-            obj[keyValue.key] = normAttrValue(keyValue.value);
+        if (v.kvlistValue.values) {
+            for (let keyValue of v.kvlistValue.values) {
+                obj[keyValue.key] = normAttrValue(keyValue.value);
+            }
         }
         return obj;
     } else if ('bytesValue' in v) {
