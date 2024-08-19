@@ -95,7 +95,7 @@ Deployment config?).
 Let's run a small app in our Kubernetes cluster that uses the mockotlpserver to
 see it working. "example-app-manual/" holds a small Express-based HTTP app
 with a single `GET /ping` endpoint. There is a Kubernetes deployment config
-to instrument the app with the Elastic Distribution for OpenTelemetry Node.js
+to instrument the app with the Elastic Distribution of OpenTelemetry Node.js
 (an wrapper around the OpenTelemetry SDK).
 
 ```sh
@@ -113,7 +113,7 @@ kubectl apply -f ./deployment.yaml
 ```
 
 If this worked, then the logs for the example-app-manual pod will show the
-Elastic distribution for OpenTelemetry Node.js (`@elastic/opentelemetry-node`)
+Elastic Distribution of OpenTelemetry Node.js (`@elastic/opentelemetry-node`)
 has started, and a number of "server /ping" requests (one from "app.js"
 itself, the others from the Kubernetes deployment "livenessProbe"):
 
@@ -129,7 +129,7 @@ mockotlpserver-845f7d8489-q844c       1/1     Running   0          71m
 > example-app-manual@1.0.0 start
 > node app.js
 
-{"name":"elastic-otel-node","level":30,"preamble":true,"distroVersion":"0.1.3","env":{"os":"linux 6.6.32-linuxkit","arch":"arm64","runtime":"Node.js v18.20.4"},"msg":"start Elastic Distribution for OpenTelemetry Node.js","time":"2024-07-10T00:17:58.129Z"}
+{"name":"elastic-otel-node","level":30,"preamble":true,"distroVersion":"0.1.3","env":{"os":"linux 6.6.32-linuxkit","arch":"arm64","runtime":"Node.js v18.20.4"},"msg":"start Elastic Distribution of OpenTelemetry Node.js","time":"2024-07-10T00:17:58.129Z"}
 ...
 Listening on { address: '0.0.0.0', family: 'IPv4', port: 3000 }
 [2024-07-10T00:18:00.510Z] server /ping
