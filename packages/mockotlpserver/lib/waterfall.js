@@ -131,6 +131,21 @@ function renderSpan(span, prefix = '') {
                 .join(' ')
         );
     }
+    // GenAI-related extras
+    // https://github.com/open-telemetry/semantic-conventions/blob/v1.27.0/model/registry/gen-ai.yaml
+    if ('gen_ai.system' in attrs) {
+        extras.push(`GenAI ${attrs['gen_ai.system']}`);
+        try {
+            extras.push(
+                `finish_reasons=${attrs['gen_ai.response.finish_reasons'].join(
+                    ','
+                )}`
+            );
+            extras.push(
+                `tokens ${attrs['gen_ai.usage.input_tokens']}in/${attrs['gen_ai.usage.output_tokens']}out`
+            );
+        } catch (_err) {}
+    }
     if (extras.length) {
         r += ` (${extras.join(', ')})`;
     }
