@@ -43,13 +43,13 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.11.1",
     "@grpc/proto-loader": "^0.7.12",
-    "@opentelemetry/core": "^1.21.0",
+    "@opentelemetry/core": "^1.26.0",
     "dashdash": "^2.0.0",
     "long": "^5.2.3",
-    "protobufjs": "^7.3.2",
-    "safe-stable-stringify": "^2.4.3"
+    "protobufjs": "^7.4.0",
+    "safe-stable-stringify": "^2.5.0"
   },
   "devDependencies": {
-    "protobufjs-cli": "^1.1.2"
+    "protobufjs-cli": "^1.1.3"
   }
 }
