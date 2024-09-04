@@ -11,7 +11,6 @@ updates:
       opentelemetry:
         patterns:
         - "@opentelemetry/*"
-        - "@smithy/*"
       aws-sdk:
         dependency-type: "development"
         patterns:
@@ -29,7 +28,7 @@ updates:
     reviewers:
       - "elastic/apm-agent-node-js"
     groups:
-      repo-root:
+      mockotlpserver:
         patterns:
         - "*"
 
