@@ -32,6 +32,12 @@
     "example": "cd ../../examples && pwd && node -r @elastic/opentelemetry-node simple-http-request.js",
     "example3": "cd ../../examples && for flav in http/protobuf http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry-node simple-http-request.js; done"
   },
+  "files": [
+    "lib",
+    "opentelemetry",
+    "db",
+    "ui"
+  ],
   "main": "lib/index.js",
   "bin": {
     "mockotlpserver": "lib/cli.js"
