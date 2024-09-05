@@ -1,9 +1,8 @@
 {
   "name": "@elastic/mockotlpserver",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "commonjs",
-  "description": "Elastic OLTP mock server for Node.js",
-  "private": true,
+  "description": "A mock OTLP server, useful for dev and testing",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -13,11 +12,8 @@
   "keywords": [
     "elastic",
     "opentelemetry",
-    "apm",
-    "tracing",
-    "metrics",
-    "logs",
-    "server",
+    "otlp",
+    "testing",
     "mock"
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",

@@ -1,7 +1,8 @@
 # @elastic/mockotlpserver Changelog
 
-## untagged
+## v0.4.0
 
+- First version being published to npm.
 - Fix normalization of *empty* `kvlistValue` attributes.
 - Improve "logs-summary" rendering of "Events" (log records with a `event.name`
   attribute) and log record `Body` fields that are multi-line strings or
