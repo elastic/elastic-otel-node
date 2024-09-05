@@ -45,7 +45,7 @@ jobs:
         # Release will result in a notification from the GitHub Slack app
         # (assuming '/github subscribe elastic/elastic-otel-node').
         if: ${{ failure() }}
-        uses: elastic/oblt-actions/slack/notify-result@v1.12.1
+        uses: elastic/oblt-actions/slack/notify-result@v1.13.0
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"
