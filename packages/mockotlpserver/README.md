@@ -24,7 +24,7 @@ To use the mock server, (a) start the server then (b) send OTLP data to it.
 The package installs a `mockotlpserver` CLI tool.
 
 ```
-npx mockotlserver
+npx mockotlpserver
 ```
 
 By default it will output received OTLP data in two forms:
