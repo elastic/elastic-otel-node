@@ -1,5 +1,10 @@
 # @elastic/mockotlpserver Changelog
 
+## v0.5.0
+
+- fix: Add shebang line to the CLI script so `npx @elastic/mockotlpserver` works.
+- feat: Add `--log-level, -l LEVEL` option. E.g. `mockotlpserver -l warn` makes startup silent.
+
 ## v0.4.1
 
 (First version published to npm.)
