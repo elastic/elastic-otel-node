@@ -4,33 +4,54 @@ A mock OTLP server/receiver for development.
 receiving OTLP requests. The data in those requests are printed to the
 console. Various output formats are supported.
 
+It also supports being run from Node.js code. This is used in the
+"../opentelemetry-node" package to assist with testing. A test is of the form:
+
+1. start the mockotlpserver
+2. run an instrumented script
+3. get the received OTLP data from the mock server and make assertions on that data.
+
+
 # Install
 
-(This package is not yet published to npm, so you'll need a clone of
-this repo.)
-
-    git clone git@github.com:elastic/elastic-otel-node.git
-    cd elastic-otel-node/packages/mockotlpserver
-    npm ci
+```
+npm install @elastic/mockotlpserver
+```
 
 # CLI Usage
 
 To use the mock server, (a) start the server then (b) send OTLP data to it.
+The package installs a `mockotlpserver` CLI tool.
 
-    npm start  # or 'node lib/cli.js'
+```
+npx mockotlpserver
+```
 
-By default it will output received OTLP data using Node.js's `inspect`
-format (used under the hood for `console.log`). This shows the complete
-object structure of the received data. For example, using an example script
-that uses the OpenTelemetry NodeSDK to trace an HTTP request/response:
+By default it will output received OTLP data in two forms:
 
-    cd ../../
-    npm run ci-all
-    cd examples/
-    node -r @elastic/opentelemetry-node simple-http-request.js
+1. `inspect` format: Uses Node.js's `util.inspect()` (used under the hood for
+   `console.log`). This shows the complete object structure of the received
+   data.
+2. `summary` format: This is a custom text format that attempts to show a
+   brief/relevant summary of the data. This format is currently more refined
+   for *traces* and somewhat for *logs / events*. For metrics, the summary
+   output is poor.
+
+For example, here is the output when receiving telemetry data from a small
+script that creates and HTTP server and makes a single request.
+(This example uses the Elastic Distribution of OpenTelemetry Node.js for
+instrumentation, the upstream OpenTelemetry Node SDK could be used as well.)
+
+```bash
+git clone git@github.com:elastic/elastic-otel-node.git
+cd elastic-otel-node
+npm run ci-all
+cd examples/
+node -r @elastic/opentelemetry-node simple-http-request.js
+```
 
 <details>
-<summary>will yield output close to the following:</summary>
+<summary>mockotlpserver console output</summary>
 
 ```
 % node lib/cli.js
@@ -164,19 +185,25 @@ ExportTraceServiceRequest {
 ------ trace 802356 (2 spans) ------
        span f06b1a "GET" (15.5ms, SPAN_KIND_CLIENT, GET http://localhost:3000/ -> 200)
   +9ms `- span 226bf7 "GET" (4.2ms, SPAN_KIND_SERVER, GET http://localhost:3000/ -> 200)
-
 ```
 
 </details>
 
-It also shows a trace waterfall text representation of received tracing data.
+In particular, note the "trace summary" output that shows a line for each span, showing parent/child relationships:
+
+```
+------ trace 802356 (2 spans) ------
+       span f06b1a "GET" (15.5ms, SPAN_KIND_CLIENT, GET http://localhost:3000/ -> 200)
+  +9ms `- span 226bf7 "GET" (4.2ms, SPAN_KIND_SERVER, GET http://localhost:3000/ -> 200)
+```
 
 
 ## Different OTLP protocols
 
-By default the NodeSDK uses the `OTLP/proto` protocol. The other flavours of OTLP
-are supported by `mockotlpserver` as well. Use the `OTEL_EXPORTER_OTLP_PROTOCOL`
-to tell the NodeSDK to use a different protocol:
+By default the OpenTelemetry JS NodeSDK uses the `OTLP/proto` protocol. The
+other flavours of OTLP are supported by `mockotlpserver` as well. Use the
+`OTEL_EXPORTER_OTLP_PROTOCOL` to tell the NodeSDK to use a different protocol.
+For example:
 
 ```
 cd ../../examples
