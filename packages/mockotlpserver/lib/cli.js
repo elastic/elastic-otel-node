@@ -236,7 +236,7 @@ async function main() {
     });
     printers.forEach((p) => p.subscribe());
 
-    log.trace({opts}, 'started');
+    log.trace({cliOpts: opts}, 'started');
 }
 
 main();

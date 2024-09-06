@@ -4,6 +4,7 @@
 
 - fix: Add shebang line to the CLI script so `npx @elastic/mockotlpserver` works.
 - feat: Add `--log-level, -l LEVEL` option. E.g. `mockotlpserver -l warn` makes startup silent.
+  Also add a `logLevel` option to the `MockOtlpServer` class for module usage.
 
 ## v0.4.1
 

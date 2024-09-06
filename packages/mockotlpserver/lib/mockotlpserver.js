@@ -61,6 +61,10 @@ class MockOtlpServer {
     /**
      * @param {object} [opts]
      * @param {import('./luggite').Logger} [opts.log]
+     * @param {string} [opts.logLevel] Optionally change the log level. This
+     *      accepts any of the log level names supported by luggite. Typically
+     *      one would use opts.log *or* opts.logLevel. The latter enables
+     *      tweaking the log level without having to pass in a custom logger.
      * @param {Array<'http'|'grpc'|'ui'>} [opts.services] Zero or more of 'http', 'grpc',
      *      and 'ui'. If not provided, then defaults to starting all services.
      * @param {string} [opts.httpHostname] Default 'localhost'.
@@ -76,6 +80,9 @@ class MockOtlpServer {
     constructor(opts) {
         opts = opts ?? {};
         this._log = opts.log ?? luggite.createLogger({name: 'mockotlpserver'});
+        if (opts.logLevel != null) {
+            this._log.level(opts.logLevel);
+        }
         this._services = opts.services ?? ['http', 'grpc', 'ui'];
         this._httpHostname = opts.httpHostname ?? DEFAULT_HOSTNAME;
         this._httpPort = opts.httpPort ?? DEFAULT_HTTP_PORT;

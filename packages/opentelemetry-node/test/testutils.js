@@ -34,8 +34,6 @@ const {
     normalizeMetrics,
 } = require('@elastic/mockotlpserver');
 
-const luggite = require('../lib/luggite');
-
 /**
  * Filter out instr-dns and instr-net spans for testing.
  * Eventually it would be preferable to have each test run with instr-dns
@@ -534,11 +532,7 @@ function runTestFixtures(suite, testFixtures) {
 
                 const collector = new TestCollector();
                 const otlpServer = new MockOtlpServer({
-                    // Pass in a logger solely to reduce the level to warn.
-                    log: luggite.createLogger({
-                        name: 'mockotlpserver',
-                        level: 'warn',
-                    }),
+                    logLevel: 'warn',
                     services: ['http'],
                     httpHostname: '127.0.0.1', // avoid default 'localhost' because possible IPv6
                     httpPort: 0,
