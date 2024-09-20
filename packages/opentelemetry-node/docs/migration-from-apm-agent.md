@@ -72,7 +72,7 @@ of starting EDOT Node.js along your application is via `--require` CLI option.
 node --require @elastic/opentelemetry-node my-service.js
 ```
 
-<!-- ✅ How to change the configuration -->
+<!-- ✅ How to change the basic configuration -->
 ## Configuration of EDOT Node.js
 
 Once you're done with the changes described in the section above it is time to migrate the configuration. EDOT Node.js is
@@ -181,7 +181,46 @@ server.listen(3000, '127.0.0.1', function () {
 
 ### Extensive use of config options
 
-TODO: review classic agent config options and add here the ones that can be migrated to OTEL env vars
+TODO: finish review of options
+TODO: put this subsection 1st
+
+<!-- ✅ Refernece fo all configurations they can migrate -->
+
+There are other configuration options that can be migrated from `elastic-apm-node` to EDOT Node.js. ...
+
+#### Log Level
+
+The [logLevel](https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html#log-level) option has a direct migration to
+OTEL configuration via `OTEL_LOG_LEVEL` environment variable. The possible values change a bit but they represent similar levels. The following
+table shows the equivalent values of log levels between `elastic-apm-node` and EDOT Node.js
+
+| ELASTIC_APM_LOG_LEVEL | OTEL_LOG_LEVEL |
+| --------------------- | -------------- |
+| `off`                 | `none`         |
+| `error`               | `error`        |
+| `warn`                | `warn`         |
+| `info`                | `info`         |
+| `debug`               | `debug`        |
+| `trace`               | `verbose`      |
+| `trace`               | `all`          |
+
+#### Active
+
+The [active](https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html#active) config option has the equivalent in OTEL via the environment variable named `OTEL_SDK_DISABLED`. Notice this it has the opposite meanig so to to disable the agent you shouls set
+this condfiguration to the string "true". Any other value will be considered false.
+
+
+#### Disable instrumentations
+
+There is a couple of ways to migrate [disableInstrumentations](https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html#disable-instrumentations) since the [specification](https://opentelemetry.io/docs/zero-code/js/configuration/) for Node.js defines two environment variables:
+
+- `OTEL_NODE_ENABLED_INSTRUMENTATIONS`: instrumentations listed in this var will be enabled
+- `OTEL_NODE_DISABLED_INSTRUMENTATIONS`: instrumentations listed in this var will be disaabled
+
+The quickest way to migrate `disableInstrumentations` is to migrate the list to `OTEL_NODE_DISABLED_INSTRUMENTATIONS` variable. You can check which instrumentations are included in EDOT Node.js in [supported technologies](./supported-technologies.md).
+
+
+TODO: environment could be set as a resource attrib using `OTEL_RESOURCE_ATTRIBUTES`???
 
 
 ## FAQ
