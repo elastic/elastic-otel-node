@@ -37,7 +37,6 @@ function fatal {
 
 # ---- mainline
 
-TOP=$(cd $(dirname $0)/../ >/dev/null; pwd)
 if [[ "$1" == "--lint" ]]; then
     LINT_MODE=true
     OUTFILE=/dev/null
@@ -134,4 +133,4 @@ npm ls --omit=dev --all --parseable \
                 }
             })
         })
-    ' >$OUTFILE
+    ' >>$OUTFILE
