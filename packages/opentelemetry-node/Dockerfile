@@ -28,12 +28,12 @@ RUN npm --loglevel=warn pack /build/src/packages/opentelemetry-node
 RUN tar --strip-components=1 -xf elastic-opentelemetry-node-*.tgz
 RUN rm elastic-opentelemetry-node-*.tgz
 # Add the lock file, so we can 'npm ci'.
-RUN cp /build/src/packages/opentelemetry-node/package-lock.json .
+RUN cp /build/src/packages/opentelemetry-node/package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 # Add license notice info for bundled dependencies.
 RUN /build/src/scripts/gen-notice.sh . > ./NOTICE2.md \
     && mv NOTICE2.md NOTICE.md
-COPY /build/src/packages/opentelemetry-node/autoinstrumentation.js ./
+RUN cp /build/src/packages/opentelemetry-node/autoinstrumentation.js ./
 
 # The OpenTelemetry Operator support for Node.js instrumentation requires:
 # 1. all files under "/autoinstrumentation",
