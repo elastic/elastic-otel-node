@@ -1,14 +1,20 @@
 # Release a tagged version of the '@elastic/opentelemetry-node' package.
 name: release
 
+# Primarily this workflow is about doing a release for a *tag*. However, this is
+# also run for pushes to "main" to (a) go through some of the motions for
+# testing, and (b) publishing the Docker image with an "edge" label.
 on:
   push:
     tags:
       - v*.*.*
+    branches:
+      - main
 
 # 'id-token' perm needed for npm publishing with provenance (see
 # https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
 permissions:
+  attestations: write
   contents: write
   pull-requests: read
   id-token: write
@@ -16,6 +22,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE_NAME: docker.elastic.co/observability/elastic-otel-node
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,16 +34,65 @@ jobs:
           node-version: 'v18.20.2'
           registry-url: 'https://registry.npmjs.org'
 
+      # Setup a Docker "buildx" builder container, used by "build-push-action"
+      # below for multi-platform image builds. Notes on multi-platform images:
+      # https://github.com/elastic/apm-agent-nodejs/issues/4038#issuecomment-2130406402
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Elastic Container registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
+          username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
+          password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
+
       - run: npm run ci-all
 
-      - name: npm publish
+      - name: Extract metadata (tags, labels)
+        id: docker-meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81  # v5.5.1
+        with:
+          images: ${{ env.DOCKER_IMAGE_NAME }}
+          flavor: |
+            latest=auto
+          tags: |
+            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
+            type=semver,pattern={{version}}
+            # "edge" Docker tag on git push to default branch
+            type=edge
+          labels: |
+            org.opencontainers.image.vendor=Elastic
+            org.opencontainers.image.title=elastic-otel-node
+            org.opencontainers.image.description=Elastic Distribution of OpenTelemetry Node.js
+
+      - name: Build and Push Docker Image
+        id: docker-push
+        uses: docker/build-push-action@5cd11c3a4ced054e52742c5fd54dca954e0edd85  # v6.7.0
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          file: 'packages/opentelemetry-node/Dockerfile'
+          push: true
+          tags: ${{ steps.docker-meta.outputs.tags }}
+          labels: ${{ steps.docker-meta.outputs.labels }}
+
+      - name: Attest Docker image
+        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c  # v1.4.3
+        with:
+          subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
+          subject-digest: ${{ steps.docker-push.outputs.digest }}
+          push-to-registry: true
+
+      - name: npm publish (only for tag releases)
+        if: startsWith(github.ref, 'refs/tags')
         working-directory: ./packages/opentelemetry-node
         run: npm publish
         env:
           # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: GitHub release
+      - name: GitHub release (only for tag releases)
+        if: startsWith(github.ref, 'refs/tags')
         run: ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}

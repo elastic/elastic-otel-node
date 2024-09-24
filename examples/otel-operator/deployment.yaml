@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      annotations:
+        # This annotation is what tells the OTel Operator "Instrumentation"
+        # to auto-instrument this application.
+        instrumentation.opentelemetry.io/inject-nodejs: "true"
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: localhost:5001/myapp
+        ports:
+        - containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 3000
+          initialDelaySeconds: 1
+          periodSeconds: 10
