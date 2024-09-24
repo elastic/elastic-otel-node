@@ -1,5 +1,9 @@
 # @elastic/mockotlpserver Changelog
 
+## Unreleased
+
+- fix: Don't throw printing a metrics summary for a histogram without attributes.
+
 ## v0.5.0
 
 - fix: Add shebang line to the CLI script so `npx @elastic/mockotlpserver` works.
