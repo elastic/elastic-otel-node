@@ -10,6 +10,9 @@ on:
       - v*.*.*
     branches:
       - main
+    paths:
+      - 'packages/opentelemetry-node/**'
+      - '.github/workflows/release.yml'
 
 # 'id-token' perm needed for npm publishing with provenance (see
 # https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
@@ -45,8 +48,6 @@ jobs:
           registry: ${{ secrets.ELASTIC_DOCKER_REGISTRY }}
           username: ${{ secrets.ELASTIC_DOCKER_USERNAME }}
           password: ${{ secrets.ELASTIC_DOCKER_PASSWORD }}
-
-      - run: npm run ci-all
 
       - name: Extract metadata (tags, labels)
         id: docker-meta

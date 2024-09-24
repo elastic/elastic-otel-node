@@ -8,13 +8,18 @@ spec:
     #endpoint: http://mockotlpserver:4317
     # HTTP/proto (used by default by EDOT)
     endpoint: http://mockotlpserver:4318
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1.0"
   nodejs:
-    #image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-nodejs:0.52.1
-    #image: docker.elastic.co/observability/elastic-otel-node
-    image: localhost:5001/elastic-otel-node
+    # image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-nodejs:0.52.1  # upstream otel-provided image
+    # image: localhost:5001/elastic-otel-node  # locally built
+    # image: docker.elastic.co/observability/elastic-otel-node:$VERSION  # a specific release
+    image: docker.elastic.co/observability/elastic-otel-node:edge  # latest "main" commit from this repo
     env:
-      - name: OTEL_LOG_LEVEL
-        value: debug
-      # Note: For OTLP endpoints that require auth, you will want an env entry
-      # for `OTEL_EXPORTER_OTLP_HEADERS="Authorization=..."` or similar.
+      # - name: OTEL_LOG_LEVEL
+      #   value: debug
+      # Note: For OTLP endpoints that require auth, you will want something like:
+      # - name: OTEL_EXPORTER_OTLP_HEADERS
+      #   value: "Authorization= ..."
 

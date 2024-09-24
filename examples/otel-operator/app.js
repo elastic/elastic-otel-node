@@ -19,24 +19,31 @@
 
 // A simple Express app with a `GET /ping` endpoint.
 
+const bunyan = require('bunyan');
 const express = require('express');
+const {metrics} = require('@opentelemetry/api');
+
+const log = bunyan.createLogger({
+    name: 'myapp',
+    serializers: bunyan.stdSerializers,
+});
+
+// A silly counter to demonstrate using custom OTel metrics.
+const meter = metrics.getMeter('myapp');
+const counter = meter.createCounter('num_pings');
 
 const app = express();
 app.get('/ping', function ping(req, res, next) {
-    console.log('[%s] server /ping', new Date().toISOString());
+    log.info({req, res}, 'ping');
+    counter.add(1);
     res.send('pong');
 });
 app.use(function onError(err, _req, res, _next) {
     res.status(500);
+    log.info({err}, 'internal error');
     res.send(`internal error: ${err.message}`);
 });
 
 const server = app.listen(3000, '0.0.0.0', () => {
-    console.log('Listening on', server.address());
+    log.info({addr: server.address()}, 'listening');
 });
-
-// Call this local server after a couple seconds so we have trace data from
-// at least one request.
-setTimeout(async () => {
-    await fetch('http://127.0.0.1:3000/ping');
-}, 2000);
