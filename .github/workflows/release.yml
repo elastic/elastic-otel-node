@@ -60,6 +60,10 @@ jobs:
             type=semver,pattern={{version}}
             # "edge" Docker tag on git push to default branch
             type=edge
+          labels: |
+            org.opencontainers.image.vendor=Elastic
+            org.opencontainers.image.title=elastic-otel-node
+            org.opencontainers.image.description=Elastic Distribution of OpenTelemetry Node.js
 
       - name: Build and Push Docker Image
         id: docker-push
