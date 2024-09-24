@@ -1,0 +1,52 @@
+# Release a tagged version of the '@elastic/mockotlpserver' package.
+name: release-mockotlpserver
+
+on:
+  push:
+    tags:
+      - mockotlpserver-v*.*.*
+
+# 'id-token' perm needed for npm publishing with provenance (see
+# https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
+permissions:
+  contents: write
+  pull-requests: read
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'v18.20.4'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm run ci-all
+
+      - name: npm publish
+        working-directory: ./packages/mockotlpserver
+        run: npm publish
+        env:
+          # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: GitHub release
+        run: ./scripts/github-release.sh "packages/mockotlpserver" "${{ github.ref_name }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Notify in Slack
+        # Only notify on failure, because on success the published GitHub
+        # Release will result in a notification from the GitHub Slack app
+        # (assuming '/github subscribe elastic/elastic-otel-node').
+        if: ${{ failure() }}
+        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
+          message: '[${{ github.repository }}] Release `@elastic/mockotlpserver` *${{ github.ref_name }}*'

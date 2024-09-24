@@ -1,7 +1,30 @@
 # @elastic/mockotlpserver Changelog
 
-## untagged
+## Unreleased
 
+- fix: Don't throw printing a metrics summary for a histogram without attributes.
+
+## v0.5.0
+
+- fix: Add shebang line to the CLI script so `npx @elastic/mockotlpserver` works.
+- feat: Add `--log-level, -l LEVEL` option. E.g. `mockotlpserver -l warn` makes startup silent.
+  Also add a `logLevel` option to the `MockOtlpServer` class for module usage.
+
+## v0.4.1
+
+(First version published to npm.)
+
+- Fix "publishConfig" so npm publishing can work.
+
+## v0.4.0
+
+- Fix normalization of *empty* `kvlistValue` attributes.
+- Improve "logs-summary" rendering of "Events" (log records with a `event.name`
+  attribute) and log record `Body` fields that are multi-line strings or
+  structured objects. Before this change the summary rendering was assuming
+  the `Body` was a single-line string (typical of log record messages).
+- Support `doubleValue` attributes.
+- Support `bytesValue` attributes.
 - Support `boolValue` attributes. I first saw this with:
     ```
     KeyValue { key: 'llm.is_streaming', value: AnyValue { boolValue: false } },

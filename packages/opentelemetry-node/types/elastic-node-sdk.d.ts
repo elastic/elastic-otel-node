@@ -5,4 +5,4 @@ export class ElasticNodeSDK extends NodeSDK {
     /** @private */
     private _log;
 }
-import { NodeSDK } from "@opentelemetry/sdk-node/build/src/sdk";
+import { NodeSDK } from "@opentelemetry/sdk-node";

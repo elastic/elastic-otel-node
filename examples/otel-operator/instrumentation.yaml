@@ -1,0 +1,20 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: my-otel-instrumentation
+spec:
+  exporter:
+    # gRPC (used by default by opentelemetry-operator/autoinstrumentation-nodejs)
+    #endpoint: http://mockotlpserver:4317
+    # HTTP/proto (used by default by EDOT)
+    endpoint: http://mockotlpserver:4318
+  nodejs:
+    #image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-nodejs:0.52.1
+    #image: docker.elastic.co/observability/elastic-otel-node
+    image: localhost:5001/elastic-otel-node
+    env:
+      - name: OTEL_LOG_LEVEL
+        value: debug
+      # Note: For OTLP endpoints that require auth, you will want an env entry
+      # for `OTEL_EXPORTER_OTLP_HEADERS="Authorization=..."` or similar.
+

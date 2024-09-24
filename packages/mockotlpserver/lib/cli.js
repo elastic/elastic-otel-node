@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
  * or more contributor license agreements. See the NOTICE file distributed with
@@ -94,12 +96,17 @@ const OPTIONS = [
         help: 'Print this help and exit.',
     },
     {
+        names: ['log-level', 'l'],
+        type: 'string',
+        help: `Set the log level to one of "trace", "debug", "info", "warn", "error", "fatal".`,
+        default: 'info',
+    },
+    {
         names: ['o'],
         type: 'arrayOfPrinters',
-        help: `Formats for printing OTLP data. One or more of "${PRINTER_NAMES.join(
+        help: `Output formats for printing OTLP data. Comma-separated, one or more of "${PRINTER_NAMES.join(
             '", "'
-        )}".`,
-        default: ['inspect', 'summary'],
+        )}". Default: "inspect,summary"`,
     },
     {
         names: ['hostname'],
@@ -124,15 +131,23 @@ async function main() {
         log.error({err}, `${CMD}: command-line options error`);
         process.exit(1);
     }
+    log.level(opts.log_level);
     if (opts.help) {
         var help = parser.help({includeDefault: true}).trimRight();
         console.log(
             'Usage:\n' +
-                '    node lib/mockotlpserver.js [OPTIONS]\n' +
+                '    npx @elastic/mockotlpserver [OPTIONS]\n' +
+                '    mockotlpserver [OPTIONS]               # if installed globally\n' +
                 'Options:\n' +
                 help
         );
         process.exit(0);
+    }
+    if (!opts.o) {
+        // The way dashdash `--help` output prints the default of an array is
+        // misleading, so we'll apply the default here and manually document
+        // the default in the "help:" string above.
+        opts.o = ['inspect', 'summary'];
     }
 
     /** @type {Array<'http'|'grpc'|'ui'>} */
@@ -220,6 +235,8 @@ async function main() {
         }
     });
     printers.forEach((p) => p.subscribe());
+
+    log.trace({cliOpts: opts}, 'started');
 }
 
 main();

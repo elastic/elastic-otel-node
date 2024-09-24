@@ -61,6 +61,18 @@ function stylizeWithColor(str, color) {
 }
 
 class LogsSummaryPrinter extends Printer {
+    /**
+     * LogRecords vs Events
+     * OTel *events* use the logs OTLP requests as a transport. They are
+     * compatible, but somewhat different in structure:
+     * - there is always a name, the `event.name` attribute
+     * - no `severityText` for events, but yes to `severityNumber`
+     * See https://opentelemetry.io/docs/specs/otel/logs/event-api/#eventlogger
+     *
+     * Note that AFAIK it is totally fine for an emitted *log record* to have
+     * a `event.name` attribute. That might cause confusion in tools that
+     * know about and expect the body to follow a schema in that case, though.
+     */
     printLogs(rawLogs) {
         const logs = normalizeLogs(rawLogs);
 
@@ -86,11 +98,56 @@ class LogsSummaryPrinter extends Printer {
                         .filter((elem) => elem)
                         .join(', ');
                     // TODO: Could add colouring of the severity value based on severityNumber ranges.
-                    rendering.push(
-                        `[${time}] ${rec.severityText}/${
-                            rec.severityNumber
-                        } (${meta}): ${stylizeWithColor(rec.body, 'cyan')}`
-                    );
+                    let sev = `SEV-${rec.severityNumber}`;
+                    if (rec.severityText) {
+                        sev = `${rec.severityText}/${sev}`;
+                    }
+                    const hasAttrs = !!rec.attributes;
+                    const isEvent = hasAttrs && rec.attributes['event.name'];
+                    let lead = `[${time}] ${sev} (${meta}):`;
+                    let bodyInLead = false;
+                    if (isEvent) {
+                        lead += ` Event ${stylizeWithColor(
+                            rec.attributes['event.name'],
+                            'magenta'
+                        )}`;
+                    } else if (
+                        typeof rec.body === 'string' &&
+                        rec.body.indexOf('\n') === -1
+                    ) {
+                        lead += ' ' + stylizeWithColor(rec.body, 'cyan');
+                        bodyInLead = true;
+                    }
+                    rendering.push(lead);
+
+                    // Body, if not already included.
+                    if (bodyInLead) {
+                        // pass
+                    } else if (typeof rec.body === 'string') {
+                        rendering.push(
+                            stylizeWithColor(
+                                '    ' + rec.body.split(/\n/).join('\n    '),
+                                'cyan'
+                            )
+                        );
+                    } else {
+                        rendering.push(
+                            '    ' +
+                                util
+                                    .inspect(rec.body, {
+                                        depth: 10,
+                                        colors: true,
+                                        compact: false,
+                                    })
+                                    .split(/\n/)
+                                    .join('\n    ')
+                        );
+                    }
+
+                    // Attributes.
+                    if (hasAttrs && !bodyInLead) {
+                        rendering.push('    --');
+                    }
                     if (
                         rec.attributes &&
                         Object.keys(rec.attributes).length > 0

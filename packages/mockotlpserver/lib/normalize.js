@@ -66,6 +66,8 @@ function normAttrValue(v) {
         return v.stringValue;
     } else if ('boolValue' in v) {
         return v.boolValue;
+    } else if ('doubleValue' in v) {
+        return v.doubleValue;
     } else if ('arrayValue' in v) {
         return v.arrayValue.values.map(normAttrValue);
     } else if ('intValue' in v) {
@@ -84,10 +86,19 @@ function normAttrValue(v) {
         }
     } else if ('kvlistValue' in v) {
         const obj = {};
-        for (let keyValue of v.kvlistValue.values) {
-            obj[keyValue.key] = normAttrValue(keyValue.value);
+        if (v.kvlistValue.values) {
+            for (let keyValue of v.kvlistValue.values) {
+                obj[keyValue.key] = normAttrValue(keyValue.value);
+            }
         }
         return obj;
+    } else if ('bytesValue' in v) {
+        // 'bytesValue' is used to encode Uint8Array's. At least with the proto
+        // flavour, `v.bytesValue` is a Node.js Buffer.
+        // https://nodejs.org/api/all.html#all_buffer_buffers-and-typedarrays says:
+        // > Buffer instances are also JavaScript Uint8Array and TypedArray instances.
+        // However, returning just `v.bytesValue` behaves differently.
+        return new Uint8Array(v.bytesValue);
     } else if (Object.keys(v).length === 0) {
         // Representing an empty value:
         // - proto serialization: KeyValue { key: 'signal', value: AnyValue {} }
@@ -95,7 +106,9 @@ function normAttrValue(v) {
         // This normalization will use `null`.
         return null;
     }
-    throw new Error(`unexpected type of attributes value: ${v}`);
+    throw new Error(
+        `unexpected type of attributes value: ${JSON.stringify(v)}`
+    );
 }
 
 /**

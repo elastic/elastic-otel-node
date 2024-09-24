@@ -40,7 +40,26 @@ Assuming "x.y.z" is the release verison:
     https://github.com/elastic/elastic-otel-node/actions/workflows/release.yml
 
 
-## How to release other packages
+## How to release `@elastic/mockotlpserver`
 
-(No other packages in this repo are currently being published/released.)
+Assuming "x.y.z" is the release verison:
+
+1. Choose the appropriate version number according to semver.
+
+2. Create a PR with these changes:
+    - Bump the "version" in "packages/mockotlpserver/package.json".
+    - Run `npm install` in "packages/mockotlpserver/" to update "packages/mockotlpserver/package-lock.json".
+    - Update "packages/mockotlpserver/CHANGELOG.md" as necessary.
+    - Name the PR something like "release @elastic/mockotlpserver@x.y.z".
+
+3. Get the PR approved and merged.
+
+4. Working on the elastic repo (not a fork), tag the commit as follows:
+    ```
+    git tag mockotlpserver-vx.y.z
+    git push origin mockotlpserver-vx.y.z
+    ```
+    The GitHub Actions "release-mockotlpserver" workflow will handle the release
+    steps -- including the `npm publish`. See the appropriate run at:
+    https://github.com/elastic/elastic-otel-node/actions/workflows/release-mockotlpserver.yml
 

@@ -53,5 +53,5 @@
 
 ## v0.1.0
 
-The first release of the Elastic Distribution for OpenTelemetry Node.js.
+The first release of the Elastic Distribution of OpenTelemetry Node.js.
 See [the README](https://github.com/elastic/elastic-otel-node/tree/main/packages/opentelemetry-node#readme).
