@@ -135,6 +135,9 @@ kubectl apply -f ./instrumentation.yaml
 docker build -t localhost:5001/myapp .
 docker push localhost:5001/myapp
 kubectl apply -f ./deployment.yaml
+# To redeploy a change in the application, rerun the docker build & push, then:
+#     kubectl rollout restart deployment/myapp
+#     kubectl logs --since=10s -f deployment/myapp
 ```
 
 The `deployment.yaml` for the example "myapp" includes a `livenessProbe`, so the

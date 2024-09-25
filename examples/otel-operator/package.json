@@ -1,5 +1,5 @@
 {
-  "name": "app-manual-instr",
+  "name": "myapp",
   "version": "1.0.0",
   "private": true,
   "main": "app.js",
@@ -7,6 +7,8 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "bunyan": "^1.8.15",
     "express": "^4.18.2"
   }
 }
