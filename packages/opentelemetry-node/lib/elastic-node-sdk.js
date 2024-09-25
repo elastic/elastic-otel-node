@@ -30,7 +30,6 @@ const {log, registerOTelDiagLogger} = require('./logging');
 const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
-const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const DISTRO_VERSION = require('../package.json').version;
 
@@ -123,10 +122,6 @@ class ElasticNodeSDK extends NodeSDK {
                     exportIntervalMillis: metricsInterval,
                     exportTimeoutMillis: metricsTimeout,
                 });
-            defaultConfig.views = [
-                // Add views for `host-metrics` to avoid excess of data being sent to the server
-                ...HOST_METRICS_VIEWS,
-            ];
         }
 
         const configuration = Object.assign(defaultConfig, opts);
@@ -159,11 +154,6 @@ class ElasticNodeSDK extends NodeSDK {
             'start Elastic Distribution of OpenTelemetry Node.js'
         );
         super.start();
-
-        if (!this._metricsDisabled) {
-            // TODO: make this configurable, user might collect host metrics with a separate utility
-            enableHostMetrics();
-        }
     }
 }
 
