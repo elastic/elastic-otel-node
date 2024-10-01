@@ -68,7 +68,7 @@ updates:
     reviewers:
       - "elastic/apm-agent-node-js"
     groups:
-      examples:
+      the-examples:
         patterns:
         - "*"
 
