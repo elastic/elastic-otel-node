@@ -4,8 +4,9 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {},
+  "// Would prefer this devDep, but dependabot isn't updating: @elastic/opentelemetry-node": "../packages/opentelemetry-node",
   "devDependencies": {
-    "@elastic/opentelemetry-node": "../packages/opentelemetry-node",
+    "@elastic/opentelemetry-node": "*",
     "bunyan": "^1.8.15",
     "express": "^4.19.2"
   },
