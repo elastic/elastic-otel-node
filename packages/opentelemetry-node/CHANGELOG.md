@@ -1,5 +1,18 @@
 # @elastic/opentelemetry-node Changelog
 
+## v0.4.0
+
+- feat: A Docker image is now being published that can be used with the
+  OpenTelemetry Operator's support for [auto-instrumentation injection](https://github.com/open-telemetry/opentelemetry-operator/#opentelemetry-auto-instrumentation-injection). (https://github.com/elastic/elastic-otel-node/pull/374)
+
+    - `docker.elastic.co/observability/elastic-otel-node:${version}` and `:latest`
+      will be published for tagged releases
+    - `docker.elastic.co/observability/elastic-otel-node:edge` will be published
+      for each push to "main".
+
+  Documentation to follow, but for now see [these dev notes](https://github.com/elastic/elastic-otel-node/blob/main/DEVELOPMENT.md#testing-k8s-auto-instrumentation-with-otel-operator) that walk through using the OpenTelemetry Operator with a small Node.js application.
+
+
 ## v0.3.0
 
 - Bump minimum supported Node.js version to v14.18.0.
