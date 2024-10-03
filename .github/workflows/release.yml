@@ -94,7 +94,9 @@ jobs:
 
       - name: GitHub release (only for tag releases)
         if: startsWith(github.ref, 'refs/tags')
-        run: ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}"
+        run: |
+          npm ci  # need top-level devDeps for github-release.sh script
+          ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
 

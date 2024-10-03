@@ -1,5 +1,10 @@
 # @elastic/opentelemetry-node Changelog
 
+## v0.4.1
+
+- chore: Fix release workflow. v0.4.0 was released without a GitHub releases
+  entry.
+
 ## v0.4.0
 
 - feat: A Docker image is now being published that can be used with the
