@@ -41,6 +41,6 @@ RUN cp /build/src/packages/opentelemetry-node/autoinstrumentation.js ./
 # 3. a "autoinstrumentation.js" in that dir (will be used with `--require ...`).
 #
 # See notes at: https://github.com/open-telemetry/opentelemetry-operator/blob/main/autoinstrumentation/nodejs/Dockerfile
-FROM docker.elastic.co/wolfi/chainguard-base:latest@sha256:277ebb42c458ef39cb4028f9204f0b3d51d8cd628ea737a65696a1143c3e42fe
+FROM docker.elastic.co/wolfi/chainguard-base:latest@sha256:d56fa50e5427f566f0a9ba8b1cad553bfca706de9223776d658e5cd608edd58b
 COPY --from=build /build/pack /autoinstrumentation
 RUN chmod -R go+r /autoinstrumentation
