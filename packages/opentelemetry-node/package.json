@@ -92,7 +92,7 @@
     "@opentelemetry/instrumentation-mongodb": "^0.47.0",
     "@opentelemetry/instrumentation-nestjs-core": "^0.40.0",
     "@opentelemetry/instrumentation-net": "^0.39.0",
-    "@opentelemetry/instrumentation-pg": "^0.45.0",
+    "@opentelemetry/instrumentation-pg": "^0.46.0",
     "@opentelemetry/instrumentation-pino": "^0.42.0",
     "@opentelemetry/instrumentation-redis": "^0.42.0",
     "@opentelemetry/instrumentation-redis-4": "^0.42.0",
