@@ -5,6 +5,10 @@
 all:
 	npm run ci-all
 
+.PHONY: clean
+clean:
+	npm run clean-all
+
 .PHONY: lint
 lint:
 	npm run lint

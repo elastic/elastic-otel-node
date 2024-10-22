@@ -5,8 +5,8 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "ci-all": "set -e; ls -d . packages/* examples | while read d; do (cd $d; echo; echo \"> $d\"; npm ci); done",
-    "clean-all": "ls -d . packages/* examples | while read d; do (cd $d; echo \"> $d\"; rm -rf node_modules); done",
+    "ci-all": "./scripts/oneach.sh npm ci",
+    "clean-all": "set -e; rm -rf build; ./scripts/oneach.sh rm -rf node_modules",
     "oneach": "./scripts/oneach.sh",
     "lint": "npm run lint:eslint && ls -d packages/* | while read d; do (cd $d; npm run lint); done",
     "lint:eslint": "eslint --ext=js,mjs,cjs scripts examples # requires node >=16.0.0",
@@ -15,7 +15,7 @@
     "maint:update-protos": "node scripts/update-protos.js"
   },
   "devDependencies": {
-    "@types/node": "^22.5.5",
+    "@types/node": "^22.7.7",
     "dependency-check": "^4.1.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

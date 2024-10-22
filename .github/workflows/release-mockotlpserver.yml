@@ -26,8 +26,6 @@ jobs:
           node-version: 'v18.20.4'
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm run ci-all
-
       - name: npm publish
         working-directory: ./packages/mockotlpserver
         run: npm publish
@@ -36,7 +34,9 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: GitHub release
-        run: ./scripts/github-release.sh "packages/mockotlpserver" "${{ github.ref_name }}"
+        run: |
+          npm ci  # need top-level devDeps for github-release.sh script
+          ./scripts/github-release.sh "packages/mockotlpserver" "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
 

@@ -51,12 +51,19 @@ class MetricsSummaryPrinter extends Printer {
                             rendering.push(`      ${metric.name} (histogram)`);
                         } else {
                             const dp = metric.histogram.dataPoints[0];
+                            const extras = ['histogram'];
+                            if (metric.unit) {
+                                extras.push(metric.unit);
+                            }
+                            if (dp.attributes) {
+                                extras.push(
+                                    `${Object.keys(dp.attributes).length} attrs`
+                                );
+                            }
                             rendering.push(
-                                `      ${metric.name} (histogram, ${
-                                    metric.unit
-                                }, ${
-                                    Object.keys(dp.attributes).length
-                                } attrs): min=${dp.min}, max=${dp.max}`
+                                `      ${metric.name} (${extras.join(
+                                    ', '
+                                )}): min=${dp.min}, max=${dp.max}`
                             );
                         }
                     } else {

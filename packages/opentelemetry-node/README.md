@@ -43,4 +43,4 @@ node -r @elastic/opentelemetry-node my-service.js
 
 ## Limitations
 
-We expect to support most every instrumentation included in [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations). However, currently only a subset is supported. See [the supported instrumentations here](./docs/supported-technologies.asciidoc#instrumentations).
+We expect to support most every instrumentation included in [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations). However, currently only a subset is supported. See [the supported instrumentations here](./docs/supported-technologies.md#instrumentations).
