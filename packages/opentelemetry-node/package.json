@@ -70,6 +70,7 @@
     "@opentelemetry/exporter-metrics-otlp-grpc": "^0.53.0",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.53.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.53.0",
+    "@opentelemetry/host-metrics": "^0.35.0",
     "@opentelemetry/instrumentation": "^0.53.0",
     "@opentelemetry/instrumentation-aws-sdk": "^0.44.0",
     "@opentelemetry/instrumentation-bunyan": "^0.41.0",
