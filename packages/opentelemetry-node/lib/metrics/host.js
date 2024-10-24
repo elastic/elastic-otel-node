@@ -36,19 +36,11 @@ function enableHostMetrics() {
 // Ref (metrics in Kibana): https://github.com/elastic/kibana/pull/174700
 /** @type {metrics.View[]} */
 const HOST_METRICS_VIEWS = [
-    // drop `system.network.*` (not in Kibana)
+    // TODO: As for now we're going to drop all system metrics
+    // - most of them are not in the classic agent
+    // - `system.cpu` and `system.memory` are recommended to use the collector
     new View({
-        instrumentName: 'system.network.*',
-        aggregation: Aggregation.Drop(),
-    }),
-    // drop `system.cpu.time` (not in Kibana)
-    new View({
-        instrumentName: 'system.cpu.time',
-        aggregation: Aggregation.Drop(),
-    }),
-    // drop `process.*` (not in Kibana)
-    new View({
-        instrumentName: 'process.*',
+        instrumentName: 'system.*',
         aggregation: Aggregation.Drop(),
     }),
 ];
