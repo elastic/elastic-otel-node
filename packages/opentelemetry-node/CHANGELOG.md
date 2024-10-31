@@ -1,5 +1,9 @@
 # @elastic/opentelemetry-node Changelog
 
+## v0.5.0
+
+- chore: Bump `@opentelemetry/*` dependencies (#419, #411, #403)
+
 ## v0.4.1
 
 - chore: Fix release workflow. v0.4.0 was released without a GitHub releases
