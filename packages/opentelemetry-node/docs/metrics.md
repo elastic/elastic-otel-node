@@ -56,5 +56,5 @@ issues when doing an overview of the instrumented service. These are:
   measures how much memory the process is allocating.
 
 
-If your service is instrumented EDOT Node.js, or a custom instrumentation that includes the packages mentioned above, Kibana will
+If your service is instrumented by EDOT Node.js, or by custom instrumentation that includes the packages mentioned above, Kibana will
 display them as part of the [service metrics](https://www.elastic.co/guide/en/observability/current/apm-metrics.html) in its UI.
