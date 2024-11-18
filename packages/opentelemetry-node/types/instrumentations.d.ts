@@ -27,6 +27,7 @@ export type InstrumentaionsMap = {
     "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-restify": import('@opentelemetry/instrumentation-restify').RestifyInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-router": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory;
+    "@opentelemetry/instrumentation-runtime-node": import('@opentelemetry/instrumentation-runtime-node').RuntimeNodeInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-socket.io": import('@opentelemetry/instrumentation-socket.io').SocketIoInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-undici": import('@opentelemetry/instrumentation-undici').UndiciInstrumentationConfig | InstrumentationFactory;
