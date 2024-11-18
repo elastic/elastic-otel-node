@@ -42,7 +42,7 @@ instrumented service. A subset of them are useful to detect possible
 issues when doing an overview of the instrumented service. These are:
 
 - `nodejs.eventloop.delay.p50` and `nodejs.eventloop.delay.p90` are the
-  50-th and 90-th [percentiles](https://en.wikipedia.org/wiki/Percentile) of
+  50th and 90th [percentiles](https://en.wikipedia.org/wiki/Percentile) of
   the event loop delay. The event loop delay measures the time span between
   the scheduling of a callback and its execution. The bigger then number
   the more sync work you have in your service blocking the event loop.
