@@ -48,7 +48,7 @@ issues when doing an overview of the instrumented service. These are:
   the more sync work you have in your service blocking the event loop.
 - `nodejs.eventloop.utilization` is the utiliation of the event loop reported
   by [`performance.eventLoopUtilization([utilization1[, utilization2]])`](https://nodejs.org/api/perf_hooks.html#performanceeventlooputilizationutilization1-utilization2) gives which
-  percentage of time the event loop is being used (not idle).
+  the percentage of time the event loop is being used (not idle).
 - `process.cpu.utilization` is the percentage of time the CPU is running
   the service code. Big values in this metric suggest your service is doing
   compute intensive tasks.
