@@ -44,7 +44,7 @@ issues when doing an overview of the instrumented service. These are:
 - `nodejs.eventloop.delay.p50` and `nodejs.eventloop.delay.p90` are the
   50th and 90th [percentiles](https://en.wikipedia.org/wiki/Percentile) of
   the event loop delay. The event loop delay measures the time span between
-  the scheduling of a callback and its execution. The bigger then number
+  the scheduling of a callback and its execution. The bigger the number,
   the more sync work you have in your service blocking the event loop.
 - `nodejs.eventloop.utilization` is the utiliation of the event loop reported
   by [`performance.eventLoopUtilization([utilization1[, utilization2]])`](https://nodejs.org/api/perf_hooks.html#performanceeventlooputilizationutilization1-utilization2) gives which
