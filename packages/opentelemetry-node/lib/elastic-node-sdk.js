@@ -123,9 +123,9 @@ class ElasticNodeSDK extends NodeSDK {
                     exportIntervalMillis: metricsInterval,
                     exportTimeoutMillis: metricsTimeout,
                 });
-            defaultConfig.views = [	
-                // Add views for `host-metrics` to avoid excess of data being sent to the server	
-                ...HOST_METRICS_VIEWS,	
+            defaultConfig.views = [
+                // Add views for `host-metrics` to avoid excess of data being sent to the server
+                ...HOST_METRICS_VIEWS,
             ];
         }
 
@@ -160,9 +160,9 @@ class ElasticNodeSDK extends NodeSDK {
         );
         super.start();
 
-        if (!this._metricsDisabled) {	
-            // TODO: make this configurable, user might collect host metrics with a separate utility	
-            enableHostMetrics();	
+        if (!this._metricsDisabled) {
+            // TODO: make this configurable, user might collect host metrics with a separate utility
+            enableHostMetrics();
         }
     }
 }
