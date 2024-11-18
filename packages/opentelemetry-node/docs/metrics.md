@@ -31,7 +31,7 @@ to export data you can use the env vars already defined in [the spec](https://op
 
 ## Process & runtime metrics
 
-EDOT Node.js also gathers metrics from the nodejs process your application is
+EDOT Node.js gathers metrics from the nodejs process your application is
 running. In order to do that EDOT Node.js is using the following packages:
 
 - `@opentelemetry/host-metrics` to gather `process.cpu.*` and `process.memory.*` metrics ([ref](https://github.com/open-telemetry/semantic-conventions/blob/80988c54712ee336cb3a6240b8845e9dfa8c9f49/docs/system/process-metrics.md?plain=1#L22))
