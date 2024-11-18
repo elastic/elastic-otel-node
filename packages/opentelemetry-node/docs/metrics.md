@@ -51,7 +51,7 @@ issues when doing an overview of the instrumented service. These are:
   percentage of time the event loop is being used (not idle).
 - `process.cpu.utilization` is the percentage of time the CPU is running
   the service code. Big values in this metric suggest your service is doing
-  compute intesive tasks.
+  compute intensive tasks.
 - `process.memory.usage` is the value of [Resident Set Size](https://nodejs.org/api/process.html#processmemoryusagerss) in bytes. It
   measures how much memory the process is allocating.
 
