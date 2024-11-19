@@ -50,6 +50,7 @@
  *  "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-restify": import('@opentelemetry/instrumentation-restify').RestifyInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-router": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-runtime-node": import('@opentelemetry/instrumentation-runtime-node').RuntimeNodeInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-socket.io": import('@opentelemetry/instrumentation-socket.io').SocketIoInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-tedious": import('@opentelemetry/instrumentation-tedious').TediousInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-undici": import('@opentelemetry/instrumentation-undici').UndiciInstrumentationConfig | InstrumentationFactory,
@@ -84,6 +85,7 @@ const {RedisInstrumentation} = require('@opentelemetry/instrumentation-redis');
 const {RedisInstrumentation: RedisFourInstrumentation} = require('@opentelemetry/instrumentation-redis-4');
 const {RestifyInstrumentation} = require('@opentelemetry/instrumentation-restify');
 const {RouterInstrumentation} = require('@opentelemetry/instrumentation-router');
+const {RuntimeNodeInstrumentation} = require('@opentelemetry/instrumentation-runtime-node');
 const {SocketIoInstrumentation} = require('@opentelemetry/instrumentation-socket.io');
 const {TediousInstrumentation} = require('@opentelemetry/instrumentation-tedious');
 const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici');
@@ -126,6 +128,7 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-redis-4': (cfg) => new RedisFourInstrumentation(cfg),
     '@opentelemetry/instrumentation-restify': (cfg) => new RestifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-router': (cfg) => new RouterInstrumentation(cfg),
+    '@opentelemetry/instrumentation-runtime-node': (cfg) => new RuntimeNodeInstrumentation(cfg),
     '@opentelemetry/instrumentation-socket.io': (cfg) => new SocketIoInstrumentation(cfg),
     '@opentelemetry/instrumentation-tedious': (cfg) => new TediousInstrumentation(cfg),
     '@opentelemetry/instrumentation-undici': (cfg) => new UndiciInstrumentation(cfg),
@@ -229,6 +232,16 @@ function getInstrumentations(opts = {}) {
         }
         // Skip if env has an `disabled` list and it's present (overriding enabled list)
         if (disabledFromEnv && disabledFromEnv.includes(name)) {
+            return;
+        }
+
+        // Skip if metrics are disabled by env var
+        const isMetricsDisabled =
+            process.env.ELASTIC_OTEL_METRICS_DISABLED === 'true';
+        if (
+            isMetricsDisabled &&
+            name === '@opentelemetry/instrumentation-runtime-node'
+        ) {
             return;
         }
 

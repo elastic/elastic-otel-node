@@ -29,26 +29,14 @@ function enableHostMetrics() {
     hostMetricsInstance.start();
 }
 
-// It is known that host metrics sends a lot of data so for now we drop some
-// instruments that are not handled by Kibana and doing aggregations
-// for others that we want to include shorly (CPU metrics)
-// Ref (data amount issue): https://github.com/elastic/elastic-otel-node/issues/51
-// Ref (metrics in Kibana): https://github.com/elastic/kibana/pull/174700
+// Dropping system metrics because:
+// - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
+// - not displayed by Kibana in metrics dashboard. Ref: https://github.com/elastic/kibana/pull/199353
+// - recommendation is to use OTEL collector to get and export them
 /** @type {metrics.View[]} */
 const HOST_METRICS_VIEWS = [
-    // drop `system.network.*` (not in Kibana)
     new View({
-        instrumentName: 'system.network.*',
-        aggregation: Aggregation.Drop(),
-    }),
-    // drop `system.cpu.time` (not in Kibana)
-    new View({
-        instrumentName: 'system.cpu.time',
-        aggregation: Aggregation.Drop(),
-    }),
-    // drop `process.*` (not in Kibana)
-    new View({
-        instrumentName: 'process.*',
+        instrumentName: 'system.*',
         aggregation: Aggregation.Drop(),
     }),
 ];

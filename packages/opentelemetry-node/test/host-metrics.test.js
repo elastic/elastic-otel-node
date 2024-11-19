@@ -18,9 +18,10 @@
  */
 
 // Test that the view set by ElasticNodeSdk work as expected
-// - dropping data points for `system.network.*` metrics
-// - dropping data points for `system.cpu.time` metric
-// - agreggating data points for `system.cpu.utilization` metric
+// - dropping data points for `system.*` metrics
+// - exporting data points for `process.*` metrics
+// - exporting data points for `nodejs.*` metrics
+// - exporting data points for `v8js.*` metrics
 
 const {test} = require('tape');
 const {runTestFixtures} = require('./testutils');
@@ -43,68 +44,38 @@ const testFixtures = [
         // verbose: true,
         checkTelemetry: (t, collector) => {
             const metrics = collector.metrics;
-            const networkMetrics = metrics.filter((metric) =>
-                metric.name.startsWith('system.network')
+            const systemMetrics = metrics.filter((metric) =>
+                metric.name.startsWith('system.')
             );
             const processMetrics = metrics.filter((metric) =>
                 metric.name.startsWith('process.')
             );
-            const cpuTimeMetrics = metrics.filter(
-                (metric) => metric.name === 'system.cpu.time'
+            const nodejsMetrics = metrics.filter((metric) =>
+                metric.name.startsWith('nodejs.')
             );
-            const cpuUtilizationMetrics = metrics.filter(
-                (metric) => metric.name === 'system.cpu.utilization'
+            const v8jsMetrics = metrics.filter((metric) =>
+                metric.name.startsWith('v8js.')
             );
 
-            t.ok(
-                networkMetrics.length === 0,
-                'system.network.* metrics are dropped'
-            );
-            t.ok(processMetrics.length === 0, 'process.* metrics are dropped');
-            t.ok(
-                cpuTimeMetrics.length === 0,
-                'system.cpu.time metric is dropped'
-            );
-            cpuUtilizationMetrics.forEach((metric) => {
+            t.ok(systemMetrics.length === 0, 'system.* metrics are dropped');
+            t.ok(processMetrics.length > 0, 'process metrics are collected');
+            t.ok(nodejsMetrics.length > 0, 'Node.js metrics are collected');
+            t.ok(v8jsMetrics.length > 0, 'V8 metrics are collected');
+
+            // Check that, at least, we send the data which is going to be plotted
+            // in Kibana dashboard (mentioned in the docs).
+            [
+                'process.cpu.utilization',
+                'process.memory.usage',
+                'nodejs.eventloop.delay.p50',
+                'nodejs.eventloop.delay.p90',
+                'nodejs.eventloop.delay.max',
+                'nodejs.eventloop.utilization',
+                // TODO: check for v8js specific ones when adding the to dashboards
+            ].forEach((name) => {
                 t.ok(
-                    metric.gauge?.dataPoints,
-                    'data points are present in system.cpu.utilization metric'
-                );
-
-                // Note: Skip this too-frequently flaky test for now. See https://github.com/elastic/elastic-otel-node/issues/73
-                //   {
-                //     "startTimeUnixNano": "1713354074349000000",
-                //     "timeUnixNano": "1713354074349000000",
-                //     "asDouble": 1.005859375,
-                //     "attributes":
-                //       {
-                //         "system.cpu.state": "idle",
-                //         "system.cpu.logical_number": "11"
-                //       }
-                //   },
-                // const allInRange = metric.gauge?.dataPoints?.every(
-                //     (dp) => 0 <= dp.asDouble && dp.asDouble <= 1
-                // );
-                // t.ok(
-                //     allInRange,
-                //     '"system.cpu.utilization" data points are in the range [0,1]'
-                // );
-                // if (!allInRange) {
-                //     // Note: extra output to debug flaky test (https://github.com/elastic/elastic-otel-node/issues/73).
-                //     t.comment(
-                //         'cpuUtilizationMetrics: ' +
-                //             JSON.stringify(cpuUtilizationMetrics)
-                //     );
-                // }
-
-                t.ok(
-                    metric.gauge?.dataPoints?.every(
-                        (dp) =>
-                            dp.attributes &&
-                            dp.attributes['system.cpu.state'] &&
-                            dp.attributes['system.cpu.logical_number']
-                    ),
-                    'data points have "system.cpu.state" and "system.cpu.logical_number" attributes'
+                    metrics.find((m) => m.name === name),
+                    `metric "${name}" is collected`
                 );
             });
         },
