@@ -45,7 +45,7 @@ const testFixtures = [
         checkTelemetry: (t, collector) => {
             const metrics = collector.metrics;
             const systemMetrics = metrics.filter((metric) =>
-                metric.name.startsWith('system.network')
+                metric.name.startsWith('system.')
             );
             const processMetrics = metrics.filter((metric) =>
                 metric.name.startsWith('process.')
