@@ -92,6 +92,7 @@ const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici')
 const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
 
 const {log} = require('./logging');
+const { getEnvVar } = require('./environment');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -236,8 +237,7 @@ function getInstrumentations(opts = {}) {
         }
 
         // Skip if metrics are disabled by env var
-        const isMetricsDisabled =
-            process.env.ELASTIC_OTEL_METRICS_DISABLED === 'true';
+        const isMetricsDisabled = getEnvVar('ELASTIC_OTEL_METRICS_DISABLED');
         if (
             isMetricsDisabled &&
             name === '@opentelemetry/instrumentation-runtime-node'
