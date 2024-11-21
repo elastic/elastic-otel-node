@@ -139,7 +139,7 @@ const edotEnv = {
 /**
  * @template {keyof OtelEnv | keyof EdotEnv} T
  * Returns the value of the env var already parsed to the proper type. If
- * the variable is not defined it will return the dafault value based on
+ * the variable is not defined it will return the default value based on
  * the environmment variables spec https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/
  * @param {T} name
  * @returns {T extends keyof OtelEnv ? OtelEnv[T] : EdotEnv[T]}
