@@ -103,9 +103,7 @@ function resolveDetectors(detectors) {
         return detectors;
     }
 
-    const detectorsFromEnv = getEnvVar('OTEL_NODE_RESOURCE_DETECTORS') || 'all';
-    let detectorKeys = detectorsFromEnv.split(',').map((s) => s.trim());
-
+    let detectorKeys = getEnvVar('OTEL_NODE_RESOURCE_DETECTORS');
     if (detectorKeys.some((k) => k === 'all')) {
         detectorKeys = Object.keys(defaultDetectors);
     } else if (detectorKeys.some((k) => k === 'none')) {
