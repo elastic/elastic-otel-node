@@ -17,6 +17,8 @@
  * under the License.
  */
 
+// NOTE: this API may be removed in future
+// ref: https://github.com/open-telemetry/opentelemetry-js/issues/5172
 const {getEnv} = require('@opentelemetry/core');
 
 /** @type {NodeJS.ProcessEnv} */
@@ -102,16 +104,15 @@ function restoreEnvironment() {
 }
 
 /**
- * @typedef {import('@opentelemetry/core').ENVIRONMENT} OtelEnv
- */
-/**
  * @typedef {Object} EdotEnv
  * @property {string[]} OTEL_NODE_RESOURCE_DETECTORS
  * @property {number} OTEL_METRIC_EXPORT_INTERVAL
  * @property {number} OTEL_METRIC_EXPORT_TIMEOUT
  * @property {boolean} ELASTIC_OTEL_METRICS_DISABLED
  */
-const otelEnv = getEnv();
+/**
+ * @typedef {keyof EdotEnv} EdotEnvKey
+ */
 /** @type {EdotEnv} */
 const edotEnv = {
     // Missing OTEL_ vars from global spec and nodejs specific spec
@@ -137,12 +138,24 @@ const edotEnv = {
 };
 
 /**
- * @template {keyof OtelEnv | keyof EdotEnv} T
+ * @typedef {import('@opentelemetry/core').ENVIRONMENT} OtelEnv
+ */
+/**
+ * @typedef {keyof OtelEnv} OtelEnvKey
+ */
+const otelEnv = getEnv();
+
+/**
+ * @template T
+ * @typedef {T extends OtelEnvKey ? OtelEnv[T] : T extends EdotEnvKey ? EdotEnv[T] : never} EnvValue<T>
+ */
+/**
+ * @template {OtelEnvKey | EdotEnvKey} T
  * Returns the value of the env var already parsed to the proper type. If
  * the variable is not defined it will return the default value based on
  * the environmment variables spec https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/
  * @param {T} name
- * @returns {T extends keyof OtelEnv ? OtelEnv[T] : EdotEnv[T]}
+ * @returns {EnvValue<T>}
  */
 function getEnvVar(name) {
     if (name in otelEnv) {
