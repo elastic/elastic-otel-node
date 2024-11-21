@@ -37,7 +37,7 @@ function parseStringList(str, fallback = []) {
 }
 
 /**
- * Returns a boolean from te given input
+ * Returns a boolean from the given input
  * @param {string | undefined} str
  * @param {boolean} fallback
  * @returns {boolean}
