@@ -17,6 +17,8 @@
  * under the License.
  */
 
+// This is the '@elastic/opentelemetry-node/sdk' entry-point.
+
 const {ElasticNodeSDK} = require('./elastic-node-sdk');
 const {getInstrumentations} = require('./instrumentations');
 

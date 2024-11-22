@@ -1,0 +1,16 @@
+{
+  "name": "a-ts-proj",
+  "description": "test that a TS project can use @elastic/opentelemetry-node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm install && tsc --version && tsc && node index.js"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "@elastic/opentelemetry-node": "file:../../.."
+  }
+}
