@@ -36,7 +36,8 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         versionRanges: {
-            node: '>=14.18.0',
+            // Ref: https://fastify.dev/docs/latest/Guides/Migration-Guide-V5/#long-term-support-cycle
+            node: '>=20.0.0',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
