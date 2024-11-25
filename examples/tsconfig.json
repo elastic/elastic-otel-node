@@ -1,7 +1,6 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    // remove this property if we decide to export types for this package too
     "noEmit": true,
     "moduleResolution": "node16"
   },
