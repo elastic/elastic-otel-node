@@ -30,7 +30,10 @@ test('typescript usage', (t) => {
         'npm run test-all-versions',
         {cwd: path.resolve(__dirname, FIXTURE_DIR)},
         function (err, stdout, stderr) {
-            t.error(err, `"npm run test-all-versions" in "${FIXTURE_DIR}" succeeded`);
+            t.error(
+                err,
+                `"npm run test-all-versions" in "${FIXTURE_DIR}" succeeded`
+            );
             if (err) {
                 t.comment(
                     `$ npm run test-all-versions\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`
