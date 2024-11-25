@@ -13,13 +13,23 @@ Elastic Stack, so it is strongly recommended to be using a recent 8.x version.
 
 ## Node.js versions
 
-The Elastic Distribution for OpenTelemety Node.js supports Node.js v14.18.0 and later.
+EDOT Node.js supports Node.js v14.18.0 and later.
 This follows from the [OpenTelemetry JS supported runtimes](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes).
 
 <!--
 Dev Notes on supported Node.js versions:
 - v14.18.0 or later is required for `node:`-prefixed core module loading, as
   used by gaxios@6.7.0, a transitive dep of `@opentelemetry/resource-detector-gcp`.
+-->
+
+## TypeScript versions
+
+To use this package `@elastic/opentelemetry-node` with a TypeScript project
+requires TypeScript 4.7.2 or later.
+
+<!--
+Dev Notes on supported TypeScript versions:
+- v4.7.2 is required for support for `"module": "node16"` in tsconfig.json (https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-7.html#ecmascript-module-support-in-nodejs)
 -->
 
 ## Instrumentations
