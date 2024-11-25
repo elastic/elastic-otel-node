@@ -27,13 +27,13 @@ const test = require('tape');
 test('typescript usage', (t) => {
     const FIXTURE_DIR = './fixtures/a-ts-proj';
     exec(
-        'npm start',
+        'npm run test-all-versions',
         {cwd: path.resolve(__dirname, FIXTURE_DIR)},
         function (err, stdout, stderr) {
-            t.error(err, `"npm start" in "${FIXTURE_DIR}" succeeded`);
+            t.error(err, `"npm run test-all-versions" in "${FIXTURE_DIR}" succeeded`);
             if (err) {
                 t.comment(
-                    `$ npm start\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`
+                    `$ npm run test-all-versions\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`
                 );
             }
             t.end();
