@@ -44,25 +44,27 @@
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "lint:deps": "dependency-check require.js import.mjs hook.mjs 'lib/**/*.js' 'test/**/*.js' -e mjs:../../scripts/parse-mjs-source -i @types/tape -i dotenv -i @opentelemetry/winston-transport -i @opentelemetry/exporter-logs-* -i @opentelemetry/exporter-metrics-*",
+    "lint:deps": "dependency-check require.js import.mjs hook.mjs 'lib/**/*.js' 'test/**/*.js' '!test/fixtures/a-ts-proj' -e mjs:../../scripts/parse-mjs-source -i @types/tape -i dotenv -i @opentelemetry/winston-transport -i @opentelemetry/exporter-logs-* -i @opentelemetry/exporter-metrics-*",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "lint:changelog": "../../scripts/extract-release-notes.sh .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d --wait",
     "test-services:stop": "docker compose -f ./test/docker-compose.yaml down",
-    "gen:types": "rm -rf types && tsc"
+    "gen:types": "rm -rf types && tsc  # TODO: would be nice to tree-shake the dts files"
   },
   "exports": {
     ".": {
       "import": "./import.mjs",
       "require": "./require.js"
     },
-    "./sdk": "./lib/index.js",
+    "./sdk": {
+      "types": "./types/sdk.d.ts",
+      "default": "./lib/sdk.js"
+    },
     "./hook.mjs": "./hook.mjs",
     "./package.json": "./package.json"
   },
-  "types": "types/index.d.ts",
   "dependencies": {
     "@opentelemetry/core": "1.27.0",
     "@opentelemetry/exporter-logs-otlp-grpc": "^0.55.0",

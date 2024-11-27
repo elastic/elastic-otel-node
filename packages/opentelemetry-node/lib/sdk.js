@@ -17,12 +17,14 @@
  * under the License.
  */
 
-const config = require('../../.eslintrc.js');
+// This is the '@elastic/opentelemetry-node/sdk' entry-point.
 
-config.rules['license-header/header'] = [
-    'error',
-    '../../scripts/license-header.js',
-];
-config.ignorePatterns.push('test/fixtures/a-ts-proj/index.js');
+const {ElasticNodeSDK} = require('./elastic-node-sdk');
+const {getInstrumentations} = require('./instrumentations');
 
-module.exports = config;
+// TODO: this should reexport things from @otel/sdk-node (like 'api', 'core', etc.)
+
+module.exports = {
+    ElasticNodeSDK,
+    getInstrumentations,
+};

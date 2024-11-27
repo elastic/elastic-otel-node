@@ -17,12 +17,29 @@
  * under the License.
  */
 
-const {ElasticNodeSDK} = require('./elastic-node-sdk');
-const {getInstrumentations} = require('./instrumentations');
+// Test that this package can be used from TypeScript code.
 
-// TODO: this should reexport things from @otel/sdk-node (like 'api', 'core', etc.)
+const {exec} = require('child_process');
+const path = require('path');
 
-module.exports = {
-    ElasticNodeSDK,
-    getInstrumentations,
-};
+const test = require('tape');
+
+test('typescript usage', (t) => {
+    const FIXTURE_DIR = './fixtures/a-ts-proj';
+    exec(
+        'npm run test-all-versions',
+        {cwd: path.resolve(__dirname, FIXTURE_DIR)},
+        function (err, stdout, stderr) {
+            t.error(
+                err,
+                `"npm run test-all-versions" in "${FIXTURE_DIR}" succeeded`
+            );
+            if (err) {
+                t.comment(
+                    `$ npm run test-all-versions\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`
+                );
+            }
+            t.end();
+        }
+    );
+});
