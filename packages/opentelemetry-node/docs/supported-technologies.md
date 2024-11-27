@@ -24,13 +24,12 @@ Dev Notes on supported Node.js versions:
 
 ## TypeScript versions
 
-To use this package `@elastic/opentelemetry-node` with a TypeScript project
-requires TypeScript 4.7.2 or later.
+To use this package, `@elastic/opentelemetry-node`, in TypeScript code
+requires:
 
-<!--
-Dev Notes on supported TypeScript versions:
-- v4.7.2 is required for support for `"module": "node16"` in tsconfig.json (https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-7.html#ecmascript-module-support-in-nodejs)
--->
+- TypeScript 4.7.2 or later, and
+- using `"module": "node16"` (or "nodenext") in "tsconfig.json" to get support for handling the "exports" entry in package.json. This is so the `@elastic/opentelemetry-node/sdk` entry-point can be used. (See https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-7.html#ecmascript-module-support-in-nodejs)
+
 
 ## Instrumentations
 
