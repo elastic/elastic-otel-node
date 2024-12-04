@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- feat: Some improvements to "summary" styling.
+    - Show attributes for histogram metrics and handle showing multiple data points.
+    - Bold "span", "event", "$metricType" in renderings, and style the name of that
+      span/event/metric in magenta. See PR for screenshots.
 - fix: Don't throw printing a metrics summary for a histogram without attributes.
 
 ## v0.5.0
