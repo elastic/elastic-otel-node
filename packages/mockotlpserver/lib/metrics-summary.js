@@ -23,8 +23,11 @@
  * Dev Notes / Ideas:
  */
 
+const util = require('util');
+
 const {Printer} = require('./printers');
 const {normalizeMetrics} = require('./normalize');
+const {style} = require('./styling');
 
 class MetricsSummaryPrinter extends Printer {
     printMetrics(rawMetrics) {
@@ -41,34 +44,46 @@ class MetricsSummaryPrinter extends Printer {
                 scopes.push(scope);
                 for (let metric of scopeMetric.metrics) {
                     if (metric.histogram) {
-                        // TODO do we want to attempt a short summary of histogram buckets?
-                        // TODO handle multiple datapoints, dp per normalized attribute set. Highest prio. Run `node -r @elastic/opentelemetry-node http-server.js` for example data.
-                        if (metric.histogram.dataPoints.length !== 1) {
-                            this._log.warn(
-                                {metric},
-                                'metric has other than 1 dataPoint'
-                            );
-                            rendering.push(`      ${metric.name} (histogram)`);
-                        } else {
-                            const dp = metric.histogram.dataPoints[0];
-                            const extras = ['histogram'];
-                            if (metric.unit) {
-                                extras.push(metric.unit);
+                        // histogram "${name}" (unit=${unit})
+                        //     ${metricValueRepr}    | <-- one for each data point
+                        //     ${attrsRepr}          |
+                        //     --
+                        //     ${metricValueRepr}
+                        //     ${attrsRepr}
+                        rendering.push(
+                            `${style('histogram', 'bold')} "${style(
+                                metric.name,
+                                'magenta'
+                            )}" (unit=${metric.unit})`
+                        );
+                        for (
+                            let i = 0;
+                            i < metric.histogram.dataPoints.length;
+                            i++
+                        ) {
+                            if (i > 0) {
+                                rendering.push('    --');
                             }
-                            if (dp.attributes) {
-                                extras.push(
-                                    `${Object.keys(dp.attributes).length} attrs`
-                                );
-                            }
+                            const dp = metric.histogram.dataPoints[i];
+                            // TODO: consider a meaningful repr of the histogram buckets
                             rendering.push(
-                                `      ${metric.name} (${extras.join(
-                                    ', '
-                                )}): min=${dp.min}, max=${dp.max}`
+                                `    count=${dp.count}, min=${dp.min}, max=${dp.max}`
                             );
+                            if (
+                                dp.attributes &&
+                                Object.keys(dp.attributes).length > 0
+                            ) {
+                                let attrSummary = util.inspect(dp.attributes, {
+                                    depth: 10,
+                                    colors: true,
+                                    breakLength: Infinity,
+                                });
+                                rendering.push('    ' + attrSummary);
+                            }
                         }
                     } else {
                         // TODO handle other metric types better
-                        rendering.push(`      ${metric.name} (type=???)`);
+                        rendering.push(`metricType??? "${metric.name}"`);
                     }
                 }
             }

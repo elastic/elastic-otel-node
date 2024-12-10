@@ -36,6 +36,7 @@
 
 const {Printer} = require('./printers');
 const {jsonStringifyTrace} = require('./normalize');
+const {style} = require('./styling');
 
 /*
 
@@ -100,7 +101,9 @@ function renderSpan(span, prefix = '') {
         gutter = ' '.repeat(6);
     }
 
-    let r = `${gutter} ${prefix}span ${shortId(span.spanId)} "${span.name}"`;
+    let r = `${gutter} ${prefix}${style('span', 'bold')} ${shortId(
+        span.spanId
+    )} "${style(span.name, 'magenta')}"`;
 
     const extras = [];
 
