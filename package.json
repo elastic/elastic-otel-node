@@ -5,10 +5,11 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "clean-all": "set -e; rm -rf build; ./scripts/oneach.sh rm -rf node_modules",
+    "clean-all": "set -e; ./scripts/oneach.sh npm run --if-present clean",
     "ci-all": "./scripts/oneach.sh npm ci",
     "compile-all": "./scripts/oneach.sh npm run --if-present compile",
     "test-all": "./scripts/oneach.sh npm run --if-present test",
+    "clean": "rm -rf node_modules build",
     "oneach": "./scripts/oneach.sh",
     "lint": "npm run lint:eslint && ls -d packages/* | while read d; do (cd $d; npm run lint); done",
     "lint:eslint": "eslint --ext=js,mjs,cjs scripts examples # requires node >=16.0.0",
