@@ -38,7 +38,7 @@ module.exports = {
     project: null, // set in overrides
   },
   rules: {
-    'license-header/header': ['error', './scripts/license-header.js'],
+    'license-header/header': ['error', '../../scripts/license-header.js'],
 
     // Restoring some config from standardjs that we want to maintain at least
     // for now -- to assist with transition to prettier.
