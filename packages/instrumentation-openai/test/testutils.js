@@ -546,9 +546,9 @@ function runTestFixtures(suite, testFixtures) {
         const cwd = tf.cwd || process.cwd();
         if (tf.verbose) {
           t.comment(
-            `running: (cd "${cwd}" && ${quoteEnv(
-              tf.env
-            )} node ${quoteArgv(tf.args)})`
+            `running: (cd "${cwd}" && ${quoteEnv(tf.env)} node ${quoteArgv(
+              tf.args
+            )})`
           );
         }
         const start = Date.now();
