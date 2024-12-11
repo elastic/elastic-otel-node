@@ -23,8 +23,6 @@ Instrumented OpenAI API endpoints:
 npm install @elastic/opentelemetry-instrumentation-openai
 ```
 
-(TODO: This module is not yet published to npm.)
-
 
 # Supported versions
 
@@ -51,6 +49,8 @@ const {OpenAIInstrumentation} = require('@elastic/opentelemetry-instrumentation-
 const sdk = new NodeSDK({
     spanProcessor: new tracing.SimpleSpanProcessor(new tracing.ConsoleSpanExporter()),
     instrumentations: [
+        // HTTP instrumentation is not required, but it can be interesting to see
+        // openai and http spans in the trace.
         new HttpInstrumentation(),
         new OpenAIInstrumentation({
             // See below for OpenAI instrumentation configuration.
