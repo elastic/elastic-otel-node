@@ -9,20 +9,12 @@ on:
     paths:
     - 'packages/opentelemetry-node/**'
     - '.github/workflows/test-edot.yml'
-    paths-ignore:
-    - '**/*.md'
-    - 'docs/**'
-    - 'examples/**'
   pull_request:
     branches:
     - main
     paths:
     - 'packages/opentelemetry-node/**'
     - '.github/workflows/test-edot.yml'
-    paths-ignore:
-    - '**/*.md'
-    - 'docs/**'
-    - 'examples/**'
 
 # Cancel jobs running for old commits on a PR. Allow concurrent runs on 'main'.
 concurrency:
