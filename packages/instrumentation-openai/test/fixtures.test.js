@@ -204,19 +204,15 @@ function isExpectedResponseModel(unitTestVal, requestModel) {
   return val => {
     if (isUnit) {
       return val === unitTestVal;
-    } else if (targetService === 'openai') {
-      // Typically `$MODEL-$RELEASE_DATE` from api.openai.com.
-      return val.startsWith(requestModel);
-    } else if (targetService === 'azure') {
+    } else if (process.env.AZURE_OPENAI_API_KEY) {
       // The Azure OpenAI API accepts a "model" argument that
       // actually refers to a deployment name. That deployment name
       // *might* match the model in that deployment, but that is
       // not at all a guarantee.
       return typeof val === 'string' && val.length > 0;
-    } else if (targetService === 'ollama') {
-      return val === requestModel;
     } else {
-      return false;
+      // Typically `$MODEL-$RELEASE_DATE` from api.openai.com.
+      return val.startsWith(requestModel);
     }
   };
 }
