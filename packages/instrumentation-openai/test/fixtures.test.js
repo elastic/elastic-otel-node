@@ -181,15 +181,9 @@ function isPositiveInteger(val) {
 }
 
 function isExpectedServerAddress(val) {
-  if (targetService === 'openai') {
-    return val === 'api.openai.com';
-  } else if (targetService === 'azure') {
-    return val === new URL(process.env.AZURE_OPENAI_ENDPOINT).hostname;
-  } else if (targetService === 'ollama') {
-    return val === '127.0.0.1';
-  } else {
-    return false;
-  }
+  const baseUrl = process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT || process.env.OPENAI_BASE_URL || 'https://api.openai.com';
+  const expectedHostname = new URL(baseUrl).hostname;
+  return val === expectedHostname;
 }
 
 function isExpectedServerPort(val) {
