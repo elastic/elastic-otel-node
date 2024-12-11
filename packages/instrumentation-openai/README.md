@@ -9,19 +9,9 @@ It attempts to track the [GenAI semantic conventions](https://github.com/open-te
 
 # Status
 
-- This instrumentation is still experimental.
-- It has not yet been published to npm.
-
 Instrumented OpenAI API endpoints:
 - :white_check_mark: [Chat](https://platform.openai.com/docs/api-reference/chat)
 - :white_check_mark: [Embeddings](https://platform.openai.com/docs/api-reference/embeddings)
-
-
-# Installation
-
-```bash
-npm install @elastic/opentelemetry-instrumentation-openai
-```
 
 
 # Supported versions
@@ -34,6 +24,13 @@ npm install @elastic/opentelemetry-instrumentation-openai
 
 This instrumentation currently implements version 1.29.0 of the GenAI
 semantic-conventions: https://opentelemetry.io/docs/specs/semconv/gen-ai/
+
+
+# Installation
+
+```bash
+npm install @elastic/opentelemetry-instrumentation-openai
+```
 
 
 # Usage
