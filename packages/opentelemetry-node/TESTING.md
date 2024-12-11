@@ -3,6 +3,9 @@
 tl;dr: To run all tests locally:
 
 ```
+(cd ../mockotlpserver && npm ci)  # used a devDep
+npm ci
+
 npm run test-services:start
 npm test
 npm run test-services:stop

@@ -141,26 +141,6 @@ OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true \
 ```
 
 
-# Testing
-
-Before running tests, install dependencies and compile the TypeScript:
-
-```
-npm install
-npm run compile
-```
-
-Then, run the tests via:
-
-```bash
-npm test
-```
-
-By default, this tests against *pre-recorded* OpenAI responses.
-See [TESTING.md](./TESTING.md) for more details, including testing with
-[Ollama](https://ollama.com), testing directly against OpenAI, etc.
-
-
 # ESM
 
 OpenTelemetry instrumentation of ECMAScript Module (ESM) code -- code using
@@ -170,6 +150,7 @@ working with ESM code.
 
 ```bash
 npm install
+npm run compile
 cd examples
 node --import ./telemetry.mjs use-chat-esm.mjs
 ```
@@ -179,28 +160,4 @@ limitations with this. The limitations are with OpenTelemetry JS, not with this
 instrumentation.
 
 (TODO: Create and point to a follow-up issue(s) for necessary OTel JS work for this support.)
-
-
-# Dev Notes
-
-Use `DEBUG=elastic-opentelemetry-instrumentation-openai` for some diagnostic
-output from the instrumentation.  For example:
-
-```bash
-DEBUG=elastic-opentelemetry-instrumentation-openai npm run example
-
-# Alternative:
-node --env-file ./dev.env ...
-```
-
-The test scripts in "test/fixtures/" can be run outside of the test suite for
-dev/debugging. For example:
-
-```
-npx @elastic/mockotlpserver  # or whatever OTLP endpoint you like to use
-
-cd test/fixtures
-TEST_MODEL_TOOLS=gpt-4o-mini \
-    node --env-file ../../openai.env -r ./telemetry.js chat-completion.js
-```
 

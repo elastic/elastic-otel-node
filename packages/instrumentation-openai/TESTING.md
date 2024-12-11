@@ -3,7 +3,7 @@
 Before running tests, install dependencies and compile the TypeScript:
 
 ```
-npm install
+npm ci
 npm run compile
 ```
 
