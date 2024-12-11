@@ -26,7 +26,7 @@ const path = require('path');
 
 const TOP = path.resolve(__dirname, '..');
 const header = fs.readFileSync(
-  path.join(TOP, 'scripts', 'license-header.js'),
+  path.resolve(TOP, '..', '..', 'scripts', 'license-header.js'),
   'utf8'
 );
 const pj = require(path.resolve(__dirname, '..', 'package.json'));
