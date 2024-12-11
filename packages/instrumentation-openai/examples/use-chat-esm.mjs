@@ -17,17 +17,23 @@
  * under the License.
  */
 
-// Use 'openai' in ESM code, to see if can still instrument it.
+// An example using `openai` in ESM code.
+// See ESM section in README for details and limitations.
+//
+// Usage with OpenAI:
+//    OPENAI_API_KEY=... \
+//      node -r ./telemetry.mjs use-chat-esm.mjs
 
+// Dev Note: Not using local ./openai.js utility for now, because CommonJS.
 import { OpenAI } from 'openai';
 
-const MODEL = 'gpt-4o-mini';
+const CHAT_MODEL = process.env.CHAT_MODEL || 'gpt-4o-mini';
 
 async function main() {
   const client = new OpenAI();
   try {
     const chatCompletion = await client.chat.completions.create({
-      model: MODEL,
+      model: CHAT_MODEL,
       messages: [
         {
           role: 'user',

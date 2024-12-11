@@ -19,10 +19,15 @@
 
 // A very basic example using the OpenAI client.
 //
-// Example usage with Ollama local server:
+// Usage with OpenAI:
+//    OPENAI_API_KEY=... \
+//      node -r ./telemetry.js use-chat.js
+//
+// Usage with a local Ollama server:
 //    ollama serve
 //    ollama pull qwen2.5:0.5b
-//    OPENAI_BASE_URL=http://localhost:11434/v1 OPENAI_API_KEY=unused node -r ./telemetry.js use-embeddings.js
+//    OPENAI_BASE_URL=http://localhost:11434/v1 OPENAI_API_KEY=unused \
+//      node -r ./telemetry.js use-chat.js
 
 const { newOpenAIAndModels } = require('./openai');
 

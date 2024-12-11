@@ -17,10 +17,9 @@
  * under the License.
  */
 
-// Example usage with Ollama local server:
-//    ollama serve
-//    ollama pull all-minilm:33m
-//    OPENAI_BASE_URL=http://localhost:11434/v1 OPENAI_API_KEY=unused node -r ./telemetry.js use-embeddings.js
+// Usage with OpenAI:
+//    OPENAI_API_KEY=... \
+//      node -r ./telemetry.js use-embeddings.js
 
 const { newOpenAIAndModels } = require('./openai');
 
