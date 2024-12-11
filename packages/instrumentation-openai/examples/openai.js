@@ -32,7 +32,9 @@ const OLLAMA_PORT = '11434';
  */
 function newOpenAIAndModels() {
   let clientCtor = OpenAI;
-  // default to models available in both the OpenAI platform and Azure OpenAI Service
+  // Default to models available in both the OpenAI platform and Azure OpenAI
+  // Service. For Azure, however, this "model" must match the Azure "deployment
+  // name".
   let chatModel = process.env.MODEL_CHAT ?? 'gpt-4o-mini';
   let embeddingsModel =
     process.env.MODEL_EMBEDDINGS ?? 'text-embedding-3-small';

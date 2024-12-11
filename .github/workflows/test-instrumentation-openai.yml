@@ -65,8 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     services:
       ollama:
-        # A fork of Ollama for testing.
-        # https://github.com/elastic/genai-instrumentation/blob/main/docs/ollama.md#internal-testing-fork",
+        # A light fork of Ollama to float some in-progress contributions related
+        # to more closely matching OpenAI behavior.
         image: ghcr.io/elastic/ollama/ollama:testing
         ports:
           - 11434:11434
