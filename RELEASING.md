@@ -14,6 +14,7 @@ packages will use a prefix (the basename of the npm package name). For example,
 | ----------------------------- | ------------------- | -------- |
 | `@elastic/opentelemetry-node` | `v*`                | v1.0.0   |
 | `@elastic/mockotlpserver`     | `mockotlpserver-v*` | mockotlpserver-v0.2.0 |
+| `@elastic/opentelemetry-instrumentation-openai` | `instrumentation-openai-v*` | instrumentation-openai-v0.3.0 |
 
 
 ## How to release `@elastic/opentelemetry-node`
@@ -40,26 +41,32 @@ Assuming "x.y.z" is the release verison:
     https://github.com/elastic/elastic-otel-node/actions/workflows/release.yml
 
 
-## How to release `@elastic/mockotlpserver`
+## How to release other packages
 
-Assuming "x.y.z" is the release verison:
+Assuming:
+- **VERSION="x.y.z"** is the release version and
+- **PKGSUBDIR="instrumentation-openai"** is the package being released.
+  (Note that the PKGSUBDIR, the directory under "packages/" is *not necessarily*
+  the basename of the npm package.)
 
 1. Choose the appropriate version number according to semver.
 
 2. Create a PR with these changes:
-    - Bump the "version" in "packages/mockotlpserver/package.json".
-    - Run `npm install` in "packages/mockotlpserver/" to update "packages/mockotlpserver/package-lock.json".
-    - Update "packages/mockotlpserver/CHANGELOG.md" as necessary.
-    - Name the PR something like "release @elastic/mockotlpserver@x.y.z".
+
+    - Bump the "version" in "packages/$PKGSUBDIR/package.json".
+    - Run `npm install` in "packages/$PKGSUBDIR/" to update "packages/$PKGSUBDIR/package-lock.json".
+    - Update "packages/$PKGSUBDIR/CHANGELOG.md" as necessary.
+    - Name the PR something like "release $PKGSUBDIR x.y.z".
 
 3. Get the PR approved and merged.
 
 4. Working on the elastic repo (not a fork), tag the commit as follows:
-    ```
-    git tag mockotlpserver-vx.y.z
-    git push origin mockotlpserver-vx.y.z
-    ```
-    The GitHub Actions "release-mockotlpserver" workflow will handle the release
-    steps -- including the `npm publish`. See the appropriate run at:
-    https://github.com/elastic/elastic-otel-node/actions/workflows/release-mockotlpserver.yml
 
+    ```
+    git tag $PKGSUBDIR-vx.y.z
+    git push origin $PKGSUBDIR-vx.y.z
+    ```
+
+    The GitHub Actions "release-$PKGSUBDIR" workflow will handle the release
+    steps -- including the `npm publish`. See the appropriate run at:
+    https://github.com/elastic/elastic-otel-node/actions
