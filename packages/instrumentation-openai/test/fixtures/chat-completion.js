@@ -30,7 +30,8 @@ async function main() {
   ];
   const chatCompletion = await client.chat.completions.create({
     model: process.env.TEST_MODEL_TOOLS,
-    // `max_tokens` because AzureOpenAI still does not support max_completions_tokens.
+    // `max_tokens` because AzureOpenAI does not support max_completions_tokens,
+    // as of `OPENAI_API_VERSION=2024-10-01-preview`.
     //
     // A value of 200 was chosen to be large enough to not accidentally be a
     // `finish_reason` when using a model that ignores the "3 words" limit

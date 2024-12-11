@@ -90,7 +90,7 @@ deployment with the name 'gpt-4o-mini'):
 ```bash
 AZURE_OPENAI_ENDPOINT=https://YOUR-ENDPOINT-NAME.openai.azure.com \
     AZURE_OPENAI_API_KEY=... \
-    OPENAI_API_VERSION=2024-08-01-preview \
+    OPENAI_API_VERSION=2024-10-01-preview \
     node use-chat.js
 ```
 
