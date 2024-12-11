@@ -1,10 +1,10 @@
-# Release a tagged version of the '@elastic/mockotlpserver' package.
-name: release-mockotlpserver
+# Release a tagged version of the '@elastic/opentelemetry-instrumentation-openai' package.
+name: release-instrumentation-openai
 
 on:
   push:
     tags:
-      - mockotlpserver-v*.*.*
+      - instrumentation-openai-v*.*.*
 
 # 'id-token' perm needed for npm publishing with provenance (see
 # https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
@@ -17,8 +17,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     env:
-      PKGDIR: packages/mockotlpserver
-      PKGNAME: "@elastic/mockotlpserver"
+      PKGDIR: packages/instrumentation-openai
+      PKGNAME: "@elastic/opentelemetry-instrumentation-openai"
     steps:
       - uses: actions/checkout@v4
         with:

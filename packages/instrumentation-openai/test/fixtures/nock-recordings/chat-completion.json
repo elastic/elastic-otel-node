@@ -1,0 +1,69 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/chat/completions",
+        "body": {
+            "model": "gpt-4o-mini",
+            "max_tokens": 200,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Answer in up to 3 words: Which ocean contains the falkland islands?"
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1f8b08000000000000038c92cd6ac3301084ef7e0aa1b31d94c42121b74029b43d141ae8a514a3c86b5badac15d2baa494bc7b91f36387b6d08b0efbed8c6657fa4a18e3bae46bc6552349b5ce641be9f1f9eea6fb78b8bf79da0ab3c8c5e35ee5b7dbfaaedbf3342a70f7068aceaa89c2d619208df688950749105da7cbf97cbe10623eed418b259828ab1d653966adb6",
+            "3a9b89599e8965365d9dd40d6a0581afd94bc218635ffd1973da12f67ccd447aaeb41082ac81af2f4d8c718f2656b80c41079296783a408596c0f6d1b7d851c33664a425add8a3026927e35e0f551764cc6b3b634ef5c3e57283b5f3b80b277ea957daead0141e64401b2f0a848ef7f49030f6da0fd95de5e6ce63eba8207c071b0d67f9d18e0fab1de09911923423cd2afdc5ac2881a43661b423aea46aa01c94c34265576a1c816434f2cf2cbf791fc7d6b6fe8ffd009402475016ce43a9d5f5bc439b87f8effe6abbacb80fccc36720688b4adb1abcf3faf8ea952bc4522c76d56aa9044f0ec937000000ffff03003c9974df03030000"
+        ],
+        "rawHeaders": [
+            "Date",
+            "Wed, 04 Dec 2024 22:07:11 GMT",
+            "Content-Type",
+            "application/json",
+            "Transfer-Encoding",
+            "chunked",
+            "Connection",
+            "keep-alive",
+            "access-control-expose-headers",
+            "X-Request-ID",
+            "openai-organization",
+            "elastic-observability",
+            "openai-processing-ms",
+            "171",
+            "openai-version",
+            "2020-10-01",
+            "x-ratelimit-limit-requests",
+            "10000",
+            "x-ratelimit-limit-tokens",
+            "200000",
+            "x-ratelimit-remaining-requests",
+            "9999",
+            "x-ratelimit-remaining-tokens",
+            "199782",
+            "x-ratelimit-reset-requests",
+            "8.64s",
+            "x-ratelimit-reset-tokens",
+            "65ms",
+            "x-request-id",
+            "req_14e70641d65a385d7b5a82f52be19252",
+            "strict-transport-security",
+            "max-age=31536000; includeSubDomains; preload",
+            "CF-Cache-Status",
+            "DYNAMIC",
+            "X-Content-Type-Options",
+            "nosniff",
+            "Server",
+            "cloudflare",
+            "CF-RAY",
+            "8ecf1b9f1f4c2dbf-YVR",
+            "Content-Encoding",
+            "gzip",
+            "alt-svc",
+            "h3=\":443\"; ma=86400"
+        ],
+        "responseIsBinary": false
+    }
+]
