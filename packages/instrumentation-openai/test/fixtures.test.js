@@ -1312,7 +1312,6 @@ test('fixtures', async suite => {
       },
     },
 
-    // TODO: tests with captureMessageContent=false
     // TODO: see Python's test_all_the_client_options, do something similar
     // TODO: test with a tool response from user after a tool call (to test https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/gen-ai-events.md#tool-event)
     // TODO: test a case where stream fails before completion: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/gen-ai-events.md#choice-event says SHOULD have an event with truncated content and finish_reason=error

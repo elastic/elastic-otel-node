@@ -87,7 +87,8 @@ jobs:
       working-directory: packages/instrumentation-openai
     - run: npm run compile
       working-directory: packages/instrumentation-openai
-    - run: |
+    - name: Integration tests
+      run: |
         set -a; source ./ollama.env
         npm run test:integration
       working-directory: packages/instrumentation-openai
