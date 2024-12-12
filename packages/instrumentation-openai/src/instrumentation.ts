@@ -70,7 +70,7 @@ import createDebug from 'debug';
 const debug = createDebug('elastic-opentelemetry-instrumentation-openai');
 (debug as any).inspectOpts = { depth: 50, colors: true };
 
-class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationConfig> {
+export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationConfig> {
   private _genaiClientOperationDuration!: Histogram;
   private _genaiClientTokenUsage!: Histogram;
 
@@ -750,7 +750,3 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
     span.end();
   }
 }
-
-module.exports = {
-  OpenAIInstrumentation,
-};

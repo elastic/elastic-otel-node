@@ -17,5 +17,5 @@
  * under the License.
  */
 
-export * from './instrumentation';
-export * from './types';
+export { OpenAIInstrumentation } from './instrumentation';
+export { OpenAIInstrumentationConfig } from './types';

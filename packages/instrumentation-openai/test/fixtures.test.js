@@ -181,7 +181,10 @@ function isPositiveInteger(val) {
 }
 
 function isExpectedServerAddress(val) {
-  const baseUrl = process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT || process.env.OPENAI_BASE_URL || 'https://api.openai.com';
+  const baseUrl =
+    (process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT) ||
+    process.env.OPENAI_BASE_URL ||
+    'https://api.openai.com';
   const expectedHostname = new URL(baseUrl).hostname;
   return val === expectedHostname;
 }
