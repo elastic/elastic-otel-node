@@ -1,6 +1,6 @@
 # @elastic/opentelemetry-instrumentation-openai Changelog
 
-## v0.2.0
+## v0.3.0
 
 - Based on GenAI semantic conventions 1.29.
 - Instrumentation of chat completion, including streaming and tool calls.
