@@ -19,9 +19,11 @@
 
 // Some types for https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-events
 
+import { AnyValue } from '@opentelemetry/api-logs';
+
 export type GenAIFunction = {
   name: string;
-  arguments?: any;
+  arguments?: AnyValue;
 };
 
 export type GenAIToolCall = {
@@ -32,7 +34,7 @@ export type GenAIToolCall = {
 
 export type GenAIMessage = {
   role?: string;
-  content?: any;
+  content?: AnyValue;
   tool_calls?: GenAIToolCall[];
 };
 
@@ -44,22 +46,22 @@ export type GenAIChoiceEventBody = {
 
 export type GenAISystemMessageEventBody = {
   role?: string;
-  content?: any;
+  content?: AnyValue;
 };
 
 export type GenAIUserMessageEventBody = {
   role?: string;
-  content?: any;
+  content?: AnyValue;
 };
 
 export type GenAIAssistantMessageEventBody = {
   role?: string;
-  content?: any;
+  content?: AnyValue;
   tool_calls?: GenAIToolCall[];
 };
 
 export type GenAIToolMessageEventBody = {
   role?: string;
-  content?: any;
+  content?: AnyValue;
   id: string;
 };
