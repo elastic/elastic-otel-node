@@ -25,6 +25,7 @@
     "node": ">=14.17.0"
   },
   "scripts": {
+    "clean": "rm -rf node_modules",
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc",

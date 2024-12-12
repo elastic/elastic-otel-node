@@ -1,0 +1,94 @@
+name: test-instrumentation-openai
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    paths:
+    - 'packages/instrumentation-openai/**'
+    - '.github/workflows/test-instrumentation-openai.yml'
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'packages/instrumentation-openai/**'
+    - '.github/workflows/test-instrumentation-openai.yml'
+
+# Cancel jobs running for old commits on a PR. Allow concurrent runs on 'main'.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '22'
+          - '20'
+          - '18'
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm ci
+      working-directory: packages/instrumentation-openai
+    - run: npm run compile
+      working-directory: packages/instrumentation-openai
+    - run: npm test
+      working-directory: packages/instrumentation-openai
+
+  # This runs the unit tests against a number of 'openai' versions in the
+  # supported range.
+  test-all-versions:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+    - run: npm install
+      working-directory: packages/instrumentation-openai
+    - run: npm run compile
+      working-directory: packages/instrumentation-openai
+    - run: npm run test-all-versions
+      working-directory: packages/instrumentation-openai
+
+  integration-test:
+    runs-on: ubuntu-latest
+    services:
+      ollama:
+        # A light fork of Ollama to float some in-progress contributions related
+        # to more closely matching OpenAI behavior.
+        image: ghcr.io/elastic/ollama/ollama:testing
+        ports:
+          - 11434:11434
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+    - name: Pull Ollama models
+      run: |
+        source packages/instrumentation-openai/ollama.env
+        curl -s http://localhost:11434/api/pull -d "{\"model\": \"$TEST_MODEL_TOOLS\"}"
+        curl -s http://localhost:11434/api/pull -d "{\"model\": \"$TEST_MODEL_EMBEDDINGS\"}"
+        curl -s http://localhost:11434/api/tags | jq
+        # Dump Ollama container logs if it doesn't appear to be working.
+        curl -fsS http://localhost:11434/ || docker logs $(docker ps -q)
+    - run: npm install
+      working-directory: packages/instrumentation-openai
+    - run: npm run compile
+      working-directory: packages/instrumentation-openai
+    - name: Integration tests
+      run: |
+        set -a; source ./ollama.env
+        npm run test:integration
+      working-directory: packages/instrumentation-openai
