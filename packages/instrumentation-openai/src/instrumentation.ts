@@ -54,7 +54,15 @@ import {
 } from './semconv';
 import { PACKAGE_NAME, PACKAGE_VERSION } from './version';
 import { getEnvBool, getAttrsFromBaseURL } from './utils';
-import { OpenAIInstrumentationConfig, GenAI } from './types';
+import { OpenAIInstrumentationConfig } from './types';
+import {
+  GenAIMessage,
+  GenAIChoiceEventBody,
+  GenAISystemMessageEventBody,
+  GenAIUserMessageEventBody,
+  GenAIAssistantMessageEventBody,
+  GenAIToolMessageEventBody,
+} from './internal-types';
 
 // Use `DEBUG=elastic-opentelemetry-instrumentation-openai ...` for debug output.
 // Or use `node --env-file ./dev.env ...` in this repo.
@@ -291,7 +299,7 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
               body: {
                 role: msg.role,
                 content: msg.content,
-              } as GenAI.SystemMessageEventBody,
+              } as GenAISystemMessageEventBody,
             });
           }
           break;
@@ -308,7 +316,7 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
               body: {
                 role: msg.role,
                 content: msg.content,
-              } as GenAI.UserMessageEventBody,
+              } as GenAIUserMessageEventBody,
             });
           }
           break;
@@ -317,7 +325,7 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
             body = {
               content: msg.content,
               tool_calls: msg.tool_calls,
-            } as GenAI.AssistantMessageEventBody;
+            } as GenAIAssistantMessageEventBody;
           } else {
             body = {
               tool_calls: msg.tool_calls.map((tc: any) => {
@@ -327,7 +335,7 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
                   function: { name: tc.function.name },
                 };
               }),
-            } as GenAI.AssistantMessageEventBody;
+            } as GenAIAssistantMessageEventBody;
           }
           this.logger.emit({
             timestamp,
@@ -345,11 +353,11 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
             body = {
               content: msg.content,
               id: msg.tool_call_id,
-            } as GenAI.ToolMessageEventBody;
+            } as GenAIToolMessageEventBody;
           } else {
             body = {
               id: msg.tool_call_id,
-            } as GenAI.ToolMessageEventBody;
+            } as GenAIToolMessageEventBody;
           }
           this.logger.emit({
             timestamp,
@@ -466,7 +474,7 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
     }
 
     // Capture choices as log events.
-    const message: Partial<GenAI.Message> = { role };
+    const message: Partial<GenAIMessage> = { role };
     if (config.captureMessageContent && contentParts.length > 0) {
       message.content = contentParts.join('');
     }
@@ -490,7 +498,7 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
         finish_reason: finishReason,
         index: 0,
         message,
-      } as GenAI.ChoiceEventBody,
+      } as GenAIChoiceEventBody,
     });
 
     this._genaiClientOperationDuration.record(
@@ -535,7 +543,7 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
 
       // Capture choices as log events.
       result.choices.forEach((choice: any) => {
-        let message: Partial<GenAI.Message>;
+        let message: Partial<GenAIMessage>;
         if (config.captureMessageContent) {
           // TODO: telemetry diff with streaming case: content=null, no 'role: assistant', 'tool calls (enableCaptureContent=true)' test case
           message = { content: choice.message.content };
@@ -566,7 +574,7 @@ class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationCon
             finish_reason: choice.finish_reason,
             index: choice.index,
             message,
-          } as GenAI.ChoiceEventBody,
+          } as GenAIChoiceEventBody,
         });
       });
 

@@ -17,15 +17,49 @@
  * under the License.
  */
 
-import { InstrumentationConfig } from '@opentelemetry/instrumentation';
+// Some types for https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-events
 
-export interface OpenAIInstrumentationConfig extends InstrumentationConfig {
-  /**
-   * Set to true to enable capture of content data, such as prompt and
-   * completion content, tool call function arguments, etc. By default, this is
-   * `false` to avoid possible exposure of sensitive data. This can also be set
-   * via the `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true`
-   * environment variable.
-   */
-  captureMessageContent?: boolean;
-}
+export type GenAIFunction = {
+  name: string;
+  arguments?: any;
+};
+
+export type GenAIToolCall = {
+  id: string;
+  type: string;
+  function: GenAIFunction;
+};
+
+export type GenAIMessage = {
+  role?: string;
+  content?: any;
+  tool_calls?: GenAIToolCall[];
+};
+
+export type GenAIChoiceEventBody = {
+  finish_reason: string;
+  index: number;
+  message: GenAIMessage;
+};
+
+export type GenAISystemMessageEventBody = {
+  role?: string;
+  content?: any;
+};
+
+export type GenAIUserMessageEventBody = {
+  role?: string;
+  content?: any;
+};
+
+export type GenAIAssistantMessageEventBody = {
+  role?: string;
+  content?: any;
+  tool_calls?: GenAIToolCall[];
+};
+
+export type GenAIToolMessageEventBody = {
+  role?: string;
+  content?: any;
+  id: string;
+};
