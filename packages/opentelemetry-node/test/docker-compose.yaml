@@ -60,3 +60,17 @@ services:
       interval: 1s
       timeout: 10s
       retries: 30
+
+  mysql:
+    image: mysql:5.7
+    # No ARM64 image layer. See https://stackoverflow.com/a/65592942
+    platform: linux/x86_64
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysql" ,"-h", "mysql", "-P", "3306", "-u", "root", "-e", "SELECT 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
