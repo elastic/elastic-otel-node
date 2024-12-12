@@ -29,6 +29,12 @@ jobs:
           node-version: 'v18.20.4'
           registry-url: 'https://registry.npmjs.org'
 
+      - run: npm ci
+        working-directory: ${{ env.PKGDIR }}
+
+      - run: npm run compile
+        working-directory: ${{ env.PKGDIR }}
+
       - run: npm publish
         working-directory: ${{ env.PKGDIR }}
         env:
