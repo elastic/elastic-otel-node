@@ -39,7 +39,7 @@
   "files": [
     "lib",
     "opentelemetry",
-    "db",
+    "db/README.md",
     "ui"
   ],
   "main": "lib/index.js",
