@@ -23,7 +23,7 @@ const {runTestFixtures} = require('./testutils');
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'basic scenario without values in OTEL_(EN|DIS)ABLE_INSTRUMENTATIONS',
+        name: 'basic scenario without values in OTEL_(EN|DIS)ABLED_INSTRUMENTATIONS',
         args: ['./fixtures/use-env.js'],
         cwd: __dirname,
         env: {
@@ -100,7 +100,7 @@ const testFixtures = [
             OTEL_LOG_LEVEL: 'debug',
             OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'fastify, express  , bogus',
         },
-        verbose: true,
+        // verbose: true,
         checkResult: (t, err, stdout, stderr) => {
             t.error(err);
             const lines = stdout.split('\n');

@@ -79,9 +79,9 @@ class ElasticNodeSDK extends NodeSDK {
         const {OTLPLogExporter} = require(
             `@opentelemetry/exporter-logs-otlp-${logExporterType}`
         );
-        defaultConfig.logRecordProcessor = new BatchLogRecordProcessor(
-            new OTLPLogExporter()
-        );
+        defaultConfig.logRecordProcessors = [
+            new BatchLogRecordProcessor(new OTLPLogExporter()),
+        ];
 
         // Default metrics exporter.
         // Currently NodeSDK does not handle `OTEL_METRICS_EXPORTER`

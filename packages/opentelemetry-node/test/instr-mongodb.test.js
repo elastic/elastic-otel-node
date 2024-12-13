@@ -25,7 +25,7 @@ const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 let skip = process.env.MONGODB_HOST === undefined;
 if (skip) {
     console.log(
-        '# SKIP mongodb tests: MONGODB_HOST is not set (try with `MONGODB_HOST=localhost:27017`)'
+        '# SKIP mongodb tests: MONGODB_HOST is not set (try with `MONGODB_HOST=localhost`)'
     );
 }
 
