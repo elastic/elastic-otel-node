@@ -51,7 +51,6 @@ BRANCH=$(git -C "$TOP" symbolic-ref HEAD | cut -d/ -f 3-)
 DIRECTORY=$($JSON -f "$PKG_DIR/package.json" repository.directory)
 README_URL="https://github.com/elastic/elastic-otel-node/tree/$BRANCH/$DIRECTORY#readme"
 CHANGELOG_URL="https://github.com/elastic/elastic-otel-node/blob/$BRANCH/$DIRECTORY/CHANGELOG.md"
-echo "BRANCH is: $BRANCH"
 echo "
 ---
 

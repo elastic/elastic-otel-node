@@ -49,7 +49,11 @@ function diagChFromReqUrl(reqUrl) {
 }
 
 // helper functions
-function badRequest(res, errMsg='Invalid or no data received', errCode=400) {
+function badRequest(
+    res,
+    errMsg = 'Invalid or no data received',
+    errCode = 400
+) {
     res.writeHead(400);
     res.end(
         JSON.stringify({
@@ -133,7 +137,10 @@ class HttpService extends Service {
         this._server = http.createServer((req, res) => {
             const contentType = req.headers['content-type'];
             if (!parsersMap[contentType]) {
-                return badRequest(res, `unexpected request Content-Type: "${contentType}"`)
+                return badRequest(
+                    res,
+                    `unexpected request Content-Type: "${contentType}"`
+                );
             }
 
             const chunks = [];
@@ -154,7 +161,7 @@ class HttpService extends Service {
                 let resBody = null;
                 if (contentType === 'application/json') {
                     resBody = JSON.stringify({
-                        ok: 1
+                        ok: 1,
                     });
                 }
                 res.writeHead(200);
