@@ -19,13 +19,19 @@
 
 const http = require('http');
 const test = require('tape');
+const semver = require('semver');
 const {runTestFixtures, assertDeepMatch} = require('./testutils');
 
-const skip = process.env.TEST_GENAI_MODEL === undefined;
+let skip = process.env.TEST_GENAI_MODEL === undefined;
 if (skip) {
     console.log(
         '# SKIP elastic openai tests: TEST_GENAI_MODEL is not set (load env from test/test-services.env)'
     );
+} else {
+    skip = !semver.satisfies(process.version, '>=18');
+    if (skip) {
+        console.log('# SKIP elastic openai requires node >=18');
+    }
 }
 
 /** @type {import('./testutils').TestFixture[]} */
