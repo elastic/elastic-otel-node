@@ -49,13 +49,13 @@ function diagChFromReqUrl(reqUrl) {
 }
 
 // helper functions
-function badRequest(res) {
+function badRequest(res, errMsg='Invalid or no data received', errCode=400) {
     res.writeHead(400);
     res.end(
         JSON.stringify({
             error: {
-                code: 400,
-                message: 'Invalid or no data received',
+                code: errCode,
+                message: errMsg,
             },
         })
     );
@@ -131,6 +131,11 @@ class HttpService extends Service {
     async start() {
         const {log, hostname, port} = this._opts;
         this._server = http.createServer((req, res) => {
+            const contentType = req.headers['content-type'];
+            if (!parsersMap[contentType]) {
+                return badRequest(res, `unexpected request Content-Type: "${contentType}"`)
+            }
+
             const chunks = [];
             req.on('data', (chunk) => chunks.push(chunk));
             req.on('end', () => {
@@ -146,24 +151,20 @@ class HttpService extends Service {
                 // - something else
                 // PS: maybe collector could be able to tell the sdk/distro to stop sending
                 // because of: high load, sample rate changed, et al??
+                let resBody = null;
+                if (contentType === 'application/json') {
+                    resBody = JSON.stringify({
+                        ok: 1
+                    });
+                }
                 res.writeHead(200);
-                res.end(
-                    // TODO: return a response based on the service proto file if needed (check if the properties are camelCase)
-                    // PS: probably the partial_success is optional and we could send an empty object back
-                    // - logs { partial_success? { rejected_log_records: number; error_message?: string } }
-                    // - metrics { partial_success? { rejected_data_points: number; error_message?: string } }
-                    // - traces { partial_success? { rejected_spans: number; error_message?: string } }
-                    JSON.stringify({
-                        ok: 1,
-                    })
-                );
+                res.end(resBody);
 
                 // We publish into diagnostics channel after returning a response to the client to avoid not returning
                 // a response if one of the handlers throws (the hanlders run synchronously in the
                 // same context).
                 // https://nodejs.org/api/diagnostics_channel.html#channelpublishmessage
                 // TODO: maybe surround with try/catch to not blow up the server?
-                const contentType = req.headers['content-type'];
                 const parseData = parsersMap[contentType] || unknownParser;
                 const reqBuffer = Buffer.concat(chunks);
                 const reqUrl = req.url;
