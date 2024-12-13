@@ -44,10 +44,12 @@ const {
 const {resolve, relative, join, sep} = require('path');
 const {tmpdir} = require('os');
 
+const TOP = resolve(__dirname, '..');
+
 // SCRIPT PARAMS
 const REPO_NAME = 'opentelemetry-proto';
 const REPO_URL = `https://github.com/open-telemetry/${REPO_NAME}.git`;
-const HASH_TAG = 'v1.3.2';
+const HASH_TAG = 'v1.4.0';
 
 // HELPER FUNCTIONS
 /**
@@ -81,13 +83,7 @@ execSync(`git clone --depth 1 --branch ${HASH_TAG} ${REPO_URL}`, {
 });
 
 // 2nd copy files into the right place
-const targetPath = resolve(
-    __dirname,
-    '..',
-    'packages',
-    'mockotlpserver',
-    'opentelemetry'
-);
+const targetPath = resolve(TOP, 'opentelemetry');
 if (existsSync(targetPath)) {
     rmSync(targetPath, {recursive: true, force: true});
 }
@@ -130,8 +126,7 @@ https://github.com/open-telemetry/opentelemetry-js.git
 appendFileSync(readmePath, appendText, {encoding: 'utf-8'});
 
 // 5th - generate types using protobufjs-cli from the source path
-const rootPath = resolve(__dirname, '..');
-const binPath = join(rootPath, 'node_modules', '.bin');
+const binPath = join(TOP, 'node_modules', '.bin');
 const protosPath = resolve(sourcePath, 'proto');
 const protos = [
     '/collector/trace/v1/trace_service.proto',
@@ -153,7 +148,7 @@ const generateCommand = [
     '|',
     // Then generate types
     join(binPath, 'pbts'),
-    `-o ${rootPath}/packages/mockotlpserver/lib/types-proto.d.ts`,
+    `-o ${TOP}/lib/types-proto.d.ts`,
     `-`,
 ].join(' ');
 

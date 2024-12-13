@@ -35,22 +35,27 @@ npm install @elastic/opentelemetry-instrumentation-openai
 
 # Usage
 
-This example shows the OTel setup code and app code in the same file.
-Typically, the OTel setup code would be in a separate file and run via
-`node -r ...`. See a more complete example at "test/fixtures/telemetry.js".
+First install the packages used in the example:
+
+```bash
+npm install openai \
+  @opentelemetry/sdk-node \
+  @elastic/opentelemetry-instrumentation-openai
+```
+
+Save this to a file, say "example.js". (This example shows the OTel setup code
+and app code in the same file. Typically, the OTel setup code would be in a
+separate file and run via `node -r ...`. See [a more complete OTel setup
+example here](./test/fixtures/telemetry.js).)
 
 ```js
-const {NodeSDK, tracing, api} = require('@opentelemetry/sdk-node');
-const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
+const {NodeSDK} = require('@opentelemetry/sdk-node');
 const {OpenAIInstrumentation} = require('@elastic/opentelemetry-instrumentation-openai');
 const sdk = new NodeSDK({
-    spanProcessor: new tracing.SimpleSpanProcessor(new tracing.ConsoleSpanExporter()),
     instrumentations: [
-        // HTTP instrumentation is not required, but it can be interesting to see
-        // openai and http spans in the trace.
-        new HttpInstrumentation(),
         new OpenAIInstrumentation({
-            // See below for OpenAI instrumentation configuration.
+            // See the "Configuration" section below.
+            captureMessageContent: true,
         })
     ]
 })
@@ -68,6 +73,25 @@ async function main() {
     });
     console.log(result.choices[0]?.message?.content);
 }
+main();
+```
+
+Then run it:
+
+```bash
+OPENAI_API_KEY=sk-... \
+    node example.js
+```
+
+By default, the `NodeSDK` will export telemetry via OTLP. As a first example
+to see the telemetry on the console use:
+
+```bash
+OTEL_TRACES_EXPORTER=console \
+    OTEL_LOGS_EXPORTER=console \
+    OTEL_METRICS_EXPORTER=console \
+    OPENAI_API_KEY=sk-... \
+    node example.js
 ```
 
 
