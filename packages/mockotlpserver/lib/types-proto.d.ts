@@ -3819,15 +3819,6 @@ export namespace opentelemetry {
                     /** HistogramDataPoint max. */
                     public max?: (number|null);
 
-                    /** HistogramDataPoint _sum. */
-                    public _sum?: "sum";
-
-                    /** HistogramDataPoint _min. */
-                    public _min?: "min";
-
-                    /** HistogramDataPoint _max. */
-                    public _max?: "max";
-
                     /**
                      * Creates a new HistogramDataPoint instance using the specified properties.
                      * @param [properties] Properties to set
@@ -4002,15 +3993,6 @@ export namespace opentelemetry {
 
                     /** ExponentialHistogramDataPoint zeroThreshold. */
                     public zeroThreshold?: (number|null);
-
-                    /** ExponentialHistogramDataPoint _sum. */
-                    public _sum?: "sum";
-
-                    /** ExponentialHistogramDataPoint _min. */
-                    public _min?: "min";
-
-                    /** ExponentialHistogramDataPoint _max. */
-                    public _max?: "max";
 
                     /**
                      * Creates a new ExponentialHistogramDataPoint instance using the specified properties.
