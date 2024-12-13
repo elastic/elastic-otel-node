@@ -28,10 +28,9 @@ async function main() {
     const result = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
-            {role: 'user', content: 'Why is the sky blue? Answer briefly.'}
-        ]
+            {role: 'user', content: 'Why is the sky blue? Answer briefly.'},
+        ],
     });
     console.log(result.choices[0]?.message?.content);
 }
 main();
-
