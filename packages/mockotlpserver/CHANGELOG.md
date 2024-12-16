@@ -2,7 +2,14 @@
 
 ## Unreleased
 
+- feat: Some improvements to "summary" styling.
+    - Show attributes for histogram metrics and handle showing multiple data points.
+    - Bold "span", "event", "$metricType" in renderings, and style the name of that
+      span/event/metric in magenta. See PR for screenshots.
 - fix: Don't throw printing a metrics summary for a histogram without attributes.
+- fix: Return a valid response to http/protobuf requests. Before this a picky exporter
+  could complain about the invalid response data.
+  (https://github.com/elastic/elastic-otel-node/issues/477)
 
 ## v0.5.0
 

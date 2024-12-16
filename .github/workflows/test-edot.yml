@@ -1,23 +1,20 @@
-name: test
+# Test "packages/opentelemetry-node" (a.k.a. EDOT Node.js).
+name: test-edot
 
 on:
   workflow_dispatch:
   push:
     branches:
     - main
-    paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
+    paths:
+    - 'packages/opentelemetry-node/**'
+    - '.github/workflows/test-edot.yml'
   pull_request:
     branches:
     - main
-    paths-ignore:
-    - '**/*.md'
-    - '**/*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
+    paths:
+    - 'packages/opentelemetry-node/**'
+    - '.github/workflows/test-edot.yml'
 
 # Cancel jobs running for old commits on a PR. Allow concurrent runs on 'main'.
 concurrency:
@@ -81,7 +78,12 @@ jobs:
     - name: Update npm to a version that supports package-lock lockfileVersion=2.
       if: ${{ startsWith(matrix.node, '14') }}
       run: npm install -g npm@9 # npm@9 supports node >=14.17.0
-    - run: npm run ci-all
+    - name: npm ci in mockotlpserver package, used in EDOT tests
+      run: npm ci
+      working-directory: packages/mockotlpserver
+    - run: npm ci
+      working-directory: packages/opentelemetry-node
     - run: npm test
+      working-directory: packages/opentelemetry-node
 
   # TODO: test-windows eventually

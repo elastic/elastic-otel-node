@@ -1,0 +1,101 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/chat/completions",
+        "body": {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a helpful customer support assistant. Use the supplied tools to assist the user."
+                },
+                {
+                    "role": "user",
+                    "content": "Hi, can you tell me the delivery date for my order?"
+                },
+                {
+                    "role": "assistant",
+                    "content": "Hi there! I can help with that. Can you please provide your order ID?"
+                },
+                {
+                    "role": "user",
+                    "content": "i think it is order_12345"
+                }
+            ],
+            "stream": true,
+            "stream_options": {
+                "include_usage": true
+            },
+            "tools": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "get_delivery_date",
+                        "description": "Get the delivery date for a customer's order. Call this whenever you need to know the delivery date, for example when a customer asks 'Where is my package'",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "order_id": {
+                                    "type": "string",
+                                    "description": "The customer's order ID."
+                                }
+                            },
+                            "required": [
+                                "order_id"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                }
+            ]
+        },
+        "status": 200,
+        "response": "data: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":null,\"tool_calls\":[{\"index\":0,\"id\":\"call_GqsvoRkHMjAlIhoSWKP6D2lw\",\"type\":\"function\",\"function\":{\"name\":\"get_delivery_date\",\"arguments\":\"\"}}],\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\\\"\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"order\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"_id\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"\\\":\\\"\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"order\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"_\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"123\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"45\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"\\\"}\"}}]},\"logprobs\":null,\"finish_reason\":null}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":null}\n\ndata: {\"id\":\"chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ\",\"object\":\"chat.completion.chunk\",\"created\":1732902910,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_3de1288069\",\"choices\":[],\"usage\":{\"prompt_tokens\":140,\"completion_tokens\":19,\"total_tokens\":159,\"prompt_tokens_details\":{\"cached_tokens\":0,\"audio_tokens\":0},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"audio_tokens\":0,\"accepted_prediction_tokens\":0,\"rejected_prediction_tokens\":0}}}\n\ndata: [DONE]\n\n",
+        "rawHeaders": [
+            "Date",
+            "Fri, 29 Nov 2024 17:55:11 GMT",
+            "Content-Type",
+            "text/event-stream; charset=utf-8",
+            "Transfer-Encoding",
+            "chunked",
+            "Connection",
+            "keep-alive",
+            "access-control-expose-headers",
+            "X-Request-ID",
+            "openai-organization",
+            "elastic-observability",
+            "openai-processing-ms",
+            "561",
+            "openai-version",
+            "2020-10-01",
+            "x-ratelimit-limit-requests",
+            "10000",
+            "x-ratelimit-limit-tokens",
+            "200000",
+            "x-ratelimit-remaining-requests",
+            "9993",
+            "x-ratelimit-remaining-tokens",
+            "199921",
+            "x-ratelimit-reset-requests",
+            "55.376s",
+            "x-ratelimit-reset-tokens",
+            "23ms",
+            "x-request-id",
+            "req_4887a849fdef2c2de4b074554e4e3cac",
+            "strict-transport-security",
+            "max-age=31536000; includeSubDomains; preload",
+            "CF-Cache-Status",
+            "DYNAMIC",
+            "X-Content-Type-Options",
+            "nosniff",
+            "Server",
+            "cloudflare",
+            "CF-RAY",
+            "8ea477962ecd8450-YVR",
+            "alt-svc",
+            "h3=\":443\"; ma=86400"
+        ],
+        "responseIsBinary": false
+    }
+]

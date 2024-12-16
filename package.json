@@ -5,17 +5,17 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
+    "clean-all": "set -e; ./scripts/oneach.sh npm run --if-present clean",
     "ci-all": "./scripts/oneach.sh npm ci",
-    "clean-all": "set -e; rm -rf build; ./scripts/oneach.sh rm -rf node_modules",
+    "compile-all": "./scripts/oneach.sh npm run --if-present compile",
+    "clean": "rm -rf node_modules build",
     "oneach": "./scripts/oneach.sh",
     "lint": "npm run lint:eslint && ls -d packages/* | while read d; do (cd $d; npm run lint); done",
     "lint:eslint": "eslint --ext=js,mjs,cjs scripts examples # requires node >=16.0.0",
-    "lint:fix": "eslint --ext=js,mjs,cjs .eslintrc.js scripts examples --fix && ls -d packages/* | while read d; do (cd $d; npm run lint:fix); done",
-    "test": "ls -d packages/opentelemetry-node | while read d; do (cd $d; npm test); done",
-    "maint:update-protos": "node scripts/update-protos.js"
+    "lint:fix": "eslint --ext=js,mjs,cjs .eslintrc.js scripts examples --fix && ls -d packages/* | while read d; do (cd $d; npm run lint:fix); done"
   },
   "devDependencies": {
-    "@types/node": "^22.9.3",
+    "@types/node": "^22.10.2",
     "dependency-check": "^4.1.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

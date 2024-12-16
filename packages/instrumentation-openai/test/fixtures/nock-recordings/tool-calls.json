@@ -1,0 +1,100 @@
+[
+    {
+        "scope": "https://api.openai.com:443",
+        "method": "POST",
+        "path": "/v1/chat/completions",
+        "body": {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a helpful customer support assistant. Use the supplied tools to assist the user."
+                },
+                {
+                    "role": "user",
+                    "content": "Hi, can you tell me the delivery date for my order?"
+                },
+                {
+                    "role": "assistant",
+                    "content": "Hi there! I can help with that. Can you please provide your order ID?"
+                },
+                {
+                    "role": "user",
+                    "content": "i think it is order_12345"
+                }
+            ],
+            "tools": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "get_delivery_date",
+                        "description": "Get the delivery date for a customer's order. Call this whenever you need to know the delivery date, for example when a customer asks 'Where is my package'",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "order_id": {
+                                    "type": "string",
+                                    "description": "The customer's order ID."
+                                }
+                            },
+                            "required": [
+                                "order_id"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                }
+            ]
+        },
+        "status": 200,
+        "response": [
+            "1f8b0800000000000003000000ffff",
+            "6c525d6f9b30147de75758f7394c849291f016a90f6db575cd34ad52970939e6024e8dedda665a14e5bf5710be92960764eee19c73efb93e7a8400cf2021c04aea58a585bfbe2d9f9fadaeef8d5a3eadbfbed1f5af3d2f37fbd7fd62f31d660d43edf6c85ccffac254a5053aaee4196606a9c346751e87f1325cae6ec216a85486a2a115daf991f22b2eb91f0661e407b13f5f76ec5271861612f2c723849063fb6efa9419fe878404b3be52a1b5b44048869f0801a34453016a2db78e4a07b311644a3a944debb216620238a544caa810a3f1f9394ece63585488f4f7d3cf72f52d780983e271bfbabd7fd93cbcdd3dc63f267e67e9836e1bca6bc9869026f8504faecc080149ab965ba04b3314fc1f9a439a51875722840035455da174cd0070dc8232199a94675b48fa8f7978132db670820beec9fbecfc77128ec1bcb65474a975f5d3b006a10a6dd4ce5ea50a3997dc96a9416adbe9a6217bbd5beb03f5c51e411b5569973af58ab2919d47ddd261bc6b1374d5814e392a26f5450f5ce8a5193acadb450f778b5156623652036f32e247d3cf24ce6372597c50f13a25b007ebb04a732e0b34daf0f62242aed338dad128de45948177f2de010000ffff0300e8f4291f96030000"
+        ],
+        "rawHeaders": [
+            "Date",
+            "Wed, 02 Oct 2024 00:28:52 GMT",
+            "Content-Type",
+            "application/json",
+            "Transfer-Encoding",
+            "chunked",
+            "Connection",
+            "keep-alive",
+            "access-control-expose-headers",
+            "X-Request-ID",
+            "openai-organization",
+            "elastic-observability",
+            "openai-processing-ms",
+            "420",
+            "openai-version",
+            "2020-10-01",
+            "strict-transport-security",
+            "max-age=31536000; includeSubDomains; preload",
+            "x-ratelimit-limit-requests",
+            "10000",
+            "x-ratelimit-limit-tokens",
+            "200000",
+            "x-ratelimit-remaining-requests",
+            "9994",
+            "x-ratelimit-remaining-tokens",
+            "199921",
+            "x-ratelimit-reset-requests",
+            "48.715s",
+            "x-ratelimit-reset-tokens",
+            "23ms",
+            "x-request-id",
+            "req_7fe6087cc9b2b2c0f6fa81836d95cff2",
+            "CF-Cache-Status",
+            "DYNAMIC",
+            "X-Content-Type-Options",
+            "nosniff",
+            "Server",
+            "cloudflare",
+            "CF-RAY",
+            "8cc0932a6df77107-YVR",
+            "Content-Encoding",
+            "gzip"
+        ],
+        "responseIsBinary": false
+    }
+]

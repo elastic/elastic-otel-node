@@ -16,6 +16,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      PKGDIR: packages/mockotlpserver
+      PKGNAME: "@elastic/mockotlpserver"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,9 +29,8 @@ jobs:
           node-version: 'v18.20.4'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: npm publish
-        working-directory: ./packages/mockotlpserver
-        run: npm publish
+      - run: npm publish
+        working-directory: ${{ env.PKGDIR }}
         env:
           # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -36,7 +38,7 @@ jobs:
       - name: GitHub release
         run: |
           npm ci  # need top-level devDeps for github-release.sh script
-          ./scripts/github-release.sh "packages/mockotlpserver" "${{ github.ref_name }}"
+          ./scripts/github-release.sh "$PKGDIR" "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -49,4 +51,4 @@ jobs:
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"
-          message: '[${{ github.repository }}] Release `@elastic/mockotlpserver` *${{ github.ref_name }}*'
+          message: '[${{ github.repository }}] Release `${{ env.PKGNAME }}` *${{ github.ref_name }}*'

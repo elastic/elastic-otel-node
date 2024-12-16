@@ -1,0 +1,5 @@
+/openai.env
+/azure.env
+
+# version.ts is generated during compile.
+/src/version.ts

@@ -25,6 +25,7 @@
     "node": ">=14.17.0"
   },
   "scripts": {
+    "clean": "rm -rf node_modules",
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "tsc",
@@ -34,12 +35,13 @@
     "start": "node lib/cli.js",
     "watch": "node --watch lib/cli.js",
     "example": "cd ../../examples && pwd && node -r @elastic/opentelemetry-node simple-http-request.js",
-    "example3": "cd ../../examples && for flav in http/protobuf http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry-node simple-http-request.js; done"
+    "example3": "cd ../../examples && for flav in http/protobuf http/json grpc; do OTEL_EXPORTER_OTLP_PROTOCOL=$flav node -r @elastic/opentelemetry-node simple-http-request.js; done",
+    "maint:update-protos": "node scripts/update-protos.js"
   },
   "files": [
     "lib",
     "opentelemetry",
-    "db",
+    "db/README.md",
     "ui"
   ],
   "main": "lib/index.js",
