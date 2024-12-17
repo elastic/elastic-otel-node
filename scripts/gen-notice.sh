@@ -84,9 +84,6 @@ npm ls --omit=dev --all --parseable \
             "pg-types": "license.pg-types.txt",
             "undici-types": "license.undici.txt",
             "tr46": "license.MIT.txt",
-            // Temporary manual license path for v0.4.0 of @elastic/opentelemetry-instrumentation-openai
-            // TODO: remove this when the next version is published and updated in EDOT Node.js.
-            "@elastic/opentelemetry-instrumentation-openai": "../packages/instrumentation-openai/LICENSE",
         }
         const allowNoLicFile = [
             "binary-search" // CC is a public domain dedication, no need for license text.
