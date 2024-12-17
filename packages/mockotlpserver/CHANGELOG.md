@@ -1,5 +1,9 @@
 # @elastic/mockotlpserver Changelog
 
+## v0.6.1
+
+- Fix Docker publishing.
+
 ## v0.6.0
 
 - feat: Some improvements to "summary" styling. (https://github.com/elastic/elastic-otel-node/pull/459)

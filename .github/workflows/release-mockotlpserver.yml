@@ -40,8 +40,8 @@ jobs:
           flavor: |
             latest=auto
           tags: |
-            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
-            type=semver,pattern={{version}}
+            # git tag "mockotlpserver-v1.2.3" -> Docker tags "1.2.3", "latest"
+            type=match,pattern=mockotlpserver-v(\d+\.\d+\.\d+),group=1
           labels: |
             org.opencontainers.image.vendor=Elastic
             org.opencontainers.image.title=mockotlpserver
