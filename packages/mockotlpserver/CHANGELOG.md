@@ -1,8 +1,12 @@
 # @elastic/mockotlpserver Changelog
 
+## v0.6.2
+
+- Fix Docker publishing (permissions, context dir).
+
 ## v0.6.1
 
-- Fix Docker publishing.
+- Fix Docker publishing (git tag -> docker image tag handling).
 
 ## v0.6.0
 
