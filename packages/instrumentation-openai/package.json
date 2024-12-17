@@ -49,6 +49,10 @@
     "test:all-integration-tests": "npm run test:integration-openai && npm run test:integration-azure && npm run test:integration-ollama"
   },
   "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
     "build/src/**/*.js",
     "build/src/**/*.js.map",
     "build/src/**/*.d.ts"

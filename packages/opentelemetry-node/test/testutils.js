@@ -34,6 +34,51 @@ const {
     normalizeMetrics,
 } = require('@elastic/mockotlpserver');
 
+// isIdentifier based on https://github.com/sindresorhus/identifier-regex
+const isIdentifier = /^[$_\p{ID_Start}][$_\u200C\u200D\p{ID_Continue}]*$/u;
+
+/**
+ * Assert the given object matches given expectations.
+ *
+ * The fields in `expected` are compared against the equivalent field in `actual`:
+ * - if `expected` is a RegExp, comparison is via Tape's `t.match()`
+ * - if `actual` and `expected` are both arrays, a deep comparison is done,
+ * - if `actual` and `expected` are both objects, a deep comparison is done,
+ * - if `expected` is a function, it is passed the actual value and the
+ *   return value is asserted with `t.ok()`
+ * - otherwise comparison is via `t.equal()`
+ *
+ *      assertDeepMatch(t, {foo: 'bar'}, {foo: /^b/});
+ *      assertDeepMatch(t, process.versions, {node: /^18/, napi: '9'});
+ */
+function assertDeepMatch(t, actual, expected, msgPrefix = 'obj') {
+    if (expected instanceof RegExp) {
+        t.match(actual, expected, msgPrefix);
+    } else if (typeof expected === 'function') {
+        t.ok(expected(actual), msgPrefix);
+    } else if (Array.isArray(actual) && Array.isArray(expected)) {
+        t.equal(actual.length, expected.length, msgPrefix + '.length');
+        for (let i = 0; i < Math.min(actual.length, expected.length); i++) {
+            assertDeepMatch(t, actual[i], expected[i], msgPrefix + `[${i}]`);
+        }
+    } else if (
+        actual != null &&
+        typeof actual === 'object' &&
+        expected != null &&
+        typeof expected === 'object'
+    ) {
+        for (let k in expected) {
+            const a = actual[k];
+            const e = expected[k];
+            const kPrefix =
+                msgPrefix + (isIdentifier.test(k) ? `.${k}` : `['${k}']`);
+            assertDeepMatch(t, a, e, kPrefix);
+        }
+    } else {
+        t.equal(actual, expected, msgPrefix);
+    }
+}
+
 /**
  * Filter out instr-dns and instr-net spans for testing.
  * Eventually it would be preferable to have each test run with instr-dns
@@ -639,6 +684,7 @@ function runTestFixtures(suite, testFixtures) {
 }
 
 module.exports = {
+    assertDeepMatch,
     filterOutDnsNetSpans,
     dottedLookup,
     findObjInArray,
