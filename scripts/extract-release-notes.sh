@@ -45,3 +45,13 @@ if [[ -z "$(cat $BUILD_DIR/release-notes1.md)" ]]; then
 fi
 echo "## Changelog" >$BUILD_DIR/release-notes.md
 cat $BUILD_DIR/release-notes1.md >>$BUILD_DIR/release-notes.md
+
+# Add a release notes footer.
+BRANCH=$((git -C "$TOP" symbolic-ref HEAD 2>/dev/null || echo "refs/heads/main") | cut -d/ -f 3-)
+DIRECTORY=$($JSON -f "$PKG_DIR/package.json" repository.directory)
+README_URL="https://github.com/elastic/elastic-otel-node/tree/$BRANCH/$DIRECTORY#readme"
+CHANGELOG_URL="https://github.com/elastic/elastic-otel-node/blob/$BRANCH/$DIRECTORY/CHANGELOG.md"
+echo "
+---
+
+[README]($README_URL) | [Full Changelog]($CHANGELOG_URL)" >>$BUILD_DIR/release-notes.md

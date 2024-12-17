@@ -9,6 +9,7 @@ on:
 # 'id-token' perm needed for npm publishing with provenance (see
 # https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
 permissions:
+  attestations: write
   contents: write
   pull-requests: read
   id-token: write
@@ -19,6 +20,7 @@ jobs:
     env:
       PKGDIR: packages/mockotlpserver
       PKGNAME: "@elastic/mockotlpserver"
+      DOCKER_IMAGE_NAME: ghcr.io/${{ github.repository }}/mockotlpserver
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,6 +30,43 @@ jobs:
         with:
           node-version: 'v18.20.4'
           registry-url: 'https://registry.npmjs.org'
+
+      # Push a Docker image.
+      - uses: docker/setup-buildx-action@v3
+      - id: docker-meta
+        uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96  # v5.6.1
+        with:
+          images: ${{ env.DOCKER_IMAGE_NAME }}
+          flavor: |
+            latest=auto
+          tags: |
+            # "1.2.3" and "latest" Docker tags on push of git tag "v1.2.3"
+            type=semver,pattern={{version}}
+          labels: |
+            org.opencontainers.image.vendor=Elastic
+            org.opencontainers.image.title=mockotlpserver
+            org.opencontainers.image.description=A mock OTLP server, for dev and testing
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        id: docker-push
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355  # v6.10.0
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          file: 'packages/mockotlpserver/Dockerfile'
+          push: true
+          tags: ${{ steps.docker-meta.outputs.tags }}
+          labels: ${{ steps.docker-meta.outputs.labels }}
+      - name: Attest Docker image
+        uses: actions/attest-build-provenance@c4fbc648846ca6f503a13a2281a5e7b98aa57202  # v2.0.1
+        with:
+          subject-name: ${{ env.DOCKER_IMAGE_NAME }}
+          subject-digest: ${{ steps.docker-push.outputs.digest }}
+          push-to-registry: true
 
       - run: npm publish
         working-directory: ${{ env.PKGDIR }}
