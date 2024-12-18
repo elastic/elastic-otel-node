@@ -1,6 +1,6 @@
 {
   "name": "@elastic/opentelemetry-instrumentation-openai",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "OpenTelemetry instrumentation for the `openai` OpenAI client library",
   "type": "commonjs",
   "publishConfig": {

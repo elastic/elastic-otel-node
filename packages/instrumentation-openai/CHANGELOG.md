@@ -1,5 +1,9 @@
 # @elastic/opentelemetry-instrumentation-openai Changelog
 
+## v0.4.1
+
+- Include "LICENSE" file in the published package.
+
 ## v0.4.0
 
 - Fix the release workflow.
