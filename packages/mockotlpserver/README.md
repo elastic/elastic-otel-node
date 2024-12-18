@@ -27,7 +27,7 @@ or via the published `ghcr.io/elastic/elastic-otel-node/mockotlpserver` Docker i
 
 ```
 docker run --rm -it -p 4317:4317 -p 4318:4318 --name mockotlpserver \
-    ghcr.io/elastic/elastic-otel-node/mockotlpserver
+    ghcr.io/elastic/elastic-otel-node/mockotlpserver:latest
 ```
 
 Then, **send OTLP data to it**.
