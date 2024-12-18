@@ -1,6 +1,8 @@
-A mock OTLP server/receiver for development.
+# @elastic/mockotlpserver
 
-`mockotlpserver` starts HTTP and gRPC servers (on the default ports) for
+A mock OTLP (OpenTelemetry Protocol) server/receiver for development and testing.
+
+`mockotlpserver` starts HTTP and gRPC servers (on the default OTLP ports) for
 receiving OTLP requests. The data in those requests are printed to the
 console. Various output formats are supported.
 
@@ -12,22 +14,26 @@ It also supports being run from Node.js code. This is used in the
 3. get the received OTLP data from the mock server and make assertions on that data.
 
 
-# Install
-
-```
-npm install @elastic/mockotlpserver
-```
-
 # CLI Usage
 
-To use the mock server, (a) start the server then (b) send OTLP data to it.
-The package installs a `mockotlpserver` CLI tool.
+To use the mock server, first **start the server**. You can start it via `npx`,
+if you use that:
 
 ```
-npx mockotlpserver
+npx @elastic/mockotlpserver
 ```
 
-By default it will output received OTLP data in two forms:
+or via the published `ghcr.io/elastic/elastic-otel-node/mockotlpserver` Docker image:
+
+```
+docker run --rm -it -p 4317:4317 -p 4318:4318 --name mockotlpserver \
+    ghcr.io/elastic/elastic-otel-node/mockotlpserver
+```
+
+Then, **send OTLP data to it**.
+
+
+By default, mockotlpserver will output received OTLP data in two forms:
 
 1. `inspect` format: Uses Node.js's `util.inspect()` (used under the hood for
    `console.log`). This shows the complete object structure of the received
@@ -57,7 +63,6 @@ node -r @elastic/opentelemetry-node simple-http-request.js
 % node lib/cli.js
 {"name":"mockotlpserver","level":30,"msg":"OTLP/HTTP listening at http://[::1]:4318/","time":"2024-01-11T22:18:49.017Z"}
 {"name":"mockotlpserver","level":30,"msg":"OTLP/HTTP listening at http://localhost:4317/","time":"2024-01-11T22:18:49.025Z"}
-{"name":"mockotlpserver","level":30,"msg":"UI listening at http://[::1]:8080/","time":"2024-01-11T22:18:49.026Z"}
 ExportTraceServiceRequest {
   resourceSpans: [
     ResourceSpans {
