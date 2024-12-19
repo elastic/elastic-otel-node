@@ -48,7 +48,7 @@ jobs:
           DRAFT_GRAY = '#6a737d'
 
           ctx = json.loads(os.environ["GITHUB_CONTEXT"])
-          pprint(ctx) // debug dump for now
+          pprint(ctx) # debug dump for now
           event = ctx["event"]
           action = event["action"]
           if "issue" in event:
