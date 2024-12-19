@@ -39,7 +39,7 @@ dev/debugging. For example:
 npx @elastic/mockotlpserver  # or whatever OTLP endpoint you like to use
 
 cd test/fixtures
-TEST_MODEL_TOOLS=gpt-4o-mini \
+TEST_CHAT_MODEL=gpt-4o-mini \
     node --env-file ../../openai.env -r ./telemetry.js chat-completion.js
 ```
 

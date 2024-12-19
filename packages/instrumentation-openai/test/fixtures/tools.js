@@ -62,7 +62,7 @@ async function main() {
     { role: 'user', content: 'i think it is order_12345' },
   ];
   const response = await client.chat.completions.create({
-    model: process.env.TEST_MODEL_TOOLS,
+    model: process.env.TEST_CHAT_MODEL,
     messages: messages,
     tools: tools,
   });

@@ -78,8 +78,8 @@ jobs:
     - name: Pull Ollama models
       run: |
         source packages/instrumentation-openai/ollama.env
-        curl -s http://localhost:11434/api/pull -d "{\"model\": \"$TEST_MODEL_TOOLS\"}"
-        curl -s http://localhost:11434/api/pull -d "{\"model\": \"$TEST_MODEL_EMBEDDINGS\"}"
+        curl -s http://localhost:11434/api/pull -d "{\"model\": \"$TEST_CHAT_MODEL\"}"
+        curl -s http://localhost:11434/api/pull -d "{\"model\": \"$TEST_EMBEDDINGS_MODEL\"}"
         curl -s http://localhost:11434/api/tags | jq
         # Dump Ollama container logs if it doesn't appear to be working.
         curl -fsS http://localhost:11434/ || docker logs $(docker ps -q)
