@@ -63,7 +63,11 @@ export function getEnvBool(
   }
 }
 
-const SERVER_PORT_FROM_URL_PROTOCOL = { 'https:': 443, 'http:': 80 };
+type PortFromProtocol = { [key: string]: number };
+const SERVER_PORT_FROM_URL_PROTOCOL: PortFromProtocol = {
+  'https:': 443,
+  'http:': 80,
+};
 
 /**
  * Return span/metric attributes from the given OpenAI client baseURL.
@@ -93,6 +97,6 @@ export function getAttrsFromBaseURL(
     [ATTR_SERVER_ADDRESS]: u.hostname,
     [ATTR_SERVER_PORT]: u.port
       ? Number(u.port)
-      : (SERVER_PORT_FROM_URL_PROTOCOL as any)[u.protocol],
+      : SERVER_PORT_FROM_URL_PROTOCOL[u.protocol],
   };
 }

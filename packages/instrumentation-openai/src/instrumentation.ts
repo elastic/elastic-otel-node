@@ -66,8 +66,9 @@ import {
 
 // Use `DEBUG=elastic-opentelemetry-instrumentation-openai ...` for debug output.
 // Or use `node --env-file ./dev.env ...` in this repo.
-import createDebug from 'debug';
-const debug = createDebug('elastic-opentelemetry-instrumentation-openai');
+import Debug from 'debug';
+const debug = Debug('elastic-opentelemetry-instrumentation-openai');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (debug as any).inspectOpts = { depth: 50, colors: true };
 
 export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumentationConfig> {
@@ -157,16 +158,19 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
 
   _getPatchedChatCompletionsCreate() {
     const self = this;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (original: (...args: unknown[]) => any) => {
       // https://platform.openai.com/docs/api-reference/chat/create
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return function patchedCreate(this: any, ...args: unknown[]) {
         if (!self.isEnabled) {
           return original.apply(this, args);
         }
 
         debug('OpenAI.Chat.Completions.create args: %O', args);
-        const params =
-          args[0] as any; /* type ChatCompletionCreateParamsStreaming */
+        /** type ChatCompletionCreateParamsStreaming */
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const params = args[0] as any;
         const config = self.getConfig();
         const startNow = performance.now();
 
@@ -183,6 +187,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
         }
         const { span, ctx, commonAttrs } = startInfo;
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const apiPromise: Promise<any> = context.with(ctx, () =>
           original.apply(this, args)
         );
@@ -239,7 +244,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
    * @param {import('openai').OpenAI.ChatCompletionCreateParams} params
    */
   _startChatCompletionsSpan(
-    params: any,
+    params: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     config: OpenAIInstrumentationConfig,
     baseURL: string | undefined
   ) {
@@ -282,6 +287,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
 
     // Capture prompts as log events.
     const timestamp = Date.now();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params.messages.forEach((msg: any) => {
       // `msg` is Array<import('openai/resources/chat/completions').ChatCompletionMessageParam>
       let body;
@@ -328,6 +334,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
             } as GenAIAssistantMessageEventBody;
           } else {
             body = {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               tool_calls: msg.tool_calls.map((tc: any) => {
                 return {
                   id: tc.id,
@@ -388,6 +395,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
    * @param {OpenAIInstrumentationConfig} config
    */
   async *_onChatCompletionsStreamIterator(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     streamIter: AsyncIterator<any>,
     span: Span,
     startNow: number,
@@ -401,6 +409,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
     let finishReason;
     const contentParts = [];
     const toolCalls = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for await (const chunk of streamIter as any) {
       yield chunk;
 
@@ -520,6 +529,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
     span: Span,
     startNow: number,
     commonAttrs: Attributes,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: any,
     config: OpenAIInstrumentationConfig,
     ctx: Context
@@ -528,6 +538,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
     try {
       span.setAttribute(
         ATTR_GEN_AI_RESPONSE_FINISH_REASONS,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         result.choices.map((c: any) => c.finish_reason)
       );
       span.setAttribute(ATTR_GEN_AI_RESPONSE_ID, result.id);
@@ -542,6 +553,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
       );
 
       // Capture choices as log events.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       result.choices.forEach((choice: any) => {
         let message: Partial<GenAIMessage>;
         if (config.captureMessageContent) {
@@ -553,6 +565,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
         } else {
           message = {};
           if (choice.tool_calls) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             message.tool_calls = choice.message.tool_calls.map((tc: any) => {
               return {
                 id: tc.id,
@@ -640,8 +653,10 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
 
   _getPatchedEmbeddingsCreate() {
     const self = this;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (original: any) => {
       // https://platform.openai.com/docs/api-reference/embeddings/create
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return function patchedCreate(this: any, ...args: unknown[]) {
         if (!self.isEnabled) {
           return original.apply(this, args);
@@ -664,6 +679,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
         const apiPromise = context.with(ctx, () => original.apply(this, args));
 
         apiPromise
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .then((result: any) => {
             self._onEmbeddingsCreateResult(span, startNow, commonAttrs, result);
           })
@@ -682,6 +698,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
    *
    * @param {OpenAIInstrumentationConfig} config
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _startEmbeddingsSpan(params: any, baseURL: string | undefined) {
     // Attributes common to span, metrics, log events.
     const commonAttrs: Attributes = {
@@ -718,6 +735,7 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
     span: Span,
     startNow: number,
     commonAttrs: Attributes,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: any
   ) {
     debug('OpenAI.Embeddings.create result: %O', result);
