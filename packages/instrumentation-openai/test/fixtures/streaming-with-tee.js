@@ -27,7 +27,7 @@ async function main() {
       {
         role: 'user',
         content:
-          'Answer in up to 3 words: Which ocean contains the falkland islands?',
+          'Answer in up to 3 words: Which ocean contains Bouvet Island?',
       },
     ],
     stream: true,

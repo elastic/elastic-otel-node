@@ -295,7 +295,7 @@ test('fixtures', async suite => {
               body: {
                 role: 'user',
                 content:
-                  'Answer in up to 3 words: Which ocean contains the falkland islands?',
+                  'Answer in up to 3 words: Which ocean contains Bouvet Island?',
               },
               traceId: spans[0].traceId,
               spanId: spans[0].spanId,
@@ -502,7 +502,7 @@ test('fixtures', async suite => {
               body: {
                 role: 'user',
                 content:
-                  'Answer in up to 3 words: Which ocean contains the falkland islands?',
+                  'Answer in up to 3 words: Which ocean contains Bouvet Island?',
               },
               traceId: spans[0].traceId,
               spanId: spans[0].spanId,
