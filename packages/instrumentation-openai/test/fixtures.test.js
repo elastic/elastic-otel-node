@@ -254,14 +254,14 @@ test('fixtures', async suite => {
               [ATTR_GEN_AI_REQUEST_MAX_TOKENS]: 200,
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['stop'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-AaroVIDuvKJDRS0l540Oxc4FSgIux'
+                ? 'chatcmpl-AfbMVACkhZbXSJoCkCzhuGjI9hxi9'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
                 process.env.TEST_CHAT_MODEL
               ),
-              [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 24 : isPositiveInteger,
-              [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit ? 4 : isPositiveInteger,
+              [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 22 : isPositiveInteger,
+              [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit ? 3 : isPositiveInteger,
             },
             scope: {
               name: '@elastic/opentelemetry-instrumentation-openai',
@@ -309,7 +309,7 @@ test('fixtures', async suite => {
                 finish_reason: 'stop',
                 index: 0,
                 message: {
-                  content: isUnit ? 'South Atlantic Ocean.' : /.+/,
+                  content: isUnit ? 'Southern Ocean.' : /.+/,
                 },
               },
               traceId: spans[0].traceId,
@@ -461,7 +461,7 @@ test('fixtures', async suite => {
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['stop'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-ADhWTjZp3ejGyaOvqngmOItSb0qap'
+                ? 'chatcmpl-AfbMVBL30VWqxHMtEWOUi1gulztS0'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
@@ -583,7 +583,7 @@ test('fixtures', async suite => {
             name: `chat ${process.env.TEST_CHAT_MODEL}`,
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 24 : isPositiveInteger,
+              [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 22 : isPositiveInteger,
               [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit ? 4 : isPositiveInteger,
             },
           },
@@ -777,7 +777,7 @@ test('fixtures', async suite => {
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-ADhWWspuIro8PA6qaATjihQjkj5QM'
+                ? 'chatcmpl-AfbMY0GeHGAEkO2CCeaPqeCp10Mq5'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
@@ -862,7 +862,7 @@ test('fixtures', async suite => {
                 message: {
                   tool_calls: [
                     {
-                      id: isUnit ? 'call_VPRh9L0Z20gNj9DIZQJqHN7O' : /.+/,
+                      id: isUnit ? 'call_ibw82IbShUYxvRG7J6ojeZVe' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_delivery_date',
@@ -909,7 +909,7 @@ test('fixtures', async suite => {
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ'
+                ? 'chatcmpl-AfbMZdIABwae3PqzsHzvjahWPVqL6'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
@@ -995,7 +995,7 @@ test('fixtures', async suite => {
                   role: 'assistant',
                   tool_calls: [
                     {
-                      id: isUnit ? 'call_GqsvoRkHMjAlIhoSWKP6D2lw' : /.+/,
+                      id: isUnit ? 'call_ltrRGOHzmLMWSIRAZImscFEy' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_delivery_date',
@@ -1031,7 +1031,7 @@ test('fixtures', async suite => {
         OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: 'true',
         TEST_FIXTURE_RECORDING_NAME: 'streaming-parallel-tool-calls',
       },
-      verbose: true,
+      // verbose: true,
       checkTelemetry: (t, col) => {
         const spans = col.sortedSpans;
 
@@ -1048,7 +1048,7 @@ test('fixtures', async suite => {
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-AENquPanB4iiLFrzLOCmMH9FDiZDZ'
+                ? 'chatcmpl-AfbMawxsp83RQ9QuzFdwpTdBbCEQu'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
@@ -1104,7 +1104,7 @@ test('fixtures', async suite => {
                   role: 'assistant',
                   tool_calls: [
                     {
-                      id: isUnit ? 'call_MDti4mtc0TKeNC0HyE8wy9nn' : /.+/,
+                      id: isUnit ? 'call_c70DUNhsnSAQ0y6d8OkyHQeg' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_weather',
@@ -1114,7 +1114,7 @@ test('fixtures', async suite => {
                       },
                     },
                     {
-                      id: isUnit ? 'call_eA8ose7WzOz5tFM3vdFNGf71' : /.+/,
+                      id: isUnit ? 'call_5XlUHHFmQpDB0GUeNHNsNYYa' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_weather',
@@ -1173,7 +1173,7 @@ test('fixtures', async suite => {
                   role: 'assistant',
                   tool_calls: [
                     {
-                      id: isUnit ? 'call_MDti4mtc0TKeNC0HyE8wy9nn' : /.+/,
+                      id: isUnit ? 'call_c70DUNhsnSAQ0y6d8OkyHQeg' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_weather',
@@ -1181,7 +1181,7 @@ test('fixtures', async suite => {
                       },
                     },
                     {
-                      id: isUnit ? 'call_eA8ose7WzOz5tFM3vdFNGf71' : /.+/,
+                      id: isUnit ? 'call_5XlUHHFmQpDB0GUeNHNsNYYa' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_weather',
