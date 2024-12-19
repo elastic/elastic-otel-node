@@ -22,7 +22,7 @@ const { createOpenAIClient, runFnWithNockBack } = require('../testutils');
 async function main() {
   const client = createOpenAIClient();
   const embedding = await client.embeddings.create({
-    model: process.env.TEST_MODEL_EMBEDDINGS,
+    model: process.env.TEST_EMBEDDINGS_MODEL,
     input: ['One fish', 'two fish', 'red fish', 'blue fish'],
     encoding_format: 'float',
   });

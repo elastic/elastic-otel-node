@@ -47,7 +47,7 @@ async function main() {
     { role: 'user', content: 'What is the weather in New York and London?' },
   ];
   const stream = await client.chat.completions.create({
-    model: process.env.TEST_MODEL_TOOLS,
+    model: process.env.TEST_CHAT_MODEL,
     messages: messages,
     stream: true,
     stream_options: {

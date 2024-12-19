@@ -42,10 +42,10 @@
  *
  * The following envvars are only used for integration tests.
  *
- * - TEST_MODEL_TOOLS: The name of the GenAI model to use for most tests. It
+ * - TEST_CHAT_MODEL: The name of the GenAI model to use for most tests. It
  *   must support tool/function-calling.
  *   https://platform.openai.com/docs/guides/function-calling
- * - TEST_MODEL_EMBEDDINGS: The name of the GenAI model to use for embeddings
+ * - TEST_EMBEDDINGS_MODEL: The name of the GenAI model to use for embeddings
  *   tests. https://platform.openai.com/docs/guides/embeddings
  * - `openai` client library envvars: OPENAI_BASE_URL, OPENAI_API_KEY,
  *    AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY. If AZURE_OPENAI_API_KEY is
@@ -130,8 +130,8 @@ switch (testMode) {
     // OPENAI_API_KEY needs to be set to something to avoid OpenAI
     // constructor error. However, because of mocking, it isn't used.
     process.env.OPENAI_API_KEY = 'notused';
-    process.env.TEST_MODEL_TOOLS = UNIT_TEST_MODEL_TOOLS;
-    process.env.TEST_MODEL_EMBEDDINGS = UNIT_TEST_MODEL_EMBEDDINGS;
+    process.env.TEST_CHAT_MODEL = UNIT_TEST_MODEL_TOOLS;
+    process.env.TEST_EMBEDDINGS_MODEL = UNIT_TEST_MODEL_EMBEDDINGS;
     targetService = 'openai';
     break;
 
@@ -149,8 +149,8 @@ switch (testMode) {
     }
     usingNock = true;
     process.env.TEST_NOCK_BACK_MODE = 'update';
-    process.env.TEST_MODEL_TOOLS = UNIT_TEST_MODEL_TOOLS;
-    process.env.TEST_MODEL_EMBEDDINGS = UNIT_TEST_MODEL_EMBEDDINGS;
+    process.env.TEST_CHAT_MODEL = UNIT_TEST_MODEL_TOOLS;
+    process.env.TEST_EMBEDDINGS_MODEL = UNIT_TEST_MODEL_EMBEDDINGS;
     targetService = 'openai';
     break;
 
@@ -243,11 +243,11 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
               [ATTR_SERVER_PORT]: isExpectedServerPort,
@@ -258,7 +258,7 @@ test('fixtures', async suite => {
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 24 : isPositiveInteger,
               [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit ? 4 : isPositiveInteger,
@@ -336,13 +336,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                   },
                 },
@@ -367,13 +367,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                     [ATTR_GEN_AI_TOKEN_TYPE]: 'input',
                   },
@@ -381,13 +381,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                     [ATTR_GEN_AI_TOKEN_TYPE]: 'output',
                   },
@@ -453,11 +453,11 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['stop'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
@@ -465,7 +465,7 @@ test('fixtures', async suite => {
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: undefined,
               [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: undefined,
@@ -543,13 +543,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                   },
                 },
@@ -580,7 +580,7 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 24 : isPositiveInteger,
@@ -609,13 +609,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                   },
                 },
@@ -640,13 +640,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                     [ATTR_GEN_AI_TOKEN_TYPE]: 'input',
                   },
@@ -654,13 +654,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                     [ATTR_GEN_AI_TOKEN_TYPE]: 'output',
                   },
@@ -692,7 +692,7 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
             },
@@ -726,7 +726,7 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: undefined,
@@ -769,11 +769,11 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
@@ -781,7 +781,7 @@ test('fixtures', async suite => {
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit
                 ? 140
@@ -901,11 +901,11 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
@@ -913,7 +913,7 @@ test('fixtures', async suite => {
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit
                 ? 140
@@ -1040,11 +1040,11 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
@@ -1052,7 +1052,7 @@ test('fixtures', async suite => {
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 56 : isPositiveInteger,
               [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit
@@ -1212,20 +1212,20 @@ test('fixtures', async suite => {
         // Match a subset of the GenAI span fields.
         const commonExpectedAttrs = {
           [ATTR_GEN_AI_OPERATION_NAME]: 'embeddings',
-          [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_EMBEDDINGS,
+          [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_EMBEDDINGS_MODEL,
           [ATTR_GEN_AI_SYSTEM]: 'openai',
           [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
           [ATTR_SERVER_PORT]: isExpectedServerPort,
           [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
             'text-embedding-3-small',
-            process.env.TEST_MODEL_EMBEDDINGS
+            process.env.TEST_EMBEDDINGS_MODEL
           ),
         };
         assertDeepMatch(
           t,
           spans[0],
           {
-            name: `embeddings ${process.env.TEST_MODEL_EMBEDDINGS}`,
+            name: `embeddings ${process.env.TEST_EMBEDDINGS_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               ...commonExpectedAttrs,
