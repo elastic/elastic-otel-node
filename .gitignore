@@ -4,3 +4,4 @@ build
 .DS_Store
 tmp
 /packages/mockotlpserver/db
+/openai.env
