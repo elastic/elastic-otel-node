@@ -20,52 +20,31 @@
 // Register ESM hook and start the SDK.
 // This is called for `--import @elastic/opentelemetry-node`.
 
-import * as module from 'node:module';
+import { register } from 'node:module';
 import {isMainThread} from 'node:worker_threads';
+
+// TODO: @opentelemetry/instrumentation should re-export this IITM method.
+// XXX add explicit IITM dep?
+// XXX can we have a guard that there is only one install of IITM in play?
+import { createAddHookMessageChannel } from 'import-in-the-middle';
 
 import {log} from './lib/logging.js';
 
-/**
- * Return true iff it looks like the `@elastic/opentelemetry-node/hook.mjs`
- * was loaded via node's `--experimental-loader` option.
- *
- * Dev Note: keep this in sync with "require.js".
- */
-function haveHookFromExperimentalLoader() {
-    const USED_LOADER_OPT =
-        /--(experimental-)?loader(\s+|=)@elastic\/opentelemetry-node\/hook.mjs/;
-    for (let i = 0; i < process.execArgv.length; i++) {
-        const arg = process.execArgv[i];
-        const nextArg = process.execArgv[i + 1];
-        if (
-            (arg === '--loader' || arg === '--experimental-loader') &&
-            nextArg === '@elastic/opentelemetry-node/hook.mjs'
-        ) {
-            log.trace('bootstrap-import: --loader hook args used');
-            return true;
-        } else if (USED_LOADER_OPT.test(arg)) {
-            log.trace('bootstrap-import: --loader hook arg used');
-            return true;
-        }
-    }
-    if (
-        process.env.NODE_OPTIONS &&
-        USED_LOADER_OPT.test(process.env.NODE_OPTIONS)
-    ) {
-        log.trace('bootstrap-import: --loader arg used in NODE_OPTIONS');
-        return true;
-    }
-    return false;
-}
+// Note: If there are *multiple* installations of import-in-the-middle, then
+// only those instrumentations using this same one will be hooked.
+const { registerOptions, waitForAllMessagesAcknowledged } =
+  createAddHookMessageChannel();
 
 if (isMainThread) {
-    if (
-        typeof module.register === 'function' &&
-        !haveHookFromExperimentalLoader()
-    ) {
-        log.trace('bootstrap-import: registering module hook');
-        module.register('./hook.mjs', import.meta.url);
-    }
+    log.trace('bootstrap-import: registering module hook');
+    // XXX module.register('./hook.mjs', import.meta.url);
+    // TODO: `@opentelemetry/instrumentation/hook.mjs` needs to re-export initialize
+    // register('@opentelemetry/instrumentation/hook.mjs', import.meta.url, registerOptions);
+    register('import-in-the-middle/hook.mjs', import.meta.url, registerOptions);
 
     await import('./lib/start.js');
+
+    // Ensure that the loader has acknowledged all the modules before we allow
+    // execution to continue.
+    await waitForAllMessagesAcknowledged();
 }
