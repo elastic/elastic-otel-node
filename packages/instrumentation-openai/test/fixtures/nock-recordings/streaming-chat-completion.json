@@ -8,16 +8,16 @@
             "messages": [
                 {
                     "role": "user",
-                    "content": "Answer in up to 3 words: Which ocean contains the falkland islands?"
+                    "content": "Answer in up to 3 words: Which ocean contains Bouvet Island?"
                 }
             ],
             "stream": true
         },
         "status": 200,
-        "response": "data: {\"id\":\"chatcmpl-ADhWTjZp3ejGyaOvqngmOItSb0qap\",\"object\":\"chat.completion.chunk\",\"created\":1727828929,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_f85bea6784\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-ADhWTjZp3ejGyaOvqngmOItSb0qap\",\"object\":\"chat.completion.chunk\",\"created\":1727828929,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_f85bea6784\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Atlantic\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-ADhWTjZp3ejGyaOvqngmOItSb0qap\",\"object\":\"chat.completion.chunk\",\"created\":1727828929,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_f85bea6784\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Ocean\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-ADhWTjZp3ejGyaOvqngmOItSb0qap\",\"object\":\"chat.completion.chunk\",\"created\":1727828929,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_f85bea6784\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-ADhWTjZp3ejGyaOvqngmOItSb0qap\",\"object\":\"chat.completion.chunk\",\"created\":1727828929,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_f85bea6784\",\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"stop\"}]}\n\ndata: [DONE]\n\n",
+        "response": "data: {\"id\":\"chatcmpl-AfbMVBL30VWqxHMtEWOUi1gulztS0\",\"object\":\"chat.completion.chunk\",\"created\":1734478431,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_6fc10e10eb\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AfbMVBL30VWqxHMtEWOUi1gulztS0\",\"object\":\"chat.completion.chunk\",\"created\":1734478431,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_6fc10e10eb\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"South\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AfbMVBL30VWqxHMtEWOUi1gulztS0\",\"object\":\"chat.completion.chunk\",\"created\":1734478431,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_6fc10e10eb\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Atlantic\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AfbMVBL30VWqxHMtEWOUi1gulztS0\",\"object\":\"chat.completion.chunk\",\"created\":1734478431,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_6fc10e10eb\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Ocean\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AfbMVBL30VWqxHMtEWOUi1gulztS0\",\"object\":\"chat.completion.chunk\",\"created\":1734478431,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_6fc10e10eb\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AfbMVBL30VWqxHMtEWOUi1gulztS0\",\"object\":\"chat.completion.chunk\",\"created\":1734478431,\"model\":\"gpt-4o-mini-2024-07-18\",\"system_fingerprint\":\"fp_6fc10e10eb\",\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"stop\"}]}\n\ndata: [DONE]\n\n",
         "rawHeaders": [
             "Date",
-            "Wed, 02 Oct 2024 00:28:50 GMT",
+            "Tue, 17 Dec 2024 23:33:52 GMT",
             "Content-Type",
             "text/event-stream; charset=utf-8",
             "Transfer-Encoding",
@@ -27,13 +27,11 @@
             "access-control-expose-headers",
             "X-Request-ID",
             "openai-organization",
-            "elastic-observability",
+            "user-t27sfkqnaatdbowu2i7ij4dc",
             "openai-processing-ms",
-            "109",
+            "253",
             "openai-version",
             "2020-10-01",
-            "strict-transport-security",
-            "max-age=31536000; includeSubDomains; preload",
             "x-ratelimit-limit-requests",
             "10000",
             "x-ratelimit-limit-tokens",
@@ -41,13 +39,15 @@
             "x-ratelimit-remaining-requests",
             "9998",
             "x-ratelimit-remaining-tokens",
-            "199966",
+            "199967",
             "x-ratelimit-reset-requests",
-            "16.651s",
+            "16.548s",
             "x-ratelimit-reset-tokens",
-            "10ms",
+            "9ms",
             "x-request-id",
-            "req_077db0ea31ff2afc6a7e281d222186f1",
+            "req_7206a47430a09ff739ee61c796f56d3a",
+            "strict-transport-security",
+            "max-age=31536000; includeSubDomains; preload",
             "CF-Cache-Status",
             "DYNAMIC",
             "X-Content-Type-Options",
@@ -55,7 +55,9 @@
             "Server",
             "cloudflare",
             "CF-RAY",
-            "8cc0931aa8e82da4-YVR"
+            "8f3ab8758a6ffcec-SIN",
+            "alt-svc",
+            "h3=\":443\"; ma=86400"
         ],
         "responseIsBinary": false
     }

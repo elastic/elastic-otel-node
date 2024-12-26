@@ -42,10 +42,10 @@
  *
  * The following envvars are only used for integration tests.
  *
- * - TEST_MODEL_TOOLS: The name of the GenAI model to use for most tests. It
+ * - TEST_CHAT_MODEL: The name of the GenAI model to use for most tests. It
  *   must support tool/function-calling.
  *   https://platform.openai.com/docs/guides/function-calling
- * - TEST_MODEL_EMBEDDINGS: The name of the GenAI model to use for embeddings
+ * - TEST_EMBEDDINGS_MODEL: The name of the GenAI model to use for embeddings
  *   tests. https://platform.openai.com/docs/guides/embeddings
  * - `openai` client library envvars: OPENAI_BASE_URL, OPENAI_API_KEY,
  *    AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY. If AZURE_OPENAI_API_KEY is
@@ -130,8 +130,8 @@ switch (testMode) {
     // OPENAI_API_KEY needs to be set to something to avoid OpenAI
     // constructor error. However, because of mocking, it isn't used.
     process.env.OPENAI_API_KEY = 'notused';
-    process.env.TEST_MODEL_TOOLS = UNIT_TEST_MODEL_TOOLS;
-    process.env.TEST_MODEL_EMBEDDINGS = UNIT_TEST_MODEL_EMBEDDINGS;
+    process.env.TEST_CHAT_MODEL = UNIT_TEST_MODEL_TOOLS;
+    process.env.TEST_EMBEDDINGS_MODEL = UNIT_TEST_MODEL_EMBEDDINGS;
     targetService = 'openai';
     break;
 
@@ -149,8 +149,8 @@ switch (testMode) {
     }
     usingNock = true;
     process.env.TEST_NOCK_BACK_MODE = 'update';
-    process.env.TEST_MODEL_TOOLS = UNIT_TEST_MODEL_TOOLS;
-    process.env.TEST_MODEL_EMBEDDINGS = UNIT_TEST_MODEL_EMBEDDINGS;
+    process.env.TEST_CHAT_MODEL = UNIT_TEST_MODEL_TOOLS;
+    process.env.TEST_EMBEDDINGS_MODEL = UNIT_TEST_MODEL_EMBEDDINGS;
     targetService = 'openai';
     break;
 
@@ -243,25 +243,25 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
               [ATTR_SERVER_PORT]: isExpectedServerPort,
               [ATTR_GEN_AI_REQUEST_MAX_TOKENS]: 200,
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['stop'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-AaroVIDuvKJDRS0l540Oxc4FSgIux'
+                ? 'chatcmpl-AfbMVACkhZbXSJoCkCzhuGjI9hxi9'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
-              [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 24 : isPositiveInteger,
-              [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit ? 4 : isPositiveInteger,
+              [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 22 : isPositiveInteger,
+              [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit ? 3 : isPositiveInteger,
             },
             scope: {
               name: '@elastic/opentelemetry-instrumentation-openai',
@@ -295,7 +295,7 @@ test('fixtures', async suite => {
               body: {
                 role: 'user',
                 content:
-                  'Answer in up to 3 words: Which ocean contains the falkland islands?',
+                  'Answer in up to 3 words: Which ocean contains Bouvet Island?',
               },
               traceId: spans[0].traceId,
               spanId: spans[0].spanId,
@@ -309,7 +309,7 @@ test('fixtures', async suite => {
                 finish_reason: 'stop',
                 index: 0,
                 message: {
-                  content: isUnit ? 'South Atlantic Ocean.' : /.+/,
+                  content: isUnit ? 'Southern Ocean.' : /.+/,
                 },
               },
               traceId: spans[0].traceId,
@@ -336,13 +336,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                   },
                 },
@@ -367,13 +367,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                     [ATTR_GEN_AI_TOKEN_TYPE]: 'input',
                   },
@@ -381,13 +381,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                     [ATTR_GEN_AI_TOKEN_TYPE]: 'output',
                   },
@@ -453,19 +453,19 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['stop'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-ADhWTjZp3ejGyaOvqngmOItSb0qap'
+                ? 'chatcmpl-AfbMVBL30VWqxHMtEWOUi1gulztS0'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: undefined,
               [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: undefined,
@@ -502,7 +502,7 @@ test('fixtures', async suite => {
               body: {
                 role: 'user',
                 content:
-                  'Answer in up to 3 words: Which ocean contains the falkland islands?',
+                  'Answer in up to 3 words: Which ocean contains Bouvet Island?',
               },
               traceId: spans[0].traceId,
               spanId: spans[0].spanId,
@@ -543,13 +543,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                   },
                 },
@@ -580,10 +580,10 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 24 : isPositiveInteger,
+              [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 22 : isPositiveInteger,
               [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit ? 4 : isPositiveInteger,
             },
           },
@@ -609,13 +609,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                   },
                 },
@@ -640,13 +640,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                     [ATTR_GEN_AI_TOKEN_TYPE]: 'input',
                   },
@@ -654,13 +654,13 @@ test('fixtures', async suite => {
                 {
                   attributes: {
                     [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+                    [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
                     [ATTR_GEN_AI_SYSTEM]: 'openai',
                     [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
                     [ATTR_SERVER_PORT]: isExpectedServerPort,
                     [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                       'gpt-4o-mini-2024-07-18',
-                      process.env.TEST_MODEL_TOOLS
+                      process.env.TEST_CHAT_MODEL
                     ),
                     [ATTR_GEN_AI_TOKEN_TYPE]: 'output',
                   },
@@ -692,7 +692,7 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
             },
@@ -726,7 +726,7 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: undefined,
@@ -769,19 +769,19 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-ADhWWspuIro8PA6qaATjihQjkj5QM'
+                ? 'chatcmpl-AfbMY0GeHGAEkO2CCeaPqeCp10Mq5'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit
                 ? 140
@@ -862,7 +862,7 @@ test('fixtures', async suite => {
                 message: {
                   tool_calls: [
                     {
-                      id: isUnit ? 'call_VPRh9L0Z20gNj9DIZQJqHN7O' : /.+/,
+                      id: isUnit ? 'call_ibw82IbShUYxvRG7J6ojeZVe' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_delivery_date',
@@ -901,19 +901,19 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-AYzUsU4b2gwkf0NUyCyrHCnHAP0zZ'
+                ? 'chatcmpl-AfbMZdIABwae3PqzsHzvjahWPVqL6'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit
                 ? 140
@@ -995,7 +995,7 @@ test('fixtures', async suite => {
                   role: 'assistant',
                   tool_calls: [
                     {
-                      id: isUnit ? 'call_GqsvoRkHMjAlIhoSWKP6D2lw' : /.+/,
+                      id: isUnit ? 'call_ltrRGOHzmLMWSIRAZImscFEy' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_delivery_date',
@@ -1031,7 +1031,7 @@ test('fixtures', async suite => {
         OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: 'true',
         TEST_FIXTURE_RECORDING_NAME: 'streaming-parallel-tool-calls',
       },
-      verbose: true,
+      // verbose: true,
       checkTelemetry: (t, col) => {
         const spans = col.sortedSpans;
 
@@ -1040,19 +1040,19 @@ test('fixtures', async suite => {
           t,
           spans[0],
           {
-            name: `chat ${process.env.TEST_MODEL_TOOLS}`,
+            name: `chat ${process.env.TEST_CHAT_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               [ATTR_GEN_AI_OPERATION_NAME]: 'chat',
-              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_TOOLS,
+              [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_CHAT_MODEL,
               [ATTR_GEN_AI_SYSTEM]: 'openai',
               [ATTR_GEN_AI_RESPONSE_FINISH_REASONS]: ['tool_calls'],
               [ATTR_GEN_AI_RESPONSE_ID]: isUnit
-                ? 'chatcmpl-AENquPanB4iiLFrzLOCmMH9FDiZDZ'
+                ? 'chatcmpl-AfbMawxsp83RQ9QuzFdwpTdBbCEQu'
                 : /.+/,
               [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
                 'gpt-4o-mini-2024-07-18',
-                process.env.TEST_MODEL_TOOLS
+                process.env.TEST_CHAT_MODEL
               ),
               [ATTR_GEN_AI_USAGE_INPUT_TOKENS]: isUnit ? 56 : isPositiveInteger,
               [ATTR_GEN_AI_USAGE_OUTPUT_TOKENS]: isUnit
@@ -1104,7 +1104,7 @@ test('fixtures', async suite => {
                   role: 'assistant',
                   tool_calls: [
                     {
-                      id: isUnit ? 'call_MDti4mtc0TKeNC0HyE8wy9nn' : /.+/,
+                      id: isUnit ? 'call_c70DUNhsnSAQ0y6d8OkyHQeg' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_weather',
@@ -1114,7 +1114,7 @@ test('fixtures', async suite => {
                       },
                     },
                     {
-                      id: isUnit ? 'call_eA8ose7WzOz5tFM3vdFNGf71' : /.+/,
+                      id: isUnit ? 'call_5XlUHHFmQpDB0GUeNHNsNYYa' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_weather',
@@ -1173,7 +1173,7 @@ test('fixtures', async suite => {
                   role: 'assistant',
                   tool_calls: [
                     {
-                      id: isUnit ? 'call_MDti4mtc0TKeNC0HyE8wy9nn' : /.+/,
+                      id: isUnit ? 'call_c70DUNhsnSAQ0y6d8OkyHQeg' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_weather',
@@ -1181,7 +1181,7 @@ test('fixtures', async suite => {
                       },
                     },
                     {
-                      id: isUnit ? 'call_eA8ose7WzOz5tFM3vdFNGf71' : /.+/,
+                      id: isUnit ? 'call_5XlUHHFmQpDB0GUeNHNsNYYa' : /.+/,
                       type: 'function',
                       function: {
                         name: 'get_weather',
@@ -1212,20 +1212,20 @@ test('fixtures', async suite => {
         // Match a subset of the GenAI span fields.
         const commonExpectedAttrs = {
           [ATTR_GEN_AI_OPERATION_NAME]: 'embeddings',
-          [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_MODEL_EMBEDDINGS,
+          [ATTR_GEN_AI_REQUEST_MODEL]: process.env.TEST_EMBEDDINGS_MODEL,
           [ATTR_GEN_AI_SYSTEM]: 'openai',
           [ATTR_SERVER_ADDRESS]: isExpectedServerAddress,
           [ATTR_SERVER_PORT]: isExpectedServerPort,
           [ATTR_GEN_AI_RESPONSE_MODEL]: isExpectedResponseModel(
             'text-embedding-3-small',
-            process.env.TEST_MODEL_EMBEDDINGS
+            process.env.TEST_EMBEDDINGS_MODEL
           ),
         };
         assertDeepMatch(
           t,
           spans[0],
           {
-            name: `embeddings ${process.env.TEST_MODEL_EMBEDDINGS}`,
+            name: `embeddings ${process.env.TEST_EMBEDDINGS_MODEL}`,
             kind: 'SPAN_KIND_CLIENT',
             attributes: {
               ...commonExpectedAttrs,
