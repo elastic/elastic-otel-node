@@ -144,7 +144,7 @@ switch (testMode) {
     }
     if (!process.env.OPENAI_API_KEY) {
       throw new Error(
-        'OPENAI_API_KEY is not set. To regenerate-recordings, it must be set. Set it in your environment, or use TEST_FIXTURES_ENV_FILE="./openai.env" (see "openai.env.template").'
+        'OPENAI_API_KEY is not set. To regenerate-recordings, it must be set. Set it in your environment, or use TEST_FIXTURES_ENV_FILE="./openai.env" (see "openai.env.example").'
       );
     }
     usingNock = true;
