@@ -17,7 +17,7 @@
  * under the License.
  */
 
-const OpenAI = require('openai');
+const {OpenAI} = require('openai');
 
 let chatModel = process.env.CHAT_MODEL ?? 'gpt-4o-mini';
 

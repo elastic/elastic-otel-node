@@ -17,7 +17,7 @@
  * under the License.
  */
 
-const OpenAI = require('openai');
+const {OpenAI} = require('openai');
 const {dot, norm} = require('mathjs');
 
 let embeddingsModel = process.env.EMBEDDINGS_MODEL ?? 'text-embedding-3-small';
