@@ -24,8 +24,7 @@ async function main() {
   const messages = [
     {
       role: 'user',
-      content:
-        'Answer in up to 3 words: Which ocean contains Bouvet Island?',
+      content: 'Answer in up to 3 words: Which ocean contains Bouvet Island?',
     },
   ];
   const chatCompletion = await client.chat.completions.create({
