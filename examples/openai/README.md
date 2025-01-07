@@ -13,8 +13,9 @@ comprehensive view of the performance and behavior of your OpenAI usage.
 ## Install
 
 First, set up a Node.js environment for the examples like this:
+
 ```bash
-nvm use --lts
+nvm use --lts  # or similar to setup Node.js v20 or later
 npm install
 ```
 
@@ -23,8 +24,7 @@ npm install
 Copy [env.example](env.example) to `.env` and update its `OPENAI_API_KEY`.
 
 An OTLP compatible endpoint should be listening for traces, metrics and logs on
-`http://localhost:4317`. If not, update `OTEL_EXPORTER_OTLP_ENDPOINT` as well.
-
+`http://localhost:4318`. If not, update `OTEL_EXPORTER_OTLP_ENDPOINT` as well.
 For example, if Elastic APM server is running locally, edit `.env` like this:
 ```
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:8200
