@@ -1,0 +1,24 @@
+{
+  "name": "edot-node-openai-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "chat": "node --env-file .env --require @elastic/opentelemetry-node chat.js",
+    "embeddings": "node --env-file .env --require @elastic/opentelemetry-node embeddings.js"
+  },
+  "dependencies": {
+    "@elastic/opentelemetry-node": "*",
+    "mathjs": "^14.0.1",
+    "openai": "^4.77.0"
+  },
+  "// overrides comment": "Override to avoid punycode warnings in recent versions of Node.JS",
+  "overrides": {
+    "node-fetch@2.x": {
+      "whatwg-url": "14.x"
+    }
+  }
+}

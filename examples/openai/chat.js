@@ -17,20 +17,26 @@
  * under the License.
  */
 
-// Usage:
-//  OPENAI_API_KEY=sk-... \
-//      node -r @elastic/opentelemetry-node openai-chat.js
-
 const {OpenAI} = require('openai');
 
+let chatModel = process.env.CHAT_MODEL ?? 'gpt-4o-mini';
+
 async function main() {
-    const openai = new OpenAI();
-    const result = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-            {role: 'user', content: 'Why is the sky blue? Answer briefly.'},
-        ],
+    const client = new OpenAI();
+
+    const messages = [
+        {
+            role: 'user',
+            content:
+                'Answer in up to 3 words: Which ocean contains Bouvet Island?',
+        },
+    ];
+
+    const chatCompletion = await client.chat.completions.create({
+        model: chatModel,
+        messages: messages,
     });
-    console.log(result.choices[0]?.message?.content);
+    console.log(chatCompletion.choices[0].message.content);
 }
+
 main();
