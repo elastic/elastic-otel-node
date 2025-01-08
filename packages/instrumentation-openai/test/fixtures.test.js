@@ -107,8 +107,8 @@ if (process.env.TEST_FIXTURES_ENV_FILE) {
   require('dotenv').config({ path: process.env.TEST_FIXTURES_ENV_FILE });
 }
 
-const UNIT_TEST_MODEL_TOOLS = 'gpt-4o-mini';
-const UNIT_TEST_MODEL_EMBEDDINGS = 'text-embedding-3-small';
+const UNIT_TEST_CHAT_MODEL = 'gpt-4o-mini';
+const UNIT_TEST_EMBEDDINGS_MODEL = 'text-embedding-3-small';
 
 // Configure the test fixtures based on the test mode.
 const testMode = process.env.TEST_FIXTURES_MODE || 'unit';
@@ -130,8 +130,8 @@ switch (testMode) {
     // OPENAI_API_KEY needs to be set to something to avoid OpenAI
     // constructor error. However, because of mocking, it isn't used.
     process.env.OPENAI_API_KEY = 'notused';
-    process.env.TEST_CHAT_MODEL = UNIT_TEST_MODEL_TOOLS;
-    process.env.TEST_EMBEDDINGS_MODEL = UNIT_TEST_MODEL_EMBEDDINGS;
+    process.env.TEST_CHAT_MODEL = UNIT_TEST_CHAT_MODEL;
+    process.env.TEST_EMBEDDINGS_MODEL = UNIT_TEST_EMBEDDINGS_MODEL;
     targetService = 'openai';
     break;
 
@@ -149,8 +149,8 @@ switch (testMode) {
     }
     usingNock = true;
     process.env.TEST_NOCK_BACK_MODE = 'update';
-    process.env.TEST_CHAT_MODEL = UNIT_TEST_MODEL_TOOLS;
-    process.env.TEST_EMBEDDINGS_MODEL = UNIT_TEST_MODEL_EMBEDDINGS;
+    process.env.TEST_CHAT_MODEL = UNIT_TEST_CHAT_MODEL;
+    process.env.TEST_EMBEDDINGS_MODEL = UNIT_TEST_EMBEDDINGS_MODEL;
     targetService = 'openai';
     break;
 
