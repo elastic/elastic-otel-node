@@ -27,7 +27,9 @@ jobs:
     # Skip notification if:
     # - dependabot PRs, too noisy
     # - draft PRs
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' || !(github.event.action == 'opened' && github.event.pull_request.draft) }}
+    if: ${{ !(github.event.action == 'opened' && github.event.pull_request.draft) ||
+      github.event.pull_request.user.login != 'dependabot[bot]' ||
+      github.event.pull_request.user.login != 'elastic-renovate-prod[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - name: Prepare Slack message
@@ -39,7 +41,6 @@ jobs:
           import os
           from pprint import pprint
           import json
-          from html import escape
 
           CLOSED_RED = '#cb2431'
           GITHUB_BLACK = '#24292f'
@@ -48,7 +49,7 @@ jobs:
           DRAFT_GRAY = '#6a737d'
 
           ctx = json.loads(os.environ["GITHUB_CONTEXT"])
-          pprint(ctx) # debug dump for now
+          # pprint(ctx) # for dev/debugging
           event = ctx["event"]
           action = event["action"]
           if "issue" in event:
@@ -78,21 +79,46 @@ jobs:
             elif action == "ready_for_review":
               action_str = "PR ready for review"
               color = OPEN_GREEN
-            elif:
+            else:
               action_str = "PR opened"
               color = OPEN_GREEN
           else:
             pprint(ctx)
             raise ValueError('unexpected event: not an issue or PR event')
 
+          def gfm2slack(text):
+            """Limited conversion of the subset of GitHub Flavor Markdown (gfm)
+            supported in GitHub issue/PR titles to a safe string for a Slack
+            link. https://api.slack.com/reference/surfaces/formatting"""
+            # Escape angle brackets to allow usage in Slack link.
+            text = text.replace('<', '&lt;')
+            text = text.replace('>', '&gt;')
+            # TODO: How to escape asterisk bolding and underscore italicizing?
+            return text
+
           # Use https://app.slack.com/block-kit-builder to play with styling.
           payload = {
             "channel": os.environ["SLACK_CHANNEL"],
-            "text": f"<{url}|{escape(title)}>", # escape angle-brackets
+            # Note: Omitting the "text" field is intentional, so that it is not
+            # rendered by default. Guidelines on accessibility in:
+            #   https://api.slack.com/methods/chat.postMessage#text-blocks-attachments
+            # are unclear for "attachments" usage. This competes with:
+            #   https://api.slack.com/reference/messaging/attachments#guidelines__message-attachments-as-objects
+            # guidelines to group all object data inside the attachment.
+            # The downside is that the `chatMessage` below results in warnings
+            # from the Slack API about not including the top-level "text".
+            #"text": f"<{url}|{gfm2slack(title)}>",
             "attachments": [
               {
                 "color": color,
                 "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": f"<{url}|{gfm2slack(title)}>"
+                    }
+                  },
                   {
                     "type": "context",
                     "elements": [
