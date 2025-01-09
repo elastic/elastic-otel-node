@@ -22,21 +22,17 @@ const {OpenAI} = require('openai');
 let chatModel = process.env.CHAT_MODEL ?? 'gpt-4o-mini';
 
 async function main() {
-    const client = new OpenAI();
-
-    const messages = [
-        {
-            role: 'user',
-            content:
-                'Answer in up to 3 words: Which ocean contains Bouvet Island?',
-        },
-    ];
-
-    const chatCompletion = await client.chat.completions.create({
-        model: chatModel,
-        messages: messages,
-    });
-    console.log(chatCompletion.choices[0].message.content);
+  const client = new OpenAI();
+  const completion = await client.chat.completions.create({
+    model: chatModel,
+    messages: [
+      {
+        role: 'user',
+        content: 'Answer in up to 3 words: Which ocean contains Bouvet Island?',
+      },
+    ],
+  });
+  console.log(completion.choices[0].message.content);
 }
 
 main();
