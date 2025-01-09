@@ -38,10 +38,6 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
-        // versionRanges: {
-        //     // Ref: https://github.com/mongodb/node-mongodb-native/blob/a8370367f7470962a834ddf36f9a6c62621d6345/package.json#L118
-        //     node: '>=16.20.1',
-        // },
         // verbose: true,
         checkTelemetry: (t, col) => {
             // We expect spans like this
@@ -65,19 +61,19 @@ const testFixtures = [
             t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
             t.equal(spans[1].parentSpanId, spans[0].spanId);
 
-            t.equal(
-                spans[2].scope.name,
-                '@opentelemetry/instrumentation-mysql2'
-            );
-            t.equal(spans[2].name, 'mongodb.delete');
-            t.equal(spans[2].kind, 'SPAN_KIND_CLIENT');
-            t.equal(spans[2].traceId, spans[0].traceId, 'same trace');
-            t.equal(spans[2].parentSpanId, spans[0].spanId);
+            // t.equal(
+            //     spans[2].scope.name,
+            //     '@opentelemetry/instrumentation-mysql2'
+            // );
+            // t.equal(spans[2].name, 'mongodb.delete');
+            // t.equal(spans[2].kind, 'SPAN_KIND_CLIENT');
+            // t.equal(spans[2].traceId, spans[0].traceId, 'same trace');
+            // t.equal(spans[2].parentSpanId, spans[0].spanId);
         },
     },
 ];
 
-test('mongodb instrumentation', {skip}, (suite) => {
+test('mysql2 instrumentation', {skip}, (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });

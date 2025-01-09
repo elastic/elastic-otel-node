@@ -17,40 +17,27 @@
  * under the License.
  */
 
-// Usage: node -r @elastic/opentelemetry-node use-mongodb.js
+// Usage: node -r @elastic/opentelemetry-node use-mysql2.js
 
 const otel = require('@opentelemetry/api');
-const {MongoClient} = require('mongodb');
+var mysql2 = require('mysql2/promise');
 
-const host = process.env.MONGODB_HOST;
-const port = process.env.MONGODB_PORT || '27017';
+const host = process.env.MYSQL_HOST;
+const user = process.env.MYSQL_USER || 'root';
+const database = process.env.MYSQL_DATABASE || 'mysql';
 
 async function main() {
-    const url = `mongodb://${host}:${port}`;
-    const mongodbClient = new MongoClient(url, {
-        serverSelectionTimeoutMS: 3000,
+    const connection = await mysql2.createConnection({
+        host, user, database
     });
+    const [ result ] = await connection.query('SELECT 1+1 as solution');
 
-    await mongodbClient.connect();
-
-    const database = mongodbClient.db('test-db');
-    const collection = database.collection('test-col');
-
-    // https://mongodb.github.io/node-mongodb-native/4.7/classes/Collection.html#insertMany
-    let data = await collection.insertMany([{a: 1}, {a: 2}, {a: 3}], {
-        w: 1,
-    });
-    console.log('Collection insert', data);
-
-    // https://mongodb.github.io/node-mongodb-native/4.7/classes/Collection.html#deleteMany
-    data = await collection.deleteMany({a: {$lte: 3}}, {w: 1});
-    console.log('Collection delete', data);
-
-    await mongodbClient.close();
+    console.log('Mysql query result',  result);
+    await connection.end();
 }
 
 const tracer = otel.trace.getTracer('test');
-tracer.startActiveSpan('manual-parent-span', (span) => {
-    main();
+tracer.startActiveSpan('manual-parent-span', async (span) => {
+    await main();
     span.end();
 });
