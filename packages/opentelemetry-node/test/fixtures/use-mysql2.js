@@ -20,20 +20,24 @@
 // Usage: node -r @elastic/opentelemetry-node use-mysql2.js
 
 const otel = require('@opentelemetry/api');
-var mysql2 = require('mysql2/promise');
+var mysql2 = require('mysql2');
 
 const host = process.env.MYSQL_HOST;
 const user = process.env.MYSQL_USER || 'root';
 const database = process.env.MYSQL_DATABASE || 'mysql';
 
 async function main() {
-    const connection = await mysql2.createConnection({
+    const connection = mysql2.createConnection({
         host, user, database
     });
-    const [ result ] = await connection.query('SELECT 1+1 as solution');
+    const query = connection.query('SELECT 1+1 as solution');
 
-    console.log('Mysql query result',  result);
-    await connection.end();
+
+    query.on('result', (result) => {
+        console.log('MySQL result', result)
+    });
+    await new Promise((res) => query.on('end', res));
+    await new Promise((res) => connection.end(res));
 }
 
 const tracer = otel.trace.getTracer('test');
