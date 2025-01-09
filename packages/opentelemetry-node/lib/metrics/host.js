@@ -17,15 +17,18 @@
  * under the License.
  */
 
-const {metrics} = require('@opentelemetry/sdk-node');
-const {Aggregation, View} = metrics;
+const {metrics} = require('@opentelemetry/api');
+const {metrics: metricsSdk} = require('@opentelemetry/sdk-node');
+const {Aggregation, View} = metricsSdk;
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 /** @type {HostMetrics} */
 let hostMetricsInstance;
 function enableHostMetrics() {
-    // @ts-ignore - config interface expects a `name` property but there is a default value
-    hostMetricsInstance = new HostMetrics({});
+    hostMetricsInstance = new HostMetrics({
+        // Pass in default meterProvider to avoid a log.warn('No meter provider, using default').
+        meterProvider: metrics.getMeterProvider(),
+    });
     hostMetricsInstance.start();
 }
 
@@ -33,7 +36,7 @@ function enableHostMetrics() {
 // - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
 // - not displayed by Kibana in metrics dashboard. Ref: https://github.com/elastic/kibana/pull/199353
 // - recommendation is to use OTEL collector to get and export them
-/** @type {metrics.View[]} */
+/** @type {metricsSdk.View[]} */
 const HOST_METRICS_VIEWS = [
     new View({
         instrumentName: 'system.*',

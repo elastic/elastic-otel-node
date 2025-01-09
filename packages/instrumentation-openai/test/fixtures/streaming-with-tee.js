@@ -22,12 +22,11 @@ const { createOpenAIClient, runFnWithNockBack } = require('../testutils');
 async function main() {
   const client = createOpenAIClient();
   const stream = await client.chat.completions.create({
-    model: process.env.TEST_MODEL_TOOLS,
+    model: process.env.TEST_CHAT_MODEL,
     messages: [
       {
         role: 'user',
-        content:
-          'Answer in up to 3 words: Which ocean contains the falkland islands?',
+        content: 'Answer in up to 3 words: Which ocean contains Bouvet Island?',
       },
     ],
     stream: true,

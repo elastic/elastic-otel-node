@@ -35,9 +35,9 @@ function newOpenAIAndModels() {
   // Default to models available in both the OpenAI platform and Azure OpenAI
   // Service. For Azure, however, this "model" must match the Azure "deployment
   // name".
-  let chatModel = process.env.MODEL_CHAT ?? 'gpt-4o-mini';
+  let chatModel = process.env.CHAT_MODEL ?? 'gpt-4o-mini';
   let embeddingsModel =
-    process.env.MODEL_EMBEDDINGS ?? 'text-embedding-3-small';
+    process.env.EMBEDDINGS_MODEL ?? 'text-embedding-3-small';
 
   if (process.env.AZURE_OPENAI_API_KEY) {
     clientCtor = AzureOpenAI;
@@ -47,8 +47,8 @@ function newOpenAIAndModels() {
   ) {
     process.env.OPENAI_API_KEY = 'unused';
     // Note: Others like LocalAI do not use Ollama's naming scheme.
-    chatModel = process.env.MODEL_CHAT ?? 'qwen2.5:0.5b';
-    embeddingsModel = process.env.MODEL_EMBEDDINGS ?? 'all-minilm:33m';
+    chatModel = process.env.CHAT_MODEL ?? 'qwen2.5:0.5b';
+    embeddingsModel = process.env.EMBEDDINGS_MODEL ?? 'all-minilm:33m';
   }
 
   return { client: new clientCtor(), chatModel, embeddingsModel };

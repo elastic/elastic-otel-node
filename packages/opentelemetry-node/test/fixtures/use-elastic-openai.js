@@ -17,36 +17,20 @@
  * under the License.
  */
 
-// An example using `openai` in ESM code.
-// See ESM section in README for details and limitations.
-//
-// Usage with OpenAI:
-//    OPENAI_API_KEY=... \
-//      node -r ./telemetry.mjs use-chat-esm.mjs
+// Usage:
+//      node --env-file ./test-services.env -r @elastic/opentelemetry-node fixtures/use-elastic-openai.js
 
-// Dev Note: Not using local ./openai.js utility for now, because CommonJS.
-import { OpenAI } from 'openai';
-
-const CHAT_MODEL = process.env.CHAT_MODEL || 'gpt-4o-mini';
+const {OpenAI} = require('openai');
 
 async function main() {
-  const client = new OpenAI();
-  try {
-    const chatCompletion = await client.chat.completions.create({
-      model: CHAT_MODEL,
-      messages: [
-        {
-          role: 'user',
-          content:
-            'Answer in up to 3 words: Which ocean contains Bouvet Island?',
-        },
-      ],
+    const client = new OpenAI();
+    const embedding = await client.embeddings.create({
+        model: process.env.TEST_GENAI_MODEL,
+        input: 'Blah blah blah',
+        encoding_format: 'float',
     });
-    console.log(chatCompletion.choices[0].message.content);
-  } catch (err) {
-    console.log('chat err:', err);
-    process.exitCode = 1;
-  }
+    console.log('Embeddings:');
+    console.dir(embedding, {depth: 50});
 }
 
 main();

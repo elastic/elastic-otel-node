@@ -126,8 +126,8 @@ ollama serve
 
 # When using Ollama, we default to qwen2.5:0.5b, which is a small model. You
 # can choose a larger one, or a different tool capable model like mistral-nemo.
-export MODEL_CHAT=qwen2.5
-ollama pull $MODEL_CHAT
+export CHAT_MODEL=qwen2.5
+ollama pull $CHAT_MODEL
 
 OPENAI_BASE_URL=http://localhost:11434/v1 \
     node use-chat.js

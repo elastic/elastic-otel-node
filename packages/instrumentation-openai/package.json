@@ -1,6 +1,6 @@
 {
   "name": "@elastic/opentelemetry-instrumentation-openai",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "OpenTelemetry instrumentation for the `openai` OpenAI client library",
   "type": "commonjs",
   "publishConfig": {
@@ -49,6 +49,10 @@
     "test:all-integration-tests": "npm run test:integration-openai && npm run test:integration-azure && npm run test:integration-ollama"
   },
   "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
     "build/src/**/*.js",
     "build/src/**/*.js.map",
     "build/src/**/*.d.ts"

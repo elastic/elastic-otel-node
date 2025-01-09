@@ -1,5 +1,10 @@
 # @elastic/opentelemetry-node Changelog
 
+## v0.6.0
+
+- feat: Add `@elastic/opentelemetry-instrumentation-openai` to the default set
+  of instrumentations. See <https://github.com/elastic/elastic-otel-node/tree/main/packages/instrumentation-openai#readme>
+
 ## v0.5.0
 
 - chore: Bump `@opentelemetry/*` dependencies (#419, #411, #403)

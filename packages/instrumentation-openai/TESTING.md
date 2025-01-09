@@ -32,7 +32,7 @@ or a running Ollama. Which is used is determined by the environment variables.
 1. OpenAI
 
     ```bash
-    cp openai.env.template openai.env
+    cp openai.env.example openai.env
     vi openai.env     # Add your OpenAI credentials.
 
     set -a; source ./openai.env
@@ -42,7 +42,7 @@ or a running Ollama. Which is used is determined by the environment variables.
 2. Azure OpenAI
 
     ```bash
-    cp azure.env.template azure.env
+    cp azure.env.example azure.env
     vi azure.env     # Add your credentials and resource & deployment details.
 
     set -a; source ./azure.env
@@ -57,8 +57,8 @@ or a running Ollama. Which is used is determined by the environment variables.
     docker run -it --rm -p 11434:11434 -v ~/.ollama:/root/.ollama ghcr.io/elastic/ollama/ollama:testing serve
 
     set -a; source ./ollama.env
-    ollama pull $TEST_MODEL_TOOLS
-    ollama pull $TEST_MODEL_EMBEDDINGS
+    ollama pull $TEST_CHAT_MODEL
+    ollama pull $TEST_EMBEDDINGS_MODEL
 
     npm run test:integration
     ```
@@ -96,7 +96,7 @@ ones, those recordings might need to be regenerated. This runs against
 api.openai.com, so you must have valid OpenAI auth set in your environment.
 
 ```bash
-cp openai.env.template openai.env
+cp openai.env.example openai.env
 vi openai.env           # Add your OpenAI credentials.
 
 set -a; source openai.env

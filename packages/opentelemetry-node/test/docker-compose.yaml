@@ -8,7 +8,7 @@
 #   npm run test-services:start [services...]
 #   npm run test-services:stop [services...]
 
-name: test-services
+name: edot-nodejs-test-services
 
 services:
   redis:
@@ -27,6 +27,18 @@ services:
       - "27017:27017"
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok", "--quiet"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
+  ollama:
+    # A light fork of Ollama to float some in-progress contributions related
+    # to more closely matching OpenAI behavior.
+    image: ghcr.io/elastic/ollama/ollama:testing
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "ollama", "ls"]
       interval: 1s
       timeout: 10s
       retries: 30

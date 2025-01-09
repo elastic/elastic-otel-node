@@ -24,6 +24,7 @@
  * @returns {Instrumentation}
  *
  * @typedef {{
+ *  "@elastic/opentelemetry-instrumentation-openai": import('@elastic/opentelemetry-instrumentation-openai').OpenAIInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsSdkInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-connect": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
@@ -60,6 +61,7 @@
  */
 
 /* eslint-disable prettier/prettier */
+const {OpenAIInstrumentation} = require('@elastic/opentelemetry-instrumentation-openai');
 const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
 const {BunyanInstrumentation} = require('@opentelemetry/instrumentation-bunyan');
 const {ConnectInstrumentation} = require('@opentelemetry/instrumentation-connect');
@@ -105,6 +107,7 @@ const { getEnvVar } = require('./environment');
 // the user's config and can default to something else if needed.
 /** @type {Record<keyof InstrumentaionsMap, (cfg: any) => Instrumentation>} */
 const INSTRUMENTATIONS = {
+    '@elastic/opentelemetry-instrumentation-openai': (cfg) => new OpenAIInstrumentation(cfg),
     '@opentelemetry/instrumentation-aws-sdk': (cfg) => new AwsInstrumentation(cfg),
     '@opentelemetry/instrumentation-bunyan': (cfg) => new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-connect': (cfg) => new ConnectInstrumentation(cfg),
