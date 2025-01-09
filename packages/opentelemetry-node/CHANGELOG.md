@@ -1,5 +1,10 @@
 # @elastic/opentelemetry-node Changelog
 
+## Unreleased
+
+- feat: Add `@opentelemetry/instrumentation-mysql2` to the default set
+  of instrumentations. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-mysql2#readme>
+
 ## v0.6.0
 
 - feat: Add `@elastic/opentelemetry-instrumentation-openai` to the default set

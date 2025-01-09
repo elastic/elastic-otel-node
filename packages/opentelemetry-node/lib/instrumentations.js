@@ -42,7 +42,8 @@
  *  "@opentelemetry/instrumentation-koa": import('@opentelemetry/instrumentation-koa').KoaInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-lru-memoizer": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-memcached": import('@opentelemetry/instrumentation-memcached').InstrumentationConfig | InstrumentationFactory,
- *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentationConfig | InstrumentationFactory
+ *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-mysql2": import('@opentelemetry/instrumentation-mysql2').MySQL2Instrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-nestjs-core": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-net": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentationConfig | InstrumentationFactory
@@ -79,6 +80,7 @@ const {KoaInstrumentation} = require('@opentelemetry/instrumentation-koa');
 const {LruMemoizerInstrumentation} = require('@opentelemetry/instrumentation-lru-memoizer');
 const {MemcachedInstrumentation} = require('@opentelemetry/instrumentation-memcached');
 const {MongoDBInstrumentation} = require('@opentelemetry/instrumentation-mongodb');
+const {MySQL2Instrumentation} = require('@opentelemetry/instrumentation-mysql2');
 const {NestInstrumentation} = require('@opentelemetry/instrumentation-nestjs-core');
 const {NetInstrumentation} = require('@opentelemetry/instrumentation-net');
 const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
@@ -124,6 +126,7 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-lru-memoizer': (cfg) => new LruMemoizerInstrumentation(cfg),
     '@opentelemetry/instrumentation-memcached': (cfg) => new MemcachedInstrumentation(cfg),
     '@opentelemetry/instrumentation-mongodb': (cfg) => new MongoDBInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mysql2': (cfg) => new MySQL2Instrumentation(cfg),
     '@opentelemetry/instrumentation-nestjs-core': (cfg) => new NestInstrumentation(cfg),
     '@opentelemetry/instrumentation-net': (cfg) => new NetInstrumentation(cfg),
     '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
