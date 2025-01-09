@@ -41,7 +41,7 @@ jobs:
           - '14'
           - '14.18.0'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       redis:

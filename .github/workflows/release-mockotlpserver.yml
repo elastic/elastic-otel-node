@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       PKGDIR: packages/mockotlpserver
       PKGNAME: "@elastic/mockotlpserver"
