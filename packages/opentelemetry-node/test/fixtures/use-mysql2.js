@@ -28,16 +28,17 @@ const database = process.env.MYSQL_DATABASE || 'mysql';
 
 async function main() {
     const connection = mysql2.createConnection({
-        host, user, database
+        host,
+        user,
+        database,
     });
     const query = connection.query('SELECT 1+1 as solution');
 
-
     query.on('result', (result) => {
-        console.log('MySQL result', result)
+        console.log('MySQL result', result);
     });
-    await new Promise((res) => query.on('end', res));
-    await new Promise((res) => connection.end(res));
+    await new Promise((resolve) => query.on('end', resolve));
+    await new Promise((resolve) => connection.end(resolve));
 }
 
 const tracer = otel.trace.getTracer('test');
