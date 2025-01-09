@@ -54,6 +54,13 @@ jobs:
         ports:
           - 27017:27017
 
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
+
       ollama:
         # A light fork of Ollama to float some in-progress contributions related
         # to more closely matching OpenAI behavior.
