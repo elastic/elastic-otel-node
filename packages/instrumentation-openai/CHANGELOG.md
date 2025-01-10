@@ -1,5 +1,10 @@
 # @elastic/opentelemetry-instrumentation-openai Changelog
 
+## Unreleased
+
+- Support instrumenting openai@5, including preleases. Currently only 5.0.0-alpha.0
+  has been released.
+
 ## v0.4.1
 
 - Include "LICENSE" file in the published package.
