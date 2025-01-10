@@ -1,0 +1,4 @@
+# Use 2-space indent for these examples to help tighten them
+# up in a blog post. Typically this repo is using 4-space.
+[*.js]
+indent_size = 2
