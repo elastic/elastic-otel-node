@@ -33,6 +33,18 @@ updates:
         - "*"
 
   - package-ecosystem: "npm"
+    directory: "/packages/instrumentation-openai"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "elastic/apm-agent-node-js"
+    groups:
+      instrumentation-openai:
+        patterns:
+        - "*"
+
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
