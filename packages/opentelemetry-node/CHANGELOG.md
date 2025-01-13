@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: Add `@opentelemetry/instrumentation-mysql` to the default set
+  of instrumentations. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-mysql#readme>
 - feat: Add `@opentelemetry/instrumentation-mysql2` to the default set
   of instrumentations. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-mysql2#readme>
 
