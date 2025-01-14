@@ -68,11 +68,6 @@ const testFixtures = [
 
             t.equal(mongooseSpans[0].name, 'mongoose.User.save');
             t.equal(mongooseSpans[0].kind, 'SPAN_KIND_CLIENT');
-            t.equal(
-                mongooseSpans[0].traceId,
-                mongooseSpans[0].traceId,
-                'same trace'
-            );
             t.equal(mongooseSpans[0].parentSpanId, spans[0].spanId);
         },
     },
