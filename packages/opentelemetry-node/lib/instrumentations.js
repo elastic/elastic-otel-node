@@ -43,6 +43,7 @@
  *  "@opentelemetry/instrumentation-lru-memoizer": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-memcached": import('@opentelemetry/instrumentation-memcached').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-mongoose": import('@opentelemetry/instrumentation-mongoose').MongooseInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mysql": import('@opentelemetry/instrumentation-mysql').MySQLInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mysql2": import('@opentelemetry/instrumentation-mysql2').MySQL2Instrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-nestjs-core": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
@@ -81,6 +82,7 @@ const {KoaInstrumentation} = require('@opentelemetry/instrumentation-koa');
 const {LruMemoizerInstrumentation} = require('@opentelemetry/instrumentation-lru-memoizer');
 const {MemcachedInstrumentation} = require('@opentelemetry/instrumentation-memcached');
 const {MongoDBInstrumentation} = require('@opentelemetry/instrumentation-mongodb');
+const {MongooseInstrumentation} = require('@opentelemetry/instrumentation-mongoose');
 const {MySQLInstrumentation} = require('@opentelemetry/instrumentation-mysql');
 const {MySQL2Instrumentation} = require('@opentelemetry/instrumentation-mysql2');
 const {NestInstrumentation} = require('@opentelemetry/instrumentation-nestjs-core');
@@ -128,6 +130,7 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-lru-memoizer': (cfg) => new LruMemoizerInstrumentation(cfg),
     '@opentelemetry/instrumentation-memcached': (cfg) => new MemcachedInstrumentation(cfg),
     '@opentelemetry/instrumentation-mongodb': (cfg) => new MongoDBInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mongoose': (cfg) => new MongooseInstrumentation(cfg),
     '@opentelemetry/instrumentation-mysql': (cfg) => new MySQLInstrumentation(cfg),
     '@opentelemetry/instrumentation-mysql2': (cfg) => new MySQL2Instrumentation(cfg),
     '@opentelemetry/instrumentation-nestjs-core': (cfg) => new NestInstrumentation(cfg),
