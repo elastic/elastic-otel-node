@@ -75,9 +75,13 @@ function renderSpan(span, prefix = '') {
         let startOffset =
             Number(
                 BigInt(span.startTimeUnixNano) -
-                    BigInt(lastRenderedSpan.startTimeUnixNano)
+                BigInt(lastRenderedSpan.startTimeUnixNano)
             ) / 1e6;
+        let sign = startOffset >= 0 ? '+' : '-';
         let unit = 'ms';
+
+        // Use the absolute value to do the proper unit transform
+        startOffset = Math.abs(startOffset)
         if (startOffset >= 1000) {
             startOffset /= 1000;
             unit = 's';
@@ -95,7 +99,7 @@ function renderSpan(span, prefix = '') {
             startOffset /= 24;
             unit = 'd';
         }
-        gutter = `${startOffset >= 0 ? '+' : '-'}${Math.floor(startOffset)}`;
+        gutter = `${sign}${Math.floor(startOffset)}`;
         gutter = `${' '.repeat(4 - gutter.length)}${gutter}${unit}`;
     } else {
         gutter = ' '.repeat(6);
