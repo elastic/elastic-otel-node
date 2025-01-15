@@ -569,6 +569,7 @@ function runTestFixtures(suite, testFixtures) {
                                     )})`
                                 );
                                 t.end();
+                                outerResolve();
                                 return;
                             }
                         }
