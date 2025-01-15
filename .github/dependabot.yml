@@ -32,7 +32,6 @@ updates:
         patterns:
         - "*"
 
-  #XXX
   - package-ecosystem: "npm"
     directory: "/packages/instrumentation-openai"
     schedule:
