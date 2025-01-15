@@ -39,6 +39,13 @@ updates:
     open-pull-requests-limit: 10
     reviewers:
       - "elastic/apm-agent-node-js"
+    ignore:
+      # Locked to the same version being used by opentelemetry-js-contrib.
+      - dependency-name: "@types/node"
+      # Locked to the same version being used by opentelemetry-js-contrib.
+      - dependency-name: "@typescript-eslint/*"
+      # Locked to the same version being used by opentelemetry-js-contrib.
+      - dependency-name: "typescript"
     groups:
       instrumentation-openai:
         patterns:
