@@ -28,6 +28,7 @@
  *  "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsSdkInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-connect": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-cassandra-driver": import('@opentelemetry/instrumentation-cassandra-driver').CassandraDriverInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-cucumber": import('@opentelemetry/instrumentation-cucumber').CucumberInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-dataloader": import('@opentelemetry/instrumentation-dataloader').DataloaderInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-dns": import('@opentelemetry/instrumentation-dns').DnsInstrumentationConfig | InstrumentationFactory,
@@ -67,6 +68,7 @@ const {OpenAIInstrumentation} = require('@elastic/opentelemetry-instrumentation-
 const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
 const {BunyanInstrumentation} = require('@opentelemetry/instrumentation-bunyan');
 const {ConnectInstrumentation} = require('@opentelemetry/instrumentation-connect');
+const {CassandraDriverInstrumentation} = require('@opentelemetry/instrumentation-cassandra-driver');
 const {CucumberInstrumentation} = require('@opentelemetry/instrumentation-cucumber');
 const {DataloaderInstrumentation} = require('@opentelemetry/instrumentation-dataloader');
 const {DnsInstrumentation} = require('@opentelemetry/instrumentation-dns');
@@ -115,6 +117,7 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-aws-sdk': (cfg) => new AwsInstrumentation(cfg),
     '@opentelemetry/instrumentation-bunyan': (cfg) => new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-connect': (cfg) => new ConnectInstrumentation(cfg),
+    '@opentelemetry/instrumentation-cassandra-driver': (cfg) => new CassandraDriverInstrumentation(cfg), 
     '@opentelemetry/instrumentation-cucumber': (cfg) => new CucumberInstrumentation(cfg),
     '@opentelemetry/instrumentation-dataloader': (cfg) => new DataloaderInstrumentation(cfg),
     '@opentelemetry/instrumentation-dns': (cfg) => new DnsInstrumentation(cfg),

@@ -86,3 +86,16 @@ services:
       interval: 1s
       timeout: 10s
       retries: 30
+  
+  cassandra:
+    image: cassandra:3
+    environment:
+      MAX_HEAP_SIZE: "1G"
+      HEAP_NEWSIZE: 400m
+    ports:
+      - "9042:9042"
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
