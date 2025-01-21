@@ -69,7 +69,7 @@
   "dependencies": {
     "@elastic/opentelemetry-instrumentation-openai": "^0.4.1",
     "@opentelemetry/api": "^1.3.0",
-    "@opentelemetry/core": "1.27.0",
+    "@opentelemetry/core": "^1.27.0",
     "@opentelemetry/exporter-logs-otlp-grpc": "^0.57.1",
     "@opentelemetry/exporter-logs-otlp-http": "^0.57.1",
     "@opentelemetry/exporter-logs-otlp-proto": "^0.57.1",
