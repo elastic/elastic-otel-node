@@ -34,18 +34,22 @@ async function main() {
     });
 
     await client.connect();
-    await client.execute(`CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': 1 };`);
+    await client.execute(
+        `CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': 1 };`
+    );
     await client.execute(`USE ${keyspace}`);
-    await client.execute(`CREATE TABLE IF NOT EXISTS ${keyspace}.${table}(id uuid,text varchar,PRIMARY KEY(id));`);
+    await client.execute(
+        `CREATE TABLE IF NOT EXISTS ${keyspace}.${table}(id uuid,text varchar,PRIMARY KEY(id));`
+    );
     await client.batch([
         {
             query: `INSERT INTO ${keyspace}.${table} (id, text) VALUES (uuid(), ?)`,
-            params: ['value1']
+            params: ['value1'],
         },
         {
             query: `INSERT INTO ${keyspace}.${table} (id, text) VALUES (uuid(), ?)`,
-            params: ['value2']
-        }
+            params: ['value2'],
+        },
     ]);
     await client.execute(`DROP TABLE IF EXISTS ${keyspace}.${table}`);
     await client.shutdown();

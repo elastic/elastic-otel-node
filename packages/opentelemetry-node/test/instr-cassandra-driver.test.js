@@ -18,7 +18,7 @@
  */
 
 const test = require('tape');
-const { filterOutDnsNetSpans, runTestFixtures } = require('./testutils');
+const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 // TODO: check https://github.com/elastic/apm-agent-nodejs/blob/main/test/_is_cassandra_incompat.js
 const skip = process.env.CASSANDRA_HOST === undefined;
@@ -55,7 +55,10 @@ const testFixtures = [
                 t.equal(s.traceId, spans[0].traceId, 'traceId');
                 t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');
                 t.equal(s.kind, 'SPAN_KIND_CLIENT', 'kind');
-                t.equal(s.scope.name, '@opentelemetry/instrumentation-cassandra-driver');
+                t.equal(
+                    s.scope.name,
+                    '@opentelemetry/instrumentation-cassandra-driver'
+                );
                 t.equal(s.attributes['db.system'], 'cassandra');
             });
             t.equal(spans[1].name, 'cassandra-driver.execute');
@@ -67,7 +70,7 @@ const testFixtures = [
     },
 ];
 
-test('cassandra-driver instrumentation', { skip }, (suite) => {
+test('cassandra-driver instrumentation', {skip}, (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });
