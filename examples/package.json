@@ -7,7 +7,6 @@
     "clean": "rm -rf node_modules"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^8.15.0",
     "@elastic/opentelemetry-node": "../packages/opentelemetry-node",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/instrumentation-express": "^0.47.0",
