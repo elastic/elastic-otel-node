@@ -75,8 +75,7 @@ const testFixtures = [
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
         },
         versionRanges: {
-            // Min-supported node by @elastic/elasticsearch@8.15.0.
-            node: '>=18',
+            node: '^18.19.0 || >=20.6.0', // for --import and `module.register()`
         },
         // verbose: true,
         checkTelemetry,
