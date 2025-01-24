@@ -22,11 +22,10 @@
 const otel = require('@opentelemetry/api');
 const graphql = require('graphql');
 
-
 async function main() {
-    const { schema, source } = setup();
-    const result = await graphql.graphql({ schema, source })
-    console.dir(result, {depth:9});
+    const {schema, source} = setup();
+    const result = await graphql.graphql({schema, source});
+    console.dir(result, {depth: 9});
 }
 
 const tracer = otel.trace.getTracer('test');
@@ -34,7 +33,6 @@ tracer.startActiveSpan('manual-parent-span', async (span) => {
     await main();
     span.end();
 });
-
 
 // hrlper functions
 function setup() {
@@ -61,15 +59,15 @@ function setup() {
             todo: {
                 type: Todo,
                 args: {
-                    id: { type: graphql.GraphQLInt },
+                    id: {type: graphql.GraphQLInt},
                 },
                 resolve(obj, args, context) {
-                    return Promise.resolve({ id: args.id, desc: 'todo desc' });
+                    return Promise.resolve({id: args.id, desc: 'todo desc'});
                 },
             },
         },
     });
-    const schema = new graphql.GraphQLSchema({ query });
+    const schema = new graphql.GraphQLSchema({query});
     const source = `
         query {
             todo (id: 0) {
@@ -77,5 +75,5 @@ function setup() {
             }
         }
     `;
-    return { schema, source };
+    return {schema, source};
 }

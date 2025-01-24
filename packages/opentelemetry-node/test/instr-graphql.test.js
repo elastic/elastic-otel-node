@@ -20,7 +20,7 @@
 // Test that instrumentation-graphql generates the telemetry we expect.
 
 const test = require('tape');
-const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
+const {runTestFixtures} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -44,7 +44,12 @@ const testFixtures = [
             const spans = col.sortedSpans.slice(1);
             t.equal(spans.length, 5);
 
-            t.ok(spans.every(s => s.scope.name, '@opentelemetry/instrumentation-graphql'))
+            t.ok(
+                spans.every(
+                    (s) => s.scope.name,
+                    '@opentelemetry/instrumentation-graphql'
+                )
+            );
             t.equal(spans[0].name, 'graphql.parse');
             t.equal(spans[1].name, 'graphql.validate');
             t.equal(spans[2].name, 'query');

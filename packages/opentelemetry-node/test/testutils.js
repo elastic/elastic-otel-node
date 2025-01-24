@@ -84,7 +84,7 @@ function assertDeepMatch(t, actual, expected, msgPrefix = 'obj') {
  * Eventually it would be preferable to have each test run with instr-dns
  * and instr-net turned off, if that is what they want to test.
  *
- * @param {CollectedSpan[]} spans 
+ * @param {CollectedSpan[]} spans
  * @returns {CollectedSpan[]}
  */
 function filterOutDnsNetSpans(spans) {
