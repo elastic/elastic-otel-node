@@ -83,6 +83,9 @@ function assertDeepMatch(t, actual, expected, msgPrefix = 'obj') {
  * Filter out instr-dns and instr-net spans for testing.
  * Eventually it would be preferable to have each test run with instr-dns
  * and instr-net turned off, if that is what they want to test.
+ *
+ * @param {CollectedSpan[]} spans
+ * @returns {CollectedSpan[]}
  */
 function filterOutDnsNetSpans(spans) {
     // Filter out instr-dns and instr-net spans for testing.
@@ -311,7 +314,18 @@ function quoteEnv(env) {
  */
 
 /**
- * @typedef {import('@opentelemetry/api').Span} Span
+ * @typedef {Object} CollectedSpan
+ * @property {string} traceId
+ * @property {string} spanId
+ * @property {string} parentSpanId
+ * @property {string} name
+ * @property {string} kind
+ * @property {string} startTimeUnixNano
+ * @property {string} endTimeUnixNano
+ * @property {Record<string, any>} attributes
+ * @property {{ code: string }} status // TODO: use a type instead of a string
+ * @property {{ attributes: Record<string, any> }} resource
+ * @property {{ name: string; version: string }} scope
  */
 
 /**
@@ -326,7 +340,7 @@ function quoteEnv(env) {
  * TODO: Likewise for this Span type.
  *
  * @typedef {Object} CollectorStore
- * @property {Span[]} sortedSpans
+ * @property {CollectedSpan[]} sortedSpans
  * @property {CollectedMetric[]} metrics
  * @property {import('@opentelemetry/api-logs').LogRecord[]} logs
  */

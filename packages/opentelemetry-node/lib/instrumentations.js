@@ -34,6 +34,7 @@
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-generic-pool": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-graphql": import('@opentelemetry/instrumentation-graphql').GraphQLInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-grpc": import('@opentelemetry/instrumentation-grpc').GrpcInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
@@ -73,6 +74,7 @@ const {DnsInstrumentation} = require('@opentelemetry/instrumentation-dns');
 const {ExpressInstrumentation} = require('@opentelemetry/instrumentation-express');
 const {FastifyInstrumentation} = require('@opentelemetry/instrumentation-fastify');
 const {GenericPoolInstrumentation} = require('@opentelemetry/instrumentation-generic-pool');
+const {GraphQLInstrumentation} = require('@opentelemetry/instrumentation-graphql');
 const {GrpcInstrumentation} = require('@opentelemetry/instrumentation-grpc');
 const {HapiInstrumentation} = require('@opentelemetry/instrumentation-hapi');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
@@ -121,6 +123,7 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-express': (cfg) => new ExpressInstrumentation(cfg),
     '@opentelemetry/instrumentation-fastify': (cfg) => new FastifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-generic-pool': (cfg) => new GenericPoolInstrumentation(cfg),
+    '@opentelemetry/instrumentation-graphql': (cfg) => new GraphQLInstrumentation(cfg),
     '@opentelemetry/instrumentation-grpc': (cfg) => new GrpcInstrumentation(cfg),
     '@opentelemetry/instrumentation-hapi': (cfg) => new HapiInstrumentation(cfg),
     '@opentelemetry/instrumentation-http': (cfg) => new HttpInstrumentation(cfg),
