@@ -30,6 +30,27 @@ if (skip) {
     );
 }
 
+function checkTelemetry(t, col) {
+    // Expected a trace like this:
+    //        span 91a6b1 "search" (13.4ms, SPAN_KIND_CLIENT, GET http://localhost:9200/)
+    //   +2ms `- span 14278c "GET" (10.8ms, SPAN_KIND_CLIENT, GET http://localhost:9200/_search?q=pants -> 200)
+    const spans = filterOutDnsNetSpans(col.sortedSpans);
+    t.equal(spans.length, 2);
+    t.equal(spans[0].name, 'search');
+    t.equal(spans[0].kind, 'SPAN_KIND_CLIENT', 'kind');
+    t.equal(spans[0].scope.name, '@elastic/transport');
+    t.equal(spans[0].attributes['db.system'], 'elasticsearch');
+    t.equal(spans[0].attributes['db.operation.name'], 'search');
+
+    t.equal(spans[1].traceId, spans[0].traceId, 'traceId');
+    t.equal(spans[1].parentSpanId, spans[0].spanId, 'parentSpanId');
+    t.equal(spans[1].kind, 'SPAN_KIND_CLIENT', 'kind');
+    t.equal(spans[1].scope.name, '@opentelemetry/instrumentation-undici');
+    t.equal(spans[1].attributes['http.request.method'], 'GET');
+    t.equal(spans[1].attributes['url.path'], '/_search');
+    t.equal(spans[1].attributes['url.query'], '?q=pants');
+}
+
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
@@ -44,20 +65,21 @@ const testFixtures = [
             node: '>=18',
         },
         // verbose: true,
-        checkTelemetry: (t, col) => {
-            // Expected a trace like this:
-            // XXX
-            const spans = filterOutDnsNetSpans(col.sortedSpans);
-            console.log('XXX spans: ', spans);
-            // t.equal(spans.length, 6);
-            // spans.slice(1).forEach((s) => {
-            //     t.equal(s.traceId, spans[0].traceId, 'traceId');
-            //     t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');
-            //     t.equal(s.kind, 'SPAN_KIND_CLIENT', 'kind');
-            //     t.equal(s.scope.name, '@elastic/transport');
-            //     t.equal(s.attributes['db.system'], 'elasticsearch');
-            // });
+        checkTelemetry,
+    },
+    {
+        name: 'use-elasticsearch.mjs (ESM)',
+        args: ['./fixtures/use-elasticsearch.mjs'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
         },
+        versionRanges: {
+            // Min-supported node by @elastic/elasticsearch@8.15.0.
+            node: '>=18',
+        },
+        // verbose: true,
+        checkTelemetry,
     },
 ];
 
