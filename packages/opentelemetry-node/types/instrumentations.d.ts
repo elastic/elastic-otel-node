@@ -12,6 +12,7 @@ export type InstrumentaionsMap = {
     "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-generic-pool": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory;
+    "@opentelemetry/instrumentation-graphql": import('@opentelemetry/instrumentation-graphql').GraphQLInstrumentation | InstrumentationFactory;
     "@opentelemetry/instrumentation-grpc": import('@opentelemetry/instrumentation-grpc').GrpcInstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory;
     "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory;
