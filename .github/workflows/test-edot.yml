@@ -83,6 +83,14 @@ jobs:
           MSSQL_SA_PASSWORD: 'Very(!)Secure'
         ports:
           - "1433:1433"
+    
+      cassandra:
+        image: cassandra:3
+        env:
+          MAX_HEAP_SIZE: "1G"
+          HEAP_NEWSIZE: 400m
+        ports:
+          - "9042:9042"
 
     steps:
     - uses: actions/checkout@v4
