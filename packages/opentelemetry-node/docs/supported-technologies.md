@@ -67,6 +67,19 @@ requires:
 | `@opentelemetry/instrumentation-undici` | `undici` version range `>=5.12.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici#readme) |
 | `@opentelemetry/instrumentation-winston` | `winston` version range `>1 <4` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme) |
 
+## Native Instrumentations
+
+"Native" instrumentation refers to OpenTelemetry instrumentation that is built into a library. When a library includes native OTel instrumentation, it will provide telemetry data to providers registered by a running OTel SDK. Native instrumentions of note are listed in the table below. To benefit from these instrumentations you only need to (a) use the library and (b) start the EDOT Node.js SDK:
+
+```bash
+node --import @elastic/opentelemetry-node my-app.js
+```
+
+| Packages instrumented | Reference |
+|---|---|
+| `@elastic/elasticsearch` version range `>=8.15.0` | [Elasticsearch JavaScript Client docs](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/observability.html) |
+
+
 ## ECMAScript Modules (ESM)
 
 This Distro includes **limited and experimental** support for instrumenting [ECMAScript module imports](https://nodejs.org/api/esm.html#modules-ecmascript-modules), i.e. modules that are loaded via `import ...` statements and `import('...')` (dynamic import).
