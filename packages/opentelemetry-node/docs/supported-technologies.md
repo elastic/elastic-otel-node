@@ -70,7 +70,7 @@ requires:
 
 ## Native Instrumentations
 
-"Native" instrumentation refers to OpenTelemetry instrumentation that is built into a library. When a library includes native OTel instrumentation, it will provide telemetry data to providers registered by a running OTel SDK. Native instrumentions of note are listed in the table below. To benefit from these instrumentations you only need to (a) use the library and (b) start the EDOT Node.js SDK:
+"Native" instrumentation refers to OpenTelemetry instrumentation that is built into a library. When a library includes native OTel instrumentation, it will provide telemetry data to providers registered by a running OTel SDK. Native instrumentations of note are listed in the table below. To benefit from these instrumentations you only need to (a) use the library and (b) start the EDOT Node.js SDK:
 
 ```bash
 node --import @elastic/opentelemetry-node my-app.js
