@@ -11,6 +11,19 @@
 name: edot-nodejs-test-services
 
 services:
+  cassandra:
+    image: cassandra:3
+    environment:
+      MAX_HEAP_SIZE: "1G"
+      HEAP_NEWSIZE: 400m
+    ports:
+      - "9042:9042"
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
     environment:
@@ -27,48 +40,12 @@ services:
       timeout: 10s
       retries: 30
 
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 1s
-      timeout: 10s
-      retries: 30
-
   mongodb:
     image: mongo:7
     ports:
       - "27017:27017"
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok", "--quiet"]
-      interval: 1s
-      timeout: 10s
-      retries: 30
-
-  ollama:
-    # A light fork of Ollama to float some in-progress contributions related
-    # to more closely matching OpenAI behavior.
-    image: ghcr.io/elastic/ollama/ollama:testing
-    ports:
-      - "11434:11434"
-    healthcheck:
-      test: ["CMD", "ollama", "ls"]
-      interval: 1s
-      timeout: 10s
-      retries: 30
-
-  postgres:
-    # https://github.com/docker-library/docs/blob/master/postgres/README.md#how-to-extend-this-image
-    image: postgres:16
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_HOST_AUTH_METHOD: 'trust'
-      POSTGRES_USER: 'postgres'
-    healthcheck:
-      test: ["CMD", "pg_isready"]
       interval: 1s
       timeout: 10s
       retries: 30
@@ -103,15 +80,38 @@ services:
       timeout: 10s
       retries: 30
 
-  cassandra:
-    image: cassandra:3
-    environment:
-      MAX_HEAP_SIZE: "1G"
-      HEAP_NEWSIZE: 400m
+  ollama:
+    # A light fork of Ollama to float some in-progress contributions related
+    # to more closely matching OpenAI behavior.
+    image: ghcr.io/elastic/ollama/ollama:testing
     ports:
-      - "9042:9042"
+      - "11434:11434"
     healthcheck:
-      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      test: ["CMD", "ollama", "ls"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
+  postgres:
+    # https://github.com/docker-library/docs/blob/master/postgres/README.md#how-to-extend-this-image
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: 'trust'
+      POSTGRES_USER: 'postgres'
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 1s
       timeout: 10s
       retries: 30
