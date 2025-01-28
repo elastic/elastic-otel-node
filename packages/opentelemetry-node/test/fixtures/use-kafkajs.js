@@ -22,10 +22,12 @@
 const otel = require('@opentelemetry/api');
 const {Kafka} = require('kafkajs');
 
-const clientId = process.env.TEST_KAFKAJS_CLIENT_ID || 'test-kafkajs-client';
-const broker = process.env.TEST_KAFKAJS_HOST || 'localhost:9092';
+const host = process.env.KAFKA_HOST;
+const port = process.env.KAFKA_PORT || '9092';
+const broker = `${host}:${port}`;
+const clientId = process.env.KAFKAJS_CLIENT_ID || 'test-kafkajs-client';
 const topic =
-    process.env.TEST_KAFKAJS_TOPIC ||
+    process.env.KAFKAJS_TOPIC ||
     `test-${Math.floor(Math.random() * 1000)}`;
 
 async function main() {

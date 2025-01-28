@@ -22,6 +22,13 @@
 const test = require('tape');
 const {runTestFixtures, filterOutDnsNetSpans} = require('./testutils');
 
+let skip = process.env.KAFKA_HOST === undefined;
+if (skip) {
+    console.log(
+        '# SKIP kafkajs tests: KAFKA_HOST is not set (try with `KAFKA_HOST=localhost`)'
+    );
+}
+
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
@@ -33,7 +40,8 @@ const testFixtures = [
             // ref: https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
             KAFKAJS_NO_PARTITIONER_WARNING: '1',
             // test specific vars
-            TEST_KAFKAJS_TOPIC: 'edot-test-topic',
+            KAFKA_HOST: 'localhost',
+            KAFKAJS_TOPIC: 'edot-test-topic',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -58,7 +66,7 @@ const testFixtures = [
     },
 ];
 
-test('kafkajs instrumentation', async (suite) => {
+test('kafkajs instrumentation', {skip},  async (suite) => {
     await runTestFixtures(suite, testFixtures);
     suite.end();
 });
