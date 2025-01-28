@@ -40,6 +40,7 @@
  *  "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-kafkajs": import('@opentelemetry/instrumentation-kafkajs').KafkaJsInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-knex": import('@opentelemetry/instrumentation-knex').KnexInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-koa": import('@opentelemetry/instrumentation-koa').KoaInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-lru-memoizer": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
@@ -82,6 +83,7 @@ const {HapiInstrumentation} = require('@opentelemetry/instrumentation-hapi');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 const {IORedisInstrumentation} = require('@opentelemetry/instrumentation-ioredis');
 const {KnexInstrumentation} = require('@opentelemetry/instrumentation-knex');
+const {KafkaJsInstrumentation} = require('@opentelemetry/instrumentation-kafkajs');
 const {KoaInstrumentation} = require('@opentelemetry/instrumentation-koa');
 const {LruMemoizerInstrumentation} = require('@opentelemetry/instrumentation-lru-memoizer');
 const {MemcachedInstrumentation} = require('@opentelemetry/instrumentation-memcached');
@@ -132,6 +134,7 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-http': (cfg) => new HttpInstrumentation(cfg),
     '@opentelemetry/instrumentation-ioredis': (cfg) => new IORedisInstrumentation(cfg),
     '@opentelemetry/instrumentation-knex': (cfg) => new KnexInstrumentation(cfg),
+    '@opentelemetry/instrumentation-kafkajs': (cfg) => new KafkaJsInstrumentation(cfg),
     '@opentelemetry/instrumentation-koa': (cfg) => new KoaInstrumentation(cfg),
     '@opentelemetry/instrumentation-lru-memoizer': (cfg) => new LruMemoizerInstrumentation(cfg),
     '@opentelemetry/instrumentation-memcached': (cfg) => new MemcachedInstrumentation(cfg),
