@@ -66,7 +66,7 @@ const testFixtures = [
     },
 ];
 
-test('kafkajs instrumentation', {skip},  async (suite) => {
+test('kafkajs instrumentation', {skip}, async (suite) => {
     await runTestFixtures(suite, testFixtures);
     suite.end();
 });
