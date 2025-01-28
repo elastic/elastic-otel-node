@@ -28,12 +28,14 @@
  *  "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsSdkInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-connect": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-cassandra-driver": import('@opentelemetry/instrumentation-cassandra-driver').CassandraDriverInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-cucumber": import('@opentelemetry/instrumentation-cucumber').CucumberInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-dataloader": import('@opentelemetry/instrumentation-dataloader').DataloaderInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-dns": import('@opentelemetry/instrumentation-dns').DnsInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-generic-pool": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-graphql": import('@opentelemetry/instrumentation-graphql').GraphQLInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-grpc": import('@opentelemetry/instrumentation-grpc').GrpcInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig | InstrumentationFactory,
@@ -43,6 +45,8 @@
  *  "@opentelemetry/instrumentation-lru-memoizer": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-memcached": import('@opentelemetry/instrumentation-memcached').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mongodb": import('@opentelemetry/instrumentation-mongodb').MongoDBInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-mongoose": import('@opentelemetry/instrumentation-mongoose').MongooseInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-mysql": import('@opentelemetry/instrumentation-mysql').MySQLInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-mysql2": import('@opentelemetry/instrumentation-mysql2').MySQL2Instrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-nestjs-core": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-net": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
@@ -65,12 +69,14 @@ const {OpenAIInstrumentation} = require('@elastic/opentelemetry-instrumentation-
 const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
 const {BunyanInstrumentation} = require('@opentelemetry/instrumentation-bunyan');
 const {ConnectInstrumentation} = require('@opentelemetry/instrumentation-connect');
+const {CassandraDriverInstrumentation} = require('@opentelemetry/instrumentation-cassandra-driver');
 const {CucumberInstrumentation} = require('@opentelemetry/instrumentation-cucumber');
 const {DataloaderInstrumentation} = require('@opentelemetry/instrumentation-dataloader');
 const {DnsInstrumentation} = require('@opentelemetry/instrumentation-dns');
 const {ExpressInstrumentation} = require('@opentelemetry/instrumentation-express');
 const {FastifyInstrumentation} = require('@opentelemetry/instrumentation-fastify');
 const {GenericPoolInstrumentation} = require('@opentelemetry/instrumentation-generic-pool');
+const {GraphQLInstrumentation} = require('@opentelemetry/instrumentation-graphql');
 const {GrpcInstrumentation} = require('@opentelemetry/instrumentation-grpc');
 const {HapiInstrumentation} = require('@opentelemetry/instrumentation-hapi');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
@@ -80,6 +86,8 @@ const {KoaInstrumentation} = require('@opentelemetry/instrumentation-koa');
 const {LruMemoizerInstrumentation} = require('@opentelemetry/instrumentation-lru-memoizer');
 const {MemcachedInstrumentation} = require('@opentelemetry/instrumentation-memcached');
 const {MongoDBInstrumentation} = require('@opentelemetry/instrumentation-mongodb');
+const {MongooseInstrumentation} = require('@opentelemetry/instrumentation-mongoose');
+const {MySQLInstrumentation} = require('@opentelemetry/instrumentation-mysql');
 const {MySQL2Instrumentation} = require('@opentelemetry/instrumentation-mysql2');
 const {NestInstrumentation} = require('@opentelemetry/instrumentation-nestjs-core');
 const {NetInstrumentation} = require('@opentelemetry/instrumentation-net');
@@ -111,12 +119,14 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-aws-sdk': (cfg) => new AwsInstrumentation(cfg),
     '@opentelemetry/instrumentation-bunyan': (cfg) => new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-connect': (cfg) => new ConnectInstrumentation(cfg),
+    '@opentelemetry/instrumentation-cassandra-driver': (cfg) => new CassandraDriverInstrumentation(cfg), 
     '@opentelemetry/instrumentation-cucumber': (cfg) => new CucumberInstrumentation(cfg),
     '@opentelemetry/instrumentation-dataloader': (cfg) => new DataloaderInstrumentation(cfg),
     '@opentelemetry/instrumentation-dns': (cfg) => new DnsInstrumentation(cfg),
     '@opentelemetry/instrumentation-express': (cfg) => new ExpressInstrumentation(cfg),
     '@opentelemetry/instrumentation-fastify': (cfg) => new FastifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-generic-pool': (cfg) => new GenericPoolInstrumentation(cfg),
+    '@opentelemetry/instrumentation-graphql': (cfg) => new GraphQLInstrumentation(cfg),
     '@opentelemetry/instrumentation-grpc': (cfg) => new GrpcInstrumentation(cfg),
     '@opentelemetry/instrumentation-hapi': (cfg) => new HapiInstrumentation(cfg),
     '@opentelemetry/instrumentation-http': (cfg) => new HttpInstrumentation(cfg),
@@ -126,6 +136,8 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-lru-memoizer': (cfg) => new LruMemoizerInstrumentation(cfg),
     '@opentelemetry/instrumentation-memcached': (cfg) => new MemcachedInstrumentation(cfg),
     '@opentelemetry/instrumentation-mongodb': (cfg) => new MongoDBInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mongoose': (cfg) => new MongooseInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mysql': (cfg) => new MySQLInstrumentation(cfg),
     '@opentelemetry/instrumentation-mysql2': (cfg) => new MySQL2Instrumentation(cfg),
     '@opentelemetry/instrumentation-nestjs-core': (cfg) => new NestInstrumentation(cfg),
     '@opentelemetry/instrumentation-net': (cfg) => new NetInstrumentation(cfg),

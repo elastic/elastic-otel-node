@@ -31,10 +31,15 @@ const TEST_REGION = 'us-east-2';
 const server = createServer();
 const endpoint = `http://127.0.0.1:${server.address().port}`;
 
+// `@aws-sdk/client-*` >=3.723.0 switched to `@smithy/smithy-client@4`
+// which supports only Node.js v18 and later now.
+const AWS_SDK_SUPPORTED_NODE_RANGE = '>=18.0.0';
+
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
         name: 'use-aws-client-s3',
+        versionRanges: {node: AWS_SDK_SUPPORTED_NODE_RANGE},
         args: ['./fixtures/use-aws-client-s3.js'],
         cwd: __dirname,
         env: {
@@ -70,6 +75,7 @@ const testFixtures = [
     },
     {
         name: 'use-aws-client-sns',
+        versionRanges: {node: AWS_SDK_SUPPORTED_NODE_RANGE},
         args: ['./fixtures/use-aws-client-sns.js'],
         cwd: __dirname,
         env: {
@@ -106,6 +112,7 @@ const testFixtures = [
     },
     {
         name: 'use-aws-client-sqs',
+        versionRanges: {node: AWS_SDK_SUPPORTED_NODE_RANGE},
         args: ['./fixtures/use-aws-client-sqs.js'],
         cwd: __dirname,
         env: {
@@ -143,6 +150,7 @@ const testFixtures = [
     },
     {
         name: 'use-aws-client-dynamodb',
+        versionRanges: {node: AWS_SDK_SUPPORTED_NODE_RANGE},
         args: ['./fixtures/use-aws-client-dynamodb.js'],
         cwd: __dirname,
         env: {

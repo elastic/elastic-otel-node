@@ -38,9 +38,11 @@ requires:
 | `@elastic/opentelemetry-instrumentation-openai` | `openai` version range `>=4.19.0 <5` | [README](https://github.com/elastic/elastic-otel-node/tree/main/packages/instrumentation-openai#readme) |
 | `@opentelemetry/instrumentation-aws-sdk` | `aws-sdk` v2 and `@aws-sdk/client-*` v3 | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-aws-sdk#readme) |
 | `@opentelemetry/instrumentation-bunyan` | `bunyan` version range `^1.0.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-bunyan#readme) |
+| `@opentelemetry/instrumentation-cassandra-driver` | `cassandra-driver` version range `>=4.4.0 <5` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-cassandra#readme) |
 | `@opentelemetry/instrumentation-express` | `express` version range `^4.0.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-express#readme) |
 | `@opentelemetry/instrumentation-fastify` | `fastify` version range `>=3 <5` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify#readme) |
 | `@opentelemetry/instrumentation-generic-pool` | `generic-pool` version range `2 - 2.3, ^2.4, >=3` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-generic-pool#readme) |
+| `@opentelemetry/instrumentation-graphql` | `graphql` version range `>=14.0.0 <17` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-graphql#readme) |
 | `@opentelemetry/instrumentation-grpc` | `@grpc/grpc-js` version range `^1.0.0` | [README](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-grpc#readme) |
 | `@opentelemetry/instrumentation-hapi` | `@hapi/hapi >=17.0.0 <21` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-hapi#readme) |
 | `@opentelemetry/instrumentation-http` | `http` module for Node.js `>=14` | [README](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-http#readme) |
@@ -50,6 +52,8 @@ requires:
 | `@opentelemetry/instrumentation-lru-memoizer` | `lru-memoizer` version range `>=1.3 <3` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-lru-memoizer#readme) |
 | `@opentelemetry/instrumentation-memcached` | `memcached` version range `>=2.2` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-memcached#readme) |
 | `@opentelemetry/instrumentation-mongodb` | `mongodb` version range `>=3.3 <7` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-mongodb#readme) |
+| `@opentelemetry/instrumentation-mongoose` | `mongoose` version range `>=5.9.7 <9` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-mongoose#readme) |
+| `@opentelemetry/instrumentation-mysql` | `mysql` version range `>=2.0.0 <3` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-mysql#readme) |
 | `@opentelemetry/instrumentation-mysql2` | `mysql2` version range `>=1.4.2 <4` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-mysql2#readme) |
 | `@opentelemetry/instrumentation-nestjs-core` | `@nestjs/core` version range `>=4.0.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-nestjs-core#readme) |
 | `@opentelemetry/instrumentation-net` | `net` module for Node.js `>=14` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-net#readme) |
@@ -62,6 +66,19 @@ requires:
 | `@opentelemetry/instrumentation-tedious` | `tedious` version range `>=1.11.0 <=15` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-tedious#readme) |
 | `@opentelemetry/instrumentation-undici` | `undici` version range `>=5.12.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici#readme) |
 | `@opentelemetry/instrumentation-winston` | `winston` version range `>1 <4` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme) |
+
+## Native Instrumentations
+
+"Native" instrumentation refers to OpenTelemetry instrumentation that is built into a library. When a library includes native OTel instrumentation, it will provide telemetry data to providers registered by a running OTel SDK. Native instrumentations of note are listed in the table below. To benefit from these instrumentations you only need to (a) use the library and (b) start the EDOT Node.js SDK:
+
+```bash
+node --import @elastic/opentelemetry-node my-app.js
+```
+
+| Packages instrumented | Reference |
+|---|---|
+| `@elastic/elasticsearch` version range `>=8.15.0` | [Elasticsearch JavaScript Client docs](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/observability.html) |
+
 
 ## ECMAScript Modules (ESM)
 

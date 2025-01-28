@@ -44,15 +44,37 @@ jobs:
     runs-on: ubuntu-24.04
 
     services:
-      redis:
-        image: redis:7
+      cassandra:
+        image: cassandra:3
+        env:
+          MAX_HEAP_SIZE: "1G"
+          HEAP_NEWSIZE: 400m
         ports:
-          - 6379:6379
+          - "9042:9042"
+
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
+        env:
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+          network.host: '_site_'
+          transport.host: '127.0.0.1'
+          http.host: '0.0.0.0'
+          xpack.security.enabled: 'false'
+        ports:
+          - 9200:9200
 
       mongodb:
         image: mongo:7
         ports:
           - 27017:27017
+
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: 'Y'
+          MSSQL_SA_PASSWORD: 'Very(!)Secure'
+        ports:
+          - "1433:1433"
 
       mysql:
         image: mysql:5.7
@@ -76,13 +98,11 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: 'trust'
           POSTGRES_USER: 'postgres'
 
-      mssql:
-        image: mcr.microsoft.com/mssql/server:2022-latest
-        env:
-          ACCEPT_EULA: 'Y'
-          MSSQL_SA_PASSWORD: 'Very(!)Secure'
+      redis:
+        image: redis:7
         ports:
-          - "1433:1433"
+          - 6379:6379
+
 
     steps:
     - uses: actions/checkout@v4

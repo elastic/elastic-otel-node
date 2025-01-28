@@ -10,12 +10,12 @@
     "compile-all": "./scripts/oneach.sh npm run --if-present compile",
     "clean": "rm -rf node_modules build",
     "oneach": "./scripts/oneach.sh",
-    "lint": "npm run lint:eslint && ls -d packages/* | while read d; do (cd $d; npm run lint); done",
+    "lint": "npm run lint:eslint && (set -e; ls -d packages/* | while read d; do (cd $d; npm run lint); done)",
     "lint:eslint": "eslint --ext=js,mjs,cjs scripts examples # requires node >=16.0.0",
     "lint:fix": "eslint --ext=js,mjs,cjs .eslintrc.js scripts examples --fix && ls -d packages/* | while read d; do (cd $d; npm run lint:fix); done"
   },
   "devDependencies": {
-    "@types/node": "^22.10.5",
+    "@types/node": "^22.10.10",
     "dependency-check": "^4.1.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
