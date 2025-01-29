@@ -37,11 +37,7 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
-            // ref: https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner
-            KAFKAJS_NO_PARTITIONER_WARNING: '1',
-            // test specific vars
-            KAFKA_HOST: 'localhost',
-            KAFKAJS_TOPIC: 'edot-test-topic',
+            TEST_KAFKAJS_TOPIC: 'edot-test-topic',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
