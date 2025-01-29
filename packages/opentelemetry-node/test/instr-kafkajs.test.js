@@ -50,7 +50,6 @@ const testFixtures = [
             //        span 199d7e "manual-parent-span" (3.4ms, SPAN_KIND_INTERNAL)
             //   -3ms `- span 2da778 "edot-test-topic" (19.6ms, SPAN_KIND_PRODUCER)
             //   +1ms `- span 6d088b "edot-test-topic" (19.4ms, SPAN_KIND_PRODUCER)
-            // TODO
             const spans = filterOutDnsNetSpans(col.sortedSpans.slice(1));
             t.equal(spans.length, 2);
 

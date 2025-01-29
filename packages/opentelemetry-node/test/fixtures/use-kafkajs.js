@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r @elastic/opentelemetry-node use-kafkajs.js
+// Usage: node --env-file ../test-services.env -r @elastic/opentelemetry-node use-kafkajs.js
 
 const otel = require('@opentelemetry/api');
 const {Kafka} = require('kafkajs');
