@@ -27,7 +27,8 @@ const port = process.env.KAFKA_PORT || '9092';
 const broker = `${host}:${port}`;
 const clientId = process.env.TEST_KAFKAJS_CLIENT_ID || 'test-kafkajs-client';
 const topic =
-    process.env.TEST_KAFKAJS_TOPIC || `test-${Math.floor(Math.random() * 1000)}`;
+    process.env.TEST_KAFKAJS_TOPIC ||
+    `test-${Math.floor(Math.random() * 1000)}`;
 
 async function main() {
     const kafkaClient = new Kafka({clientId, brokers: [broker]});
