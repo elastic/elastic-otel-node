@@ -84,7 +84,7 @@
     "@typescript-eslint/eslint-plugin": "5.8.1",
     "@typescript-eslint/parser": "5.8.1",
     "dotenv": "^16.4.5",
-    "nock": "^13.5.5",
+    "nock": "^14.0.0",
     "openai": "^4.57.0",
     "tape": "^5.8.1",
     "test-all-versions": "^6.1.0",
