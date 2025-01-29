@@ -34,7 +34,7 @@ tracer.startActiveSpan('manual-parent-span', async (span) => {
     span.end();
 });
 
-// hrlper functions
+// helper functions
 function setup() {
     const Todo = new graphql.GraphQLObjectType({
         name: 'Todo',
