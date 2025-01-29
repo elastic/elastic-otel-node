@@ -99,8 +99,7 @@ api.openai.com, so you must have valid OpenAI auth set in your environment.
 cp openai.env.example openai.env
 vi openai.env           # Add your OpenAI credentials.
 
-set -a; source openai.env
-npm run test:regenerate-recordings
+(set -a; source openai.env; npm run test:regenerate-recordings)
 ```
 
 ## Filtering which fixture tests are run

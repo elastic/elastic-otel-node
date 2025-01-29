@@ -645,11 +645,11 @@ async function runFnWithNockBack(fn, recordingName, nockBackMode) {
   // and that we don't need for testing.
   const sanitizeRecordedNockScopes = scopes => {
     for (const scope of scopes) {
-      for (let i = 0; i < scope.rawHeaders.length; i += 2) {
-        if (scope.rawHeaders[i].toLowerCase() === 'set-cookie') {
-          scope.rawHeaders.splice(i, 2);
+      Object.keys(scope.rawHeaders).forEach(k => {
+        if (k.toLowerCase() === 'set-cookie') {
+          delete scope.rawHeaders[k];
         }
-      }
+      });
     }
     return scopes;
   };
