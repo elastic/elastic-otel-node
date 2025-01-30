@@ -100,7 +100,9 @@ function renderSpan(span, prefix = '') {
             unit = 'd';
         }
         gutter = `${sign}${Math.floor(startOffset)}`;
-        gutter = `${' '.repeat(4 - gutter.length)}${gutter}${unit}`;
+        gutter = `${' '.repeat(4 - gutter.length)}${gutter}${unit}${' '.repeat(
+            2 - unit.length
+        )}`;
     } else {
         gutter = ' '.repeat(6);
     }

@@ -1,5 +1,10 @@
 # @elastic/mockotlpserver Changelog
 
+## unreleased
+
+- Fix an alignment issue in the "gutter" of the trace-summary (waterfall) output
+  when 1-char units are used (i.e. any time unit above "ms").
+
 ## v0.6.2
 
 - Fix Docker publishing (permissions, context dir).
