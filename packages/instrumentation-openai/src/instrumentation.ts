@@ -26,6 +26,7 @@ import {
   InstrumentationBase,
   InstrumentationNodeModuleDefinition,
 } from '@opentelemetry/instrumentation';
+import type { InstrumentationModuleDefinition } from '@opentelemetry/instrumentation';
 import { SeverityNumber } from '@opentelemetry/api-logs';
 
 import {
@@ -98,10 +99,10 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
   }
 
   protected init() {
-    return [
+    const defn: InstrumentationModuleDefinition =
       new InstrumentationNodeModuleDefinition(
         'openai',
-        ['>=4.19.0 <5'],
+        ['>=4.19.0 <6'],
         (modExports, modVer) => {
           debug(
             'instrument openai@%s (isESM=%s), config=%o',
@@ -122,8 +123,10 @@ export class OpenAIInstrumentation extends InstrumentationBase<OpenAIInstrumenta
 
           return modExports;
         }
-      ),
-    ];
+      );
+    // Allow instrumentation to work on prereleases, e.g. 5.0.0-alpha.0.
+    defn.includePrerelease = true;
+    return [defn];
   }
 
   // This is a 'protected' method on class `InstrumentationAbstract`.

@@ -30,6 +30,9 @@ const {
 const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-proto');
 const { BatchLogRecordProcessor } = require('@opentelemetry/sdk-logs');
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
+const {
+  UndiciInstrumentation,
+} = require('@opentelemetry/instrumentation-undici');
 const { OpenAIInstrumentation } = require('../../'); // @elastic/opentelemetry-instrumentation-openai
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
 
@@ -50,7 +53,11 @@ const sdk = new NodeSDK({
   traceExporter: new OTLPTraceExporter(),
   logRecordProcessor,
   metricReader,
-  instrumentations: [new HttpInstrumentation(), new OpenAIInstrumentation()],
+  instrumentations: [
+    new HttpInstrumentation(),
+    new UndiciInstrumentation(), // openai@5 uses Node.js native fetch(), which is instrumented by instr-undici
+    new OpenAIInstrumentation(),
+  ],
 });
 
 process.on('SIGTERM', async () => {
