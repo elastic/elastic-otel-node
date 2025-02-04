@@ -114,14 +114,20 @@ async function testModelIsPulled() {
                 // be: `{"status":"success"}`.  Otherwise, typically the last
                 // line indicates the error.
                 const chunks = [];
-                res.on('data', (chunk) => { chunks.push(chunk); });
+                res.on('data', (chunk) => {
+                    chunks.push(chunk);
+                });
                 res.on('end', () => {
                     const body = Buffer.concat(chunks).toString('utf8');
                     const lastLine = body.trim().split(/\n/g).slice(-1)[0];
                     if (lastLine === '{"status":"success"}') {
                         resolve();
                     } else {
-                        reject(new Error(`could not pull "${process.env.TEST_GENAI_MODEL}" model: lastLine=${lastLine}`));
+                        reject(
+                            new Error(
+                                `could not pull "${process.env.TEST_GENAI_MODEL}" model: lastLine=${lastLine}`
+                            )
+                        );
                     }
                 });
             }
@@ -140,7 +146,7 @@ test(basename(__filename), {skip}, async (t) => {
         await testModelIsPulled();
         isPulled = true;
         const deltaS = Math.round((new Date() - startTime) / 1000);
-        t.comment(`successfully pulled model (${deltaS}s)`)
+        t.comment(`successfully pulled model (${deltaS}s)`);
     } catch (pullErr) {
         t.error(pullErr);
     }
