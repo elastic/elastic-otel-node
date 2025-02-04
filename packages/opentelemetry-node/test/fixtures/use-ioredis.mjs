@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r @elastic/opentelemetry-node use-ioredis.mjs
+// Usage: node --import @elastic/opentelemetry-node use-ioredis.mjs
 
 import {trace} from '@opentelemetry/api';
 

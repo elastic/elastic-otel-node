@@ -65,14 +65,14 @@ const testFixtures = [
     },
     // ESM redis sanity test
     {
-        name: 'use-redis.mjs (ESM via --require)',
+        name: 'use-redis.mjs (ESM)',
         versionRanges: {
             node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
         },
         args: ['./fixtures/use-redis.mjs'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
         },
         verbose: true,
         checkTelemetry: (t, col) => {

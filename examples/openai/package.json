@@ -8,7 +8,8 @@
   },
   "scripts": {
     "chat": "node --env-file .env --require @elastic/opentelemetry-node chat.js",
-    "embeddings": "node --env-file .env --require @elastic/opentelemetry-node embeddings.js"
+    "embeddings": "node --env-file .env --require @elastic/opentelemetry-node embeddings.js",
+    "chat:esm": "node --env-file .env --import @elastic/opentelemetry-node chat.mjs"
   },
   "dependencies": {
     "@elastic/opentelemetry-node": "*",

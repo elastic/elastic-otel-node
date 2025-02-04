@@ -17,53 +17,17 @@
  * under the License.
  */
 
-// Register ESM hook and start the SDK.
+// Start the SDK for CommonJS usage.
 // This is called for `--require @elastic/opentelemetry-node`.
+//
+// Note: This does *not* register an import hook for ESM instrumentation. Use
+// `--import @elastic/opentelemetry-node` for that.
 
-const register = require('module').register;
-const {pathToFileURL} = require('url');
 const {isMainThread} = require('worker_threads');
 
-const {log} = require('./lib/logging');
-
-/**
- * Return true iff it looks like the `@elastic/opentelemetry-node/hook.mjs`
- * was loaded via node's `--experimental-loader` option.
- *
- * Dev Note: keep this in sync with "import.mjs".
- */
-function haveHookFromExperimentalLoader() {
-    const USED_LOADER_OPT =
-        /--(experimental-)?loader(\s+|=)@elastic\/opentelemetry-node\/hook.mjs/;
-    for (let i = 0; i < process.execArgv.length; i++) {
-        const arg = process.execArgv[i];
-        const nextArg = process.execArgv[i + 1];
-        if (
-            (arg === '--loader' || arg === '--experimental-loader') &&
-            nextArg === '@elastic/opentelemetry-node/hook.mjs'
-        ) {
-            log.trace('bootstrap-require: --loader hook args used');
-            return true;
-        } else if (USED_LOADER_OPT.test(arg)) {
-            log.trace('bootstrap-require: --loader hook arg used');
-            return true;
-        }
-    }
-    if (
-        process.env.NODE_OPTIONS &&
-        USED_LOADER_OPT.test(process.env.NODE_OPTIONS)
-    ) {
-        log.trace('bootstrap-require: --loader arg used in NODE_OPTIONS');
-        return true;
-    }
-    return false;
-}
-
 if (isMainThread) {
-    if (typeof register === 'function' && !haveHookFromExperimentalLoader()) {
-        log.trace('bootstrap-require: registering module hook');
-        register('./hook.mjs', pathToFileURL(__filename).toString());
-    }
-
     require('./lib/start.js');
+} else {
+    const {log} = require('./lib/logging');
+    log.trace('require.mjs: skipping EDOT Node.js bootstrap on non-main thread');
 }
