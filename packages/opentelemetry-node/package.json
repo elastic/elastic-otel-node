@@ -138,6 +138,7 @@
     "@grpc/proto-loader": "^0.7.13",
     "@hapi/hapi": "^21.3.10",
     "@types/tape": "^5.6.4",
+    "amqplib": "^0.10.5",
     "bunyan": "^1.8.15",
     "cassandra-driver": "^4.7.2",
     "dotenv": "^16.4.5",

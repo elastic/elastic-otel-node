@@ -16,7 +16,6 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.0",
-    "amqplib": "^0.10.5",
     "dependency-check": "^4.1.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
