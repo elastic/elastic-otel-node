@@ -28,31 +28,30 @@ const pass = process.env.RABBITMQ_PASS || 'password';
 const rabbitMqUrl = `amqp://${user}:${pass}@${host}:${port}`;
 
 async function main() {
-  const queueName = 'edot-test';
-  const message = 'test message';
-  const conn = await amqplib.connect(rabbitMqUrl);
-  const channel = await conn.createChannel();
+    const queueName = 'edot-test';
+    const message = 'test message';
+    const conn = await amqplib.connect(rabbitMqUrl);
+    const channel = await conn.createChannel();
 
-  await channel.assertQueue(queueName, { durable: false });
-  await channel.purgeQueue(queueName);
+    await channel.assertQueue(queueName, {durable: false});
+    await channel.purgeQueue(queueName);
 
-  console.log('sending message %s to queue %s', message, queueName);
-  channel.sendToQueue(queueName,Buffer.from(message));
+    console.log('sending message %s to queue %s', message, queueName);
+    channel.sendToQueue(queueName, Buffer.from(message));
 
-  console.log('awaiting message from queue %s', queueName);
-  await new Promise(resolve => {
-    channel.consume(queueName, (msg) => {
-      console.log('message from queue %s received: %o', queueName, msg);
-      resolve();
+    console.log('awaiting message from queue %s', queueName);
+    await new Promise((resolve) => {
+        channel.consume(queueName, (msg) => {
+            console.log('message from queue %s received: %o', queueName, msg);
+            resolve();
+        });
     });
-    
-  });
 
-  await new Promise(resolve => {
-    channel.on('close', resolve);
-    channel.close();
-  });
-  await conn.close();
+    await new Promise((resolve) => {
+        channel.on('close', resolve);
+        channel.close();
+    });
+    await conn.close();
 }
 
 main();
