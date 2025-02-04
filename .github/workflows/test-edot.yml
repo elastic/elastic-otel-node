@@ -101,7 +101,7 @@ jobs:
       ollama:
         # A light fork of Ollama to float some in-progress contributions related
         # to more closely matching OpenAI behavior.
-        image: ghcr.io/elastic/ollama/ollama:testing
+        image: ollama/ollama:0.5.7
         ports:
           - 11434:11434
 
