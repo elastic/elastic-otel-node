@@ -92,5 +92,5 @@ See the [ECMAScript module support](./esm.md) document for details.
 
 Limitations:
 
-* ESM instrumentation is only support for Node.js versions `>=20.6.0 || >=18.19.0`. These are the versions that include `module.register()` support. Using the older `node --experimental-loader=...` option is not supported.
+* ESM instrumentation is only support for Node.js versions `^18.19.0 || >=20.6.0`. These are the versions that include `module.register()` support. Using the older `node --experimental-loader=...` option is not supported.
 * Currently only a subset of instrumentations support ESM: `express`, `ioredis`, `koa`, `pg`, `pino`. See [this OpenTelemetry JS tracking issue](https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1942) for progress.
