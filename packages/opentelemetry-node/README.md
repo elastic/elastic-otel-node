@@ -31,7 +31,7 @@ npm install --save @elastic/opentelemetry-node
 ## Run
 
 ```sh
-node -r @elastic/opentelemetry-node my-service.js
+node --import @elastic/opentelemetry-node my-service.js
 ```
 
 ## Read the docs

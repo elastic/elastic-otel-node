@@ -2,12 +2,39 @@
 
 ## Unreleased
 
+- BREAKING CHANGE: Bump min-supported node to `^18.19.0 || >=20.6.0`.
+  This raises the minimum-supported Node.js to the same as coming releases of OpenTelemetry JS.
+  This base version range ensures that `module.register()` is available for improved ES module
+  (ESM) auto-instrumentation.
+  This drops support for Node.js 14 and 16.
+
+- feat: Improve ES module (ESM) instrumentation.
+
+  As part of this change, using `--require @elastic/opentelemetry-node` will
+  *no longer* setup a module hook for instrumenting ES modules; only using
+  `--import @elastic/opentelemetry-node` will do so. **The recommendation now
+  is to use `--import @elastic/opentelemetry-node` to start EDOT Node.js.**
+  Using `--require ...` is still fine when you know your application is only
+  using CommonJS modules.
+
+  Implementation details: The underlying module hook mechanism for ESM has been
+  changed to only hook modules that will potentially be patched by configured
+  instrumentations.  This allows some instrumentations to work that could not
+  before due to some ESM files not being hookable (at least via the imperfect
+  mechanism for hooking ES modules). One such example is
+  `@elastic/instrumentation-openai`.  See
+  <https://github.com/nodejs/import-in-the-middle/pull/146> for internal
+  details.
+
 - feat: Add `@opentelemetry/instrumentation-mysql` to the default set
   of instrumentations. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-mysql#readme>
+
 - feat: Add `@opentelemetry/instrumentation-mysql2` to the default set
   of instrumentations. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-mysql2#readme>
+
 - feat: Add `@opentelemetry/instrumentation-cassandra-driver` to the default set
   of instrumentations. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-cassandra#readme>
+
 - test: Test that the native instrumentation in `@elastic/elasticsearch@8.15.0` and later works.
 
 

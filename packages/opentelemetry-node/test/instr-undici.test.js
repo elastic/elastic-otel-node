@@ -91,6 +91,9 @@ const testFixtures = [
         args: ['./fixtures/use-fetch.mjs'],
         cwd: __dirname,
         env: {
+            // Typically '--import' usage is required for ESM instrumention.
+            // However undici instrumentation uses diagnostics_channel, so it
+            // is an exception.
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         // verbose: true,
