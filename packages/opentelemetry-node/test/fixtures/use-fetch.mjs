@@ -17,7 +17,7 @@
  * under the License.
  */
 
-// Usage: node -r @elastic/opentelemetry-node use-fetch.mjs
+// Usage: node --import @elastic/opentelemetry-node use-fetch.mjs
 
 const res = await fetch('http://www.google.com/');
 console.log(

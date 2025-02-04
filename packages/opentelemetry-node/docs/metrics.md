@@ -21,7 +21,7 @@ variable `ELASTIC_OTEL_METRICS_DISABLED` to the string `true`.
 export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer ${ELASTIC_APM_SECRET_TOKEN}"
 export ELASTIC_OTEL_METRICS_DISABLED=true
-node -r @elastic/opentelemetry-node/start.js my-app.js
+node --import @elastic/opentelemetry-node/start.js my-app.js
 ```
 
 ## Advanced configuration

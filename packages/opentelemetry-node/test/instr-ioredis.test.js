@@ -64,19 +64,18 @@ const testFixtures = [
         },
     },
 
-    // This duplicates the "ESM via --require" test case in esm-usage.test.js,
+    // This duplicates the test case in esm-usage.test.js,
     // but it is useful to have the ESM ioredis sanity test here as well when
     // working on instr-ioredis.
     {
-        name: 'use-ioredis.mjs (ESM via --require)',
+        name: 'use-ioredis.mjs (ESM)',
         versionRanges: {
-            // TODO: issue on node docs that https://nodejs.org/api/all.html#all_module_moduleregisterspecifier-parenturl-options history doesn't show backport to v18.19.0
             node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
         },
         verbose: true,
         checkTelemetry: assertUseIoredisMjsSpans,

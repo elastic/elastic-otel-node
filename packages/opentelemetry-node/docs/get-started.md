@@ -92,11 +92,11 @@ for example, before `express` or `http` are loaded.
 
 <!-- ✅ Step-by-step instructions -->
 The recommended way to get the
-distro started is by using the `-r, --require` Node.js
-[CLI option](https://nodejs.org/api/cli.html#-r---require-module):
+distro started is by using the `--import` Node.js
+[CLI option](https://nodejs.org/api/cli.html#--importmodule):
 
 ```sh
-node --require @elastic/opentelemetry-node my-service.js
+node --import @elastic/opentelemetry-node my-service.js
 ```
 
 EDOT Node.js will automatically instrument popular modules (listed in [Supported technologies](./supported-technologies.md))
