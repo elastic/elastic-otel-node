@@ -93,7 +93,7 @@ const testFixtures = [
         env: {
             // Typically '--import' usage is required for ESM instrumention.
             // However undici instrumentation uses diagnostics_channel, so it
-            // an exception.
+            // is an exception.
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         // verbose: true,
