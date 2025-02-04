@@ -52,10 +52,9 @@ const testFixtures = [
             t.equal(spans[1].name, 'set');
             t.equal(spans[1].attributes['db.system'], 'redis');
             t.equal(spans[2].name, 'get');
-        }
+        },
     },
 ];
-
 
 test('ESM usage', {skip}, (suite) => {
     runTestFixtures(suite, testFixtures);

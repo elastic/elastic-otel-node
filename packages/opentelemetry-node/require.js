@@ -29,5 +29,7 @@ if (isMainThread) {
     require('./lib/start.js');
 } else {
     const {log} = require('./lib/logging');
-    log.trace('require.mjs: skipping EDOT Node.js bootstrap on non-main thread');
+    log.trace(
+        'require.mjs: skipping EDOT Node.js bootstrap on non-main thread'
+    );
 }
