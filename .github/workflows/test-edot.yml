@@ -113,6 +113,14 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: 'trust'
           POSTGRES_USER: 'postgres'
 
+      rabbitmq:
+        image: rabbitmq:3
+        env:
+          RABBITMQ_DEFAULT_USER: "username"
+          RABBITMQ_DEFAULT_PASS: "password"
+        ports:
+          - "22221:5672"
+
       redis:
         image: redis:7
         ports:

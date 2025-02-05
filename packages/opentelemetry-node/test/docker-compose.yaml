@@ -136,6 +136,14 @@ services:
       timeout: 10s
       retries: 30
 
+  rabbitmq:
+    image: rabbitmq:3
+    environment:
+      RABBITMQ_DEFAULT_USER: "username"
+      RABBITMQ_DEFAULT_PASS: "password"
+    ports:
+      - "22221:5672"
+
   redis:
     image: redis:7
     ports:
