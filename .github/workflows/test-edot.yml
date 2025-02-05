@@ -99,12 +99,14 @@ jobs:
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
 
-      ollama:
-        # A light fork of Ollama to float some in-progress contributions related
-        # to more closely matching OpenAI behavior.
-        image: ghcr.io/elastic/ollama/ollama:testing
-        ports:
-          - 11434:11434
+      # Disabled until https://github.com/ollama/ollama/issues/8400 is resolved.
+      # ollama:
+      #   # A light fork of Ollama to float some in-progress contributions related
+      #   # to more closely matching OpenAI behavior.
+      #   image: ghcr.io/elastic/ollama/ollama:testing
+      #   # image: ollama/ollama:0.5.7
+      #   ports:
+      #     - 11434:11434
 
       postgres:
         image: postgres:16
@@ -113,6 +115,14 @@ jobs:
         env:
           POSTGRES_HOST_AUTH_METHOD: 'trust'
           POSTGRES_USER: 'postgres'
+
+      rabbitmq:
+        image: rabbitmq:3
+        env:
+          RABBITMQ_DEFAULT_USER: "username"
+          RABBITMQ_DEFAULT_PASS: "password"
+        ports:
+          - "22221:5672"
 
       redis:
         image: redis:7

@@ -18,21 +18,26 @@
  */
 
 const http = require('http');
+const {basename} = require('path');
 const test = require('tape');
-const semver = require('semver');
+// const semver = require('semver');
 const {runTestFixtures, assertDeepMatch} = require('./testutils');
 
-let skip = process.env.TEST_GENAI_MODEL === undefined;
-if (skip) {
-    console.log(
-        '# SKIP elastic openai tests: TEST_GENAI_MODEL is not set (load env from test/test-services.env)'
-    );
-} else {
-    skip = !semver.satisfies(process.version, '>=18');
-    if (skip) {
-        console.log('# SKIP elastic openai requires node >=18');
-    }
-}
+let skip = true;
+console.log(
+    '# SKIP elastic/instr-openai test until https://github.com/ollama/ollama/issues/8400 is resolved'
+);
+// let skip = process.env.TEST_GENAI_MODEL === undefined;
+// if (skip) {
+//     console.log(
+//         '# SKIP elastic openai tests: TEST_GENAI_MODEL is not set (load env from test/test-services.env)'
+//     );
+// } else {
+//     skip = !semver.satisfies(process.version, '>=18');
+//     if (skip) {
+//         console.log('# SKIP elastic openai requires node >=18');
+//     }
+// }
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -99,18 +104,34 @@ async function testModelIsPulled() {
                 method: 'POST',
             },
             (res) => {
-                // This is lazy error handling. We should watch for the response
-                // data ending with `{"status":"success"}`.
-                res.resume();
+                if (res.statusCode !== 200) {
+                    reject(
+                        new Error(
+                            `unexpected status code from Ollama: ${res.statusCode}`
+                        )
+                    );
+                    res.resume();
+                    return;
+                }
+
+                // If the pull is successful, the last line of the body will
+                // be: `{"status":"success"}`.  Otherwise, typically the last
+                // line indicates the error.
+                const chunks = [];
+                res.on('data', (chunk) => {
+                    chunks.push(chunk);
+                });
                 res.on('end', () => {
-                    if (res.statusCode !== 200) {
+                    const body = Buffer.concat(chunks).toString('utf8');
+                    const lastLine = body.trim().split(/\n/g).slice(-1)[0];
+                    if (lastLine === '{"status":"success"}') {
+                        resolve();
+                    } else {
                         reject(
                             new Error(
-                                `unexpected status code from Ollama: ${res.statusCode}`
+                                `could not pull "${process.env.TEST_GENAI_MODEL}" model: lastLine=${lastLine}`
                             )
                         );
-                    } else {
-                        resolve();
                     }
                 });
             }
@@ -121,10 +142,21 @@ async function testModelIsPulled() {
     });
 }
 
-test('elastic openai instrumentation', {skip}, async (suite) => {
-    suite.comment(`pulling test GenAI model (${process.env.TEST_GENAI_MODEL})`);
-    await testModelIsPulled();
+test(basename(__filename), {skip}, async (t) => {
+    t.comment(`pulling test GenAI model (${process.env.TEST_GENAI_MODEL})`);
+    let isPulled = false;
+    const startTime = new Date();
+    try {
+        await testModelIsPulled();
+        isPulled = true;
+        const deltaS = Math.round((new Date() - startTime) / 1000);
+        t.comment(`successfully pulled model (${deltaS}s)`);
+    } catch (pullErr) {
+        t.error(pullErr);
+    }
 
-    runTestFixtures(suite, testFixtures);
-    suite.end();
+    if (isPulled) {
+        runTestFixtures(t, testFixtures);
+    }
+    t.end();
 });
