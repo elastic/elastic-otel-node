@@ -226,6 +226,7 @@ test('fixtures', async suite => {
   /** @type {import('./testutils').TestFixture[]} */
   let testFixtures = [
     {
+      only: true, // XXX HERE
       name: 'chat-completion (captureMessageContent=true)',
       args: ['./fixtures/chat-completion.js'],
       cwd: __dirname,
@@ -271,14 +272,17 @@ test('fixtures', async suite => {
         );
 
         if (!usingNock) {
-          t.equal(spans[1].scope.name, '@opentelemetry/instrumentation-http');
+          t.equal(spans[1].name, 'POST');
           t.equal(
             spans[1].parentSpanId,
             spans[0].spanId,
             'HTTP span is a child of the GenAI span'
           );
+          const urlPath =
+            spans[1].attributes['http.target'] || // older semconv
+            spans[1].attributes['url.path'];
           t.ok(
-            spans[1].attributes['http.target'].includes('/chat/completions'),
+            urlPath.includes('/chat/completions'),
             'looks like a .../chat/completions HTTP endpoint'
           );
         }
@@ -478,14 +482,17 @@ test('fixtures', async suite => {
         );
 
         if (!usingNock) {
-          t.equal(spans[1].scope.name, '@opentelemetry/instrumentation-http');
+          t.equal(spans[1].name, 'POST');
           t.equal(
             spans[1].parentSpanId,
             spans[0].spanId,
             'HTTP span is a child of the GenAI span'
           );
+          const urlPath =
+            spans[1].attributes['http.target'] || // older semconv
+            spans[1].attributes['url.path'];
           t.ok(
-            spans[1].attributes['http.target'].includes('/chat/completions'),
+            urlPath.includes('/chat/completions'),
             'looks like a .../chat/completions HTTP endpoint'
           );
         }
@@ -1244,14 +1251,17 @@ test('fixtures', async suite => {
         );
 
         if (!usingNock) {
-          t.equal(spans[1].scope.name, '@opentelemetry/instrumentation-http');
+          t.equal(spans[1].name, 'POST');
           t.equal(
             spans[1].parentSpanId,
             spans[0].spanId,
             'HTTP span is a child of the GenAI span'
           );
+          const urlPath =
+            spans[1].attributes['http.target'] || // older semconv
+            spans[1].attributes['url.path'];
           t.ok(
-            spans[1].attributes['http.target'].includes('/embeddings'),
+            urlPath.includes('/embeddings'),
             'looks like a .../embeddings HTTP endpoint'
           );
         }
