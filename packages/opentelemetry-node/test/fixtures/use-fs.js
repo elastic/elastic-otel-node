@@ -19,10 +19,11 @@
 
 // Usage: node -r @elastic/opentelemetry-node use-fs.js
 
+const {join} = require('path');
 const {stat} = require('fs');
 const {trace} = require('@opentelemetry/api');
 
-const path = `${__dirname}/use-fs.js`;
+const path = join(__dirname, 'use-fs.js');
 
 async function main() {
     await new Promise((resolve, reject) => {
