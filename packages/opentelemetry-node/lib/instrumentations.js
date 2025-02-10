@@ -35,6 +35,7 @@
  *  "@opentelemetry/instrumentation-dns": import('@opentelemetry/instrumentation-dns').DnsInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentationConfig | InstrumentationFactory,
+ *  "@opentelemetry/instrumentation-fs": import('@opentelemetry/instrumentation-fs').FsInstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-generic-pool": import('@opentelemetry/instrumentation').InstrumentationConfig | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-graphql": import('@opentelemetry/instrumentation-graphql').GraphQLInstrumentation | InstrumentationFactory,
  *  "@opentelemetry/instrumentation-grpc": import('@opentelemetry/instrumentation-grpc').GrpcInstrumentationConfig | InstrumentationFactory,
@@ -77,6 +78,7 @@ const {CucumberInstrumentation} = require('@opentelemetry/instrumentation-cucumb
 const {DataloaderInstrumentation} = require('@opentelemetry/instrumentation-dataloader');
 const {DnsInstrumentation} = require('@opentelemetry/instrumentation-dns');
 const {ExpressInstrumentation} = require('@opentelemetry/instrumentation-express');
+const {FsInstrumentation} = require('@opentelemetry/instrumentation-fs');
 const {FastifyInstrumentation} = require('@opentelemetry/instrumentation-fastify');
 const {GenericPoolInstrumentation} = require('@opentelemetry/instrumentation-generic-pool');
 const {GraphQLInstrumentation} = require('@opentelemetry/instrumentation-graphql');
@@ -130,6 +132,7 @@ const INSTRUMENTATIONS = {
     '@opentelemetry/instrumentation-dns': (cfg) => new DnsInstrumentation(cfg),
     '@opentelemetry/instrumentation-express': (cfg) => new ExpressInstrumentation(cfg),
     '@opentelemetry/instrumentation-fastify': (cfg) => new FastifyInstrumentation(cfg),
+    '@opentelemetry/instrumentation-fs': (cfg) => new FsInstrumentation(cfg),
     '@opentelemetry/instrumentation-generic-pool': (cfg) => new GenericPoolInstrumentation(cfg),
     '@opentelemetry/instrumentation-graphql': (cfg) => new GraphQLInstrumentation(cfg),
     '@opentelemetry/instrumentation-grpc': (cfg) => new GrpcInstrumentation(cfg),
@@ -272,19 +275,24 @@ function getInstrumentations(opts = {}) {
         const isFactory = typeof opts[name] === 'function';
         const isObject = typeof opts[name] === 'object';
         const instrFactory = isFactory ? opts[name] : INSTRUMENTATIONS[name];
-        const instrConfig = isObject ? opts[name] : undefined;
+        let instrConfig = isObject ? opts[name] : undefined;
 
         // We should instantiate a instrumentation:
         // - if set via OTEL_NODE_ENABLED_INSTRUMENTATIONS
         //      - overriding any config that might be passed
         //      NOTE: factories are not overwritten
         // - otherwise
-        //      - of there is no config passed (elastic SDK will use its defaults)
+        //      - if there is no config passed (elastic SDK will use its defaults)
         //      - if the configuration passed is not disabling it
         let instr;
 
-        if (instrConfig && enabledFromEnv) {
-            instrConfig.enabled = true;
+        if (enabledFromEnv) {
+            instrConfig = { ...instrConfig, enabled: true };
+        } else if (name === '@opentelemetry/instrumentation-fs') {
+            // if `fs` not present in envvar instrumentation is disabled 
+            // unless an explicit config says the opposite
+            // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467
+            instrConfig = { enabled: false, ...instrConfig };
         }
 
         if (!instrConfig || instrConfig.enabled !== false) {
