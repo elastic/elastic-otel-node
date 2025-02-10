@@ -65,8 +65,6 @@ const testFixtures = [
             // ------ trace 292114 (2 spans) ------
             //        span c66b96 "manual-span" (6.6ms, SPAN_KIND_INTERNAL)
             //   +1ms `- span 5b7d1c "fs stat" (6.3ms, SPAN_KIND_INTERNAL)
-            // ------ trace 96054a (1 span) ------
-            //        span 9dda4d "manual-span" (9.3ms, SPAN_KIND_INTERNAL)
             const spans = col.sortedSpans;
             t.equal(spans.length, 18);
 
