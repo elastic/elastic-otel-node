@@ -32,8 +32,8 @@ async function main() {
             } else {
                 resolve(st);
             }
-        })
-    })
+        });
+    });
 }
 
 const tracer = trace.getTracer('test');

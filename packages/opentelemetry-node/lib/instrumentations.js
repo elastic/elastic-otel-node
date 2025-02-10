@@ -287,12 +287,12 @@ function getInstrumentations(opts = {}) {
         let instr;
 
         if (enabledFromEnv) {
-            instrConfig = { ...instrConfig, enabled: true };
+            instrConfig = {...instrConfig, enabled: true};
         } else if (name === '@opentelemetry/instrumentation-fs') {
-            // if `fs` not present in envvar instrumentation is disabled 
+            // if `fs` not present in envvar instrumentation is disabled
             // unless an explicit config says the opposite
             // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467
-            instrConfig = { enabled: false, ...instrConfig };
+            instrConfig = {enabled: false, ...instrConfig};
         }
 
         if (!instrConfig || instrConfig.enabled !== false) {

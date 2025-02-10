@@ -70,7 +70,12 @@ const testFixtures = [
             const spans = col.sortedSpans;
             t.equal(spans.length, 18);
 
-            t.strictEqual(spans.filter((s) => s.scope.name === '@opentelemetry/instrumentation-fs').length, 17);
+            t.strictEqual(
+                spans.filter(
+                    (s) => s.scope.name === '@opentelemetry/instrumentation-fs'
+                ).length,
+                17
+            );
             t.ok(spans.every((s) => s.kind === 'SPAN_KIND_INTERNAL'));
         },
     },
