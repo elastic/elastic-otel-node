@@ -1,6 +1,6 @@
 # @elastic/mockotlpserver Changelog
 
-## unreleased
+## v0.6.3
 
 - Fix an alignment issue in the "gutter" of the trace-summary (waterfall) output
   when 1-char units are used (i.e. any time unit above "ms").
