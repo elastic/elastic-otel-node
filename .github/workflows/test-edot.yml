@@ -99,15 +99,12 @@ jobs:
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
 
-      #XXX
-      # Disabled until https://github.com/ollama/ollama/issues/8400 is resolved and released in Ollama 0.5.8.
       ollama:
         # A light fork of Ollama to float some in-progress contributions related
         # to more closely matching OpenAI behavior.
+        # TODO: go back to this image when updated to 0.5.8 base?
         # image: ghcr.io/elastic/ollama/ollama:testing
-        #XXX Don't merge this until there is a non-rc 0.5.8. Also perhaps
-        #    want to get downstream ghcr.io/elastic/ollama/ollama:testing updated with this.
-        image: ollama/ollama:0.5.8-rc8
+        image: ollama/ollama:0.5.8
         ports:
           - 11434:11434
 
