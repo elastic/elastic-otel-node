@@ -1,6 +1,6 @@
 # @elastic/opentelemetry-node Changelog
 
-## Unreleased
+## v0.7.0
 
 - BREAKING CHANGE: Bump min-supported node to `^18.19.0 || >=20.6.0`.
   This raises the minimum-supported Node.js to the same as coming releases of OpenTelemetry JS.
