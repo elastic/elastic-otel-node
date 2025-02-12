@@ -7,8 +7,10 @@
   This base version range ensures that `module.register()` is available for improved ES module
   (ESM) auto-instrumentation.
   This drops support for Node.js 14 and 16.
+  (https://github.com/elastic/elastic-otel-node/pull/584)
 
 - feat: Improve ES module (ESM) instrumentation.
+  (https://github.com/elastic/elastic-otel-node/pull/584)
 
   As part of this change, using `--require @elastic/opentelemetry-node` will
   *no longer* setup a module hook for instrumenting ES modules; only using
