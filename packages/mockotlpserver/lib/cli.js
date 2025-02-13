@@ -118,6 +118,11 @@ const OPTIONS = [
         type: 'bool',
         help: 'Start a web server to inspect traces with some charts.',
     },
+    {
+        names: ['httpProxy'],
+        type: 'string',
+        help: `Set this option to a URL to proxy all HTTP request to another server. This won't stop the processing of OTLP data.`,
+    },
 ];
 
 async function main() {
@@ -165,6 +170,7 @@ async function main() {
         services,
         grpcHostname: opts.hostname || DEFAULT_HOSTNAME,
         httpHostname: opts.hostname || DEFAULT_HOSTNAME,
+        httpProxy: opts.httpProxy,
         uiHostname: opts.hostname || DEFAULT_HOSTNAME,
     });
     await otlpServer.start();

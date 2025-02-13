@@ -69,6 +69,7 @@ class MockOtlpServer {
      *      and 'ui'. If not provided, then defaults to starting all services.
      * @param {string} [opts.httpHostname] Default 'localhost'.
      * @param {number} [opts.httpPort] Default 4318. Use 0 to select a free port.
+     * @param {string} [opts.httpProxy] Default undefined.
      * @param {string} [opts.grpcHostname] Default 'localhost'.
      * @param {number} [opts.grpcPort] Default 4317. Use 0 to select a free port.
      * @param {string} [opts.uiHostname] Default 'localhost'.
@@ -86,6 +87,7 @@ class MockOtlpServer {
         this._services = opts.services ?? ['http', 'grpc', 'ui'];
         this._httpHostname = opts.httpHostname ?? DEFAULT_HOSTNAME;
         this._httpPort = opts.httpPort ?? DEFAULT_HTTP_PORT;
+        this._httpProxy = opts.httpProxy;
         this._grpcHostname = opts.grpcHostname ?? DEFAULT_HOSTNAME;
         this._grpcPort = opts.grpcPort ?? DEFAULT_GRPC_PORT;
         this._uiHostname = opts.uiHostname ?? DEFAULT_HOSTNAME;
@@ -118,6 +120,7 @@ class MockOtlpServer {
                         log: this._log,
                         hostname: this._httpHostname,
                         port: this._httpPort,
+                        proxy: this._httpProxy,
                     });
                     await this._httpService.start();
                     this.httpUrl = this._httpService.url;
