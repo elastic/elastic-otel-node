@@ -27,6 +27,7 @@ const {
 } = require('./diagch');
 const {getProtoRoot} = require('./proto');
 const {Service} = require('./service');
+const {proxyHttp} = require('./proxy');
 
 const protoRoot = getProtoRoot();
 
@@ -125,6 +126,7 @@ class HttpService extends Service {
      * @param {import('./luggite').Logger} opts.log
      * @param {string} opts.hostname
      * @param {number} opts.port
+     * @param {string} [opts.proxy]
      */
     constructor(opts) {
         super();
@@ -133,7 +135,7 @@ class HttpService extends Service {
     }
 
     async start() {
-        const {log, hostname, port} = this._opts;
+        const {log, hostname, port, proxy} = this._opts;
         this._server = http.createServer((req, res) => {
             const contentType = req.headers['content-type'];
             if (!parsersMap[contentType]) {
@@ -141,6 +143,11 @@ class HttpService extends Service {
                     res,
                     `unexpected request Content-Type: "${contentType}"`
                 );
+            }
+
+            // Do a proxy request if configured. This won't stop its processing
+            if (proxy) {
+                proxyHttp(log, proxy, req);
             }
 
             const chunks = [];

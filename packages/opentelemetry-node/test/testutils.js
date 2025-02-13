@@ -596,6 +596,7 @@ function runTestFixtures(suite, testFixtures) {
                     services: ['http'],
                     httpHostname: '127.0.0.1', // avoid default 'localhost' because possible IPv6
                     httpPort: 0,
+                    // TODO: add proxy here (with auth headers)
                     onTrace: collector.onTrace.bind(collector),
                     onMetrics: collector.onMetrics.bind(collector),
                     onLogs: collector.onLogs.bind(collector),
