@@ -70,6 +70,24 @@ requires:
 | `@opentelemetry/instrumentation-undici` | `undici` version range `>=5.12.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici#readme) |
 | `@opentelemetry/instrumentation-winston` | `winston` version range `>1 <4` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme) |
 
+### Disabled instrumentations
+
+This Distro takes the upstream package `@opentelemetry/auto-instrumentations-node` as a baseline for technology support. This means additions or removals in its instrumentation list will be revised and usually applied here. As for now the list includes a couple of instrumentations that are disabled by default:
+
+- `@opentelemetry/instrumentation-fs`: Disabled in [opentelemetry-js-contrib/pull/2467](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467).
+- `@opentelemetry/instrumentation-fastify`: Disabled in [opentelemetry-js-contrib/pull/2652](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2652).
+
+If you want to enable these instrumentations you should make use of the environment var `OTEL_NODE_ENABLED_INSTRUMENTATIONS` defined
+in [zero-code instrumentation docs](https://opentelemetry.io/docs/zero-code/js/configuration/). Make sure you put all the instrumentations
+you need for your service since only the ones in that list will be enabled.
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.es.io
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer P....l"
+export OTEL_NODE_ENABLED_INSTRUMENTATIONS="fs,http,fastify" # only the ones in the list would be enabled
+node --import @elastic/opentelemetry-node my-service.js
+```
+
 ## Native Instrumentations
 
 "Native" instrumentation refers to OpenTelemetry instrumentation that is built into a library. When a library includes native OTel instrumentation, it will provide telemetry data to providers registered by a running OTel SDK. Native instrumentations of note are listed in the table below. To benefit from these instrumentations you only need to (a) use the library and (b) start the EDOT Node.js SDK:

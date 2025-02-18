@@ -164,6 +164,11 @@ const INSTRUMENTATIONS = {
 };
 /* eslint-enable prettier/prettier */
 
+const EXCLUDED_INSTRUMENTATIONS = new Set([
+    '@opentelemetry/instrumentation-fastify',
+    '@opentelemetry/instrumentation-fs',
+]);
+
 /**
  * Reads a string in the format `value1,value2` and parses
  * it into an array. This is the format specified for comma separated
@@ -288,9 +293,9 @@ function getInstrumentations(opts = {}) {
 
         if (enabledFromEnv) {
             instrConfig = {...instrConfig, enabled: true};
-        } else if (name === '@opentelemetry/instrumentation-fs') {
-            // if `fs` not present in envvar instrumentation is disabled
-            // unless an explicit config says the opposite
+        } else if (EXCLUDED_INSTRUMENTATIONS.has(name)) {
+            // if excluded instrumentations not present in envvar the instrumentation
+            // is disabled unless an explicit config says the opposite
             // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467
             instrConfig = {enabled: false, ...instrConfig};
         }
