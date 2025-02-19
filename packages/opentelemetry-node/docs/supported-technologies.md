@@ -77,8 +77,7 @@ The following instrumentations are included in EDOT Node.js, but *disabled by de
 - `@opentelemetry/instrumentation-fs` (Disabled upstream in [open-telemetry/opentelemetry-js-contrib#2467](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467).)
 - `@opentelemetry/instrumentation-fastify` (Deprecated upstream and slated for removal. See [open-telemetry/opentelemetry-js-contrib#2652](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2652))
 
-To enable these instrumentations, use the `OTEL_NODE_ENABLED_INSTRUMENTATIONS` environment variable, as documented [here in the OpenTelemetry documentation](https://opentelemetry.io/docs/zero-code/js/configuration/#excluding-instrumentation-libraries). Make sure you list all the instrumentations
-you need for your service since only the ones in that list will be enabled. For example:
+To enable these instrumentations, use the `OTEL_NODE_ENABLED_INSTRUMENTATIONS` environment variable, as documented [here in the OpenTelemetry documentation](https://opentelemetry.io/docs/zero-code/js/configuration/#excluding-instrumentation-libraries). Make sure you list all the instrumentations you need for your service since only the ones in that list will be enabled. For example:
 
 ```bash
 export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.es.io
