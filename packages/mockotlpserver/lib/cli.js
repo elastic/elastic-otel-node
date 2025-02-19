@@ -119,9 +119,9 @@ const OPTIONS = [
         help: 'Start a web server to inspect traces with some charts.',
     },
     {
-        names: ['httpProxy'],
+        names: ['tunnel', 't'],
         type: 'string',
-        help: `Set this option to a URL to proxy all HTTP request to another server. This won't stop the processing of OTLP data.`,
+        help: `Set this option to a URL to send all HTTP requests to another server. This won't stop the processing of OTLP data.`,
     },
 ];
 
@@ -170,7 +170,7 @@ async function main() {
         services,
         grpcHostname: opts.hostname || DEFAULT_HOSTNAME,
         httpHostname: opts.hostname || DEFAULT_HOSTNAME,
-        httpProxy: opts.httpProxy,
+        tunnel: opts.tunnel,
         uiHostname: opts.hostname || DEFAULT_HOSTNAME,
     });
     await otlpServer.start();

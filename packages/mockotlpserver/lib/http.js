@@ -27,7 +27,7 @@ const {
 } = require('./diagch');
 const {getProtoRoot} = require('./proto');
 const {Service} = require('./service');
-const {proxyHttp} = require('./proxy');
+const {createHttpTunnel} = require('./tunnel');
 
 const protoRoot = getProtoRoot();
 
@@ -126,7 +126,7 @@ class HttpService extends Service {
      * @param {import('./luggite').Logger} opts.log
      * @param {string} opts.hostname
      * @param {number} opts.port
-     * @param {string} [opts.proxy]
+     * @param {string} [opts.tunnel]
      */
     constructor(opts) {
         super();
@@ -135,44 +135,49 @@ class HttpService extends Service {
     }
 
     async start() {
-        const {log, hostname, port, proxy} = this._opts;
+        const {log, hostname, port, tunnel} = this._opts;
+        const httpTunnel = tunnel && createHttpTunnel(log, tunnel);
+
+        console.log('tunnel', httpTunnel)
         this._server = http.createServer((req, res) => {
             const contentType = req.headers['content-type'];
-            if (!parsersMap[contentType]) {
+
+            // Tunnel requests if defined or validate otherwise
+            if (httpTunnel) {
+                httpTunnel(req, res);
+            } else if (!parsersMap[contentType]) {
                 return badRequest(
                     res,
                     `unexpected request Content-Type: "${contentType}"`
                 );
             }
 
-            // Do a proxy request if configured. This won't stop its processing
-            if (proxy) {
-                proxyHttp(log, proxy, req);
-            }
-
             const chunks = [];
             req.on('data', (chunk) => chunks.push(chunk));
             req.on('end', () => {
-                // TODO: send back the proper error
-                if (chunks.length === 0) {
-                    return badRequest(res);
-                }
+                // Provide a response if there is no tunnel
+                if (!httpTunnel) {
+                    // TODO: send back the proper error
+                    if (chunks.length === 0) {
+                        return badRequest(res);
+                    }
 
-                // TODO: in future response may add some header to communicate back
-                // some information about
-                // - the collector
-                // - the config
-                // - something else
-                // PS: maybe collector could be able to tell the sdk/distro to stop sending
-                // because of: high load, sample rate changed, et al??
-                let resBody = null;
-                if (contentType === 'application/json') {
-                    resBody = JSON.stringify({
-                        ok: 1,
-                    });
+                    // TODO: in future response may add some header to communicate back
+                    // some information about
+                    // - the collector
+                    // - the config
+                    // - something else
+                    // PS: maybe collector could be able to tell the sdk/distro to stop sending
+                    // because of: high load, sample rate changed, et al??
+                    let resBody = null;
+                    if (contentType === 'application/json') {
+                        resBody = JSON.stringify({
+                            ok: 1,
+                        });
+                    }
+                    res.writeHead(200);
+                    res.end(resBody);
                 }
-                res.writeHead(200);
-                res.end(resBody);
 
                 // We publish into diagnostics channel after returning a response to the client to avoid not returning
                 // a response if one of the handlers throws (the hanlders run synchronously in the

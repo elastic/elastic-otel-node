@@ -23,9 +23,9 @@ const https = require('https');
 /**
  * @param {import('./luggite').Logger} log
  * @param {string} target
- * @param {http.IncomingMessage} req
+ * @returns {((req: http.IncomingMessage, res: http.ServerResponse) => void) | undefined}
  */
-function proxyHttp(log, target, req) {
+function createHttpTunnel(log, target) {
     /** @type {URL} */
     let targetUrl;
 
@@ -43,36 +43,27 @@ function proxyHttp(log, target, req) {
         );
         return;
     }
-
-    const httpFlavor = protocol === 'http:' ? http : https;
-    const proxyUrl = new URL(req.url, `${protocol}//${host}/`);
-    const headers = {...req.headers};
-    // XXX: missing how to pass this. discuss in meeting
-    headers['authorization'] = 'Bearer XXXXX';
-    delete headers.host;
-    const options = {
-        host,
-        method: req.method,
-        headers,
-        path: proxyUrl.pathname,
-        search: proxyUrl.search,
-    };
-    log.info(options, 'proxy request options');
-    const proxyReq = httpFlavor.request(options, (res) => {
-        log.info('proxy response callback received');
-        const chunks = [];
-        res.on('data', (chunk) => {
-            log.info('chunk of proxy response');
-            chunks.push(chunk);
+    
+    return function httpTunnel(req, res) {
+        const httpFlavor = protocol === 'http:' ? http : https;
+        const proxyUrl = new URL(req.url, `${protocol}//${host}/`);
+        const headers = {...req.headers};
+        delete headers.host;
+        const options = {
+            host,
+            method: req.method,
+            headers,
+            path: proxyUrl.pathname,
+            search: proxyUrl.search,
+        };
+        const tunnelReq = httpFlavor.request(options, (tunnelRes) => {
+            tunnelRes.pipe(res);
         });
-        res.on('end', () => {
-            log.info('proxy response ended');
-            log.info(Buffer.concat(chunks).toString('utf-8'));
-        });
-    });
-    req.pipe(proxyReq);
+        req.pipe(tunnelReq);
+    }
 }
 
+
 module.exports = {
-    proxyHttp,
+    createHttpTunnel,
 };
