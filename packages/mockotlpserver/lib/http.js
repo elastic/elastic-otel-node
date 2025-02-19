@@ -138,7 +138,6 @@ class HttpService extends Service {
         const {log, hostname, port, tunnel} = this._opts;
         const httpTunnel = tunnel && createHttpTunnel(log, tunnel);
 
-        console.log('tunnel', httpTunnel)
         this._server = http.createServer((req, res) => {
             const contentType = req.headers['content-type'];
 
