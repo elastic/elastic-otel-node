@@ -32,15 +32,13 @@ function createHttpTunnel(log, target) {
     try {
         targetUrl = new URL(target);
     } catch {
-        log.warn(`Cannot proxy request to target "${target}". Invalid URL.`);
+        log.warn(`Cannot create a tunnel to target "${target}". The given URL is invalid.`);
         return;
     }
 
     const {protocol, host} = targetUrl;
     if (protocol !== 'http:' && protocol !== 'https:') {
-        log.warn(
-            `Invalid protocol for proxy requests to "${target}". Valid protocols are: http, https.`
-        );
+        log.warn(`Cannot create a tunnel to target "${target}". Protocol must be one of: http, https.`);
         return;
     }
     
