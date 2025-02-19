@@ -29,11 +29,45 @@ const {
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'use-fastify',
+        name: 'use-fastify (default disabled)',
         args: ['./fixtures/use-fastify.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+        },
+        versionRanges: {
+            // Ref: https://fastify.dev/docs/latest/Guides/Migration-Guide-V5/#long-term-support-cycle
+            node: '>=20.0.0',
+        },
+        // verbose: true,
+        checkTelemetry: (t, col) => {
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
+
+            t.equal(spans.length, 4);
+            t.ok(
+                spans.every(
+                    (s) =>
+                        s.scope.name === '@opentelemetry/instrumentation-http'
+                )
+            );
+            t.ok(spans.every((s) => s.name === 'GET'));
+            t.equal(
+                spans.filter((s) => s.kind === 'SPAN_KIND_CLIENT').length,
+                2
+            );
+            t.equal(
+                spans.filter((s) => s.kind === 'SPAN_KIND_SERVER').length,
+                2
+            );
+        },
+    },
+    {
+        name: 'use-fastify (enabled via env var)',
+        args: ['./fixtures/use-fastify.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            OTEL_NODE_ENABLED_INSTRUMENTATIONS: 'http,fastify',
         },
         versionRanges: {
             // Ref: https://fastify.dev/docs/latest/Guides/Migration-Guide-V5/#long-term-support-cycle

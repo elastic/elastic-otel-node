@@ -33,7 +33,7 @@ requires:
 
 ## Instrumentations
 
-| Name | Packages instrumented | Reference |
+| Name | Packages instrumented | Notes |
 |---|---|---|
 | `@elastic/opentelemetry-instrumentation-openai` | `openai` version range `>=4.19.0 <5` | [README](https://github.com/elastic/elastic-otel-node/tree/main/packages/instrumentation-openai#readme) |
 | `@opentelemetry/instrumentation-amqplib` | `amqplib` version range `>=0.5.5 <1` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-amqplib#readme) |
@@ -41,8 +41,8 @@ requires:
 | `@opentelemetry/instrumentation-bunyan` | `bunyan` version range `^1.0.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-bunyan#readme) |
 | `@opentelemetry/instrumentation-cassandra-driver` | `cassandra-driver` version range `>=4.4.0 <5` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-cassandra#readme) |
 | `@opentelemetry/instrumentation-express` | `express` version range `^4.0.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-express#readme) |
-| `@opentelemetry/instrumentation-fastify` | `fastify` version range `>=3 <5` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify#readme) |
-| `@opentelemetry/instrumentation-fs` | `fs` module for suppported Node.js versions | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-fs#readme) |
+| `@opentelemetry/instrumentation-fastify` | `fastify` version range `>=3 <5` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify#readme), [disabled by default](#disabled-instrumentations) |
+| `@opentelemetry/instrumentation-fs` | `fs` module for suppported Node.js versions | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-fs#readme), [disabled by default](#disabled-instrumentations) |
 | `@opentelemetry/instrumentation-generic-pool` | `generic-pool` version range `2 - 2.3, ^2.4, >=3` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-generic-pool#readme) |
 | `@opentelemetry/instrumentation-graphql` | `graphql` version range `>=14.0.0 <17` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-graphql#readme) |
 | `@opentelemetry/instrumentation-grpc` | `@grpc/grpc-js` version range `^1.0.0` | [README](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-grpc#readme) |
@@ -69,6 +69,25 @@ requires:
 | `@opentelemetry/instrumentation-tedious` | `tedious` version range `>=1.11.0 <=15` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-tedious#readme) |
 | `@opentelemetry/instrumentation-undici` | `undici` version range `>=5.12.0` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici#readme) |
 | `@opentelemetry/instrumentation-winston` | `winston` version range `>1 <4` | [README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-winston#readme) |
+
+### Disabled instrumentations
+
+The following instrumentations are included in EDOT Node.js, but *disabled by default*:
+
+- `@opentelemetry/instrumentation-fs` (Disabled upstream in [open-telemetry/opentelemetry-js-contrib#2467](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467).)
+- `@opentelemetry/instrumentation-fastify` (Deprecated upstream and slated for removal. See [open-telemetry/opentelemetry-js-contrib#2652](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2652))
+
+To enable these instrumentations, use the `OTEL_NODE_ENABLED_INSTRUMENTATIONS` environment variable, as documented [here in the OpenTelemetry documentation](https://opentelemetry.io/docs/zero-code/js/configuration/#excluding-instrumentation-libraries). Make sure you list all the instrumentations you need for your service since only the ones in that list will be enabled. For example:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://my-deployment.apm.us-west1.gcp.cloud.es.io
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer P....l"
+export OTEL_NODE_ENABLED_INSTRUMENTATIONS="fs,http,fastify" # only the ones in the list would be enabled
+node --import @elastic/opentelemetry-node my-service.js
+```
+
+EDOT Node.js uses the upstream [`@opentelemetry/auto-instrumentations-node` package's set of instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/metapackages/auto-instrumentations-node/README.md#supported-instrumentations) as a guide for instrumentations to include, exclude, or disable by default. This is to maximize compatibility between usage of EDOT Node.js and the vanilla OpenTelemetry JS SDK.
+
 
 ## Native Instrumentations
 
