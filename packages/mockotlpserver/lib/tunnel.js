@@ -19,7 +19,6 @@
 
 const http = require('http');
 const https = require('https');
-
 /**
  * @param {import('./luggite').Logger} log
  * @param {string} target
@@ -41,18 +40,23 @@ function createHttpTunnel(log, target) {
         log.warn(`Cannot create a tunnel to target "${target}". Protocol must be one of: http, https.`);
         return;
     }
-    
+
+    const port = targetUrl.port || (protocol === 'http:' ? 80 : 443);
     return function httpTunnel(req, res) {
+        // APM server does not support 'http/json' protocol
+        // ref: https://www.elastic.co/guide/en/observability/current/apm-api-otlp.html
+        const contentType = req.headers['content-type'];
+        if (contentType !== 'application/x-protobuf') {
+            log.warn(`Content type "${contentType}" may not be accepted by the target server (${target})`);
+        }
+
         const httpFlavor = protocol === 'http:' ? http : https;
-        const proxyUrl = new URL(req.url, `${protocol}//${host}/`);
-        const headers = {...req.headers};
-        delete headers.host;
         const options = {
-            host,
+            host: targetUrl.host,
+            port,
             method: req.method,
-            headers,
-            path: proxyUrl.pathname,
-            search: proxyUrl.search,
+            headers: {...req.headers, host},
+            path: req.url,
         };
         const tunnelReq = httpFlavor.request(options, (tunnelRes) => {
             tunnelRes.pipe(res);
@@ -60,7 +64,6 @@ function createHttpTunnel(log, target) {
         req.pipe(tunnelReq);
     }
 }
-
 
 module.exports = {
     createHttpTunnel,
