@@ -20,16 +20,15 @@
 const {execSync, execFile} = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const {URL} = require('url');
 
 const dotenv = require('dotenv');
 // const semver = require('semver');
 const { MockOtlpServer } = require('@elastic/mockotlpserver');
 
 const edotPath = path.join(__dirname, '..');
-const envPath = path.join(edotPath, 'test', 'test-services.env');
-const fixtPath = path.join(edotPath, 'test', 'fixtures');
-const version = require(path.join(edotPath, 'package.json')).version;
+const testEnvPath = path.join(edotPath, 'test', 'test-services.env');
+const fixturesPath = path.join(edotPath, 'test', 'fixtures');
+const edotVersion = require(path.join(edotPath, 'package.json')).version;
 
 /**
  * @param {string} name
@@ -41,6 +40,7 @@ function validFixture(name) {
 }
 
 async function main() {
+    // TODO: more validations?
     if (typeof process.env.OTEL_EXPORTER_OTLP_ENDPOINT !== 'string') {
         console.log(`"OTEL_EXPORTER_OTLP_ENDPOINT" not set. Skipping`);
         return;
@@ -54,6 +54,10 @@ async function main() {
     Object.keys(process.env).filter((k) => k.startsWith('OTEL_')).forEach((n) => {
         console.log(`env: ${n}=${process.env[n]}`);
     })
+
+    console.log('starting services');
+    execSync('docker compose -f ./test/docker-compose.yaml up -d --wait', {cwd: edotPath});
+    console.log('services started');
 
     // Start the Mock server
     const otlpServer = new MockOtlpServer({
@@ -69,14 +73,19 @@ async function main() {
     await otlpServer.start();
     console.log(`MockOtlpServer listening at ${otlpServer.httpUrl.href}`)
 
-    const testEnv = dotenv.parse(Buffer.from(fs.readFileSync(envPath)))
+    const servicesEnv = dotenv.parse(Buffer.from(fs.readFileSync(testEnvPath)))
 
-    const fixtures = fs.readdirSync(fixtPath).filter(validFixture);
-    for (const fixt of fixtures) {
-        const serviceName = fixt.replace('.js', '-service');
-        const fixtFile = path.join(fixtPath, fixt);
+    const fixtures = fs.readdirSync(fixturesPath).filter(validFixture);
+    for (const fixture of fixtures) {
+        const serviceName = fixture.replace('.js', '-service');
+        const fixtFile = path.join(fixturesPath, fixture);
+        const attribs = [
+            `service.name=${serviceName}`,
+            `service.version=${edotVersion}`,
+            'deployment.environment=test',
+        ];
 
-        console.log(`running fixture ${fixt}`);
+        console.log(`running fixture ${fixture}`);
         await new Promise((resolve, reject) => {
             execFile(
                 process.execPath,
@@ -86,24 +95,24 @@ async function main() {
                     env: Object.assign(
                         {},
                         process.env,
-                        testEnv,
+                        servicesEnv,
                         {
                             OTEL_EXPORTER_OTLP_ENDPOINT:
-                                otlpServer.httpUrl.href,
-                            OTEL_EXPORTER_OTLP_PROTOCOL: 'http/json',
-                            OTEL_RESOURCE_ATTRIBUTES:`service.name=${serviceName},service.version=${version},deployment.environment=test`,
+                                otlpServer.httpUrl.href, // trick EDOT to send to mocotlpserver
+                            OTEL_EXPORTER_OTLP_PROTOCOL: 'http/protobuf', // JSON not accepted by APM server
+                            OTEL_RESOURCE_ATTRIBUTES: attribs.join(','),
                             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
                         },
                     ),
                 },
                 async function done(err, stdout, stderr) {
                     if (err) {
-                        console.log(`fixture ${fixt} errored`);
+                        console.log(`fixture ${fixture} errored`);
                         console.log(`stdout: ${stdout}`);
                         console.log(`stderr: ${stderr}`);
                         return reject(err);
                     }
-                    console.log(`fixture ${fixt} okay`);
+                    console.log(`fixture ${fixture} okay`);
                     // console.log(`stdout: ${stdout}`);
                     resolve();
                 }
@@ -113,6 +122,10 @@ async function main() {
 
     console.log('ran all text fixtures');
     await otlpServer.close();
+
+    console.log('stopping services')
+    execSync('docker compose -f ./test/docker-compose.yaml down', {cwd: edotPath});
+    console.log('services stopped')
 }
 
 main();
