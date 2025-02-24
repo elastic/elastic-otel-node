@@ -121,7 +121,7 @@ const OPTIONS = [
     {
         names: ['tunnel', 't'],
         type: 'string',
-        help: `Set this option to a URL to send all HTTP requests to another server. This won't stop the processing of OTLP data.`,
+        help: `Set this option to a URL to send all requests to another server (only HTTP supported for now). This won't stop the processing of OTLP data.`,
     },
 ];
 
