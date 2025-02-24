@@ -169,6 +169,19 @@ const EXCLUDED_INSTRUMENTATIONS = new Set([
     '@opentelemetry/instrumentation-fs',
 ]);
 
+const OTEL_INSTRUMENTATION_PREFIX = '@opentelemetry/instrumentation-';
+const OTEL_INSTR_SHORT_NAMES = new Set();
+const NON_OTEL_INSTR_NAMES = new Set();
+for (const name of Object.keys(INSTRUMENTATIONS)) {
+    if (name.startsWith(OTEL_INSTRUMENTATION_PREFIX)) {
+        OTEL_INSTR_SHORT_NAMES.add(
+            name.replace(OTEL_INSTRUMENTATION_PREFIX, '')
+        );
+    } else {
+        NON_OTEL_INSTR_NAMES.add(name);
+    }
+}
+
 /**
  * Reads a string in the format `value1,value2` and parses
  * it into an array. This is the format specified for comma separated
@@ -183,14 +196,15 @@ const EXCLUDED_INSTRUMENTATIONS = new Set([
  */
 function getInstrumentationsFromEnv(envvar) {
     if (process.env[envvar]) {
-        const instrumentations = process.env[envvar]
-            .split(',')
-            .map((s) => s.trim())
-            .filter((s) => s)
-            .map((s) => `@opentelemetry/instrumentation-${s}`);
+        const instrumentations = [];
+        const names = process.env[envvar].split(',').map((s) => s.trim());
 
-        for (const name of instrumentations) {
-            if (!INSTRUMENTATIONS[name]) {
+        for (const name of names) {
+            if (OTEL_INSTR_SHORT_NAMES.has(name)) {
+                instrumentations.push(`${OTEL_INSTRUMENTATION_PREFIX}${name}`);
+            } else if (NON_OTEL_INSTR_NAMES.has(name)) {
+                instrumentations.push(name);
+            } else {
                 log.warn(
                     `Unknown instrumentation "${name}" specified in the environment variable ${envvar}`
                 );
