@@ -31,13 +31,17 @@ function createHttpTunnel(log, target) {
     try {
         targetUrl = new URL(target);
     } catch {
-        log.warn(`Cannot create a tunnel to target "${target}". The given URL is invalid.`);
+        log.warn(
+            `Cannot create a tunnel to target "${target}". The given URL is invalid.`
+        );
         return;
     }
 
     const {protocol, host} = targetUrl;
     if (protocol !== 'http:' && protocol !== 'https:') {
-        log.warn(`Cannot create a tunnel to target "${target}". Protocol must be one of: http, https.`);
+        log.warn(
+            `Cannot create a tunnel to target "${target}". Protocol must be one of: http, https.`
+        );
         return;
     }
 
@@ -47,7 +51,9 @@ function createHttpTunnel(log, target) {
         // ref: https://www.elastic.co/guide/en/observability/current/apm-api-otlp.html
         const contentType = req.headers['content-type'];
         if (contentType !== 'application/x-protobuf') {
-            log.warn(`Content type "${contentType}" may not be accepted by the target server (${target})`);
+            log.warn(
+                `Content type "${contentType}" may not be accepted by the target server (${target})`
+            );
         }
 
         const httpFlavor = protocol === 'http:' ? http : https;
@@ -62,7 +68,7 @@ function createHttpTunnel(log, target) {
             tunnelRes.pipe(res);
         });
         req.pipe(tunnelReq);
-    }
+    };
 }
 
 module.exports = {
