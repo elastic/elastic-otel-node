@@ -121,7 +121,7 @@ const OPTIONS = [
     {
         names: ['tunnel', 't'],
         type: 'string',
-        help: `Set this option to a URL to send all requests to another server (only HTTP supported for now). This won't stop the processing of OTLP data.`,
+        help: `Tunnel all incoming requests to the given server. Only supported for the HTTP OTLP server (port 4318). Received OTLP data will still be printed per the '-o' option.`,
     },
 ];
 
