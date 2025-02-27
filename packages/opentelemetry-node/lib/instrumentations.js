@@ -174,9 +174,7 @@ const otelInstrShortNames = new Set();
 const nonOtelInstrNames = new Set();
 for (const name of Object.keys(instrumentationsMap)) {
     if (name.startsWith(otelInstrPrefix)) {
-        otelInstrShortNames.add(
-            name.replace(otelInstrPrefix, '')
-        );
+        otelInstrShortNames.add(name.replace(otelInstrPrefix, ''));
     } else {
         nonOtelInstrNames.add(name);
     }
