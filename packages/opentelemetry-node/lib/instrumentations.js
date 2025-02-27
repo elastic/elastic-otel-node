@@ -110,7 +110,7 @@ const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici')
 const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
 
 const {log} = require('./logging');
-const { getEnvVar } = require('./environment');
+const {getEnvVar} = require('./environment');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -120,7 +120,7 @@ const { getEnvVar } = require('./environment');
 // do a lazy creation of instrumentations we have factory functions that can receive
 // the user's config and can default to something else if needed.
 /** @type {Record<keyof InstrumentaionsMap, (cfg: any) => Instrumentation>} */
-const INSTRUMENTATIONS = {
+const instrumentationsMap = {
     '@elastic/opentelemetry-instrumentation-openai': (cfg) => new OpenAIInstrumentation(cfg),
     '@opentelemetry/instrumentation-amqplib': (cfg) => new AmqplibInstrumentation(cfg),
     '@opentelemetry/instrumentation-aws-sdk': (cfg) => new AwsInstrumentation(cfg),
@@ -164,10 +164,21 @@ const INSTRUMENTATIONS = {
 };
 /* eslint-enable prettier/prettier */
 
-const EXCLUDED_INSTRUMENTATIONS = new Set([
+const excludedInstrumentations = new Set([
     '@opentelemetry/instrumentation-fastify',
     '@opentelemetry/instrumentation-fs',
 ]);
+
+const otelInstrPrefix = '@opentelemetry/instrumentation-';
+const otelInstrShortNames = new Set();
+const nonOtelInstrNames = new Set();
+for (const name of Object.keys(instrumentationsMap)) {
+    if (name.startsWith(otelInstrPrefix)) {
+        otelInstrShortNames.add(name.replace(otelInstrPrefix, ''));
+    } else {
+        nonOtelInstrNames.add(name);
+    }
+}
 
 /**
  * Reads a string in the format `value1,value2` and parses
@@ -183,14 +194,15 @@ const EXCLUDED_INSTRUMENTATIONS = new Set([
  */
 function getInstrumentationsFromEnv(envvar) {
     if (process.env[envvar]) {
-        const instrumentations = process.env[envvar]
-            .split(',')
-            .map((s) => s.trim())
-            .filter((s) => s)
-            .map((s) => `@opentelemetry/instrumentation-${s}`);
+        const instrumentations = [];
+        const names = process.env[envvar].split(',').map((s) => s.trim());
 
-        for (const name of instrumentations) {
-            if (!INSTRUMENTATIONS[name]) {
+        for (const name of names) {
+            if (otelInstrShortNames.has(name)) {
+                instrumentations.push(`${otelInstrPrefix}${name}`);
+            } else if (nonOtelInstrNames.has(name)) {
+                instrumentations.push(name);
+            } else {
                 log.warn(
                     `Unknown instrumentation "${name}" specified in the environment variable ${envvar}`
                 );
@@ -258,7 +270,7 @@ function getInstrumentations(opts = {}) {
         'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
     );
 
-    Object.keys(INSTRUMENTATIONS).forEach((name) => {
+    Object.keys(instrumentationsMap).forEach((name) => {
         // Skip if env has an `enabled` list and does not include this one
         if (enabledFromEnv && !enabledFromEnv.includes(name)) {
             return;
@@ -279,7 +291,7 @@ function getInstrumentations(opts = {}) {
 
         const isFactory = typeof opts[name] === 'function';
         const isObject = typeof opts[name] === 'object';
-        const instrFactory = isFactory ? opts[name] : INSTRUMENTATIONS[name];
+        const instrFactory = isFactory ? opts[name] : instrumentationsMap[name];
         let instrConfig = isObject ? opts[name] : undefined;
 
         // We should instantiate a instrumentation:
@@ -293,7 +305,7 @@ function getInstrumentations(opts = {}) {
 
         if (enabledFromEnv) {
             instrConfig = {...instrConfig, enabled: true};
-        } else if (EXCLUDED_INSTRUMENTATIONS.has(name)) {
+        } else if (excludedInstrumentations.has(name)) {
             // if excluded instrumentations not present in envvar the instrumentation
             // is disabled unless an explicit config says the opposite
             // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467

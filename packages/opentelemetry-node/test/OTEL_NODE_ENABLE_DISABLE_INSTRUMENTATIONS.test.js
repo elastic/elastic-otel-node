@@ -78,9 +78,7 @@ const testFixtures = [
                 'should enable instrumentation passed with surroinding spaces in env var'
             );
             t.ok(
-                getLine(
-                    'Unknown instrumentation \\"@opentelemetry/instrumentation-bogus\\"'
-                ),
+                getLine('Unknown instrumentation \\"bogus\\"'),
                 'should print a log for the bogus value in enable env var'
             );
             t.notOk(
@@ -125,9 +123,7 @@ const testFixtures = [
                 'should enable instrumentation not set in the var'
             );
             t.ok(
-                getLine(
-                    'Unknown instrumentation \\"@opentelemetry/instrumentation-bogus\\"'
-                ),
+                getLine('Unknown instrumentation \\"bogus\\"'),
                 'should print a log for the bogus value in enable env var'
             );
         },
