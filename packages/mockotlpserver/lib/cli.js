@@ -118,6 +118,11 @@ const OPTIONS = [
         type: 'bool',
         help: 'Start a web server to inspect traces with some charts.',
     },
+    {
+        names: ['tunnel', 't'],
+        type: 'string',
+        help: `Tunnel all incoming requests to the given server. Only supported for the HTTP OTLP server (port 4318). Received OTLP data will still be printed per the '-o' option.`,
+    },
 ];
 
 async function main() {
@@ -165,6 +170,7 @@ async function main() {
         services,
         grpcHostname: opts.hostname || DEFAULT_HOSTNAME,
         httpHostname: opts.hostname || DEFAULT_HOSTNAME,
+        tunnel: opts.tunnel,
         uiHostname: opts.hostname || DEFAULT_HOSTNAME,
     });
     await otlpServer.start();
