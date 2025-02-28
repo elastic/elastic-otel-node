@@ -1,6 +1,6 @@
 {
   "name": "@elastic/mockotlpserver",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "type": "commonjs",
   "description": "A mock OTLP server, useful for dev and testing",
   "publishConfig": {

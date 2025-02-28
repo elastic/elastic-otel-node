@@ -1,5 +1,9 @@
 # @elastic/mockotlpserver Changelog
 
+## v0.7.0
+
+- feat: add CLI option to tunnel all incoming requests to the given server. (https://github.com/elastic/elastic-otel-node/pull/608)
+
 ## v0.6.3
 
 - Fix an alignment issue in the "gutter" of the trace-summary (waterfall) output
