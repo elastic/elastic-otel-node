@@ -40,6 +40,11 @@ Assuming "x.y.z" is the release verison:
     steps -- including the `npm publish`. See the appropriate run at:
     https://github.com/elastic/elastic-otel-node/actions/workflows/release.yml
 
+5. Consider a PR to https://github.com/elastic/elastic-agent/tree/main/deploy/helm
+   to update the version of the `elastic-otel-node` Docker image used in the
+   Helm charts for the EDOT Collector.
+   (For example: https://github.com/elastic/elastic-agent/pull/7327)
+
 
 ## How to release other packages
 
