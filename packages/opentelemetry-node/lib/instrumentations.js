@@ -53,7 +53,7 @@
  * }} InstrumentaionsMap
  */
 
-const {getBooleanFromEnv} = require('@opentelemetry/core');
+const {getBooleanFromEnv, getStringListFromEnv} = require('@opentelemetry/core');
 
 /* eslint-disable prettier/prettier */
 const {OpenAIInstrumentation} = require('@elastic/opentelemetry-instrumentation-openai');
@@ -180,9 +180,9 @@ for (const name of Object.keys(instrumentationsMap)) {
  * @returns {Array<string> | undefined}
  */
 function getInstrumentationsFromEnv(envvar) {
-    if (process.env[envvar]) {
+    const names = getStringListFromEnv(envvar);
+    if (names) {
         const instrumentations = [];
-        const names = process.env[envvar].split(',').map((s) => s.trim());
 
         for (const name of names) {
             if (otelInstrShortNames.has(name)) {
