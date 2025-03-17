@@ -88,10 +88,10 @@ function resolveDetectors(detectors) {
     }
 
     let detectorKeys = getStringListFromEnv('OTEL_NODE_RESOURCE_DETECTORS');
-    if (!detectorKeys || detectorKeys.some((k) => k === 'none')) {
-        return [];
-    } else if (detectorKeys.some((k) => k === 'all')) {
+    if (!detectorKeys || detectorKeys.some((k) => k === 'all')) {
         detectorKeys = Object.keys(defaultDetectors);
+    } else if (detectorKeys.some((k) => k === 'none')) {
+        return [];
     }
 
     /** @type {Array<ResourceDetector | ResourceDetector[]>} */
@@ -105,7 +105,35 @@ function resolveDetectors(detectors) {
             );
         }
     }
-    return resolvedDetectors.flat();
+    const detectorsList = resolvedDetectors.flat();
+
+    // this is to avoid problem of unhandled rejections
+    // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2738#discussion_r1998622262
+    for (const d of detectorsList) {
+        const orig = d.detect;
+        d.detect = function (config) {
+            const result = orig.apply(d, [config]);
+            const {attributes} = result;
+            for (const key of Object.keys(attributes)) {
+                const valueOrPromise = attributes[key];
+                
+                if (isPromise(valueOrPromise)) {
+                    attributes[key] = valueOrPromise.then(v => v, err => undefined);
+                }
+            }
+            return result;
+        };
+    }
+    return detectorsList;
+}
+
+/**
+ * 
+ * @param {any} v 
+ * @returns {v is Promise}
+ */
+function isPromise(v) {
+    return v && v.then && typeof v.then === 'function';
 }
 
 module.exports = {
