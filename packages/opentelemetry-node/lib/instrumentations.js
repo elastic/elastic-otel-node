@@ -53,7 +53,10 @@
  * }} InstrumentaionsMap
  */
 
-const {getBooleanFromEnv, getStringListFromEnv} = require('@opentelemetry/core');
+const {
+    getBooleanFromEnv,
+    getStringListFromEnv,
+} = require('@opentelemetry/core');
 
 /* eslint-disable prettier/prettier */
 const {OpenAIInstrumentation} = require('@elastic/opentelemetry-instrumentation-openai');
