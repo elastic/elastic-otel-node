@@ -7,8 +7,6 @@
  * @typedef {import('@opentelemetry/resources').ResourceDetector} ResourceDetector
  */
 
-const {getStringListFromEnv} = require('@opentelemetry/core');
-
 const {
     alibabaCloudEcsDetector,
 } = require('@opentelemetry/resource-detector-alibaba-cloud');
@@ -37,6 +35,7 @@ const {
 } = require('@opentelemetry/resources');
 
 const {log} = require('./logging');
+const {getEnvStringList} = require('./environment');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
@@ -87,8 +86,10 @@ function resolveDetectors(detectors) {
         return detectors;
     }
 
-    let detectorKeys = getStringListFromEnv('OTEL_NODE_RESOURCE_DETECTORS');
-    if (!detectorKeys || detectorKeys.some((k) => k === 'all')) {
+    let detectorKeys = getEnvStringList('OTEL_NODE_RESOURCE_DETECTORS', [
+        'all',
+    ]);
+    if (detectorKeys.some((k) => k === 'all')) {
         detectorKeys = Object.keys(defaultDetectors);
     } else if (detectorKeys.some((k) => k === 'none')) {
         return [];
@@ -97,6 +98,7 @@ function resolveDetectors(detectors) {
     /** @type {Array<ResourceDetector | ResourceDetector[]>} */
     const resolvedDetectors = [distroDetector];
     for (const key of detectorKeys) {
+        log.warn(`resolving detector ${key}`);
         if (defaultDetectors[key]) {
             resolvedDetectors.push(defaultDetectors[key]);
         } else {
@@ -106,15 +108,6 @@ function resolveDetectors(detectors) {
         }
     }
     return resolvedDetectors.flat();
-}
-
-/**
- * 
- * @param {any} v 
- * @returns {v is Promise}
- */
-function isPromise(v) {
-    return v && v.then && typeof v.then === 'function';
 }
 
 module.exports = {

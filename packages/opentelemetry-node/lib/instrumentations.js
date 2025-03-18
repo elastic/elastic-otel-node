@@ -53,11 +53,6 @@
  * }} InstrumentaionsMap
  */
 
-const {
-    getBooleanFromEnv,
-    getStringListFromEnv,
-} = require('@opentelemetry/core');
-
 /* eslint-disable prettier/prettier */
 const {OpenAIInstrumentation} = require('@elastic/opentelemetry-instrumentation-openai');
 const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
@@ -100,6 +95,7 @@ const {TediousInstrumentation} = require('@opentelemetry/instrumentation-tedious
 const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici');
 const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
 
+const {getEnvStringList, getEnvBoolean} = require('./environment');
 const {log} = require('./logging');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
@@ -183,7 +179,7 @@ for (const name of Object.keys(instrumentationsMap)) {
  * @returns {Array<string> | undefined}
  */
 function getInstrumentationsFromEnv(envvar) {
-    const names = getStringListFromEnv(envvar);
+    const names = getEnvStringList(envvar);
     if (names) {
         const instrumentations = [];
 
@@ -271,8 +267,9 @@ function getInstrumentations(opts = {}) {
         }
 
         // Skip if metrics are disabled by env var
-        const isMetricsDisabled = getBooleanFromEnv(
-            'ELASTIC_OTEL_METRICS_DISABLED'
+        const isMetricsDisabled = getEnvBoolean(
+            'ELASTIC_OTEL_METRICS_DISABLED',
+            false
         );
         if (
             isMetricsDisabled &&

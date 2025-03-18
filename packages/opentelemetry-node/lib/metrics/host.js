@@ -25,7 +25,7 @@ function enableHostMetrics() {
 const HOST_METRICS_VIEWS = [
     {
         instrumentName: 'system.*',
-        aggregation: { type: AggregationType.DROP },
+        aggregation: {type: AggregationType.DROP},
     },
 ];
 
