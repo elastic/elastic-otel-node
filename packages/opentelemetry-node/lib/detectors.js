@@ -98,7 +98,6 @@ function resolveDetectors(detectors) {
     /** @type {Array<ResourceDetector | ResourceDetector[]>} */
     const resolvedDetectors = [distroDetector];
     for (const key of detectorKeys) {
-        log.warn(`resolving detector ${key}`);
         if (defaultDetectors[key]) {
             resolvedDetectors.push(defaultDetectors[key]);
         } else {
