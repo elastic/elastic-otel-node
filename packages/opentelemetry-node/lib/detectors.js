@@ -105,26 +105,7 @@ function resolveDetectors(detectors) {
             );
         }
     }
-    const detectorsList = resolvedDetectors.flat();
-
-    // this is to avoid problem of unhandled rejections
-    // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2738#discussion_r1998622262
-    for (const d of detectorsList) {
-        const orig = d.detect;
-        d.detect = function (config) {
-            const result = orig.apply(d, [config]);
-            const {attributes} = result;
-            for (const key of Object.keys(attributes)) {
-                const valueOrPromise = attributes[key];
-                
-                if (isPromise(valueOrPromise)) {
-                    attributes[key] = valueOrPromise.then(v => v, err => undefined);
-                }
-            }
-            return result;
-        };
-    }
-    return detectorsList;
+    return resolvedDetectors.flat();
 }
 
 /**
