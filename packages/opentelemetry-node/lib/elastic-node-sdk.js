@@ -9,18 +9,17 @@
 
 const os = require('os');
 
+const {
+    getBooleanFromEnv,
+    getStringFromEnv,
+    getNumberFromEnv,
+} = require('@opentelemetry/core');
 const {metrics, NodeSDK, api} = require('@opentelemetry/sdk-node');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 
 const {log, registerOTelDiagLogger} = require('./logging');
 const {resolveDetectors} = require('./detectors');
-const {
-    setupEnvironment,
-    restoreEnvironment,
-    getEnvString,
-    getEnvBoolean,
-    getEnvNumber,
-} = require('./environment');
+const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
@@ -33,9 +32,6 @@ class ElasticNodeSDK extends NodeSDK {
     constructor(opts = {}) {
         log.trace('ElasticNodeSDK opts:', opts);
         registerOTelDiagLogger(api);
-
-        // Setup & fix some env
-        setupEnvironment();
 
         // - NodeSDK defaults to `TracerProviderWithEnvExporters` if neither
         //   `spanProcessor` nor `traceExporter` are passed in.
@@ -55,7 +51,8 @@ class ElasticNodeSDK extends NodeSDK {
         // Get logs exporter protocol based on environment.
         const logsExportProtocol =
             process.env.OTEL_EXPORTER_OTLP_LOGS_PROTOCOL ||
-            getEnvString('OTEL_EXPORTER_OTLP_PROTOCOL');
+            getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
+            'http/protobuf';
         let logExporterType = exporterPkgNameFromEnvVar[logsExportProtocol];
         if (!logExporterType) {
             log.warn(
@@ -79,15 +76,14 @@ class ElasticNodeSDK extends NodeSDK {
         // TODO what `temporalityPreference`?
 
         // Disable metrics by config
-        const metricsDisabled = getEnvBoolean(
-            'ELASTIC_OTEL_METRICS_DISABLED',
-            false
-        );
+        const metricsDisabled =
+            getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
         if (!metricsDisabled) {
             // Get metrics exporter protocol based on environment.
             const metricsExportProtocol =
                 process.env.OTEL_EXPORTER_OTLP_METRICS_PROTOCOL ||
-                getEnvString('OTEL_EXPORTER_OTLP_PROTOCOL');
+                getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
+                'http/protobuf';
             let metricExporterType =
                 exporterPkgNameFromEnvVar[metricsExportProtocol];
             if (!metricExporterType) {
@@ -105,14 +101,10 @@ class ElasticNodeSDK extends NodeSDK {
 
             // Note: Default values has been taken from the specs
             // https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#periodic-exporting-metricreader
-            const metricsInterval = getEnvNumber(
-                'OTEL_METRIC_EXPORT_INTERVAL',
-                60000
-            );
-            const metricsTimeout = getEnvNumber(
-                'OTEL_METRIC_EXPORT_TIMEOUT',
-                30000
-            );
+            const metricsInterval =
+                getNumberFromEnv('OTEL_METRIC_EXPORT_INTERVAL') ?? 60000;
+            const metricsTimeout =
+                getNumberFromEnv('OTEL_METRIC_EXPORT_TIMEOUT') ?? 30000;
             defaultConfig.metricReader =
                 new metrics.PeriodicExportingMetricReader({
                     exporter: new OTLPMetricExporter(),
@@ -124,6 +116,9 @@ class ElasticNodeSDK extends NodeSDK {
                 ...HOST_METRICS_VIEWS,
             ];
         }
+
+        // Setup & fix some env
+        setupEnvironment();
 
         const configuration = Object.assign(defaultConfig, opts);
         super(configuration);

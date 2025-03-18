@@ -3,13 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-const {
-    getBooleanFromEnv,
-    getNumberFromEnv,
-    getStringListFromEnv,
-    getStringFromEnv,
-} = require('@opentelemetry/core');
-
 /** @type {NodeJS.ProcessEnv} */
 const envToRestore = {};
 
@@ -51,38 +44,7 @@ function restoreEnvironment() {
     });
 }
 
-/**
- * @template T
- * @param {(name: string) => T} getterFn
- * @returns {(name: string, defaultValue?: T) => T}
- */
-function makeEnvVarGetter(getterFn) {
-    return function (name, defaultValue = undefined) {
-        const isStashed = name in envToRestore;
-        let result;
-
-        if (isStashed) {
-            process.env[name] = envToRestore[name];
-        }
-        result = getterFn(name);
-        if (isStashed) {
-            delete process.env[name];
-        }
-
-        return typeof result === 'undefined' ? defaultValue : result;
-    };
-}
-
-const getEnvBoolean = makeEnvVarGetter(getBooleanFromEnv);
-const getEnvNumber = makeEnvVarGetter(getNumberFromEnv);
-const getEnvString = makeEnvVarGetter(getStringFromEnv);
-const getEnvStringList = makeEnvVarGetter(getStringListFromEnv);
-
 module.exports = {
     setupEnvironment,
     restoreEnvironment,
-    getEnvBoolean,
-    getEnvNumber,
-    getEnvString,
-    getEnvStringList,
 };

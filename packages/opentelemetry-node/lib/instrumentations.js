@@ -3,6 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+const {
+    getStringListFromEnv,
+    getBooleanFromEnv,
+} = require('@opentelemetry/core');
+const {log} = require('./logging');
+
 /**
  * @typedef {import('@opentelemetry/instrumentation').Instrumentation} Instrumentation
  *
@@ -95,9 +101,6 @@ const {TediousInstrumentation} = require('@opentelemetry/instrumentation-tedious
 const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici');
 const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
 
-const {getEnvStringList, getEnvBoolean} = require('./environment');
-const {log} = require('./logging');
-
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
 // https://github.com/open-telemetry/opentelemetry-js/blob/1b4999f386e0240b7f65350e8360ccc2930b0fe6/experimental/packages/opentelemetry-instrumentation/src/platform/node/instrumentation.ts#L71
@@ -112,7 +115,7 @@ const instrumentationsMap = {
     '@opentelemetry/instrumentation-aws-sdk': (cfg) => new AwsInstrumentation(cfg),
     '@opentelemetry/instrumentation-bunyan': (cfg) => new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-connect': (cfg) => new ConnectInstrumentation(cfg),
-    '@opentelemetry/instrumentation-cassandra-driver': (cfg) => new CassandraDriverInstrumentation(cfg), 
+    '@opentelemetry/instrumentation-cassandra-driver': (cfg) => new CassandraDriverInstrumentation(cfg),
     '@opentelemetry/instrumentation-cucumber': (cfg) => new CucumberInstrumentation(cfg),
     '@opentelemetry/instrumentation-dataloader': (cfg) => new DataloaderInstrumentation(cfg),
     '@opentelemetry/instrumentation-dns': (cfg) => new DnsInstrumentation(cfg),
@@ -179,7 +182,7 @@ for (const name of Object.keys(instrumentationsMap)) {
  * @returns {Array<string> | undefined}
  */
 function getInstrumentationsFromEnv(envvar) {
-    const names = getEnvStringList(envvar);
+    const names = getStringListFromEnv(envvar);
     if (names) {
         const instrumentations = [];
 
@@ -267,10 +270,8 @@ function getInstrumentations(opts = {}) {
         }
 
         // Skip if metrics are disabled by env var
-        const isMetricsDisabled = getEnvBoolean(
-            'ELASTIC_OTEL_METRICS_DISABLED',
-            false
-        );
+        const isMetricsDisabled =
+            getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
         if (
             isMetricsDisabled &&
             name === '@opentelemetry/instrumentation-runtime-node'
