@@ -29,6 +29,19 @@ const LUGGITE_LEVEL_FROM_OTEL_LOG_LEVEL = {
     ALL: 'trace',
 };
 
+// As a hack for occasional unergonomic diag logging from upstream OTel JS, we
+// sometimes filter out specific log messages. This should be used sparingly,
+// and each case should ideally have an upstream issue to remove it or downgrade
+// the log level.
+const FILTER_OUT_DIAG_ERROR_MESSAGES = [
+    // https://github.com/open-telemetry/opentelemetry-js/pull/5546, @opentelemetry/resources@2.0.1
+    'Accessing resource attributes before async attributes settled',
+];
+const FILTER_OUT_DIAG_WARN_MESSAGES = [
+    // https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2767
+    'No meter provider, using default',
+];
+
 /**
  * Return an OTel log level to use, based on the OTEL_LOG_LEVEL envvar.
  * This is normalized to upper-case, and defaults to INFO if the value is
@@ -65,8 +78,18 @@ function registerOTelDiagLogger(api) {
     const diagLevel = otelLogLevelFromEnv();
     api.diag.setLogger(
         {
-            error: log.error.bind(log),
-            warn: log.warn.bind(log),
+            error: (msg, ...args) => {
+                if (FILTER_OUT_DIAG_ERROR_MESSAGES.includes(msg)) {
+                    return;
+                }
+                log.error(msg, ...args);
+            },
+            warn: (msg, ...args) => {
+                if (FILTER_OUT_DIAG_WARN_MESSAGES.includes(msg)) {
+                    return;
+                }
+                log.warn(msg, ...args);
+            },
             info: log.info.bind(log),
             debug: log.debug.bind(log),
             verbose: log.trace.bind(log),
