@@ -1,5 +1,12 @@
 # @elastic/opentelemetry-node Changelog
 
+## Unreleased
+
+- Upgrade upstream OTel dependencies to SDK 2.0. This should be non-breaking
+  for users of `node --import @elastic/opentelemetry-node my-app.js` to start
+  EDOT Node.js for their application.
+  (https://github.com/elastic/elastic-otel-node/pull/663)
+
 ## v0.7.0
 
 - BREAKING CHANGE: Bump min-supported node to `^18.19.0 || >=20.6.0`.

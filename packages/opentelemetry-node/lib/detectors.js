@@ -4,13 +4,10 @@
  */
 
 /**
- * NOTE: when `Detector` is finally removed import only `DetectorSync` and
- * get rid of the aliasing
- * @typedef {import('@opentelemetry/resources').Detector} DetectorOrig
- * @typedef {import('@opentelemetry/resources').DetectorSync} DetectorSyncOrig
- * @typedef {DetectorOrig | DetectorSyncOrig} DetectorSync
+ * @typedef {import('@opentelemetry/resources').ResourceDetector} ResourceDetector
  */
 
+const {getStringListFromEnv} = require('@opentelemetry/core');
 const {
     alibabaCloudEcsDetector,
 } = require('@opentelemetry/resource-detector-alibaba-cloud');
@@ -31,41 +28,41 @@ const {
 } = require('@opentelemetry/resource-detector-container');
 const {gcpDetector} = require('@opentelemetry/resource-detector-gcp');
 const {
-    envDetectorSync,
-    hostDetectorSync,
-    osDetectorSync,
-    processDetectorSync,
-    serviceInstanceIdDetectorSync,
-    Resource,
+    envDetector,
+    hostDetector,
+    osDetector,
+    processDetector,
+    serviceInstanceIdDetector,
 } = require('@opentelemetry/resources');
 
-const {getEnvVar} = require('./environment');
 const {log} = require('./logging');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
 
 // Elastic's own detector to add distro related metadata
-/** @type {DetectorSync} */
-const distroDetectorSync = {
+/** @type {ResourceDetector} */
+const distroDetector = {
     detect() {
         // TODO: change to semconv resource attribs when
         // `@opentelemetry/semantic-conventions` gets updated with the attribs used
         // https://github.com/open-telemetry/opentelemetry-js/issues/4235
-        return new Resource({
-            'telemetry.distro.name': 'elastic',
-            'telemetry.distro.version': ELASTIC_SDK_VERSION,
-        });
+        return {
+            attributes: {
+                'telemetry.distro.name': 'elastic',
+                'telemetry.distro.version': ELASTIC_SDK_VERSION,
+            },
+        };
     },
 };
 
-/** @type {Record<string, DetectorSync | Array<DetectorSync>>} */
+/** @type {Record<string, ResourceDetector | Array<ResourceDetector>>} */
 const defaultDetectors = {
-    env: envDetectorSync,
-    process: processDetectorSync,
-    serviceinstance: serviceInstanceIdDetectorSync,
-    os: osDetectorSync,
-    host: hostDetectorSync,
+    env: envDetector,
+    process: processDetector,
+    serviceinstance: serviceInstanceIdDetector,
+    os: osDetector,
+    host: hostDetector,
     container: containerDetector,
     alibaba: alibabaCloudEcsDetector,
     aws: [
@@ -80,24 +77,26 @@ const defaultDetectors = {
 };
 
 /**
- * @param {Array<DetectorSync>} [detectors]
- * @returns {Array<DetectorSync>}
+ * @param {Array<ResourceDetector>} [detectors]
+ * @returns {Array<ResourceDetector>}
  */
 function resolveDetectors(detectors) {
     if (detectors) {
-        detectors.push(distroDetectorSync);
+        detectors.push(distroDetector);
         return detectors;
     }
 
-    let detectorKeys = getEnvVar('OTEL_NODE_RESOURCE_DETECTORS');
+    let detectorKeys = getStringListFromEnv('OTEL_NODE_RESOURCE_DETECTORS') || [
+        'all',
+    ];
     if (detectorKeys.some((k) => k === 'all')) {
         detectorKeys = Object.keys(defaultDetectors);
     } else if (detectorKeys.some((k) => k === 'none')) {
         return [];
     }
 
-    /** @type {Array<DetectorSync | DetectorSync[]>} */
-    const resolvedDetectors = [distroDetectorSync];
+    /** @type {Array<ResourceDetector | ResourceDetector[]>} */
+    const resolvedDetectors = [distroDetector];
     for (const key of detectorKeys) {
         if (defaultDetectors[key]) {
             resolvedDetectors.push(defaultDetectors[key]);

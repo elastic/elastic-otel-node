@@ -1,6 +1,3 @@
-/** @type {metricsSdk.View[]} */
-export const HOST_METRICS_VIEWS: metricsSdk.View[];
+/** @type {import('@opentelemetry/sdk-metrics').ViewOptions[]} */
+export const HOST_METRICS_VIEWS: import('@opentelemetry/sdk-metrics').ViewOptions[];
 export function enableHostMetrics(): void;
-import { metrics as metricsSdk } from "@opentelemetry/sdk-node";
-declare const View: typeof metricsSdk.View;
-export {};
