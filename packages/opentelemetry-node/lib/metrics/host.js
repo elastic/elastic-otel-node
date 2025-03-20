@@ -3,17 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-const {metrics} = require('@opentelemetry/api');
 const {AggregationType} = require('@opentelemetry/sdk-metrics');
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 /** @type {HostMetrics} */
 let hostMetricsInstance;
 function enableHostMetrics() {
-    hostMetricsInstance = new HostMetrics({
-        // Pass in default meterProvider to avoid a log.warn('No meter provider, using default').
-        meterProvider: metrics.getMeterProvider(),
-    });
+    hostMetricsInstance = new HostMetrics();
     hostMetricsInstance.start();
 }
 

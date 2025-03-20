@@ -7,6 +7,11 @@
   EDOT Node.js for their application.
   (https://github.com/elastic/elastic-otel-node/pull/663)
 
+- chore: Use `peerDependencies` for `@opentelemetry/api` dep, and cap it to a
+  known-supported maximum version, according to [OTel JS guidance for
+  implementors](https://github.com/open-telemetry/opentelemetry-js/issues/4832)
+  (https://github.com/elastic/elastic-otel-node/issues/606)
+
 ## v0.7.0
 
 - BREAKING CHANGE: Bump min-supported node to `^18.19.0 || >=20.6.0`.
