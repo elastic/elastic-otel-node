@@ -7,6 +7,46 @@
  * @typedef {import('@opentelemetry/sdk-node').NodeSDKConfiguration} NodeSDKConfiguration
  */
 
+// A total hack to add a prefix to the User-Agent from the exporters until
+// https://github.com/open-telemetry/opentelemetry-js/issues/4447
+// provides a blessed mechanism.
+//
+// Dev Notes:
+// - This patches *http* and *https*, which is crazy, but means that this works
+//   with bundling as well.
+// - If ignoring bundling we could attempt to patch `sendWithHttp` in
+//   "otlp-exporter-base/src/transport/http-transport-utils.ts".
+// - Another alternative would be to reach into the Exporters. This may be a
+//   little fraught given (a) custom SDK opts from the user and (b) the headers
+//   on the default trace exporter is at this object path:
+//      this._tracerProvider._activeSpanProcessor._spanProcessors[0]._exporter._delegate._transport._transport._parameters.headers()
+//
+// @ts-ignore - compiler options do not allow lookup outside `lib` folder
+const ELASTIC_SDK_VERSION = require('../package.json').version;
+const USER_AGENT_PREFIX = `elastic-otel-node/${ELASTIC_SDK_VERSION}`;
+const {Hook} = require('require-in-the-middle');
+new Hook(['http', 'https'], (mod, name, baseDir) => {
+    const origRequest = mod.request;
+    const newRequest = function (...args) {
+        const opts = args?.[0];
+        if (
+            opts &&
+            opts.method === 'POST' &&
+            // TODO: support other signals
+            opts.path === '/v1/traces' &&
+            opts.headers?.['User-Agent']?.startsWith(
+                'OTel-OTLP-Exporter-JavaScript/'
+            )
+        ) {
+            opts.headers['User-Agent'] =
+                USER_AGENT_PREFIX + ' ' + opts.headers['User-Agent'];
+        }
+        return origRequest.call(this, ...args);
+    };
+    mod.request = newRequest;
+    return mod;
+});
+
 const os = require('os');
 
 const {
