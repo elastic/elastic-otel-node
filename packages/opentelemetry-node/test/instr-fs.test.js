@@ -6,7 +6,7 @@
 // Test that 'express' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {runTestFixtures} = require('./testutils');
+const {runTestFixtures, findObjInArray} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -39,28 +39,30 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            // We expect spans like this
-            // ------ trace 7c87d0 (1 span) ------
-            //        span 1ecc98 "fs statSync" (0.0ms, SPAN_KIND_INTERNAL)
-            // ------ trace 281967 (1 span) ------
-            //        span 7bab63 "fs statSync" (0.0ms, SPAN_KIND_INTERNAL)
-            // ------ trace 8b214a (1 span) ------
-            //        span 417068 "fs readFileSync" (0.1ms, SPAN_KIND_INTERNAL)
-            // ------ trace d61bc6 (1 span) ------
-            //        span a6f9cc "fs statSync" (0.1ms, SPAN_KIND_INTERNAL)
-            // ------ trace 292114 (2 spans) ------
-            //        span c66b96 "manual-span" (6.6ms, SPAN_KIND_INTERNAL)
-            //   +1ms `- span 5b7d1c "fs stat" (6.3ms, SPAN_KIND_INTERNAL)
+            // We expect (a) some number of fs spans with no parent:
+            //     ------ trace 7c87d0 (1 span) ------
+            //          span 1ecc98 "fs statSync" (0.0ms, SPAN_KIND_INTERNAL)
+            //     ------ trace 281967 (1 span) ------
+            //          span 7bab63 "fs statSync" (0.0ms, SPAN_KIND_INTERNAL)
+            //     ...
+            // and (b) this:
+            //     ------ trace 292114 (2 spans) ------
+            //          span c66b96 "manual-span" (6.6ms, SPAN_KIND_INTERNAL)
+            //     +1ms `- span 5b7d1c "fs stat" (6.3ms, SPAN_KIND_INTERNAL)
             const spans = col.sortedSpans;
-            t.equal(spans.length, 18);
 
-            t.strictEqual(
-                spans.filter(
-                    (s) => s.scope.name === '@opentelemetry/instrumentation-fs'
-                ).length,
-                17
+            const manualSpan = findObjInArray(spans, 'name', 'manual-span');
+            const childSpan = findObjInArray(
+                spans,
+                'parentSpanId',
+                manualSpan.spanId
             );
-            t.ok(spans.every((s) => s.kind === 'SPAN_KIND_INTERNAL'));
+            t.ok(childSpan);
+            t.strictEqual(childSpan.name, 'fs stat');
+            t.strictEqual(
+                childSpan.scope.name,
+                '@opentelemetry/instrumentation-fs'
+            );
         },
     },
 ];
