@@ -25,27 +25,34 @@
 const ELASTIC_SDK_VERSION = require('../package.json').version;
 const USER_AGENT_PREFIX = `elastic-otel-node/${ELASTIC_SDK_VERSION}`;
 const {Hook} = require('require-in-the-middle');
-new Hook(['http', 'https'], (mod, name, baseDir) => {
-    const origRequest = mod.request;
-    const newRequest = function (...args) {
-        const opts = args?.[0];
-        if (
-            opts &&
-            opts.method === 'POST' &&
-            // TODO: support other signals
-            opts.path === '/v1/traces' &&
-            opts.headers?.['User-Agent']?.startsWith(
-                'OTel-OTLP-Exporter-JavaScript/'
-            )
-        ) {
-            opts.headers['User-Agent'] =
-                USER_AGENT_PREFIX + ' ' + opts.headers['User-Agent'];
-        }
-        return origRequest.call(this, ...args);
-    };
-    mod.request = newRequest;
-    return mod;
-});
+new Hook(
+    ['http', 'https'],
+    /**
+     * @param {any} mod
+     * @param {string} name
+     */
+    (mod, name) => {
+        const origRequest = mod.request;
+        const newRequest = function (...args) {
+            const opts = args?.[0];
+            if (
+                opts &&
+                opts.method === 'POST' &&
+                // TODO: support other signals
+                opts.path === '/v1/traces' &&
+                opts.headers?.['User-Agent']?.startsWith(
+                    'OTel-OTLP-Exporter-JavaScript/'
+                )
+            ) {
+                opts.headers['User-Agent'] =
+                    USER_AGENT_PREFIX + ' ' + opts.headers['User-Agent'];
+            }
+            return origRequest.call(this, ...args);
+        };
+        mod.request = newRequest;
+        return mod;
+    }
+);
 
 const os = require('os');
 
