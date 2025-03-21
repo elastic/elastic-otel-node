@@ -104,17 +104,10 @@ class ElasticNodeSDK extends NodeSDK {
                 getNumberFromEnv('OTEL_METRIC_EXPORT_INTERVAL') ?? 60000;
             const metricsTimeout =
                 getNumberFromEnv('OTEL_METRIC_EXPORT_TIMEOUT') ?? 30000;
-            // Note: setting default temporality to delta for histogram storing
-            // ref: https://github.com/elastic/opentelemetry/pull/63
-            const metricsTemporalityPreference =
-                getStringFromEnv(
-                    'OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE'
-                ) ?? 'delta';
+
             defaultConfig.metricReader =
                 new metrics.PeriodicExportingMetricReader({
-                    exporter: new OTLPMetricExporter({
-                        temporalityPreference: metricsTemporalityPreference,
-                    }),
+                    exporter: new OTLPMetricExporter(),
                     exportIntervalMillis: metricsInterval,
                     exportTimeoutMillis: metricsTimeout,
                 });
