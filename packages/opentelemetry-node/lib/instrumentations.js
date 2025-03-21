@@ -259,6 +259,12 @@ function getInstrumentations(opts = {}) {
         'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
     );
 
+    // `@opentelemetry/instrumentation-http` defaults to emit old semconv attributes.
+    // Set the default to stable semconv if not defined by the user
+    if (!('OTEL_SEMCONV_STABILITY_OPT_IN' in process.env)) {
+        process.env.OTEL_SEMCONV_STABILITY_OPT_IN = 'http';
+    }
+
     Object.keys(instrumentationsMap).forEach((name) => {
         // Skip if env has an `enabled` list and does not include this one
         if (enabledFromEnv && !enabledFromEnv.includes(name)) {
