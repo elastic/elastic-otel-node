@@ -10,6 +10,7 @@ const {
     filterOutDnsNetSpans,
     runTestFixtures,
     findObjInArray,
+    filterOutGcpDetectorSpans,
 } = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
@@ -36,7 +37,7 @@ const testFixtures = [
             //   +0ms   `- span 2092ee "middleware - query" (0.1ms, SPAN_KIND_INTERNAL)
             //   +0ms   `- span 033a59 "middleware - expressInit" (0.1ms, SPAN_KIND_INTERNAL)
             //   +1ms   `- span 5573dc "request handler - /hi/:name" (0.0ms, SPAN_KIND_INTERNAL)
-            const spans = filterOutDnsNetSpans(col.sortedSpans);
+            const spans = filterOutGcpDetectorSpans(filterOutDnsNetSpans(col.sortedSpans));
             t.equal(spans.length, 10);
 
             t.equal(spans[0].scope.name, '@opentelemetry/instrumentation-http');

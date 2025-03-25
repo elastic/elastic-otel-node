@@ -6,7 +6,7 @@
 const {satisfies} = require('semver');
 const test = require('tape');
 
-const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
+const {filterOutDnsNetSpans, runTestFixtures, filterOutGcpDetectorSpans} = require('./testutils');
 
 function getNodeVerRangeForCurrUndici() {
     const undiciVer = require('undici/package.json').version;
@@ -34,7 +34,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = filterOutDnsNetSpans(col.sortedSpans);
+            const spans = filterOutGcpDetectorSpans(filterOutDnsNetSpans(col.sortedSpans));
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-undici');
@@ -56,7 +56,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans;
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-undici');
@@ -84,7 +84,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans;
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-undici');

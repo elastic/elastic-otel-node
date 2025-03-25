@@ -6,7 +6,7 @@
 // Test that 'hapi' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {runTestFixtures, findObjInArray} = require('./testutils');
+const {runTestFixtures, findObjInArray, filterOutGcpDetectorSpans} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -31,7 +31,7 @@ const testFixtures = [
             //        span 9a96c1 "GET" (2.0ms, SPAN_KIND_CLIENT, GET http://localhost:3000/hi/Bob -> 200)
             //   +1ms `- span dfacba "GET /hi/{name}" (0.5ms, SPAN_KIND_SERVER, GET http://localhost:3000/hi/Bob -> 200)
             //   +0ms   `- span 71a126 "route - /hi/{name}" (0.0ms, SPAN_KIND_INTERNAL, GET)
-            const spans = col.sortedSpans;
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
             t.equal(spans.length, 6);
 
             t.equal(spans[0].scope.name, '@opentelemetry/instrumentation-http');

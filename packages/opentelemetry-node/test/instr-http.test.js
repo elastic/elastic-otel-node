@@ -6,7 +6,7 @@
 // Test that 'http' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {runTestFixtures} = require('./testutils');
+const {runTestFixtures, filterOutGcpDetectorSpans} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -19,8 +19,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans;
-            console.log(spans)
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
@@ -39,14 +38,14 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans;
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
             t.equal(span.name, 'GET');
             t.equal(span.kind, 'SPAN_KIND_CLIENT');
             t.equal(span.attributes['http.url'], undefined);
-            t.equal(span.attributes['url.full'], 'http://www.google.com/');
+            t.equal(span.attributes['url.full'], 'https://www.google.com/');
         },
     },
     {
@@ -59,7 +58,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans;
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
@@ -79,14 +78,14 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans;
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
             t.equal(spans.length, 1);
             const span = spans[0];
             t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
             t.equal(span.name, 'GET');
             t.equal(span.kind, 'SPAN_KIND_CLIENT');
             t.equal(span.attributes['http.url'], 'https://www.google.com/');
-            t.equal(span.attributes['url.full'], 'http://www.google.com/');
+            t.equal(span.attributes['url.full'], 'https://www.google.com/');
         },
     },
     {
@@ -106,7 +105,7 @@ const testFixtures = [
             //     ------ trace b8467d (2 spans) ------
             //            span bc8a2c "POST" (3.8ms, SPAN_KIND_CLIENT, POST http://127.0.0.1:64972/echo -> 200)
             //      +2ms `- span 4e7adf "POST" (1.1ms, SPAN_KIND_SERVER, POST http://127.0.0.1:64972/echo -> 200)
-            const spans = col.sortedSpans;
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
             t.equal(spans.length, 4);
             t.equal(spans[0].scope.name, '@opentelemetry/instrumentation-http');
             t.equal(spans[0].name, 'GET');
