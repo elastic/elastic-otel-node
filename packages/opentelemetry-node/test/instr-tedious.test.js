@@ -5,7 +5,11 @@
 
 const test = require('tape');
 const semver = require('semver');
-const {filterOutDnsNetSpans, filterOutGcpDetectorSpans, runTestFixtures} = require('./testutils');
+const {
+    filterOutDnsNetSpans,
+    filterOutGcpDetectorSpans,
+    runTestFixtures,
+} = require('./testutils');
 
 const tediousVer = require('tedious/package.json').version;
 let skip = process.env.MSSQL_HOST === undefined;
@@ -45,7 +49,9 @@ const testFixtures = [
             // ------ trace d1755e (2 spans) ------
             //           span 6bb8d8 "manual-parent-span" (54.3ms, SPAN_KIND_INTERNAL)
             //  +51ms `- span fb837e "execSql master" (3.0ms, SPAN_KIND_CLIENT)
-            const spans = filterOutGcpDetectorSpans(filterOutDnsNetSpans(col.sortedSpans));
+            const spans = filterOutGcpDetectorSpans(
+                filterOutDnsNetSpans(col.sortedSpans)
+            );
             t.equal(spans.length, 2);
 
             const s = spans.pop();

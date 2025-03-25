@@ -97,10 +97,9 @@ function filterOutGcpDetectorSpans(spans) {
     return spans.filter(
         (s) =>
             s.scope.name !== '@opentelemetry/instrumentation-http' ||
-            ![
-                '169.254.169.254',
-                'metadata.google.internal.',
-            ].includes(s.attributes['server.address'])
+            !['169.254.169.254', 'metadata.google.internal.'].includes(
+                s.attributes['server.address']
+            )
     );
 }
 

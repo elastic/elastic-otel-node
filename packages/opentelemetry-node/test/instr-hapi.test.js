@@ -6,7 +6,11 @@
 // Test that 'hapi' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {runTestFixtures, findObjInArray, filterOutGcpDetectorSpans} = require('./testutils');
+const {
+    runTestFixtures,
+    findObjInArray,
+    filterOutGcpDetectorSpans,
+} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
