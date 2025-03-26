@@ -40,7 +40,6 @@ const testFixtures = [
             //        span 7e8ca8 "embeddings all-minilm:22m" (26.4ms, SPAN_KIND_CLIENT, GenAI openai)
             //   +9ms `- span 39fc32 "POST" (16.7ms, SPAN_KIND_CLIENT, POST http://127.0.0.1:11434/v1/embeddings -> 200)
             const spans = filterOutGcpDetectorSpans(col.sortedSpans);
-            console.log(spans);
             assertDeepMatch(
                 t,
                 spans,
