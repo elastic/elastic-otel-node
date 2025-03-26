@@ -11,7 +11,7 @@ const {runTestFixtures, filterOutGcpDetectorSpans} = require('./testutils');
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'http.get (stable semconv as default)',
+        name: 'http.get (stable HTTP semconv if env not set)',
         args: ['./fixtures/use-http-get.js'],
         cwd: __dirname,
         env: {
@@ -30,7 +30,27 @@ const testFixtures = [
         },
     },
     {
-        name: 'https.get (stable semconv as default)',
+        name: 'http.get (stable HTTP semconv if env set with other values)',
+        args: ['./fixtures/use-http-get.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            OTEL_SEMCONV_STABILITY_OPT_IN: 'db/dup,foo',
+        },
+        // verbose: true,
+        checkTelemetry: (t, col) => {
+            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
+            t.equal(spans.length, 1);
+            const span = spans[0];
+            t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
+            t.equal(span.name, 'GET');
+            t.equal(span.kind, 'SPAN_KIND_CLIENT');
+            t.equal(span.attributes['http.url'], undefined);
+            t.equal(span.attributes['url.full'], 'http://www.google.com/');
+        },
+    },
+    {
+        name: 'https.get (stable HTTP semconv if env not set)',
         args: ['./fixtures/use-https-get.js'],
         cwd: __dirname,
         env: {
@@ -49,7 +69,7 @@ const testFixtures = [
         },
     },
     {
-        name: 'http.get (dual mode semconv)',
+        name: 'http.get (dual HTTP semconv if user set in env)',
         args: ['./fixtures/use-http-get.js'],
         cwd: __dirname,
         env: {
@@ -69,7 +89,7 @@ const testFixtures = [
         },
     },
     {
-        name: 'https.get (dual mode semconv)',
+        name: 'https.get (dual HTTP semconv if user set in env)',
         args: ['./fixtures/use-https-get.js'],
         cwd: __dirname,
         env: {
