@@ -94,15 +94,14 @@ function filterOutDnsNetSpans(spans) {
  */
 function filterOutGcpDetectorSpans(spans) {
     // Filter out GCP resource detector spans for testing.
-    return spans.filter(
-        (s) => {
-            if (s.scope.name !== '@opentelemetry/instrumentation-http') {
-                return true;
-            }
-            const urlAttr = s.attributes['http.url'] || s.attributes['url.full'] || '';
-            return !urlAttr.endsWith('/computeMetadata/v1/instance');
+    return spans.filter((s) => {
+        if (s.scope.name !== '@opentelemetry/instrumentation-http') {
+            return true;
         }
-    );
+        const urlAttr =
+            s.attributes['http.url'] || s.attributes['url.full'] || '';
+        return !urlAttr.endsWith('/computeMetadata/v1/instance');
+    });
 }
 
 /**
