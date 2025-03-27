@@ -263,10 +263,10 @@ function getInstrumentations(opts = {}) {
     // Set the default to stable HTTP semconv if not defined by the user (http, http/dup)
     const semconvOptIn =
         getStringListFromEnv('OTEL_SEMCONV_STABILITY_OPT_IN') || [];
-    if (!semconvOptIn.some((v) => v.startsWith('http'))) {
+    if (!semconvOptIn.includes('http') && !semconvOptIn.includes('http/dup')) {
         semconvOptIn.push('http');
+        process.env.OTEL_SEMCONV_STABILITY_OPT_IN = semconvOptIn.join(',');
     }
-    process.env.OTEL_SEMCONV_STABILITY_OPT_IN = semconvOptIn.join(',');
 
     Object.keys(instrumentationsMap).forEach((name) => {
         // Skip if env has an `enabled` list and does not include this one
