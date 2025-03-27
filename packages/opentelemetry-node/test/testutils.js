@@ -393,7 +393,8 @@ class TestCollector {
                 });
             });
         });
-        spans.sort((a, b) => {
+
+        return spans.sort((a, b) => {
             assert(typeof a.startTimeUnixNano === 'string');
             assert(typeof b.startTimeUnixNano === 'string');
             let aStartInt = BigInt(a.startTimeUnixNano);
@@ -413,15 +414,6 @@ class TestCollector {
             }
 
             return aStartInt < bStartInt ? -1 : aStartInt > bStartInt ? 1 : 0;
-        });
-
-        // NOTE: Ignore spans from the GCP detector for testing. It shouldn't be
-        // creating spans, but that should be fixed upstream.
-        return spans.filter((s) => {
-            const attrs = s.attributes;
-            const url = attrs && attrs['http.url'];
-            // GCP detector does request to a specific path
-            return !url || !url.endsWith('/computeMetadata/v1/instance');
         });
     }
 
