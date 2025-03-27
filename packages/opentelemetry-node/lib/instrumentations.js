@@ -261,6 +261,8 @@ function getInstrumentations(opts = {}) {
 
     // `@opentelemetry/instrumentation-http` defaults to emit old semconv attributes.
     // Set the default to stable HTTP semconv if not defined by the user (http, http/dup)
+    // TODO: remove this once https://github.com/open-telemetry/opentelemetry-js/pull/5552
+    // is merged and published.
     const semconvOptIn =
         getStringListFromEnv('OTEL_SEMCONV_STABILITY_OPT_IN') || [];
     if (!semconvOptIn.includes('http') && !semconvOptIn.includes('http/dup')) {
