@@ -95,11 +95,13 @@ function filterOutDnsNetSpans(spans) {
 function filterOutGcpDetectorSpans(spans) {
     // Filter out GCP resource detector spans for testing.
     return spans.filter(
-        (s) =>
-            s.scope.name !== '@opentelemetry/instrumentation-http' ||
-            !['169.254.169.254', 'metadata.google.internal.'].includes(
-                s.attributes['server.address']
-            )
+        (s) => {
+            if (s.scope.name !== '@opentelemetry/instrumentation-http') {
+                return true;
+            }
+            const urlAttr = s.attributes['http.url'] || s.attributes['url.full'] || '';
+            return !urlAttr.endsWith('/computeMetadata/v1/instance');
+        }
     );
 }
 
