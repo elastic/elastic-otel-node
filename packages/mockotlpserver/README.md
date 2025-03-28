@@ -21,6 +21,7 @@ if you use that:
 
 ```
 npx @elastic/mockotlpserver
+npx @elastic/mockotlpserver --help
 ```
 
 or via the published `ghcr.io/elastic/elastic-otel-node/mockotlpserver` Docker image:
@@ -44,9 +45,9 @@ By default, mockotlpserver will output received OTLP data in two forms:
    output is poor.
 
 For example, here is the output when receiving telemetry data from a small
-script that creates and HTTP server and makes a single request.
-(This example uses the Elastic Distribution of OpenTelemetry Node.js for
-instrumentation, the upstream OpenTelemetry Node SDK could be used as well.)
+script that creates an HTTP server and makes a single request.
+(This example uses the [Elastic Distribution of OpenTelemetry Node.js](../opentelemetry-node/) for
+instrumentation, the [upstream OpenTelemetry Node SDK](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/metapackages/auto-instrumentations-node/README.md) could be used as well.)
 
 ```bash
 git clone git@github.com:elastic/elastic-otel-node.git

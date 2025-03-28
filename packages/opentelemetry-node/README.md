@@ -1,46 +1,42 @@
-# Elastic Distribution of OpenTelemetry Node.js
+# EDOT Node.js
 
-> [!WARNING]
-> The Elastic Distribution of OpenTelemetry Node.js is not yet recommended for production use. Functionality may be changed or removed in future releases. Alpha releases are not subject to the support SLA of official GA features.
->
-> We welcome your feedback! You can reach us by [opening a GitHub issue](https://github.com/elastic/elastic-otel-node/issues) or starting a discussion thread on the [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs).
-
-The Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js) is a lightweight wrapper around the [OpenTelemetry SDK for Node.js](https://opentelemetry.io/docs/languages/js) that makes it easier to get started using OpenTelemetry in your Node.js applications, especially if you are using [Elastic Observability](https://www.elastic.co/observability) as your observability solution.
+The Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js) is a lightweight wrapper around the [OpenTelemetry SDK for Node.js](https://opentelemetry.io/docs/languages/js) that makes it easy to get started using OpenTelemetry in your Node.js applications, especially if you are using [Elastic Observability](https://www.elastic.co/observability) as your observability solution.
 
 > [!NOTE]
 > For more details about OpenTelemetry distributions in general, visit the [OpenTelemetry documentation](https://opentelemetry.io/docs/concepts/distributions).
 
-With EDOT Node.js you have access to all the features of the OpenTelemetry SDK for Node.js plus:
-
-* Access to SDK improvements and bug fixes contributed by the Elastic team _before_ the changes are available upstream in the OpenTelemetry JavaScript repositories.
-* A single package that includes several OpenTelemetry packages as dependencies, so you only need to install and update a single package (for most use cases). This is similar to OpenTelemetry's `@opentelemetry/auto-instrumentations-node` package.
-
-<!-- I don't think we want to highlight this yet -->
-<!-- * Providing an eventual easy migration path for customers of our current non-OpenTelemetry-based [Node.js APM agent](https://github.com/elastic/apm-agent-nodejs) to this SDK may be made easier by having our own package entry point. -->
-
-Use EDOT Node.js to start the OpenTelemetry SDK with your Node.js application to automatically capture tracing data, performance metrics, and logs. EDOT Node.js will automatically instrument [popular modules](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations) used by your service, and send the data to your configured observability backend using the OpenTelemetry protocol (OTLP).
-
-**Ready to try out EDOT Node.js?** Follow the step-by-step instructions in [Get started](./docs/get-started.md).
-
-## Install
-
-```sh
+```bash
+# Install it
 npm install --save @elastic/opentelemetry-node
+
+# Configure it
+export OTEL_EXPORTER_OTLP_ENDPOINT="...your-OTLP/collector-endpoint..."
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=..."
+export OTEL_SERVICE_NAME="my-app"
+
+# Start it with your application
+node --import @elastic/opentelemetry-node my-app.js
 ```
 
-## Run
+See [the EDOT Node.js docs](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/index.html) for details.
 
-```sh
-node --import @elastic/opentelemetry-node my-service.js
-```
+* [Get started](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/setup/index.html)
+* [Configuration](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/configuration.html)
+* [Changelog](https://github.com/elastic/elastic-otel-node/blob/main/packages/opentelemetry-node/CHANGELOG.md)
+* [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs) | [GitHub issue tracker](https://github.com/elastic/elastic-otel-node/issues)
 
-## Read the docs
+<!--
 
-* [Get started](./docs/get-started.md)
-* [Configure the distro](./docs/configure.md)
-* [Supported technologies](./docs/supported-technologies.md)
-* [Metrics](./docs/metrics.md)
+## How does EDOT Node.js differ from the OpenTelemetry JS SDK?
 
-## Limitations
+EDOT Node.js is very similar to the `@opentelemetry/auto-instrumentations-node` package from OpenTelemetry in its usage goal: a single-dependency that provides a simple path to zero-code instrumentation of Node.js applications. In general, Elastic's goal is to contribute all SDK improvements upstream. That said, there are sometimes differences that are specific to Elastic (e.g. talking to an Elastic service for central configuration, Elastic-authored additional instrumentations). Here is a (hopefully up-to-date) concise list of differences:
 
-We expect to support most every instrumentation included in [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#supported-instrumentations). However, currently only a subset is supported. See [the supported instrumentations here](./docs/supported-technologies.md#instrumentations).
+- instr-openai
+- added `telemetry.distro.*` resource attributes
+- feat: using IITM's `createAddHookMessageChannel` for improved ESM support
+- diag logging in (luggite) JSON format
+- OTEL_SEMCONV_STABILITY_OPT_IN=http, expected to be short-lived diff
+- OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta
+- metrics: host-metrics (subset of) and instr-runtime-node on by default
+
+-->
