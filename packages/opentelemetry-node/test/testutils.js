@@ -280,7 +280,7 @@ function quoteEnv(env) {
  * @property {string} startTimeUnixNano
  * @property {string} timeUnixNano
  * @property {number} asDouble
- * @property {Record<string, any} [attributes]
+ * @property {Record<string, any>} [attributes]
  */
 /**
  * @typedef {Object} GaugeMetricData
@@ -291,12 +291,18 @@ function quoteEnv(env) {
  * @property {DataPointDouble[]} dataPoints
  */
 /**
+ * @typedef {Object} HistogramMetricData
+ * @property {number} aggregationTemporality
+ * @property {DataPointDouble[]} dataPoints
+ */
+/**
  * @typedef {Object} CollectedMetric
  * @property {string} name
  * @property {string} description
  * @property {string} unit
  * @property {GaugeMetricData} [gauge]
  * @property {SumMetricData} [sum]
+ * @property {HistogramMetricData} [histogram]
  */
 
 /**

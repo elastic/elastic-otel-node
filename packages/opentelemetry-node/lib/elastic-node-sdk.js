@@ -73,14 +73,16 @@ class ElasticNodeSDK extends NodeSDK {
         // https://opentelemetry.io/docs/concepts/sdk-configuration/general-sdk-configuration/#otel_metrics_exporter
         // For now we configure periodic (60s) export via OTLP/proto.
         // TODO metrics exporter should do for metrics what `TracerProviderWithEnvExporters` does for traces, does that include `url` export endpoint?
-        
-        const temporalityPreference = getStringFromEnv('OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE');
+
+        const temporalityPreference = getStringFromEnv(
+            'OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE'
+        );
         if (typeof temporalityPreference === 'undefined') {
             // Setting default temporality to delta to avoid histogram storing issues in ES
             // Ref: https://github.com/elastic/opentelemetry/pull/63
-            process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE = 'delta';
+            process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE =
+                'delta';
         } else if (temporalityPreference !== 'delta') {
-            // TODO: warning to let know the user there will be problems with histograms??
             log.warn(
                 `Metrics temporality preference is set to "${temporalityPreference}". Use "delta" for proper analysis of histogram metrics in Kibana`
             );
