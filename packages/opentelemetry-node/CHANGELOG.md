@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- feat: Default to stable semantic conventions for HTTP instrumentation.
+  (https://github.com/elastic/elastic-otel-node/pull/669)
+
 - Upgrade upstream OTel dependencies to SDK 2.0. This should be non-breaking
   for users of `node --import @elastic/opentelemetry-node my-app.js` to start
   EDOT Node.js for their application.

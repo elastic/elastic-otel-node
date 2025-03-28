@@ -6,7 +6,11 @@
 // Test that instrumentation-grpc generates the telemetry we expect.
 
 const test = require('tape');
-const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
+const {
+    filterOutDnsNetSpans,
+    runTestFixtures,
+    filterOutGcpDetectorSpans,
+} = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
@@ -19,7 +23,9 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = filterOutDnsNetSpans(col.sortedSpans);
+            const spans = filterOutGcpDetectorSpans(
+                filterOutDnsNetSpans(col.sortedSpans)
+            );
             t.equal(spans.length, 2);
             t.equal(spans[0].kind, 'SPAN_KIND_CLIENT');
             t.equal(spans[1].kind, 'SPAN_KIND_SERVER');
