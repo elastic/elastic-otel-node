@@ -3,6 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+const {
+    getStringListFromEnv,
+    getBooleanFromEnv,
+} = require('@opentelemetry/core');
+const {log} = require('./logging');
+
 /**
  * @typedef {import('@opentelemetry/instrumentation').Instrumentation} Instrumentation
  *
@@ -95,9 +101,6 @@ const {TediousInstrumentation} = require('@opentelemetry/instrumentation-tedious
 const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici');
 const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
 
-const {log} = require('./logging');
-const {getEnvVar} = require('./environment');
-
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
 // https://github.com/open-telemetry/opentelemetry-js/blob/1b4999f386e0240b7f65350e8360ccc2930b0fe6/experimental/packages/opentelemetry-instrumentation/src/platform/node/instrumentation.ts#L71
@@ -112,7 +115,7 @@ const instrumentationsMap = {
     '@opentelemetry/instrumentation-aws-sdk': (cfg) => new AwsInstrumentation(cfg),
     '@opentelemetry/instrumentation-bunyan': (cfg) => new BunyanInstrumentation(cfg),
     '@opentelemetry/instrumentation-connect': (cfg) => new ConnectInstrumentation(cfg),
-    '@opentelemetry/instrumentation-cassandra-driver': (cfg) => new CassandraDriverInstrumentation(cfg), 
+    '@opentelemetry/instrumentation-cassandra-driver': (cfg) => new CassandraDriverInstrumentation(cfg),
     '@opentelemetry/instrumentation-cucumber': (cfg) => new CucumberInstrumentation(cfg),
     '@opentelemetry/instrumentation-dataloader': (cfg) => new DataloaderInstrumentation(cfg),
     '@opentelemetry/instrumentation-dns': (cfg) => new DnsInstrumentation(cfg),
@@ -179,9 +182,9 @@ for (const name of Object.keys(instrumentationsMap)) {
  * @returns {Array<string> | undefined}
  */
 function getInstrumentationsFromEnv(envvar) {
-    if (process.env[envvar]) {
+    const names = getStringListFromEnv(envvar);
+    if (names) {
         const instrumentations = [];
-        const names = process.env[envvar].split(',').map((s) => s.trim());
 
         for (const name of names) {
             if (otelInstrShortNames.has(name)) {
@@ -256,6 +259,17 @@ function getInstrumentations(opts = {}) {
         'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
     );
 
+    // `@opentelemetry/instrumentation-http` defaults to emit old semconv attributes.
+    // Set the default to stable HTTP semconv if not defined by the user (http, http/dup)
+    // TODO: remove this once https://github.com/open-telemetry/opentelemetry-js/pull/5552
+    // is merged and published.
+    const semconvOptIn =
+        getStringListFromEnv('OTEL_SEMCONV_STABILITY_OPT_IN') || [];
+    if (!semconvOptIn.includes('http') && !semconvOptIn.includes('http/dup')) {
+        semconvOptIn.push('http');
+        process.env.OTEL_SEMCONV_STABILITY_OPT_IN = semconvOptIn.join(',');
+    }
+
     Object.keys(instrumentationsMap).forEach((name) => {
         // Skip if env has an `enabled` list and does not include this one
         if (enabledFromEnv && !enabledFromEnv.includes(name)) {
@@ -267,7 +281,8 @@ function getInstrumentations(opts = {}) {
         }
 
         // Skip if metrics are disabled by env var
-        const isMetricsDisabled = getEnvVar('ELASTIC_OTEL_METRICS_DISABLED');
+        const isMetricsDisabled =
+            getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
         if (
             isMetricsDisabled &&
             name === '@opentelemetry/instrumentation-runtime-node'

@@ -1,3 +1,10 @@
+registries:
+  docker-elastic:
+    type: docker-registry
+    url: https://docker.elastic.co
+    username: ${{secrets.ELASTIC_DOCKER_USERNAME}}
+    password: ${{secrets.ELASTIC_DOCKER_PASSWORD}}
+
 version: 2
 updates:
   - package-ecosystem: "npm"
@@ -100,3 +107,11 @@ updates:
       github-actions:
         patterns:
           - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    registries: "*"
+    reviewers:
+      - "elastic/apm-agent-node-js"
+    schedule:
+      interval: "weekly"
