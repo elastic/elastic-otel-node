@@ -2,7 +2,7 @@
   "name": "@elastic/opentelemetry-node",
   "version": "0.7.0",
   "type": "commonjs",
-  "description": "Elastic Distribution of OpenTelemetry Node.js",
+  "description": "Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js)",
   "publishConfig": {
     "access": "public",
     "provenance": true
@@ -23,6 +23,7 @@
     "logs"
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",
+  "homepage": "https://github.com/elastic/elastic-otel-node/tree/main/packages/opentelemetry-node#readme",
   "engines": {
     "node": "^18.19.0 || >=20.6.0"
   },
