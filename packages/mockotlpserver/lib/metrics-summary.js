@@ -30,7 +30,7 @@ class MetricsSummaryPrinter extends Printer {
                 scopes.push(scope);
                 for (let metric of scopeMetric.metrics) {
                     if (metric.histogram) {
-                        // histogram "${name}" (unit=${unit})
+                        // histogram "${name}" (unit=${unit}):
                         //     ${metricValueRepr}    | <-- one for each data point
                         //     ${attrsRepr}          |
                         //     --
@@ -40,7 +40,7 @@ class MetricsSummaryPrinter extends Printer {
                             `${style('histogram', 'bold')} "${style(
                                 metric.name,
                                 'magenta'
-                            )}" (unit=${metric.unit})`
+                            )}" (unit=${metric.unit}):`
                         );
                         for (
                             let i = 0;
@@ -66,6 +66,98 @@ class MetricsSummaryPrinter extends Printer {
                                 });
                                 rendering.push('    ' + attrSummary);
                             }
+                        }
+                    } else if (metric.gauge) {
+                        // gauge "${name}" (unit=${unit}):
+                        //     ${metricValueRepr} ${attrsRepr}   <-- one for each data point
+                        // Merged onto one line if just one data-point.
+                        rendering.push(
+                            `${style('gauge', 'bold')} "${style(
+                                metric.name,
+                                'magenta'
+                            )}" (unit=${metric.unit})`
+                        );
+                        const dpReprs = metric.gauge.dataPoints.map((dp) => {
+                            let valRepr = `${dp.asDouble}`;
+                            if (dp.attributes) {
+                                let attrRepr = util.inspect(dp.attributes, {
+                                    depth: 10,
+                                    colors: true,
+                                    breakLength: Infinity,
+                                });
+                                return [valRepr, attrRepr];
+                            } else {
+                                return [valRepr];
+                            }
+                        });
+                        if (dpReprs.length === 1) {
+                            rendering[rendering.length - 1] +=
+                                `: ${dpReprs[0].join(' ')}`.trimEnd();
+                        } else if (dpReprs.length > 1) {
+                            rendering[rendering.length - 1] += ':';
+                            const COL0_WIDTH = Math.max(
+                                ...dpReprs.map((dpr) => dpr[0].length)
+                            );
+                            dpReprs.forEach((dpr) => {
+                                rendering.push(
+                                    `    ${dpr[0]}${' '.repeat(
+                                        COL0_WIDTH - dpr[0].length
+                                    )} ${dpr[1]}`.trimEnd()
+                                );
+                            });
+                        }
+                    } else if (metric.sum) {
+                        // sum "${name}" (unit=${unit}, aggTemp=${delta|cumulative}):
+                        //     ${metricValueRepr} ${attrsRepr}   <-- one for each data point
+                        // Merged onto one line if just one data-point.
+                        let aggTemp;
+                        switch (metric.sum.aggregationTemporality) {
+                            case 0:
+                                aggTemp = 'unspecified';
+                                break;
+                            case 1:
+                                aggTemp = 'delta';
+                                break;
+                            case 2:
+                                aggTemp = 'cumulative';
+                                break;
+                            default:
+                                aggTemp = metric.sum.aggregationTemporality;
+                        }
+                        rendering.push(
+                            `${style('sum', 'bold')} "${style(
+                                metric.name,
+                                'magenta'
+                            )}" (unit=${metric.unit}, aggTemp=${aggTemp})`
+                        );
+                        const dpReprs = metric.sum.dataPoints.map((dp) => {
+                            let valRepr = `${dp.asDouble}`;
+                            if (dp.attributes) {
+                                let attrRepr = util.inspect(dp.attributes, {
+                                    depth: 10,
+                                    colors: true,
+                                    breakLength: Infinity,
+                                });
+                                return [valRepr, attrRepr];
+                            } else {
+                                return [valRepr];
+                            }
+                        });
+                        if (dpReprs.length === 1) {
+                            rendering[rendering.length - 1] +=
+                                `: ${dpReprs[0].join(' ')}`.trimEnd();
+                        } else if (dpReprs.length > 1) {
+                            rendering[rendering.length - 1] += ':';
+                            const COL0_WIDTH = Math.max(
+                                ...dpReprs.map((dpr) => dpr[0].length)
+                            );
+                            dpReprs.forEach((dpr) => {
+                                rendering.push(
+                                    `    ${dpr[0]}${' '.repeat(
+                                        COL0_WIDTH - dpr[0].length
+                                    )} ${dpr[1]}`.trimEnd()
+                                );
+                            });
                         }
                     } else {
                         // TODO handle other metric types better
