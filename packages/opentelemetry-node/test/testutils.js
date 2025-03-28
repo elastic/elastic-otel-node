@@ -85,6 +85,26 @@ function filterOutDnsNetSpans(spans) {
 }
 
 /**
+ * Filter out HTTP spans from GCP resource detector
+ * Temporary solution until https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320
+ * is completed.
+ *
+ * @param {CollectedSpan[]} spans
+ * @returns {CollectedSpan[]}
+ */
+function filterOutGcpDetectorSpans(spans) {
+    // Filter out GCP resource detector spans for testing.
+    return spans.filter((s) => {
+        if (s.scope.name !== '@opentelemetry/instrumentation-http') {
+            return true;
+        }
+        const urlAttr =
+            s.attributes['http.url'] || s.attributes['url.full'] || '';
+        return !urlAttr.endsWith('/computeMetadata/v1/instance');
+    });
+}
+
+/**
  * Lookup the property "str" (given in dot-notation) in the object "obj".
  * If the property isn't found, then `undefined` is returned.
  *
@@ -374,7 +394,8 @@ class TestCollector {
                 });
             });
         });
-        spans.sort((a, b) => {
+
+        return spans.sort((a, b) => {
             assert(typeof a.startTimeUnixNano === 'string');
             assert(typeof b.startTimeUnixNano === 'string');
             let aStartInt = BigInt(a.startTimeUnixNano);
@@ -394,15 +415,6 @@ class TestCollector {
             }
 
             return aStartInt < bStartInt ? -1 : aStartInt > bStartInt ? 1 : 0;
-        });
-
-        // NOTE: Ignore spans from the GCP detector for testing. It shouldn't be
-        // creating spans, but that should be fixed upstream.
-        return spans.filter((s) => {
-            const attrs = s.attributes;
-            const url = attrs && attrs['http.url'];
-            // GCP detector does request to a specific path
-            return !url || !url.endsWith('/computeMetadata/v1/instance');
         });
     }
 
@@ -687,6 +699,7 @@ function runTestFixtures(suite, testFixtures) {
 module.exports = {
     assertDeepMatch,
     filterOutDnsNetSpans,
+    filterOutGcpDetectorSpans,
     dottedLookup,
     findObjInArray,
     findObjsInArray,
