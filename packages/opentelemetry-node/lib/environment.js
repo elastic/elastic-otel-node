@@ -32,13 +32,6 @@ function setupEnvironment() {
         // Ref: https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-sdk-node/src/utils.ts#L35-L41
         delete process.env.OTEL_NODE_RESOURCE_DETECTORS;
     }
-    if (!('OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE' in process.env)) {
-        // Setting default temporality to delta to avoid histogram storing issues in ES
-        // Ref: https://github.com/elastic/opentelemetry/pull/63
-        process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE = 'delta';
-    } else {
-        // TODO: warning to let know the user there will be problems with histograms??
-    }
 }
 
 /**
