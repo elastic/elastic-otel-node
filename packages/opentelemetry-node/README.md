@@ -2,9 +2,6 @@
 
 The Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js) is a lightweight wrapper around the [OpenTelemetry SDK for Node.js](https://opentelemetry.io/docs/languages/js) that makes it easy to get started using OpenTelemetry in your Node.js applications, especially if you are using [Elastic Observability](https://www.elastic.co/observability) as your observability solution.
 
-> [!NOTE]
-> For more details about OpenTelemetry distributions in general, visit the [OpenTelemetry documentation](https://opentelemetry.io/docs/concepts/distributions).
-
 ```bash
 # Install it
 npm install --save @elastic/opentelemetry-node
@@ -18,7 +15,7 @@ export OTEL_SERVICE_NAME="my-app"
 node --import @elastic/opentelemetry-node my-app.js
 ```
 
-See [the EDOT Node.js docs](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/index.html) for details.
+**See [the EDOT Node.js docs](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/index.html) for details.**
 
 * [Get started](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/setup/index.html)
 * [Configuration](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/configuration.html)
