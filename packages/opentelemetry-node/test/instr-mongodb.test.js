@@ -6,7 +6,11 @@
 // Test that 'mongodb' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
+const {
+    filterOutDnsNetSpans,
+    filterOutGcpDetectorSpans,
+    runTestFixtures,
+} = require('./testutils');
 
 let skip = process.env.MONGODB_HOST === undefined;
 if (skip) {
@@ -36,7 +40,9 @@ const testFixtures = [
             //  +13ms `- span 1e5ee2 "mongodb.insert" (1.4ms, SPAN_KIND_CLIENT)
             //   +3ms `- span 3d4723 "mongodb.delete" (0.6ms, SPAN_KIND_CLIENT)
             //   +1ms `- span 1c1373 "mongodb.endSessions" (0.3ms, SPAN_KIND_CLIENT)
-            const spans = filterOutDnsNetSpans(col.sortedSpans);
+            const spans = filterOutGcpDetectorSpans(
+                filterOutDnsNetSpans(col.sortedSpans)
+            );
             t.equal(spans.length, 4);
 
             t.equal(spans[0].name, 'manual-parent-span');

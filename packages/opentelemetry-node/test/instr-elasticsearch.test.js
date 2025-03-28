@@ -7,7 +7,11 @@
 // and later.
 
 const test = require('tape');
-const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
+const {
+    filterOutDnsNetSpans,
+    filterOutGcpDetectorSpans,
+    runTestFixtures,
+} = require('./testutils');
 
 const skip = process.env.ES_URL === undefined;
 if (skip) {
@@ -20,7 +24,9 @@ function checkTelemetry(t, col) {
     // Expected a trace like this:
     //        span 91a6b1 "search" (13.4ms, SPAN_KIND_CLIENT, GET http://localhost:9200/)
     //   +2ms `- span 14278c "GET" (10.8ms, SPAN_KIND_CLIENT, GET http://localhost:9200/_search?q=pants -> 200)
-    const spans = filterOutDnsNetSpans(col.sortedSpans);
+    const spans = filterOutGcpDetectorSpans(
+        filterOutDnsNetSpans(col.sortedSpans)
+    );
     t.equal(spans.length, 2);
     t.equal(spans[0].name, 'search');
     t.equal(spans[0].kind, 'SPAN_KIND_CLIENT', 'kind');
