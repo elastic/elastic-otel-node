@@ -82,10 +82,6 @@ class ElasticNodeSDK extends NodeSDK {
             // Ref: https://github.com/elastic/opentelemetry/pull/63
             process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE =
                 'delta';
-        } else if (temporalityPreference !== 'delta') {
-            log.warn(
-                `Metrics temporality preference is set to "${temporalityPreference}". Use "delta" for proper analysis of histogram metrics in Kibana`
-            );
         }
 
         // Disable metrics by config
