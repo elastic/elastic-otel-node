@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Usage: node -r @elastic/opentelemetry-node use-http-server.js
+// Usage: node --import @elastic/opentelemetry-node use-http-server-metrics.js
 //
-// This starts a simple echo server, makes two requests to it, then stops the
+// This starts a simple echo server, makes a few requests to it, then stops the
 // server.
 
 const http = require('http');
