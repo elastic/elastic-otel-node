@@ -29,6 +29,8 @@ const testFixtures = [
             const histogramMetrics = col.metrics.filter((m) => !!m.histogram);
 
             t.ok(histogramMetrics.length > 0);
+            // AGGREGATION_TEMPORALITY_DELTA == 1
+            // https://github.com/open-telemetry/opentelemetry-proto/blob/v1.3.2/opentelemetry/proto/metrics/v1/metrics.proto#L289
             t.ok(
                 histogramMetrics.every(
                     (m) => m.histogram.aggregationTemporality === 1
