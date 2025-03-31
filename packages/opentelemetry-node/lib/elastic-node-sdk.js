@@ -73,7 +73,16 @@ class ElasticNodeSDK extends NodeSDK {
         // https://opentelemetry.io/docs/concepts/sdk-configuration/general-sdk-configuration/#otel_metrics_exporter
         // For now we configure periodic (60s) export via OTLP/proto.
         // TODO metrics exporter should do for metrics what `TracerProviderWithEnvExporters` does for traces, does that include `url` export endpoint?
-        // TODO what `temporalityPreference`?
+
+        const temporalityPreference = getStringFromEnv(
+            'OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE'
+        );
+        if (typeof temporalityPreference === 'undefined') {
+            // Setting default temporality to delta to avoid histogram storing issues in ES
+            // Ref: https://github.com/elastic/opentelemetry/pull/63
+            process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE =
+                'delta';
+        }
 
         // Disable metrics by config
         const metricsDisabled =
@@ -105,6 +114,7 @@ class ElasticNodeSDK extends NodeSDK {
                 getNumberFromEnv('OTEL_METRIC_EXPORT_INTERVAL') ?? 60000;
             const metricsTimeout =
                 getNumberFromEnv('OTEL_METRIC_EXPORT_TIMEOUT') ?? 30000;
+
             defaultConfig.metricReader =
                 new metrics.PeriodicExportingMetricReader({
                     exporter: new OTLPMetricExporter(),

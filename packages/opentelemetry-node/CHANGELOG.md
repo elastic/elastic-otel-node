@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- feat: Set default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to delta.
+  This change is done to follow the recommendations specified in the [EDOT docs](https://github.com/elastic/opentelemetry/pull/63).
+  (https://github.com/elastic/elastic-otel-node/pull/670)
+
 - feat: Default to stable semantic conventions for HTTP instrumentation.
   (https://github.com/elastic/elastic-otel-node/pull/669)
 
