@@ -1,5 +1,10 @@
 # @elastic/opentelemetry-instrumentation-openai Changelog
 
+## v0.5.0
+
+- Update to [OpenTelemetry JS SDK 2.0](https://github.com/open-telemetry/opentelemetry-js/blob/main/doc/upgrade-to-2.x.md).
+  - Bump minimum supported Node.js to `^18.19.0 || >=20.6.0`.
+
 ## v0.4.1
 
 - Include "LICENSE" file in the published package.
