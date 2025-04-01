@@ -2,7 +2,28 @@
 
 ## Unreleased
 
-- feat: Set default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to delta.
+- BREAKING CHANGE: Change the default behavior of logging framework
+  instrumentations (for Bunyan, Pino, and Winston), to *not* do "log sending"
+  by default. "Log sending" is the feature name of
+  [`@opentelemetry/instrumentation-bunyan`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-bunyan/README.md#log-sending),
+  [`@opentelemetry/instrumentation-pino`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-pino/README.md#log-sending), and
+  [`@opentelemetry/instrumentation-winston`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-winston/README.md#log-sending)
+  to send log records directly to the configured OTLP collector. The new
+  default behavior effectively sets the default config for these
+  instrumentations to `{disableLogSending: true}`.
+
+  This default behavior differs from the current default in OpenTelemetry JS.
+  [OpenTelemetry **Java** instrumentation docs](https://opentelemetry.io/docs/languages/java/instrumentation/#log-instrumentation)
+  provide an argument for why log sending (or "Direct to collector") should be
+  opt-in. A common workflow for applications is to log to file or stdout and
+  have some external process collect those logs. In those cases, if the
+  OpenTelemetry SDK was *also* sending logs directly, then the telemetry
+  backend would very likely have duplicate logs.
+
+  This is controlled by the `ELASTIC_OTEL_ENABLE_LOG_SENDING` environment variable.
+  To enable log-sending by default, set `ELASTIC_OTEL_ENABLE_LOG_SENDING=true`.
+
+- BREAKING CHANGE: Set default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to delta.
   This change is done to follow the recommendations specified in the [EDOT docs](https://github.com/elastic/opentelemetry/pull/63).
   (https://github.com/elastic/elastic-otel-node/pull/670)
 
