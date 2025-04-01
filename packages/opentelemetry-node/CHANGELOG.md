@@ -35,6 +35,10 @@
   EDOT Node.js for their application.
   (https://github.com/elastic/elastic-otel-node/pull/663)
 
+- BREAKING CHANGE: Remove support for passing in a *function* for a particular
+  instrumentation to the `getInstrumentations()` utility. It wasn't adding any
+  value.
+
 - chore: Use `peerDependencies` for `@opentelemetry/api` dep, and cap it to a
   known-supported maximum version, according to [OTel JS guidance for
   implementors](https://github.com/open-telemetry/opentelemetry-js/issues/4832)

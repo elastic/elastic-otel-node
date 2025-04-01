@@ -293,6 +293,8 @@ function getInstrumentations(opts = {}) {
         });
     }
 
+    // TODO: check `opts` and warn if it includes entries for unknown instrumentations (this is what `checkManuallyProvidedInstrumentationNames` does in auto-instrumentations-node).
+
     Object.keys(instrumentationsMap).forEach((name) => {
         // Skip if env has an `enabled` list and does not include this one
         if (enabledFromEnv && !enabledFromEnv.includes(name)) {
@@ -313,9 +315,15 @@ function getInstrumentations(opts = {}) {
             return;
         }
 
-        const isFactory = typeof opts[name] === 'function';
         const isObject = typeof opts[name] === 'object';
-        const instrFactory = isFactory ? opts[name] : instrumentationsMap[name];
+        if (!(opts[name] == null || isObject)) {
+            log.warn(
+                {instrConfig: opts[name]},
+                `invalid value for getInstrumentations() '${name}' option: must be object, got ${typeof opts[
+                    name
+                ]}`
+            );
+        }
         let instrConfig = isObject ? opts[name] : undefined;
         instrConfig = {...defaultInstrConfigFromName[name], ...instrConfig};
 
@@ -338,7 +346,7 @@ function getInstrumentations(opts = {}) {
         }
 
         if (!instrConfig || instrConfig.enabled !== false) {
-            instr = instrFactory(instrConfig);
+            instr = instrumentationsMap[name](instrConfig);
         }
 
         if (instr) {
