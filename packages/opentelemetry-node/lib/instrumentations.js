@@ -270,6 +270,29 @@ function getInstrumentations(opts = {}) {
         process.env.OTEL_SEMCONV_STABILITY_OPT_IN = semconvOptIn.join(',');
     }
 
+    const defaultInstrConfigFromName = {};
+    // Handle `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING`. The user must opt-in to
+    // the "log sending" feature of the OTel log framework instrumentations
+    // (pino, bunyan, winston). This *differs* from OTel JS, but matches
+    // OTel Java Agent behaviour.
+    //
+    // This sets a default `{disableLogSending: true}` default config for
+    // `instrumentation-{bunyan,pino,winston}`.
+    //
+    // See: https://github.com/elastic/elastic-otel-node/issues/680
+    // TODO: link instead to configuration doc for this when have it.
+    const enableLogSending = getBooleanFromEnv(
+        'ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING'
+    );
+    if (!enableLogSending) {
+        const logInstrNames = ['bunyan', 'pino', 'winston'];
+        logInstrNames.forEach((name) => {
+            defaultInstrConfigFromName[
+                `@opentelemetry/instrumentation-${name}`
+            ] = {disableLogSending: true};
+        });
+    }
+
     Object.keys(instrumentationsMap).forEach((name) => {
         // Skip if env has an `enabled` list and does not include this one
         if (enabledFromEnv && !enabledFromEnv.includes(name)) {
@@ -294,6 +317,7 @@ function getInstrumentations(opts = {}) {
         const isObject = typeof opts[name] === 'object';
         const instrFactory = isFactory ? opts[name] : instrumentationsMap[name];
         let instrConfig = isObject ? opts[name] : undefined;
+        instrConfig = {...defaultInstrConfigFromName[name], ...instrConfig};
 
         // We should instantiate a instrumentation:
         // - if set via OTEL_NODE_ENABLED_INSTRUMENTATIONS
@@ -318,7 +342,8 @@ function getInstrumentations(opts = {}) {
         }
 
         if (instr) {
-            log.debug(`Enabling instrumentation "${name}"`);
+            // Note that this doesn't log *functions* in instrConfig.
+            log.debug({instrConfig}, `Enabling instrumentation "${name}"`);
             instrumentations.push(instr);
         }
     });
