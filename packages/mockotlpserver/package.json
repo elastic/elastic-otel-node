@@ -1,6 +1,6 @@
 {
   "name": "@elastic/mockotlpserver",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "commonjs",
   "description": "A mock OTLP server, useful for dev and testing",
   "publishConfig": {
@@ -22,7 +22,7 @@
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",
   "engines": {
-    "node": ">=14.17.0"
+    "node": "^18.19.0 || >=20.6.0"
   },
   "scripts": {
     "clean": "rm -rf node_modules",
