@@ -22,6 +22,7 @@
 
   This is controlled by the `ELASTIC_OTEL_ENABLE_LOG_SENDING` environment variable.
   To enable log-sending by default, set `ELASTIC_OTEL_ENABLE_LOG_SENDING=true`.
+  (https://github.com/elastic/elastic-otel-node/issues/680)
 
 - BREAKING CHANGE: Set default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to delta.
   This change is done to follow the recommendations specified in the [EDOT docs](https://github.com/elastic/opentelemetry/pull/63).
@@ -34,6 +35,10 @@
   for users of `node --import @elastic/opentelemetry-node my-app.js` to start
   EDOT Node.js for their application.
   (https://github.com/elastic/elastic-otel-node/pull/663)
+
+- BREAKING CHANGE: Remove support for passing in a *function* for a particular
+  instrumentation to the `getInstrumentations()` utility. It wasn't adding any
+  value.
 
 - chore: Use `peerDependencies` for `@opentelemetry/api` dep, and cap it to a
   known-supported maximum version, according to [OTel JS guidance for
