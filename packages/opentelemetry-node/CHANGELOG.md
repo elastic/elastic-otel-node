@@ -44,6 +44,10 @@
   implementors](https://github.com/open-telemetry/opentelemetry-js/issues/4832)
   (https://github.com/elastic/elastic-otel-node/issues/606)
 
+- BREAKING CHANGE: Remove the `@elastic/opentelemetry-node/sdk` entry-point for the 1.0.0 release.
+  This will be brought back in a minor release. It is being removed so that the
+  exported API can be re-worked to be more supportable.
+
 ## v0.7.0
 
 - BREAKING CHANGE: Bump min-supported node to `^18.19.0 || >=20.6.0`.
