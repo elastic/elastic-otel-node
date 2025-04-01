@@ -22,6 +22,7 @@
 
   This is controlled by the `ELASTIC_OTEL_ENABLE_LOG_SENDING` environment variable.
   To enable log-sending by default, set `ELASTIC_OTEL_ENABLE_LOG_SENDING=true`.
+  (https://github.com/elastic/elastic-otel-node/issues/680)
 
 - BREAKING CHANGE: Set default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to delta.
   This change is done to follow the recommendations specified in the [EDOT docs](https://github.com/elastic/opentelemetry/pull/63).
