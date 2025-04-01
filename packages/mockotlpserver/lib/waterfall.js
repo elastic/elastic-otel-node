@@ -223,7 +223,7 @@ class TraceWaterfallPrinter extends Printer {
         // flushed at about the same time.
         setTimeout(() => {
             console.log(rendering.join('\n'));
-        }, 10);
+        }, 50);
     }
 }
 

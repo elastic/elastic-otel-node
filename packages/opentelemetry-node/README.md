@@ -16,24 +16,23 @@ node --import @elastic/opentelemetry-node my-app.js
 ```
 
 **See [the EDOT Node.js docs](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/index.html) for details.**
+Some direct links:
 
 * [Get started](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/setup/index.html)
 * [Configuration](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/configuration.html)
 * [Changelog](https://github.com/elastic/elastic-otel-node/blob/main/packages/opentelemetry-node/CHANGELOG.md)
 * [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs) | [GitHub issue tracker](https://github.com/elastic/elastic-otel-node/issues)
 
-<!--
 
 ## How does EDOT Node.js differ from the OpenTelemetry JS SDK?
 
-EDOT Node.js is very similar to the `@opentelemetry/auto-instrumentations-node` package from OpenTelemetry in its usage goal: a single-dependency that provides a simple path to zero-code instrumentation of Node.js applications. In general, Elastic's goal is to contribute all SDK improvements upstream. That said, there are sometimes differences that are specific to Elastic (e.g. talking to an Elastic service for central configuration, Elastic-authored additional instrumentations). Here is a (hopefully up-to-date) concise list of differences:
+EDOT Node.js is very similar to the `@opentelemetry/auto-instrumentations-node` package from OpenTelemetry in its usage goal: a single-dependency that provides a simple path to zero-code instrumentation of Node.js applications. In general, Elastic's goal is to contribute all SDK improvements upstream. That said, there are sometimes differences that are specific to Elastic (e.g. talking to an Elastic service for central configuration, Elastic-authored additional instrumentations). Here is a concise list of differences:
 
-- instr-openai
-- added `telemetry.distro.*` resource attributes
-- feat: using IITM's `createAddHookMessageChannel` for improved ESM support
-- diag logging in (luggite) JSON format
-- OTEL_SEMCONV_STABILITY_OPT_IN=http, expected to be short-lived diff
-- OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta
-- metrics: host-metrics (subset of) and instr-runtime-node on by default
+- EDOT Node.js includes the additional, Elastic-authored [`@elastic/opentelemetry-instrumentation-openai`](../instrumentation-openai) instrumentation for the OpenAI Node.js client library.
+- EDOT Node.js, being a [distribution](https://opentelemetry.io/docs/concepts/distributions/) of the OpenTelemetry JS SDK, always adds the [`telemetry.distro.*`](https://opentelemetry.io/docs/specs/semconv/attributes-registry/telemetry/) resource attributes to identify itself.
+- EDOT Node.js [enables some metrics by default](https://github.com/elastic/elastic-otel-node/blob/main/packages/opentelemetry-node/docs/metrics.md) that are not included by `@opentelemetry/auto-instrumentations-node`: a subset of metrics from `@opentelemetry/host-metrics` and the metrics from `@opentelemetry/instrumentation-runtime-node`.
+- EDOT Node.js defaults to [`OTEL_SEMCONV_STABILITY_OPT_IN=http`](https://opentelemetry.io/docs/specs/semconv/non-normative/http-migration/) such that telemetry from the `@opentelemetry/instrumentation-http` package will use stable HTTP semantic conventions by default. Upstream OpenTelemetry JS currently has a [PR](https://github.com/open-telemetry/opentelemetry-js/pull/5552) that will change to the same behavior soon.
+- EDOT Node.js [defaults to `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta`](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/configuration.html#otel_exporter_otlp_metrics_temporality_preference-details), which differs from the upstream OpenTelemetry JS default of `cumulative`.
+- EDOT Node.js uses the more recent [import-in-the-middle `createAddHookMessageChannel` feature](https://github.com/nodejs/import-in-the-middle/blob/main/README.md#only-intercepting-hooked-modules) for improved ESM support. We hope to upstream support for this.
+- Internal [diagnostic logging](https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-sdk-node/README.md#configure-log-level-from-the-environment) from EDOT Node.js is in a custom JSON-log format, rather than the message-string-only format from OpenTelemetry JS. diag logging in (luggite) JSON format
 
--->
