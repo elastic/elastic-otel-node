@@ -1,6 +1,6 @@
 # @elastic/opentelemetry-node Changelog
 
-## Unreleased
+## v1.0.0
 
 - BREAKING CHANGE: Change the default behavior of logging framework
   instrumentations (for Bunyan, Pino, and Winston), to *not* do "log sending"
@@ -48,6 +48,12 @@
 - BREAKING CHANGE: Remove the `@elastic/opentelemetry-node/sdk` entry-point for the 1.0.0 release.
   This will be brought back in a minor release. It is being removed so that the
   exported API can be re-worked to be more supportable.
+
+- BREAKING CHANGE: Temporarily remove the 'gcp' resource detector, due to an
+  [issue](https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320)
+  that results in misleading tracing data from the resource detector appearing
+  to be from the application.
+  (https://github.com/elastic/elastic-otel-node/pull/703)
 
 ## v0.7.0
 

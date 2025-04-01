@@ -1,6 +1,6 @@
 {
   "name": "@elastic/opentelemetry-node",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "type": "commonjs",
   "description": "Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js)",
   "publishConfig": {
@@ -131,7 +131,7 @@
     "@aws-sdk/client-sns": "^3.658.1",
     "@aws-sdk/client-sqs": "^3.658.1",
     "@elastic/elasticsearch": "^8.15.0",
-    "@elastic/mockotlpserver": "../mockotlpserver",
+    "@elastic/mockotlpserver": ">=0.8.0 <1",
     "@grpc/grpc-js": "^1.11.1",
     "@grpc/proto-loader": "^0.7.13",
     "@hapi/hapi": "^21.3.10",
