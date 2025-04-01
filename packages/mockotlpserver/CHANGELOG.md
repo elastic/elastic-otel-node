@@ -5,6 +5,9 @@
 - feat: 'summary' rendering of Sum and Gauge metric types
   (https://github.com/elastic/elastic-otel-node/pull/686)
 
+- BREAKING CHANGE: Bump min-supported node to `^18.19.0 || >=20.6.0`.
+  This raises the minimum-supported Node.js to the same as OpenTelemetry JS SDK 2.0.
+
 ## v0.7.0
 
 - feat: add CLI option to tunnel all incoming requests to the given server. (https://github.com/elastic/elastic-otel-node/pull/608)
