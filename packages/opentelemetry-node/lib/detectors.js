@@ -7,7 +7,9 @@
  * @typedef {import('@opentelemetry/resources').ResourceDetector} ResourceDetector
  */
 
-const {getStringListFromEnv} = require('@opentelemetry/core');
+const {getStringListFromEnv, suppressTracing} = require('@opentelemetry/core');
+const { context } = require('@opentelemetry/api');
+
 const {
     alibabaCloudEcsDetector,
 } = require('@opentelemetry/resource-detector-alibaba-cloud');
@@ -26,7 +28,6 @@ const {
 const {
     containerDetector,
 } = require('@opentelemetry/resource-detector-container');
-const {gcpDetector} = require('@opentelemetry/resource-detector-gcp');
 const {
     envDetector,
     hostDetector,
@@ -34,8 +35,21 @@ const {
     processDetector,
     serviceInstanceIdDetector,
 } = require('@opentelemetry/resources');
+const {
+    CLOUDPROVIDERVALUES_GCP,
+    SEMRESATTRS_CLOUD_ACCOUNT_ID,
+    SEMRESATTRS_CLOUD_AVAILABILITY_ZONE,
+    SEMRESATTRS_CLOUD_PROVIDER,
+    SEMRESATTRS_CONTAINER_NAME,
+    SEMRESATTRS_HOST_ID,
+    SEMRESATTRS_HOST_NAME,
+    SEMRESATTRS_K8S_CLUSTER_NAME,
+    SEMRESATTRS_K8S_NAMESPACE_NAME,
+    SEMRESATTRS_K8S_POD_NAME,
+} = require('@opentelemetry/semantic-conventions');
 
 const {log} = require('./logging');
+const { gcpDetector } = require('./detector-gcp');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
