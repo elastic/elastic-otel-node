@@ -23,7 +23,7 @@
     "logs"
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",
-  "homepage": "https://github.com/elastic/elastic-otel-node/tree/main/packages/opentelemetry-node#readme",
+  "homepage": "https://elastic.github.io/opentelemetry/edot-sdks/nodejs",
   "engines": {
     "node": "^18.19.0 || >=20.6.0"
   },
