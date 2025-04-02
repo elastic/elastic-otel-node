@@ -11,11 +11,29 @@ const {runTestFixtures} = require('./testutils');
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'use-bunyan',
+        name: 'use-bunyan (default config)',
         args: ['./fixtures/use-bunyan.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
+        },
+        // verbose: true,
+        checkTelemetry: (t, col) => {
+            // We expect telemetry to *not* have logs by default (see
+            // ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING).
+            const spans = col.sortedSpans;
+            t.equal(spans.length, 1);
+            t.equal(spans[0].name, 'manual-span');
+            t.equal(col.logs.length, 0);
+        },
+    },
+    {
+        name: 'use-bunyan (ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING=true)',
+        args: ['./fixtures/use-bunyan.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
+            ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -47,6 +65,11 @@ const testFixtures = [
             t.equal(logs[1].spanId, spans[0].spanId);
         },
     },
+
+    // TODO: when we have a supported "bootstrap via code" (see coming
+    // `startNodeSDK()` work), then add a test case that uses
+    // `getInstrumentations()` for bootstrapping with `disableLogSending: false`
+    // winning to enable log sending.
 ];
 
 test('bunyan instrumentation', (suite) => {
