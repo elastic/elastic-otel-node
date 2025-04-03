@@ -10,7 +10,7 @@ const http = require('http');
 const path = require('path');
 
 const test = require('tape');
-const {runTestFixtures, filterOutGcpDetectorSpans} = require('./testutils');
+const {runTestFixtures} = require('./testutils');
 
 const TEST_REGION = 'us-east-2';
 
@@ -41,7 +41,7 @@ const testFixtures = [
             //          span b592a3 "manual-parent-span" (26.1ms, SPAN_KIND_INTERNAL)
             //     +4ms `- span bbe07e "S3.ListBuckets" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "GET" (7.0ms, SPAN_KIND_CLIENT, GET http://localhost:4566/?x-id=ListBuckets -> 200)
-            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
+            const spans = col.sortedSpans;
             t.equal(spans.length, 2);
 
             t.equal(
@@ -77,7 +77,7 @@ const testFixtures = [
             //          span b592a3 "manual-parent-span" (26.1ms, SPAN_KIND_INTERNAL)
             //     +4ms `- span bbe07e "SNS ListBuckets" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "POST" (7.0ms, SPAN_KIND_CLIENT, POST http://localhost:4566/ -> 200)
-            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
+            const spans = col.sortedSpans;
             t.equal(spans.length, 2);
 
             t.equal(
@@ -114,7 +114,7 @@ const testFixtures = [
             //          span b592a3 "manual-parent-span" (26.1ms, SPAN_KIND_INTERNAL)
             //     +4ms `- span bbe07e "SQS.ListQueues" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "POST" (7.0ms, SPAN_KIND_CLIENT, POST http://localhost:4566/ -> 200)
-            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
+            const spans = col.sortedSpans;
             t.equal(spans.length, 2);
 
             t.equal(
@@ -152,7 +152,7 @@ const testFixtures = [
             //          span b592a3 "manual-parent-span" (26.1ms, SPAN_KIND_INTERNAL)
             //     +4ms `- span bbe07e "DynamoDB.ListTables" (21.5ms, SPAN_KIND_CLIENT)
             //    +10ms   `- span b3b885 "POST" (7.0ms, SPAN_KIND_CLIENT, POST http://localhost:4566/ -> 200)
-            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
+            const spans = col.sortedSpans;
             t.equal(spans.length, 2);
 
             t.equal(

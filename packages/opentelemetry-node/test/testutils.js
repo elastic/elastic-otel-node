@@ -85,26 +85,6 @@ function filterOutDnsNetSpans(spans) {
 }
 
 /**
- * Filter out HTTP spans from GCP resource detector
- * Temporary solution until https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320
- * is completed.
- *
- * @param {CollectedSpan[]} spans
- * @returns {CollectedSpan[]}
- */
-function filterOutGcpDetectorSpans(spans) {
-    // Filter out GCP resource detector spans for testing.
-    return spans.filter((s) => {
-        if (s.scope.name !== '@opentelemetry/instrumentation-http') {
-            return true;
-        }
-        const urlAttr =
-            s.attributes['http.url'] || s.attributes['url.full'] || '';
-        return !urlAttr.endsWith('/computeMetadata/v1/instance');
-    });
-}
-
-/**
  * Lookup the property "str" (given in dot-notation) in the object "obj".
  * If the property isn't found, then `undefined` is returned.
  *
@@ -705,7 +685,6 @@ function runTestFixtures(suite, testFixtures) {
 module.exports = {
     assertDeepMatch,
     filterOutDnsNetSpans,
-    filterOutGcpDetectorSpans,
     dottedLookup,
     findObjInArray,
     findObjsInArray,
