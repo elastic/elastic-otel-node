@@ -13,12 +13,37 @@ let recs; // somewhat clumsy passing from checkResult to checkTelemetry
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'use-winston',
+        name: 'use-winston (default config)',
+        args: ['./fixtures/use-winston.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            OTEL_LOG_LEVEL: 'none',
+        },
+        // verbose: true,
+        checkResult: (t, err, stdout, _stderr) => {
+            t.error(err, `exited successfully: err=${err}`);
+            // Clumsy pass of stdout info to `checkTelemetry`.
+            t.recs = stdout.trim().split(/\n/g).map(JSON.parse);
+        },
+        checkTelemetry: (t, col) => {
+            const spans = col.sortedSpans;
+            t.equal(spans.length, 1);
+            t.equal(t.recs.length, 2);
+            // We expect telemetry to *not* have logs by default (see
+            // ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING).
+            t.equal(col.logs.length, 0);
+        },
+    },
+
+    {
+        name: 'use-winston (ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING=true)',
         args: ['./fixtures/use-winston.js'],
         cwd: __dirname,
         env: {
             OTEL_LOG_LEVEL: 'none',
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
         },
         // verbose: true,
         checkResult: (t, err, stdout, _stderr) => {

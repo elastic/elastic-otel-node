@@ -150,7 +150,6 @@ const defaultDetectors = {
         awsLambdaDetector,
     ],
     azure: [azureAppServiceDetector, azureFunctionsDetector, azureVmDetector],
-    gcp: gcpDetector,
 };
 
 /**
@@ -177,7 +176,9 @@ function resolveDetectors(detectors) {
     for (const key of detectorKeys) {
         if (defaultDetectors[key]) {
             resolvedDetectors.push(defaultDetectors[key]);
-        } else {
+        } else if (key !== 'gcp') {
+            // TODO: put back `@opentelemetry/resource-detector-gcp` and changer this ti a plain "else"
+            // once https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is fixed
             log.warn(
                 `Invalid resource detector "${key}" specified in the environment variable OTEL_NODE_RESOURCE_DETECTORS`
             );

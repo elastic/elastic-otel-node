@@ -1,8 +1,30 @@
 # @elastic/opentelemetry-node Changelog
 
-## Unreleased
+## v1.0.0
 
-- feat: Set default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to delta.
+- BREAKING CHANGE: Change the default behavior of logging framework
+  instrumentations (for Bunyan, Pino, and Winston), to *not* do "log sending"
+  by default. "Log sending" is the feature name of
+  [`@opentelemetry/instrumentation-bunyan`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-bunyan/README.md#log-sending),
+  [`@opentelemetry/instrumentation-pino`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-pino/README.md#log-sending), and
+  [`@opentelemetry/instrumentation-winston`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-winston/README.md#log-sending)
+  to send log records directly to the configured OTLP collector. The new
+  default behavior effectively sets the default config for these
+  instrumentations to `{disableLogSending: true}`.
+
+  This default behavior differs from the current default in OpenTelemetry JS.
+  [OpenTelemetry **Java** instrumentation docs](https://opentelemetry.io/docs/languages/java/instrumentation/#log-instrumentation)
+  provide an argument for why log sending (or "Direct to collector") should be
+  opt-in. A common workflow for applications is to log to file or stdout and
+  have some external process collect those logs. In those cases, if the
+  OpenTelemetry SDK was *also* sending logs directly, then the telemetry
+  backend would very likely have duplicate logs.
+
+  This is controlled by the `ELASTIC_OTEL_ENABLE_LOG_SENDING` environment variable.
+  To enable log-sending by default, set `ELASTIC_OTEL_ENABLE_LOG_SENDING=true`.
+  (https://github.com/elastic/elastic-otel-node/issues/680)
+
+- BREAKING CHANGE: Set default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to delta.
   This change is done to follow the recommendations specified in the [EDOT docs](https://github.com/elastic/opentelemetry/pull/63).
   (https://github.com/elastic/elastic-otel-node/pull/670)
 
@@ -14,10 +36,24 @@
   EDOT Node.js for their application.
   (https://github.com/elastic/elastic-otel-node/pull/663)
 
+- BREAKING CHANGE: Remove support for passing in a *function* for a particular
+  instrumentation to the `getInstrumentations()` utility. It wasn't adding any
+  value.
+
 - chore: Use `peerDependencies` for `@opentelemetry/api` dep, and cap it to a
   known-supported maximum version, according to [OTel JS guidance for
   implementors](https://github.com/open-telemetry/opentelemetry-js/issues/4832)
   (https://github.com/elastic/elastic-otel-node/issues/606)
+
+- BREAKING CHANGE: Remove the `@elastic/opentelemetry-node/sdk` entry-point for the 1.0.0 release.
+  This will be brought back in a minor release. It is being removed so that the
+  exported API can be re-worked to be more supportable.
+
+- BREAKING CHANGE: Temporarily remove the 'gcp' resource detector, due to an
+  [issue](https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320)
+  that results in misleading tracing data from the resource detector appearing
+  to be from the application.
+  (https://github.com/elastic/elastic-otel-node/pull/703)
 
 ## v0.7.0
 
