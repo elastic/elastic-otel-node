@@ -149,6 +149,7 @@ const defaultDetectors = {
         awsEksDetector,
         awsLambdaDetector,
     ],
+    gcp: gcpDetector,
     azure: [azureAppServiceDetector, azureFunctionsDetector, azureVmDetector],
 };
 
