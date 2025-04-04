@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Test that GCP detector queries the metadata correctly
+// Test that GCP detector queries the metadata correctly. It's a JS version of
+// https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/detectors/node/opentelemetry-resource-detector-gcp/test/detectors/GcpDetector.test.ts
 
 const {test} = require('tape');
 const nock = require('nock');
