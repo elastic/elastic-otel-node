@@ -13,6 +13,5 @@ Elastic Distribution of OpenTelemetry Node.js (or "EDOT Node.js" for short).
 | npm Package | Description |
 | ----------- | ----------- |
 | [`@elastic/opentelemetry-node`](./packages/opentelemetry-node/) | An OpenTelemetry distribution for Node.js. [Docs](https://elastic.github.io/opentelemetry/edot-sdks/nodejs/index.html) |
-| [`@elastic/opentelemetry-instrumentation-openai`](./packages/instrumentation-openai/) | An OpenTelemetry instrumentation of [`openai`](https://www.npmjs.com/package/openai), the OpenAI
-Node.js client library. |
+| [`@elastic/opentelemetry-instrumentation-openai`](./packages/instrumentation-openai/) | An OpenTelemetry instrumentation of [`openai`](https://www.npmjs.com/package/openai), the OpenAI Node.js client library. |
 | [`@elastic/mockotlpserver`](./packages/mockotlpserver/) | A mock OTLP server/receiver for development and testing, written in Node.js. |
