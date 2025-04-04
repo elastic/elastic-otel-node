@@ -7,11 +7,7 @@ const http = require('http');
 const {basename} = require('path');
 const test = require('tape');
 const semver = require('semver');
-const {
-    runTestFixtures,
-    filterOutGcpDetectorSpans,
-    assertDeepMatch,
-} = require('./testutils');
+const {runTestFixtures, assertDeepMatch} = require('./testutils');
 
 let skip = process.env.TEST_GENAI_MODEL === undefined;
 if (skip) {
@@ -39,7 +35,7 @@ const testFixtures = [
             // Expected a trace like this:
             //        span 7e8ca8 "embeddings all-minilm:22m" (26.4ms, SPAN_KIND_CLIENT, GenAI openai)
             //   +9ms `- span 39fc32 "POST" (16.7ms, SPAN_KIND_CLIENT, POST http://127.0.0.1:11434/v1/embeddings -> 200)
-            const spans = filterOutGcpDetectorSpans(col.sortedSpans);
+            const spans = col.sortedSpans;
             assertDeepMatch(
                 t,
                 spans,

@@ -35,6 +35,7 @@ const {
 } = require('@opentelemetry/resources');
 
 const {log} = require('./logging');
+const {gcpDetector} = require('./detector-gcp');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
@@ -71,6 +72,9 @@ const defaultDetectors = {
         awsEksDetector,
         awsLambdaDetector,
     ],
+    // TODO: Switch back to `@opentelemetry/resource-detector-gcp` when
+    // https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is complete
+    gcp: gcpDetector,
     azure: [azureAppServiceDetector, azureFunctionsDetector, azureVmDetector],
 };
 
@@ -98,9 +102,7 @@ function resolveDetectors(detectors) {
     for (const key of detectorKeys) {
         if (defaultDetectors[key]) {
             resolvedDetectors.push(defaultDetectors[key]);
-        } else if (key !== 'gcp') {
-            // TODO: put back `@opentelemetry/resource-detector-gcp` and changer this ti a plain "else"
-            // once https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is fixed
+        } else {
             log.warn(
                 `Invalid resource detector "${key}" specified in the environment variable OTEL_NODE_RESOURCE_DETECTORS`
             );
