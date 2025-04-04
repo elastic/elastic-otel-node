@@ -136,6 +136,7 @@ function metadataRequest(path) {
             return res.text();
         })
         .then((txt) => {
+            // ref: https://github.com/googleapis/gcp-metadata/blob/d8a868e5f487dcc3dd4bfd2d59d8c331fcf2895b/src/index.ts#L184
             try {
                 return jsonBigint.parse(txt);
             } catch {
