@@ -7,8 +7,6 @@
  * @typedef {import('@opentelemetry/resources').ResourceDetector} ResourceDetector
  */
 
-const {URL} = require('url');
-
 const {suppressTracing} = require('@opentelemetry/core');
 const {context} = require('@opentelemetry/api');
 const {
@@ -23,6 +21,7 @@ const {
     SEMRESATTRS_K8S_NAMESPACE_NAME,
     SEMRESATTRS_K8S_POD_NAME,
 } = require('@opentelemetry/semantic-conventions');
+const jsonBigint = require('json-bigint');
 
 // TODO: Switch back to `@opentelemetry/resource-detector-gcp` when
 // https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is complete
@@ -37,17 +36,15 @@ const gcpDetector = {
                     return undefined;
                 }
                 return {
-                    projectId: metadataQuery('project/project-id').catch(
-                        () => ''
+                    projectId: metadataQuery('project/project-id'),
+                    instanceId: metadataQuery('instance/id').then((id) =>
+                        id.toString()
                     ),
-                    instanceId: metadataQuery('instance/id').catch(() => ''),
-                    zoneId: metadataQuery('instance/zone').catch(() => ''),
+                    zoneId: metadataQuery('instance/zone'),
                     clusterName: metadataQuery(
                         'instance/attributes/cluster-name'
-                    ).catch(() => ''),
-                    hostname: metadataQuery('instance/hostname').catch(
-                        () => ''
                     ),
+                    hostname: metadataQuery('instance/hostname'),
                 };
             }
         );
@@ -90,9 +87,19 @@ const gcpDetector = {
  * @returns {Promise<boolean>}
  */
 function isAvailable() {
-    return metadataQuery('instance')
+    return metadataRequest('instance')
         .then(() => true)
         .catch(() => false);
+}
+
+/**
+ * Queries in gcp detector return '' if request failed
+ * e.g. https://github.com/open-telemetry/opentelemetry-js-contrib/blob/d2c1be459651521c6595bd5209526890eceb2a8f/detectors/node/opentelemetry-resource-detector-gcp/src/detectors/GcpDetector.ts#L92-L96
+ * @param {string} path
+ * @returns {Promise<string>}
+ */
+function metadataQuery(path) {
+    return metadataRequest(path).catch(() => '');
 }
 
 /**
@@ -101,15 +108,15 @@ function isAvailable() {
  * @param {string} path
  * @returns {Promise<string>}
  */
-function metadataQuery(path) {
+function metadataRequest(path) {
     const baseUrl = 'http://metadata.google.internal:80';
     const options = {
         method: 'GET',
         headers: {'Metadata-Flavor': 'Google'},
         signal: AbortSignal.timeout(1000),
     };
-    return fetch(`${baseUrl}/computeMetadata/v1/${path}`, options).then(
-        (res) => {
+    return fetch(`${baseUrl}/computeMetadata/v1/${path}`, options)
+        .then((res) => {
             // Validate status
             if (!(res.status >= 200 && res.status < 300)) {
                 throw new Error(
@@ -127,8 +134,15 @@ function metadataQuery(path) {
                 );
             }
             return res.text();
-        }
-    );
+        })
+        .then((txt) => {
+            try {
+                return jsonBigint.parse(txt);
+            } catch {
+                // nothing
+            }
+            return txt;
+        });
 }
 
 module.exports = {
