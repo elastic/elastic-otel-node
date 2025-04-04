@@ -7,11 +7,7 @@
  * @typedef {import('@opentelemetry/resources').ResourceDetector} ResourceDetector
  */
 
-const {URL} = require('url');
-
-const {getStringListFromEnv, suppressTracing} = require('@opentelemetry/core');
-const {context} = require('@opentelemetry/api');
-
+const {getStringListFromEnv} = require('@opentelemetry/core');
 const {
     alibabaCloudEcsDetector,
 } = require('@opentelemetry/resource-detector-alibaba-cloud');
@@ -37,20 +33,9 @@ const {
     processDetector,
     serviceInstanceIdDetector,
 } = require('@opentelemetry/resources');
-const {
-    CLOUDPROVIDERVALUES_GCP,
-    SEMRESATTRS_CLOUD_ACCOUNT_ID,
-    SEMRESATTRS_CLOUD_AVAILABILITY_ZONE,
-    SEMRESATTRS_CLOUD_PROVIDER,
-    SEMRESATTRS_CONTAINER_NAME,
-    SEMRESATTRS_HOST_ID,
-    SEMRESATTRS_HOST_NAME,
-    SEMRESATTRS_K8S_NAMESPACE_NAME,
-    SEMRESATTRS_K8S_POD_NAME,
-} = require('@opentelemetry/semantic-conventions');
-const jsonBigint = require('json-bigint');
 
 const {log} = require('./logging');
+const {gcpDetector} = require('./detector-gcp');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
@@ -71,68 +56,6 @@ const distroDetector = {
     },
 };
 
-// TODO: Switch back to `@opentelemetry/resource-detector-gcp` when
-// https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is complete
-/** @type {ResourceDetector} */
-const gcpDetector = {
-    detect() {
-        const baseUrl = new URL('/', 'http://metadata.google.internal:80');
-        const metadataUrl = baseUrl + 'computeMetadata/v1/?recursive=true';
-        const options = {
-            method: 'GET',
-            headers: {'Metadata-Flavor': 'Google'},
-            signal: AbortSignal.timeout(1000),
-        };
-
-        const metadataPromise = context.with(
-            suppressTracing(context.active()),
-            () =>
-                fetch(metadataUrl, options)
-                    .then((res) => res.text())
-                    .then((txt) => jsonBigint.parse(txt))
-                    .catch((err) => {
-                        log.debug({err}, 'Unable to get GCP metadata');
-                        return undefined;
-                    })
-        );
-
-        const attributes = {
-            [SEMRESATTRS_CLOUD_PROVIDER]: metadataPromise.then(
-                (md) => md && CLOUDPROVIDERVALUES_GCP
-            ),
-            [SEMRESATTRS_CLOUD_ACCOUNT_ID]: metadataPromise.then(
-                (md) => md?.project?.projectId
-            ),
-            [SEMRESATTRS_HOST_ID]: metadataPromise.then(
-                (md) => md?.instance?.id
-            ),
-            [SEMRESATTRS_HOST_NAME]: metadataPromise.then(
-                (md) => md?.instance?.hostname
-            ),
-            [SEMRESATTRS_CLOUD_AVAILABILITY_ZONE]: metadataPromise.then(
-                (md) => md?.zone
-            ),
-        };
-
-        // Add resource attributes for K8s.
-        // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/detectors/node/opentelemetry-resource-detector-gcp/src/detectors/GcpDetector.ts#L69-L80
-        if (process.env.KUBERNETES_SERVICE_HOST) {
-            // NOTE: haven't found the property in my tests, skipping
-            // attributes[SEMRESATTRS_K8S_CLUSTER_NAME]
-            attributes[SEMRESATTRS_K8S_NAMESPACE_NAME] = metadataPromise.then(
-                (md) => md && process.env.NAMESPACE
-            );
-            attributes[SEMRESATTRS_K8S_POD_NAME] = metadataPromise.then(
-                (md) => md && process.env.HOSTNAME
-            );
-            attributes[SEMRESATTRS_CONTAINER_NAME] = metadataPromise.then(
-                (md) => md && process.env.CONTAINER_NAME
-            );
-        }
-        return {attributes};
-    },
-};
-
 /** @type {Record<string, ResourceDetector | Array<ResourceDetector>>} */
 const defaultDetectors = {
     env: envDetector,
@@ -149,6 +72,8 @@ const defaultDetectors = {
         awsEksDetector,
         awsLambdaDetector,
     ],
+    // TODO: Switch back to `@opentelemetry/resource-detector-gcp` when
+    // https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is complete
     gcp: gcpDetector,
     azure: [azureAppServiceDetector, azureFunctionsDetector, azureVmDetector],
 };
@@ -177,9 +102,7 @@ function resolveDetectors(detectors) {
     for (const key of detectorKeys) {
         if (defaultDetectors[key]) {
             resolvedDetectors.push(defaultDetectors[key]);
-        } else if (key !== 'gcp') {
-            // TODO: put back `@opentelemetry/resource-detector-gcp` and changer this ti a plain "else"
-            // once https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is fixed
+        } else {
             log.warn(
                 `Invalid resource detector "${key}" specified in the environment variable OTEL_NODE_RESOURCE_DETECTORS`
             );
