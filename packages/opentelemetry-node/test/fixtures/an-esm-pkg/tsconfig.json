@@ -4,7 +4,7 @@
     "outDir": "build",
 
     "target": "es2022",
-    "module": "es2022",
+    "module": "node16",
     "moduleResolution": "node16",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
