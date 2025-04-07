@@ -16,7 +16,7 @@ import {
     startNodeSDK,
     createAddHookMessageChannel,
     getInstrumentations,
-} from '@elastic/opentelemetry-node/sdk';
+} from '../../lib/sdk.js'; // @elastic/opentelemetry-node/sdk
 
 const {registerOptions, waitForAllMessagesAcknowledged} =
     createAddHookMessageChannel();

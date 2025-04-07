@@ -13,5 +13,5 @@
  *  node --require ./telemetry-cjs.js app.js
  */
 
-const {startNodeSDK} = require('@elastic/opentelemetry-node/sdk');
+const {startNodeSDK} = require('../../lib/sdk.js'); // @elastic/opentelemetry-node/sdk
 startNodeSDK();
