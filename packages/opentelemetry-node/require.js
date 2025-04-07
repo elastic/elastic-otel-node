@@ -11,8 +11,10 @@
 
 const {isMainThread} = require('worker_threads');
 
+const {startNodeSDK} = require('./lib/sdk.js');
+
 if (isMainThread) {
-    require('./lib/start.js');
+    startNodeSDK();
 } else {
     const {log} = require('./lib/logging');
     log.trace(

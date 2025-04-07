@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+// TODO: Can/should we use @opentelemetry/instrumentation/hook.mjs instead?
 import {
     initialize,
     load,

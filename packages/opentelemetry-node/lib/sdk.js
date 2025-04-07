@@ -66,7 +66,12 @@ function setupShutdownHandlers(sdk) {
 /**
  * Create and start an OpenTelemetry NodeSDK.
  *
+ * While this returns an object with `shutdown()` method, the default behavior
+ * is to setup `process.on(...)` handlers to handle shutdown. See the
+ * `setupShutdownHandlers` boolean option.
+ *
  * @param {Partial<NodeSDKConfiguration & ElasticNodeSDKOptions>} cfg
+ * @returns {{ shutdown(): Promise<void>; }}
  */
 function startNodeSDK(cfg = {}) {
     log.trace('startNodeSDK cfg:', cfg);
@@ -79,7 +84,6 @@ function startNodeSDK(cfg = {}) {
         // processing, even if disabled.
         log.trace('startNodeSDK: disabled');
         return {
-            start() {},
             shutdown() {
                 return Promise.resolve();
             },
@@ -205,10 +209,13 @@ function startNodeSDK(cfg = {}) {
         enableHostMetrics();
     }
 
-    // TODO: or return an object with a .shutdown() method only? Else should
-    // guard other methods, e.g. .start() again.
-    // XXX
-    return sdk;
+    // Return an object that is a subset of the upstream NodeSDK interface,
+    // just enough to shutdown.
+    return {
+        shutdown() {
+            return sdk.shutdown();
+        }
+    };
 }
 
 module.exports = {
