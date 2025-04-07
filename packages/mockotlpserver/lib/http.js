@@ -125,6 +125,10 @@ class HttpService extends Service {
         const httpTunnel = tunnel && createHttpTunnel(log, tunnel);
 
         this._server = http.createServer((req, res) => {
+            log.debug(
+                {headers: req.headers},
+                `incoming req: ${req.method} ${req.url}`
+            );
             const contentType = req.headers['content-type'];
 
             // Tunnel requests if defined or validate otherwise
