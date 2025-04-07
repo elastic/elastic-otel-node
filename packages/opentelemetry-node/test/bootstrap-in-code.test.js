@@ -11,7 +11,11 @@ const {exec} = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const test = require('tape');
-const {filterOutDnsNetSpans, runTestFixtures, findObjInArray} = require('./testutils');
+const {
+    filterOutDnsNetSpans,
+    runTestFixtures,
+    findObjInArray,
+} = require('./testutils');
 
 const skip = process.env.REDIS_HOST === undefined;
 if (skip) {
@@ -53,7 +57,7 @@ function assertUseIoredisTsSpans(t, col) {
     t.equal(spans[1].attributes['db.system'], 'redis');
     t.equal(spans[2].name, 'get');
     // Also assert that the custom MySpanProcessor from telemetry-typescript.ts worked.
-    spans.forEach(s => {
+    spans.forEach((s) => {
         t.equal(s.attributes['MySpanProcessor'], 'was here');
     });
 }
@@ -120,7 +124,7 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--import ./fixtures/telemetry-custom.mjs',
-            MY_SERVICE_NAME: 'instr-http-test-service-name'
+            MY_SERVICE_NAME: 'instr-http-test-service-name',
         },
         // verbose: true,
         checkTelemetry: function (t, col) {
@@ -131,19 +135,34 @@ const testFixtures = [
             t.equal(s.attributes.foo, 'bar');
 
             // Test that `serviceName` opt to `startNodeSDK` worked.
-            t.equal(s.resource.attributes['service.name'], 'instr-http-test-service-name');
+            t.equal(
+                s.resource.attributes['service.name'],
+                'instr-http-test-service-name'
+            );
 
             // Test that metrics are basically working when bootstrapping in code.
-            const httpDur = findObjInArray(col.metrics, 'name', 'http.client.request.duration');
+            const httpDur = findObjInArray(
+                col.metrics,
+                'name',
+                'http.client.request.duration'
+            );
             t.ok(httpDur);
             t.ok(httpDur.histogram);
-            const nodejsUtil = findObjInArray(col.metrics, 'name', 'nodejs.eventloop.utilization');
+            const nodejsUtil = findObjInArray(
+                col.metrics,
+                'name',
+                'nodejs.eventloop.utilization'
+            );
             t.ok(nodejsUtil);
             t.ok(nodejsUtil.gauge);
-            const cpuUtil = findObjInArray(col.metrics, 'name', 'process.cpu.utilization');
+            const cpuUtil = findObjInArray(
+                col.metrics,
+                'name',
+                'process.cpu.utilization'
+            );
             t.ok(cpuUtil);
             t.ok(cpuUtil.gauge);
-        }
+        },
     },
     {
         name: 'bootstrap instr-bunyan config (telemetry-custom.mjs)',
@@ -158,7 +177,7 @@ const testFixtures = [
             t.equal(col.logs[0].body, 'hi');
             // That this attribute is on the log record shows that `logHook` worked.
             t.equal(col.logs[1].attributes.hello, 'from logHook');
-        }
+        },
     },
 
     // TypeScript-related tests.
@@ -167,20 +186,25 @@ const testFixtures = [
         args: ['./fixtures/an-esm-pkg/build/use-ioredis.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--import ./fixtures/an-esm-pkg/build/telemetry-typescript.js',
+            NODE_OPTIONS:
+                '--import ./fixtures/an-esm-pkg/build/telemetry-typescript.js',
         },
         // verbose: true,
         checkTelemetry: assertUseIoredisTsSpans,
     },
     {
         name: 'bootstrap with TS and strip-types (telemetry-typescript.ts)',
-        args: ['--experimental-strip-types', './fixtures/an-esm-pkg/use-ioredis.ts'],
+        args: [
+            '--experimental-strip-types',
+            './fixtures/an-esm-pkg/use-ioredis.ts',
+        ],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--import ./fixtures/an-esm-pkg/telemetry-typescript.ts',
+            NODE_OPTIONS:
+                '--import ./fixtures/an-esm-pkg/telemetry-typescript.ts',
         },
         versionRanges: {
-            node: '>=22.6.0 <23.6.0' // when --experimental-strip-types was added
+            node: '>=22.6.0 <23.6.0', // when --experimental-strip-types was added
         },
         // verbose: true,
         checkTelemetry: assertUseIoredisTsSpans,
@@ -190,10 +214,11 @@ const testFixtures = [
         args: ['./fixtures/an-esm-pkg/use-ioredis.ts'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--import ./fixtures/an-esm-pkg/telemetry-typescript.ts',
+            NODE_OPTIONS:
+                '--import ./fixtures/an-esm-pkg/telemetry-typescript.ts',
         },
         versionRanges: {
-            node: '>=23.6.0' // when --experimental-strip-types was unflagged
+            node: '>=23.6.0', // when --experimental-strip-types was unflagged
         },
         // verbose: true,
         checkTelemetry: assertUseIoredisTsSpans,
@@ -206,33 +231,31 @@ const testFixtures = [
 //   `rm -rf fixtures/an-esm-pkg/build` if source files in the package were
 //   edited.
 const tsFixtureDir = path.join(__dirname, 'fixtures', 'an-esm-pkg');
-const haveBuild = fs.existsSync(path.join(tsFixtureDir, 'build', 'use-ioredis.js'));
-const cmd = 'npm install && npm run compile'
-test(
-  `setup: ${cmd} (in ${tsFixtureDir})`,
-  { skip: haveBuild },
-  (t) => {
+const haveBuild = fs.existsSync(
+    path.join(tsFixtureDir, 'build', 'use-ioredis.js')
+);
+const cmd = 'npm install && npm run compile';
+test(`setup: ${cmd} (in ${tsFixtureDir})`, {skip: haveBuild}, (t) => {
     const startTime = Date.now();
     exec(
-      cmd,
-      {
-        cwd: tsFixtureDir,
-      },
-      function (err, stdout, stderr) {
-        t.error(
-          err,
-          `"${cmd}" succeeded (took ${(Date.now() - startTime) / 1000}s)`,
-        );
-        if (err) {
-          t.comment(
-            `$ ${cmd}\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`,
-          );
+        cmd,
+        {
+            cwd: tsFixtureDir,
+        },
+        function (err, stdout, stderr) {
+            t.error(
+                err,
+                `"${cmd}" succeeded (took ${(Date.now() - startTime) / 1000}s)`
+            );
+            if (err) {
+                t.comment(
+                    `$ ${cmd}\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`
+                );
+            }
+            t.end();
         }
-        t.end();
-      },
     );
-  },
-);
+});
 
 test('bootstrap in code', {skip}, (suite) => {
     runTestFixtures(suite, testFixtures);

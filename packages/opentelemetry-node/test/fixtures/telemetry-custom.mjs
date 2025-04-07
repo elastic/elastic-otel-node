@@ -38,7 +38,7 @@ startNodeSDK({
             disableLogSending: false,
             logHook: (span, rec) => {
                 rec['hello'] = 'from logHook';
-            }
+            },
         },
     }),
 });

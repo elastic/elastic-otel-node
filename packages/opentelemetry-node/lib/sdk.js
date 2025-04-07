@@ -20,7 +20,7 @@ const {
     metrics,
     resources,
     tracing,
-    NodeSDK
+    NodeSDK,
 } = require('@opentelemetry/sdk-node');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 const {createAddHookMessageChannel} = require('import-in-the-middle');
