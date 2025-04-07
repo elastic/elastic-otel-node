@@ -59,6 +59,11 @@
       "import": "./import.mjs",
       "require": "./require.js"
     },
+    "./sdk": {
+      "types": "./types/sdk.d.ts",
+      "default": "./lib/sdk.js"
+    },
+    "./hook.mjs": "./hook.mjs",
     "./package.json": "./package.json"
   },
   "peerDependency": {

@@ -48,6 +48,7 @@ const FILTER_OUT_DIAG_WARN_MESSAGES = [
  * not set or unrecognized.
  */
 function otelLogLevelFromEnv() {
+    // TODO: should this use the new diagLogLevelFromString?
     let otelLogLevel;
     if (process.env.OTEL_LOG_LEVEL) {
         otelLogLevel = process.env.OTEL_LOG_LEVEL.toUpperCase();

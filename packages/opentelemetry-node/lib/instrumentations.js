@@ -229,13 +229,9 @@ function getInstrumentationsFromEnv(envvar) {
  *      '@opentelemetry/instrumentation-express': {
  *          enabled: false,
  *      },
- *      // You can replace a instrumentation by using a funciton
- *      '@opentelemetry/instrumentation-mongodb': () => {
- *          return new MyMongoDBInstrumentation();
- *      }
  * });
  *
- * const sdk = new ElasticNodeSDK({
+ * startNodeSDK({
  *      instrumentations: [
  *          ...customInstrumentations,
  *          // You can add here instrumentations from other sources
