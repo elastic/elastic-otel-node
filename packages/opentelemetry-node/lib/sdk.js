@@ -13,11 +13,11 @@ const {
     getStringFromEnv,
 } = require('@opentelemetry/core');
 const {
-    // TODO: decide if re-export these from sdk-node: contextBase, node
     api,
     core,
     logs,
     metrics,
+    node,
     resources,
     tracing,
     NodeSDK,
@@ -26,6 +26,7 @@ const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
 const {createAddHookMessageChannel} = require('import-in-the-middle');
 
 const {log, registerOTelDiagLogger} = require('./logging');
+const luggite = require('./luggite');
 const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
@@ -43,7 +44,7 @@ const DISTRO_VERSION = require('../package.json').version;
  */
 
 function setupShutdownHandlers(sdk) {
-    // XXX avoid double sdk.shutdown(). I think that results in unnecessary work.
+    // TODO avoid possible double sdk.shutdown(). I think that results in unnecessary work.
     process.on('SIGTERM', async () => {
         try {
             await sdk.shutdown();
@@ -183,7 +184,6 @@ function startNodeSDK(cfg = {}) {
     setupEnvironment();
     const sdk = new NodeSDK(config);
 
-    // TODO: Do we automatically setup shutdown handlers? Feel it out.
     if (config.setupShutdownHandlers ?? true) {
         setupShutdownHandlers(sdk);
     }
@@ -198,6 +198,10 @@ function startNodeSDK(cfg = {}) {
                 arch: os.arch(),
                 runtime: `Node.js ${process.version}`,
             },
+            // The "config" object structure is not stable.
+            config: {
+                logLevel: luggite.nameFromLevel[log.level()] ?? log.level(),
+            }
         },
         'start EDOT Node.js'
     );
@@ -224,11 +228,16 @@ module.exports = {
 
     createAddHookMessageChannel, // re-export from import-in-the-middle
 
-    // re-exports from sdk-node
+    // Re-exports from sdk-node, so that users bootstrapping EDOT Node.js in
+    // code can access useful parts of the SDK.
+    // One difference the re-exports in `@opentelmetry/sdk-node`, is that we
+    // are not re-exporting `contextBase`. It is a dupe of `api` and feels
+    // vestigial.
     api,
     core,
     logs,
     metrics,
+    node,
     resources,
     tracing,
 };
