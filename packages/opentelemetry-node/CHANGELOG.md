@@ -1,5 +1,21 @@
 # @elastic/opentelemetry-node Changelog
 
+## Unreleased
+
+- feat: Restore the `@elastic/opentelemetry-node/sdk` entry-point and show how
+  to use it to bootstrap the EDOT Node.js SDK in code. This means using
+  `node --import ./telemetry.mjs app.js`, rather than the typical zero-code
+  `node --import @elastic/opentelemetry-node app.js` method for starting the SDK.
+  (https://github.com/elastic/elastic-otel-node/issues/718)
+
+  The `./telemetry.mjs` file uses APIs exported by `@elastic/opentelemetry-node/sdk`
+  to configure and start the OpenTelemetry Node.js SDK. See
+  [examples/telemetry.mjs](./examples/telemetry.mjs).
+
+  **WARNING:** Bootstrapping the Node SDK in code often means using
+  OpenTelemetry JS APIs that are **not yet stable**. These APIs may break in
+  *minor* versions of `@elastic/opentelemetry-node`.
+
 ## v1.0.0
 
 - BREAKING CHANGE: Change the default behavior of logging framework

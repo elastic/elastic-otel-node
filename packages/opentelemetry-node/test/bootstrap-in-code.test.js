@@ -51,7 +51,7 @@ function assertUseIoredisMjsSpans(t, col) {
 }
 
 function assertUseIoredisTsSpans(t, col) {
-    // Assert that we got the two redis spans expected from 'use-ioredis.mjs'.
+    // Assert that we got the two redis spans expected from 'use-ioredis.ts'.
     const spans = filterOutDnsNetSpans(col.sortedSpans);
     t.equal(spans[1].name, 'set');
     t.equal(spans[1].attributes['db.system'], 'redis');
@@ -97,7 +97,7 @@ const testFixtures = [
     },
 
     {
-        name: 'minimal bootstrap, no ESM instr (telemetry-minimal.mjs)',
+        name: 'minimal bootstrap, no ESM hook (telemetry-minimal.mjs)',
         args: ['./fixtures/use-ioredis.js'],
         cwd: __dirname,
         env: {

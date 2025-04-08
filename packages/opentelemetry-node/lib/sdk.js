@@ -229,10 +229,9 @@ module.exports = {
     createAddHookMessageChannel, // re-export from import-in-the-middle
 
     // Re-exports from sdk-node, so that users bootstrapping EDOT Node.js in
-    // code can access useful parts of the SDK.
-    // One difference the re-exports in `@opentelmetry/sdk-node`, is that we
-    // are not re-exporting `contextBase`. It is a dupe of `api` and feels
-    // vestigial.
+    // code can access useful parts of the SDK.  One difference from the
+    // re-exports in `@opentelmetry/sdk-node`, is that we are not re-exporting
+    // `contextBase`. It is a dupe of `api` and feels vestigial.
     api,
     core,
     logs,
