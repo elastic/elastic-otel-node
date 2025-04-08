@@ -201,7 +201,7 @@ function startNodeSDK(cfg = {}) {
             // The "config" object structure is not stable.
             config: {
                 logLevel: luggite.nameFromLevel[log.level()] ?? log.level(),
-            }
+            },
         },
         'start EDOT Node.js'
     );
@@ -218,7 +218,7 @@ function startNodeSDK(cfg = {}) {
     return {
         shutdown() {
             return sdk.shutdown();
-        }
+        },
     };
 }
 
