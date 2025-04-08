@@ -5,7 +5,7 @@
 
 // Start an HTTP server and make a request to it.
 // Usage:
-//  node -r @elastic/opentelemetry-node simple-http-request.js
+//  node --import @elastic/opentelemetry-node simple-http-request.js
 
 const http = require('http');
 

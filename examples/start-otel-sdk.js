@@ -19,7 +19,8 @@
  * https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node#configuration
  *
  * Compare to:
- *      node -r @elastic/opentelemetry-node simple-http-request.js
+ *      node --import @elastic/opentelemetry-node simple-http-request.js
+ *      node --import ./telemetry.mjs simple-http-request.js
  */
 
 const os = require('os');
@@ -31,13 +32,7 @@ const {
 
 const sdk = new NodeSDK({
     serviceName: path.parse(process.argv[1]).name,
-    instrumentations: [
-        getNodeAutoInstrumentations({
-            '@opentelemetry/instrumentation-fs': {
-                enabled: false,
-            },
-        }),
-    ],
+    instrumentations: getNodeAutoInstrumentations(),
 });
 
 process.on('SIGTERM', async () => {
