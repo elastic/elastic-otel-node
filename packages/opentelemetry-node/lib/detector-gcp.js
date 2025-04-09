@@ -103,8 +103,7 @@ function metadataQuery(path) {
 }
 
 /**
- * Returns the metadata from a given path. Unlike `gcp-metadata` this method
- * does not parse with `json-bigint` since the keys accessed
+ * Returns the metadata from a given path.
  * @param {string} path
  * @returns {Promise<string>}
  */
