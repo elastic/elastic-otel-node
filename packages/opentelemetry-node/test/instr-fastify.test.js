@@ -10,7 +10,6 @@ const {
     filterOutDnsNetSpans,
     runTestFixtures,
     findObjInArray,
-    filterOutGcpDetectorSpans,
 } = require('./testutils');
 
 /** @type {import('./testutils').TestFixture[]} */
@@ -28,9 +27,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const spans = filterOutGcpDetectorSpans(
-                filterOutDnsNetSpans(col.sortedSpans)
-            );
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
 
             t.equal(spans.length, 4);
             t.ok(
@@ -73,9 +70,7 @@ const testFixtures = [
             //         span 6e0fc9 "GET" (1.6ms, SPAN_KIND_CLIENT, GET http://localhost:3000/hi/Bob -> 200)
             //     +1ms `- span 40c4a8 "GET /hi/:name" (0.3ms, SPAN_KIND_SERVER, GET http://localhost:3000/hi/Bob -> 200)
             //     +0ms   `- span 74a68a "request handler - fastify" (0.1ms, SPAN_KIND_INTERNAL)
-            const spans = filterOutGcpDetectorSpans(
-                filterOutDnsNetSpans(col.sortedSpans)
-            );
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans.length, 6);
 
             t.equal(spans[0].scope.name, '@opentelemetry/instrumentation-http');

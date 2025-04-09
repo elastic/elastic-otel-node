@@ -6,11 +6,7 @@
 // Test that 'mysql' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {
-    filterOutDnsNetSpans,
-    filterOutGcpDetectorSpans,
-    runTestFixtures,
-} = require('./testutils');
+const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 let skip = process.env.MYSQL_HOST === undefined;
 if (skip) {
@@ -35,9 +31,7 @@ const testFixtures = [
             //        span 8ef53e "manual-parent-span" (21.7ms, SPAN_KIND_INTERNAL)
             //  +1ms `- span 715182 "tcp.connect" (9.4ms, SPAN_KIND_INTERNAL)
             //  +2ms `- span 430253 "SELECT" (18.2ms, SPAN_KIND_CLIENT)
-            const spans = filterOutGcpDetectorSpans(
-                filterOutDnsNetSpans(col.sortedSpans)
-            );
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans.length, 2);
 
             t.equal(spans[0].name, 'manual-parent-span');

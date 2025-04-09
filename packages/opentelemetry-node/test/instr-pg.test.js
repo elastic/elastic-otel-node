@@ -4,11 +4,7 @@
  */
 
 const test = require('tape');
-const {
-    filterOutDnsNetSpans,
-    filterOutGcpDetectorSpans,
-    runTestFixtures,
-} = require('./testutils');
+const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 const skip = process.env.PGHOST === undefined;
 if (skip) {
@@ -33,9 +29,7 @@ const testFixtures = [
             //        span 102150 "manual-parent-span" (7.5ms, SPAN_KIND_INTERNAL)
             //   +3ms `- span 539d9d "pg.connect" (12.0ms, SPAN_KIND_CLIENT)
             //  +13ms `- span 115c08 "pg.query:SELECT postgres" (2.4ms, SPAN_KIND_CLIENT)
-            const spans = filterOutGcpDetectorSpans(
-                filterOutDnsNetSpans(col.sortedSpans)
-            );
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans.length, 3);
             spans.slice(1).forEach((s) => {
                 t.equal(s.traceId, spans[0].traceId, 'traceId');

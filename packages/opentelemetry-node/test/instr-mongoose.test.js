@@ -6,11 +6,7 @@
 // Test that 'mongoose' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
-const {
-    filterOutDnsNetSpans,
-    filterOutGcpDetectorSpans,
-    runTestFixtures,
-} = require('./testutils');
+const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 let skip = process.env.MONGODB_HOST === undefined;
 if (skip) {
@@ -44,9 +40,7 @@ const testFixtures = [
             //  +13ms `- span 5be842 "mongodb.drop" (0.8ms, SPAN_KIND_CLIENT)
             //   +1ms `- span 13d56b "mongodb.endSessions" (0.3ms, SPAN_KIND_CLIENT)
             //  -20ms `- span c4e688 "mongoose.User.save" (18.9ms, SPAN_KIND_CLIENT)
-            const spans = filterOutGcpDetectorSpans(
-                filterOutDnsNetSpans(col.sortedSpans)
-            );
+            const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans.length, 7);
 
             t.equal(spans[0].name, 'manual-parent-span');

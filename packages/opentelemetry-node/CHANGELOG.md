@@ -1,5 +1,10 @@
 # @elastic/opentelemetry-node Changelog
 
+## Unreleased
+
+- chore: add custom GCP resource detector to avoid internal telemetry to be sent. See <https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320>.
+  (https://github.com/elastic/elastic-otel-node/pull/709)
+
 ## v1.0.0
 
 - BREAKING CHANGE: Change the default behavior of logging framework
