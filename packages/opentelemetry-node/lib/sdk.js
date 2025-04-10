@@ -39,8 +39,11 @@ const DISTRO_VERSION = require('../package.json').version;
 
 /**
  * @typedef {Object} ElasticNodeSDKOptions
- * @property {boolean} setupShutdownHandlers - Whether to setup handlers on
- *      `process` events to shutdown the SDK. Default true.
+ * @property {boolean} elasticSetupShutdownHandlers - Whether to setup handlers
+ *      on `process` events to shutdown the SDK. Default true.
+ *
+ * Note: To avoid collisions with NodeSDKConfiguration properties, all/most
+ * properities of this type should be prefixed with "elastic".
  */
 
 function setupShutdownHandlers(sdk) {
@@ -184,7 +187,7 @@ function startNodeSDK(cfg = {}) {
     setupEnvironment();
     const sdk = new NodeSDK(config);
 
-    if (config.setupShutdownHandlers ?? true) {
+    if (config.elasticSetupShutdownHandlers ?? true) {
         setupShutdownHandlers(sdk);
     }
 
