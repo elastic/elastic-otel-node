@@ -1,0 +1,19 @@
+{
+  "name": "a-ts-proj",
+  "description": "test that a TS project can use @elastic/opentelemetry-node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsc --version && tsc && node index.js",
+    "test-all-versions": "npx -y test-all-versions # using npx allows not needing initial 'npm install'"
+  },
+  "license": "Apache-2.0",
+  "// typescript": "min-supported is v4.7.2 for module=node16 (https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-7.html#ecmascript-module-support-in-nodejs)",
+  "devDependencies": {
+    "@types/node": "^22.9.3",
+    "typescript": ">=4.7.2"
+  },
+  "dependencies": {
+    "@elastic/opentelemetry-node": "file:../../.."
+  }
+}

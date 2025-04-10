@@ -9,7 +9,7 @@
   "dependencies": {
     "@elastic/opentelemetry-node": "../packages/opentelemetry-node",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/instrumentation-express": "^0.47.0",
+    "@opentelemetry/instrumentation-express": "^0.48.0",
     "bunyan": "^1.8.15",
     "express": "^4.19.2",
     "openai": "^4.76.3",
