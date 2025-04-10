@@ -1,5 +1,5 @@
 typescript:
   versions:
     mode: max-5
-    include: '>=4.7.2'
+    include: '>=4.7.2 <6'
   commands: npm test
