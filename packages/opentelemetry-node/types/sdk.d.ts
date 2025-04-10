@@ -1,10 +1,13 @@
 export type NodeSDKConfiguration = import('@opentelemetry/sdk-node').NodeSDKConfiguration;
 export type ElasticNodeSDKOptions = {
     /**
-     * - Whether to setup handlers on
-     * `process` events to shutdown the SDK. Default true.
+     * - Whether to setup handlers
+     * on `process` events to shutdown the SDK. Default true.
+     *
+     * Note: To avoid collisions with NodeSDKConfiguration properties, all/most
+     * properities of this type should be prefixed with "elastic".
      */
-    setupShutdownHandlers: boolean;
+    elasticSetupShutdownHandlers: boolean;
 };
 import { getInstrumentations } from "./instrumentations";
 /**
