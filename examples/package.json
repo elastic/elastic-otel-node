@@ -7,7 +7,7 @@
     "clean": "rm -rf node_modules",
     "lint": "npm run lint:deps",
     "lint:deps": "dependency-check '*.js' '*.mjs' -i pino-pretty  -i @elastic/opentelemetry-node -i bunyan  # '-i bunyan' should not be necessary, dep-check cannot handle ESM?",
-    "dev:use-local-edot-nodejs": "npm install ../packages/opentelemetry-node"
+    "dev:use-local-edot-nodejs": "npm install --no-save ../packages/opentelemetry-node"
   },
   "dependencies": {
     "@elastic/opentelemetry-node": "*",
