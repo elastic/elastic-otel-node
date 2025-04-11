@@ -9,7 +9,6 @@ const os = require('os');
 
 const {
     getBooleanFromEnv,
-    getNumberFromEnv,
     getStringFromEnv,
     getStringListFromEnv,
 } = require('@opentelemetry/core');
@@ -156,7 +155,7 @@ function startNodeSDK(cfg = {}) {
         process.env.OTEL_METRICS_EXPORTER = 'otlp';
     }
     const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
-    const metricsEnabled = metricsExporters.every(e => e !== 'none');
+    const metricsEnabled = metricsExporters.every((e) => e !== 'none');
     if (metricsEnabled) {
         defaultConfig.views = [
             // Add views for `host-metrics` to avoid excess of data being sent

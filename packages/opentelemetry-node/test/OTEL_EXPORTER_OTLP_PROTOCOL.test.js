@@ -97,7 +97,11 @@ const testFixtures = [
                 getLogs(lines).some((log) => log.msg.includes(text));
             t.ok(hasLog('Logs exporter protocol "bogus" unknown.'));
             // Log from upstream SDK
-            t.ok(hasLog('Unsupported OTLP metrics protocol: "bogus". Using http/protobuf.'));
+            t.ok(
+                hasLog(
+                    'Unsupported OTLP metrics protocol: "bogus". Using http/protobuf.'
+                )
+            );
         },
     },
     {
@@ -132,7 +136,11 @@ const testFixtures = [
             const hasLog = (text) =>
                 getLogs(lines).some((log) => log.msg.includes(text));
             // Log from upstream SDK
-            t.ok(hasLog('Unsupported OTLP metrics protocol: "bogus". Using http/protobuf.'));
+            t.ok(
+                hasLog(
+                    'Unsupported OTLP metrics protocol: "bogus". Using http/protobuf.'
+                )
+            );
         },
     },
 ];
