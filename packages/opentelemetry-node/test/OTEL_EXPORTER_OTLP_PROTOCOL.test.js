@@ -24,7 +24,6 @@ const testFixtures = [
                 getLogs(lines).some((log) => log.msg.includes(text));
             // Note: `testutils.js` sets the default protocol to 'http/json' via env var OTEL_EXPORTER_OTLP_PROTOCOL
             t.ok(hasLog('Logs exporter protocol set to http/json'));
-            t.ok(hasLog('Metrics exporter protocol set to http/json'));
         },
     },
     {
@@ -43,7 +42,6 @@ const testFixtures = [
             const hasLog = (text) =>
                 getLogs(lines).some((log) => log.msg.includes(text));
             t.ok(hasLog('Logs exporter protocol set to grpc'));
-            t.ok(hasLog('Metrics exporter protocol set to grpc'));
         },
     },
     {
@@ -62,8 +60,6 @@ const testFixtures = [
             const hasLog = (text) =>
                 getLogs(lines).some((log) => log.msg.includes(text));
             t.ok(hasLog('Logs exporter protocol set to grpc'));
-            // Note: `testutils.js` sets the default protocol to 'http/json' via env var OTEL_EXPORTER_OTLP_PROTOCOL
-            t.ok(hasLog('Metrics exporter protocol set to http/json'));
         },
     },
     {
@@ -83,7 +79,6 @@ const testFixtures = [
                 getLogs(lines).some((log) => log.msg.includes(text));
             // Note: `testutils.js` sets the default protocol to 'http/json' via env var OTEL_EXPORTER_OTLP_PROTOCOL
             t.ok(hasLog('Logs exporter protocol set to http/json'));
-            t.ok(hasLog('Metrics exporter protocol set to grpc'));
         },
     },
     {
@@ -101,7 +96,12 @@ const testFixtures = [
             const hasLog = (text) =>
                 getLogs(lines).some((log) => log.msg.includes(text));
             t.ok(hasLog('Logs exporter protocol "bogus" unknown.'));
-            t.ok(hasLog('Metrics exporter protocol "bogus" unknown.'));
+            // Log from upstream SDK
+            t.ok(
+                hasLog(
+                    'Unsupported OTLP metrics protocol: "bogus". Using http/protobuf.'
+                )
+            );
         },
     },
     {
@@ -135,7 +135,12 @@ const testFixtures = [
             const lines = stdout.split('\n');
             const hasLog = (text) =>
                 getLogs(lines).some((log) => log.msg.includes(text));
-            t.ok(hasLog('Metrics exporter protocol "bogus" unknown.'));
+            // Log from upstream SDK
+            t.ok(
+                hasLog(
+                    'Unsupported OTLP metrics protocol: "bogus". Using http/protobuf.'
+                )
+            );
         },
     },
 ];
