@@ -151,7 +151,7 @@ function startNodeSDK(cfg = {}) {
 
     // We need to set the default value if env var is not defined until it's fixed in
     // upstream SDK
-    if (!process.env.OTEL_METRICS_EXPORTER) {
+    if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
         process.env.OTEL_METRICS_EXPORTER = 'otlp';
     }
     const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
