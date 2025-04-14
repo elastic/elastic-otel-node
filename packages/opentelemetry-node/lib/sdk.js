@@ -150,6 +150,7 @@ function startNodeSDK(cfg = {}) {
 
     // We need to set the default value if env var is not defined until it's fixed in
     // upstream SDK
+    // TODO: remove this when https://github.com/open-telemetry/opentelemetry-js/issues/5612 is closed
     if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
         process.env.OTEL_METRICS_EXPORTER = 'otlp';
     }
