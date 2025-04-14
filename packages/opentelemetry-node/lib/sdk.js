@@ -9,8 +9,8 @@ const os = require('os');
 
 const {
     getBooleanFromEnv,
-    getNumberFromEnv,
     getStringFromEnv,
+    getStringListFromEnv,
 } = require('@opentelemetry/core');
 const {
     api,
@@ -143,38 +143,20 @@ function startNodeSDK(cfg = {}) {
         process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE = 'delta';
     }
 
-    // TODO: How does this differ from `OTEL_METRICS_EXPORTER=none` in sdk-node?
-    const metricsDisabled =
-        getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
-    if (!metricsDisabled) {
-        const metricsExportProtocol =
-            getStringFromEnv('OTEL_EXPORTER_OTLP_METRICS_PROTOCOL') ||
-            getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
-            'http/protobuf';
-        let metricExporterType =
-            exporterPkgNameFromEnvVar[metricsExportProtocol];
-        if (!metricExporterType) {
-            log.warn(
-                `Metrics exporter protocol "${metricsExportProtocol}" unknown. Using default "http/protobuf" protocol`
-            );
-            metricExporterType = 'proto';
-        }
-        log.trace(`Metrics exporter protocol set to ${metricsExportProtocol}`);
-        const {OTLPMetricExporter} = require(
-            `@opentelemetry/exporter-metrics-otlp-${metricExporterType}`
-        );
+    // The implementation in SDK does treats the undefined and 'none' value
+    // as same. https://github.com/open-telemetry/opentelemetry-js/blob/dac72912b3a895c91ee95cfa39a22a916411ba4c/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L117
+    // According to https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection
+    // the default should be 'otlp' so IMHO the implementation is wrong
 
-        // https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#periodic-exporting-metricreader
-        const metricsInterval =
-            getNumberFromEnv('OTEL_METRIC_EXPORT_INTERVAL') ?? 60000;
-        const metricsTimeout =
-            getNumberFromEnv('OTEL_METRIC_EXPORT_TIMEOUT') ?? 30000;
-
-        defaultConfig.metricReader = new metrics.PeriodicExportingMetricReader({
-            exporter: new OTLPMetricExporter(),
-            exportIntervalMillis: metricsInterval,
-            exportTimeoutMillis: metricsTimeout,
-        });
+    // We need to set the default value if env var is not defined until it's fixed in
+    // upstream SDK
+    // TODO: remove this when https://github.com/open-telemetry/opentelemetry-js/issues/5612 is closed
+    if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
+        process.env.OTEL_METRICS_EXPORTER = 'otlp';
+    }
+    const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
+    const metricsEnabled = metricsExporters.every((e) => e !== 'none');
+    if (metricsEnabled) {
         defaultConfig.views = [
             // Add views for `host-metrics` to avoid excess of data being sent
             // to the server.
@@ -211,7 +193,7 @@ function startNodeSDK(cfg = {}) {
     sdk.start(); // .start() *does* use `process.env` though I think it should not.
     restoreEnvironment();
 
-    if (!metricsDisabled) {
+    if (metricsEnabled) {
         // TODO: make this configurable, user might collect host metrics with a separate utility. Perhaps use 'host-metrics' in DISABLED_INSTRs existing env var.
         enableHostMetrics();
     }
