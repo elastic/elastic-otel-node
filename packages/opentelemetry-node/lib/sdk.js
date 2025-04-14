@@ -143,7 +143,6 @@ function startNodeSDK(cfg = {}) {
         process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE = 'delta';
     }
 
-    // TODO: How does this differ from `OTEL_METRICS_EXPORTER=none` in sdk-node?
     // The implementation in SDK does treats the undefined and 'none' value
     // as same. https://github.com/open-telemetry/opentelemetry-js/blob/dac72912b3a895c91ee95cfa39a22a916411ba4c/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L117
     // According to https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection
