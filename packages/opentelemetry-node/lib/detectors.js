@@ -100,7 +100,9 @@ function resolveDetectors(detectors) {
     // NOTE: Kibana is doing a breakdown by service instance when plotting the metrics dashboard. So it needs the instance ID.
     // Dashboard was added in https://github.com/elastic/kibana/pull/215735
     if (!detectorKeys.includes('serviceinstance')) {
-        log.info(`Resource detector "serviceinstance" is missing. Add it if you want Kibana's metrics dashboard to work.`)
+        log.info(
+            `Resource detector "serviceinstance" is missing. Add it if you want Kibana's metrics dashboard to work.`
+        );
     }
 
     /** @type {Array<ResourceDetector | ResourceDetector[]>} */
