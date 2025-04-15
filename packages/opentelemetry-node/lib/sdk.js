@@ -134,13 +134,17 @@ function startNodeSDK(cfg = {}) {
     // TODO: support `OTEL_METRICS_EXPORTER`, including being a list of exporters (e.g. console, debug)
     // TODO: metrics exporter should do for metrics what `TracerProviderWithEnvExporters` does for traces, does that include `url` export endpoint?
 
+    // Setting default temporality to delta to avoid histogram storing issues in ES.
+    // Or log if there is a different value set by the user
+    // Ref: https://github.com/elastic/opentelemetry/pull/63
     const temporalityPreference = getStringFromEnv(
         'OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE'
     );
     if (typeof temporalityPreference === 'undefined') {
-        // Setting default temporality to delta to avoid histogram storing issues in ES
-        // Ref: https://github.com/elastic/opentelemetry/pull/63
         process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE = 'delta';
+    } else if (temporalityPreference !== 'delta') {
+        const docsUrl = 'https://elastic.github.io/opentelemetry/compatibility/limitations.html#ingestion-of-metrics-data';
+        log.info(`Metrics temporality preference set to "${temporalityPreference}". Use "delta" temporality if you want to store Histogram metrics in ES. See ${docsUrl}`);
     }
 
     // The implementation in SDK does treats the undefined and 'none' value
