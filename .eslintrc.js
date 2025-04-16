@@ -77,5 +77,6 @@ module.exports = {
         'tmp',
         '*.min.js',
         'lib/luggite.js',
+        'lib/generated/**',
     ],
 };
