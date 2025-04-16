@@ -1,0 +1,14 @@
+# https://buf.build/docs/configuration/v2/buf-gen-yaml
+version: v2
+inputs:
+  # TODO: how to get notified of newer tags?
+  - git_repo: https://github.com/open-telemetry/opamp-spec.git
+    tag: v0.12.0
+    depth: 1
+    subdir: proto
+plugins:
+  - local: protoc-gen-es
+    opt:
+      - target=js+dts
+      - js_import_style=legacy_commonjs
+    out: lib/generated
