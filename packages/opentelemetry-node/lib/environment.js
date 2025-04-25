@@ -10,11 +10,6 @@ const envToRestore = {};
  * Tweak `process.env` before calling NodeSDK.
  */
 function setupEnvironment() {
-    if (!('OTEL_TRACES_EXPORTER' in process.env)) {
-        // Ensure this envvar is set to avoid a diag.warn() in NodeSDK.
-        process.env.OTEL_TRACES_EXPORTER = 'otlp';
-    }
-
     if ('OTEL_LOG_LEVEL' in process.env) {
         envToRestore['OTEL_LOG_LEVEL'] = process.env.OTEL_LOG_LEVEL;
         // Make sure NodeSDK doesn't see this envvar and overwrite our diag
