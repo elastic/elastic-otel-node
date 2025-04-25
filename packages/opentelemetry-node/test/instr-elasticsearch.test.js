@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Test the *native* OTel instrumentation for `@elastic/elasticsearch` 8.15.0
-// and later.
+// Test the *native* OTel instrumentation available in `@elastic/elasticsearch`
+// 8.15.0 and later.
 
 const test = require('tape');
 const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
@@ -45,10 +45,11 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            OTEL_NODE_RESOURCE_DETECTORS: 'none', // cloud detectors are slow
         },
         versionRanges: {
-            // Min-supported node by @elastic/elasticsearch@8.15.0.
-            node: '>=18',
+            // Min-supported node by @elastic/elasticsearch@9.
+            node: '>=20',
         },
         // verbose: true,
         checkTelemetry,
@@ -59,9 +60,11 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
+            OTEL_NODE_RESOURCE_DETECTORS: 'none', // cloud detectors are slow
         },
         versionRanges: {
-            node: '^18.19.0 || >=20.6.0', // for --import and `module.register()`
+            // @elastic/elasticsearch@9 supports >=20, --import requires 20.6.0
+            node: '>=20.6.0',
         },
         // verbose: true,
         checkTelemetry,
