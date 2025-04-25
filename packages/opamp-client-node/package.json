@@ -1,21 +1,20 @@
 {
-  "name": "@elastic/mockopampserver",
+  "name": "@elastic/opamp-client-node",
   "version": "0.1.0",
   "type": "commonjs",
-  "description": "A mock OpAMP server, useful for dev and testing",
+  "description": "an OpAMP client for Node.js",
   "private": true,
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/elastic/elastic-otel-node.git",
-    "directory": "packages/mockopampserver"
+    "directory": "packages/opamp-client-node"
   },
   "keywords": [
     "elastic",
     "opentelemetry",
     "opamp",
-    "testing",
-    "mock"
+    "client"
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",
   "engines": {
@@ -28,26 +27,22 @@
     "lint:deps": "dependency-check 'lib/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
-    "start": "node lib/cli.js | bunyan",
-    "watch": "node --watch lib/cli.js | bunyan",
+    "example": "cd examples && node use-opamp-client.js | pino-pretty",
     "gen:protos": "buf generate"
   },
   "files": [
     "lib"
   ],
-  "main": "lib/index.js",
-  "bin": {
-    "mockopampserver": "lib/cli.js"
-  },
+  "main": "lib/opamp-client.js",
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.5",
-    "@isaacs/ttlcache": "^1.4.1",
-    "bunyan": "^1.8.15",
-    "dashdash": "^2.0.0",
+    "undici": "^6.21.2",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@bufbuild/buf": "^1.52.1",
-    "@bufbuild/protoc-gen-es": "^2.2.5"
+    "@bufbuild/protoc-gen-es": "^2.2.5",
+    "luggite": "^0.2.1",
+    "pino-pretty": "^13.0.0"
   }
 }

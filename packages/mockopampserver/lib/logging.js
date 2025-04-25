@@ -42,6 +42,13 @@ function createLogger() {
                         util.inspect(res.body, {depth: 50, colors: true}),
                 };
             },
+            agent: function (agent) {
+                // `agent` is the data the mockopapmserver keeps on reporting
+                // OpAMP clients. See `_processAgentToServer`. The main issue
+                // is that it holds some BigInts, which JSON serializing balks
+                // on.
+                return util.inspect(agent, {depth: 50, colors: true});
+            },
         },
         level: 'info',
         stream: process.stdout,
