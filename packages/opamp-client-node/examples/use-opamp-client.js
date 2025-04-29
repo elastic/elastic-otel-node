@@ -30,6 +30,18 @@ async function main() {
         identifyingAttributes: {
             'service.name': 'use-opamp-client',
         },
+        nonIdentifyingAttributes: {
+            // TODO: move these to a test case
+            aStr: 'strVal',
+            aBool: true,
+            aBool2: false,
+            anInt: 42,
+            aFloat: 3.141,
+            aBigInt: 1152921504606846976n, // less than 2**64, bigger than MAX_SAFE_INTEGER
+            aUint8Array: new Uint8Array([1, 2, 3]),
+            anArray: [1, 2, 3, 'a', 'b', 'c', {spam: 'eggs'}],
+            anObj: {foo: 'bar', baz: 'blam'},
+        },
     });
     client.start();
 

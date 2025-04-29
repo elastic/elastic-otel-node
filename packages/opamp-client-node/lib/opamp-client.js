@@ -23,6 +23,7 @@ const {
     ServerToAgentFlags,
     AgentDescriptionSchema,
 } = require('./generated/opamp_pb');
+const {KeyValueSchema} = require('./generated/anyvalue_pb');
 const {NoopLogger} = require('./logging');
 
 /**
@@ -31,6 +32,9 @@ const {NoopLogger} = require('./logging');
  * @typedef {import('./generated/opamp_pb.js').RemoteConfigStatus} RemoteConfigStatus
  * @typedef {import('./generated/opamp_pb.js').ServerToAgent} ServerToAgent
  * @typedef {import('./generated/opamp_pb.js').AgentRemoteConfig} AgentRemoteConfig
+ * @typedef {import('./generated/anyvalue_pb.js').KeyValue} KeyValue
+ * @typedef {import('./generated/anyvalue_pb.js').AnyValue} AnyValue
+ * @typedef {import('./generated/anyvalue_pb.js').ArrayValue} ArrayValue
  */
 
 const PKG = require('../package.json');
@@ -158,7 +162,82 @@ function isEqualUint8Array(a, b) {
 }
 
 /**
- * @typedef {function(OnMessageData)} OnMessageCallback
+ * Convert a JS object to the `KeyValue[]` type.
+ *
+ * @returns {KeyValue[]}
+ */
+function keyValuesFromObj(obj) {
+    const keyValues = [];
+    if (obj == null) {
+        return keyValues;
+    }
+
+    const keys = Object.keys(obj);
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const val = obj[key];
+        if (val !== undefined) {
+            keyValues.push(
+                create(KeyValueSchema, {key: key, value: anyValueFromVal(val)})
+            );
+        }
+    }
+
+    return keyValues;
+}
+
+/**
+ * Convert a JS value `val` into the `MessageInit<AnyValue>` that makes
+ * @bufbuild/protobuf happy.
+ *
+ * Dev Note: this *would* JSDoc `returns {Partial<AnyValue>}` but I cannot
+ * get that to work with ArrayValue and KeyValueList.
+ */
+function anyValueFromVal(val) {
+    const typ = typeof val;
+
+    // Dev Note: Compare to `toAnyValue` in opentelemetry-js/experimental/packages/otlp-transformer/src/common/internal.ts.
+    if (typ === 'string') {
+        return {value: {value: val, case: 'stringValue'}};
+    } else if (typ === 'number') {
+        if (Number.isInteger(val)) {
+            return {value: {value: BigInt(val), case: 'intValue'}};
+        } else {
+            return {value: {value: val, case: 'doubleValue'}};
+        }
+    } else if (typ === 'boolean') {
+        return {value: {value: val, case: 'boolValue'}};
+    } else if (typ === 'bigint') {
+        return {value: {value: val, case: 'intValue'}};
+    } else if (val instanceof Uint8Array) {
+        return {value: {value: val, case: 'bytesValue'}};
+    } else if (Array.isArray(val)) {
+        return {
+            value: {
+                case: 'arrayValue',
+                value: {values: val.map(anyValueFromVal)},
+            },
+        };
+    } else if (typ === 'object' && val != null) {
+        const values = [];
+        const valKeys = Object.keys(val);
+        for (let i = 0; i < valKeys.length; i++) {
+            const k = valKeys[i];
+            values.push({key: k, value: anyValueFromVal(val[k])});
+        }
+        return {
+            value: {
+                case: 'kvlistValue',
+                value: {values},
+            },
+        };
+    } else {
+        return {}; // current repr for null, undefined, and unknown types
+    }
+}
+
+/**
+ * @typedef {function(OnMessageData): void} OnMessageCallback
  * @callback OnMessageCallback
  * @param {OnMessageData} data
  */
@@ -246,20 +325,29 @@ class OpAMPClient {
      * Can be called again later after start.
      * See https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#agentdescription-message
      *
-     * @param {AgentDescription} agentDescription
+     * Dev Note: `desc` is *not* the raw `AgentDescription` type from bufbuild.
+     * This is for convenience in providing attributes as JS object, rather than
+     * the verbose proto-library-specific representation.
+     *
+     * @param {{identifyingAttributes?: object, nonIdentifyingAttributes?: object}} desc
      */
-    setAgentDescription(agentDescription) {
+    setAgentDescription(desc) {
+        /** @type {Partial<AgentDescription>} */
+        const agentDescription = {
+            identifyingAttributes: keyValuesFromObj(desc.identifyingAttributes),
+            nonIdentifyingAttributes: keyValuesFromObj(
+                desc.nonIdentifyingAttributes
+            ),
+        };
+
         // TODO: test re-setting this and determining if changed
-        let isChanged = false;
         const agentDescriptionSer = toBinary(
             AgentDescriptionSchema,
             create(AgentDescriptionSchema, agentDescription)
         );
-
+        let isChanged = false;
         if (!this._agentDescription) {
             isChanged = true;
-            this._agentDescription = agentDescription;
-            this._agentDescriptionSer = agentDescriptionSer;
         } else {
             isChanged = isEqualUint8Array(
                 this._agentDescriptionSer,
@@ -268,6 +356,8 @@ class OpAMPClient {
         }
 
         if (isChanged) {
+            this._agentDescription = agentDescription;
+            this._agentDescriptionSer = agentDescriptionSer;
             this._queue.push('AgentDescription');
             this._scheduleSendSoon();
         }
@@ -278,7 +368,7 @@ class OpAMPClient {
             throw new Error('OpAMPClient already started');
         }
         if (!this._agentDescription) {
-            // XXX allow agentDescription arg in ctor?
+            // TODO: allow agentDescription arg in ctor?
             throw new Error(
                 'OpAMPClient#setAgentDescription() must be called before start()'
             );
