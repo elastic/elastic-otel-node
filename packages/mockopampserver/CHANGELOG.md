@@ -1,0 +1,3 @@
+# @elastic/mockopampserver Changelog
+
+## Unreleased

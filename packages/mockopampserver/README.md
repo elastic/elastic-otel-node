@@ -1,13 +1,22 @@
 # @elastic/mockopampserver
 
-A mock Open Agent Management Protocol (OpAMP) server for development and testing.
-https://github.com/open-telemetry/opamp-spec
+A mock Open Agent Management Protocol (OpAMP, https://github.com/open-telemetry/opamp-spec)
+server for development and testing.  The intent is that this is something useful
+to maintainers of OpAMP clients, especially for the Elastic's coming Node.js
+OpAMP client (package `@elastic/opamp-client-node`).
 
-The intent is that this is something useful to maintainers of OpAMP clients,
-especially for the Elastic's coming Node.js OpAMP client. However,
+Features:
+- It is a Node.js server (this may or may not be a feature to you :)
+- It supports the minimal OpAMP HTTP transport, plus the `OffersRemoteConfig` server capability.
+- It logs the received `AgentToServer` and sent `ServerToAgent` protobuf messages in a somewhat readable format.
 
-**Current status:** It can accept a AgentToServer and respond with a minimal ServerToAgent.
-It does not do meaningful server handling.
+Limitations:
+- It only supports the HTTP transport of OpAMP, not the [WebSocket Transport](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#websocket-transport). (The spec says "Server implementations SHOULD accept both plain HTTP connections and WebSocket connections.").
+- Most of the optional server capabilities are not implemented: effective config, packages, connection settings, command, custom\ capabilities.
+
+Planned features:
+- A way to use this in Node.js testing, including setting up specific remote config responses.
+- "Bad" options so the server *misbehaves*, to support testing error handling of OpAMP clients.
 
 ## Usage
 
@@ -18,7 +27,15 @@ npm install
 npm start
 ```
 
-Then call it with an OpAMP client, or this example curl request:
+Then call it with an OpAMP client. For example:
+
+```
+cd ../packages/opamp-client-node
+npm install
+npm run example
+```
+
+Or, if you don't have a particular OpAMP client to use, you can try sending a request via `curl` using the included simple `AgentToServer` protobuf file:
 
 ```
 curl -si http://localhost:4315/v1/opamp -X POST \
@@ -28,31 +45,3 @@ curl -si http://localhost:4315/v1/opamp -X POST \
 ```
 
 (The [`ServerToAgent`](./scripts/ServerToAgent) script will deserialize [opamp.proto.ServerToAgent`](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#servertoagent-message) binary content on stdin and dump a representation to stdout.)
-
-
-## Limitations
-
-- (mostly everything)
-
-- Does not support the [WebSocket Transport](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#websocket-transport). Only the Plain HTTP Transport is supported. The spec says:
-
-    > Server implementations SHOULD accept both plain HTTP connections and WebSocket connections.
-
-
-# Dev Notes
-
-```
-npm run watch
-
-curl -si http://localhost:4315/v1/opamp -X POST \
-    -H content-type:application/x-protobuf \
-    --data-binary @./test/fixtures/AgentToServer.simple.bin \
-    | ./scripts/ServerToAgent
-
-curl -si http://localhost:4315/v1/opamp -X POST \
-    -H content-type:application/x-protobuf \
-    --data-binary @./test/fixtures/AgentToServer.bogus.bin \
-    | ./scripts/ServerToAgent
-```
-
-

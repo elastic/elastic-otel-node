@@ -25,7 +25,7 @@ const OPTIONS = [
         names: ['log-level', 'l'],
         type: 'string',
         help: `Set the log level to one of "trace", "debug", "info", "warn", "error", "fatal".`,
-        default: 'info',
+        default: 'debug',
     },
     {
         names: ['hostname'],

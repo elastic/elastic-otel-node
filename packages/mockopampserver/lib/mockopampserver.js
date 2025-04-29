@@ -4,6 +4,7 @@
  */
 
 const http = require('http');
+const {inspect} = require('util');
 const zlib = require('zlib');
 const TTLCache = require('@isaacs/ttlcache');
 const {create, toBinary, fromBinary} = require('@bufbuild/protobuf');
@@ -20,6 +21,8 @@ const {log} = require('./logging');
 /**
  * @typedef {import('./generated/opamp_pb.js').AgentToServer} AgentToServer
  * @typedef {import('./generated/opamp_pb.js').ServerToAgent} ServerToAgent
+ * @typedef {import('./generated/anyvalue_pb.js').AnyValue} AnyValue
+ * @typedef {import('./generated/anyvalue_pb.js').KeyValue} KeyValue
  */
 
 // Default hostname to 'localhost', because that is what `DEFAULT_COLLECTOR_URL`
@@ -48,6 +51,98 @@ function respondHttp404(res, errMsg = '404 page not found') {
     res.end(errMsg);
 }
 
+/**
+ * Convert a `KeyValue[]` type to a JS object.
+ * For example, AgentDescription.identifying_attributes are of type `KeyValue[]`.
+ * Using that type directly is a huge PITA.
+ *
+ * Dev Note: For interest, compare to the reverse `keyValuesFromObj()` in
+ * the client ("packages/opamp-client-node/...").
+ *
+ * @param {KeyValue[]}
+ * @returns {object}
+ */
+function objFromKeyValues(keyValues) {
+    const obj = {};
+    if (keyValues == null) {
+        return obj;
+    }
+    for (let i = 0; i < keyValues.length; i++) {
+        const kv = keyValues[i];
+        obj[kv.key] = valFromAnyValue(kv.value);
+    }
+    return obj;
+}
+
+/**
+ * @param {AnyValue}
+ * @returns {any}
+ */
+function valFromAnyValue(anyValue) {
+    let val;
+    switch (anyValue.value.case) {
+        case 'stringValue':
+        case 'boolValue':
+        case 'doubleValue':
+        case 'bytesValue':
+            val = anyValue.value.value;
+            break;
+        case 'intValue':
+            val = anyValue.value.value;
+            break;
+        case 'arrayValue':
+            val = anyValue.value.value.values.map(valFromAnyValue);
+            break;
+        case 'kvlistValue':
+            val = objFromKeyValues(anyValue.value.value.values);
+            break;
+        // default: val is undefined
+    }
+    return val;
+}
+
+/**
+ * A data class to store info about active agents, where "active" means the
+ * server has received a recent heartbeat status from the client.
+ */
+class AgentInfo {
+    constructor(data) {
+        this.instanceUidStr = data.instanceUidStr;
+        this.instanceUid = data.instanceUid;
+        this.sequenceNum = data.sequenceNum;
+        this.capabilities = data.capabilities;
+        this.agentDescription = data.agentDescription;
+        this.remoteConfigStatus = data.remoteConfigStatus;
+        this.lastMsgTime = data.lastMsgTime;
+    }
+
+    /**
+     * Return a JS object representation of `agentDescription.identifyingAttributes`.
+     */
+    getIdentifyingAttributes() {
+        return objFromKeyValues(this.agentDescription.identifyingAttributes);
+    }
+
+    [inspect.custom](depth, options, inspect) {
+        const subset = {
+            instanceUidStr: this.instanceUidStr,
+            sequenceNum: this.sequenceNum,
+            capabilities: this.capabilities,
+            agentDescription_: {
+                identifyingAttributes: objFromKeyValues(
+                    this.agentDescription.identifyingAttributes
+                ),
+                nonIdentifyingAttributes: objFromKeyValues(
+                    this.agentDescription.nonIdentifyingAttributes
+                ),
+            },
+            remoteConfigStatus: this.remoteConfigStatus,
+            lastMsgTime: this.lastMsgTime,
+        };
+        return `AgentInfo ${inspect(subset, {...options, depth: 10})}`;
+    }
+}
+
 class MockOpAMPServer {
     /**
      * @param {object} [opts]
@@ -73,10 +168,8 @@ class MockOpAMPServer {
         this._agents = new TTLCache({
             max: 10000,
             ttl: 5 * HEARTBEAT_INTERVAL,
-            dispose: (value, key, reason) => {
-                // XXX HERE
-                // XXX log when removing an agent, switch(reason)
-                // https://www.npmjs.com/package/@isaacs/ttlcache#new-ttlcache-ttl-max--infinty-updateageonget--false-checkageonget--false-noupdatettl--false-nodisposeonset--false-
+            dispose: (_value, instanceUidStr, reason) => {
+                log.info({instanceUidStr, reason}, 'remove active agent');
             },
         });
     }
@@ -100,6 +193,10 @@ class MockOpAMPServer {
                     err ? reject(err) : resolve();
                 });
             });
+        }
+        if (this._intervalLogAgents) {
+            clearInterval(this._intervalLogAgents);
+            this._intervalLogAgents = null;
         }
     }
 
@@ -138,7 +235,6 @@ class MockOpAMPServer {
 
         // Handle possible gzip compression;
         let instream;
-        // TODO: what was the other compression scheme Felix was trying that was faster? Brotli?
         switch (req.headers['content-encoding']) {
             case undefined:
                 instream = req;
@@ -198,7 +294,7 @@ class MockOpAMPServer {
 
             req.body = a2s; // for logging 'req' serializer
             res.body = s2a; // for logging 'res' serializer
-            log.info({req, res}, 'request');
+            log.debug({req, res}, 'request');
         });
     }
 
@@ -207,7 +303,7 @@ class MockOpAMPServer {
      * @returns {ServerToAgent}
      */
     _processAgentToServer(a2s) {
-        const agentKey = uuidStringify(a2s.instanceUid);
+        const instanceUidStr = uuidStringify(a2s.instanceUid);
         const reportedFullState = Boolean(
             a2s.agentDescription &&
                 (!(
@@ -228,20 +324,21 @@ class MockOpAMPServer {
 
         // Create or update an agent record for this agent. Also decide if
         // need to request ReportFullState.
-        let agent = this._agents.get(agentKey);
+        let agent = this._agents.get(instanceUidStr);
         if (!agent) {
-            agent = {
+            agent = new AgentInfo({
+                instanceUidStr,
                 instanceUid: a2s.instanceUid,
                 sequenceNum: a2s.sequenceNum,
                 capabilities: a2s.capabilities,
                 agentDescription: a2s.agentDescription,
                 remoteConfigStatus: a2s.remoteConfigStatus,
                 lastMsgTime: Date.now(),
-            };
-            this._agents.set(agentKey, agent);
-            log.info({agent}, `new agent add (${this._agents.size} agents)`);
-            if (a2s.sequenceNum !== 1n && !reportedFullState) {
-                log.debug({agentKey}, 'request ReportFullState');
+            });
+            this._agents.set(instanceUidStr, agent);
+            log.info({agent}, 'new active agent');
+            if (!reportedFullState) {
+                log.debug({instanceUidStr}, 'request ReportFullState');
                 resData.flags |=
                     ServerToAgentFlags.ServerToAgentFlags_ReportFullState;
             }
@@ -251,8 +348,8 @@ class MockOpAMPServer {
                 !reportedFullState
             ) {
                 log.debug(
-                    {agentKey, agentSeqNum: agent.sequenceNum},
-                    'request ReportFullState'
+                    {instanceUidStr, agentSeqNum: agent.sequenceNum},
+                    'request ReportFullState (sequenceNum missed)'
                 );
                 resData.flags |=
                     ServerToAgentFlags.ServerToAgentFlags_ReportFullState;
@@ -266,15 +363,14 @@ class MockOpAMPServer {
                 agent.remoteConfigStatus = a2s.remoteConfigStatus;
             }
             agent.lastMsgTime = Date.now();
-            this._agents.set(agentKey, agent);
+            this._agents.set(instanceUidStr, agent);
         }
 
-        // Offer remote config, if:
+        // TODO: Offer remote config, if:
         // - the agent accepts remote config
         // - the server has remote config for this agent
         // - the RemoteConfigStatus.lastRemoteConfigHash differs, if have
         //   remoteConfigStatus from the agent
-        // XXX HERE
 
         return create(ServerToAgentSchema, resData);
     }
