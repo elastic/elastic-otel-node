@@ -200,11 +200,12 @@ function anyValueFromVal(val) {
     if (typ === 'string') {
         return {value: {value: val, case: 'stringValue'}};
     } else if (typ === 'number') {
-        if (Number.isInteger(val)) {
-            return {value: {value: BigInt(val), case: 'intValue'}};
-        } else {
-            return {value: {value: val, case: 'doubleValue'}};
-        }
+        // Note: otlp-transformer uses `intValue` if Number.isInteger(val).
+        // However protobufjs and bufbuild differ in how they represent the
+        // protobuf `int64` type in their JS bindings, so `intValue` isn't
+        // necessarily correct here. Using `intValue` results in getting a
+        // BigInt on the other side. That is surprising.
+        return {value: {value: val, case: 'doubleValue'}};
     } else if (typ === 'boolean') {
         return {value: {value: val, case: 'boolValue'}};
     } else if (typ === 'bigint') {
