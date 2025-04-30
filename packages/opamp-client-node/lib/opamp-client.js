@@ -398,7 +398,7 @@ class OpAMPClient {
     /**
      * Dev Note: This client manages the `instanceUid`, so I'm not sure if this
      * API method is useful. The instanceUid *can* be changed by the OpAMP
-     * server, if requested by the client, so it could theoretically be useful.
+     * server.
      */
     getInstanceUid() {
         return this._instanceUid;
@@ -619,13 +619,18 @@ class OpAMPClient {
             onMessageData.remoteConfig = s2a.remoteConfig;
         }
 
-        // Dev Note: Unlike opamp-go, a new `instanceUid` from the server is
-        // maintained by this client, rather than passing that responsibility
-        // to the code using this client.
-        if (s2a.agentIdentification) {
-            console.log('XXX handle new agent instanceUid');
-            // XXX reset that client *flags* that would have requested this. Test it.
-            XXX;
+        // Dev Note: A possible new instanceUid is *not* added to onMessageData
+        // because, unlike opamp-go, this client maintains the `instanceUid`
+        // rather than having the calling code responsible for that.
+        if (s2a.agentIdentification?.newInstanceUid) {
+            // TODO: test this
+            const oldInstanceUidStr = uuidStringify(this._instanceUid);
+            this._instanceUid = s2a.agentIdentification.newInstanceUid;
+            let newInstanceUidStr = uuidStringify(this._instanceUid);
+            this._log.info(
+                {oldInstanceUidStr, newInstanceUidStr},
+                'AgentIdentification.new_instance_id'
+            );
         }
 
         // Call onMessage callback, if any.
