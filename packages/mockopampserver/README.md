@@ -7,7 +7,8 @@ OpAMP client (package `@elastic/opamp-client-node`).
 
 Features:
 - It is a Node.js server (this may or may not be a feature to you :)
-- It supports the minimal OpAMP HTTP transport, plus the `OffersRemoteConfig` server capability.
+- It supports the OpAMP HTTP transport.
+- It supports the minimal OpAMP capabilities, plus the `OffersRemoteConfig` server capability.
 - It logs the received `AgentToServer` and sent `ServerToAgent` protobuf messages in a somewhat readable format.
 
 Limitations:

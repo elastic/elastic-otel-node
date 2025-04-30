@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+const assert = require('assert');
 const http = require('http');
 const {inspect} = require('util');
 const zlib = require('zlib');
@@ -33,7 +34,7 @@ const DEFAULT_HOSTNAME = 'localhost';
 // https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=81
 // This isn't a strong argument for using this port.
 const DEFAULT_PORT = 4315;
-const DEFAULT_URL_PATH = '/v1/opamp';
+const DEFAULT_ENDPOINT_PATH = '/v1/opamp';
 
 /**
  * @param {http.OutgoingMessage} res
@@ -130,10 +131,10 @@ class AgentInfo {
             capabilities: this.capabilities,
             agentDescription_: {
                 identifyingAttributes: objFromKeyValues(
-                    this.agentDescription.identifyingAttributes
+                    this.agentDescription?.identifyingAttributes
                 ),
                 nonIdentifyingAttributes: objFromKeyValues(
-                    this.agentDescription.nonIdentifyingAttributes
+                    this.agentDescription?.nonIdentifyingAttributes
                 ),
             },
             remoteConfigStatus: this.remoteConfigStatus,
@@ -147,9 +148,9 @@ class MockOpAMPServer {
     /**
      * @param {object} [opts]
      * @param {string} [opts.logLevel] Optionally change the log level. This
-     *      accepts any of the log level names supported by luggite. Typically
-     *      one would use opts.log *or* opts.logLevel. The latter enables
-     *      tweaking the log level without having to pass in a custom logger.
+     *      accepts any of the log level names supported by Bunyan. Default
+     *      is "info".
+     * @param {number} [opts.port] An port on which to listen. Default is 4315.
      * @param {string} [opts.hostname]
      */
     constructor(opts) {
@@ -159,13 +160,13 @@ class MockOpAMPServer {
         }
 
         this._hostname = opts.hostname ?? DEFAULT_HOSTNAME;
-        this._port = DEFAULT_PORT;
-        this._urlPath = DEFAULT_URL_PATH;
-        this._urlBase = `http://${this._hostname}:${this._port}`;
+        this._port = opts.port ?? DEFAULT_PORT;
+        this._endpointPath = DEFAULT_ENDPOINT_PATH;
         this._server = http.createServer(this._onRequest.bind(this));
+        this._started = false;
 
         const HEARTBEAT_INTERVAL = 30 * 1000;
-        this._agents = new TTLCache({
+        this._activeAgents = new TTLCache({
             max: 10000,
             ttl: 5 * HEARTBEAT_INTERVAL,
             dispose: (_value, instanceUidStr, reason) => {
@@ -174,36 +175,46 @@ class MockOpAMPServer {
         });
     }
 
+    get endpoint() {
+        assert.ok(
+            this._started,
+            'MockOpAMPServer must be started to have an `endpoint`.'
+        );
+        return this._endpoint;
+    }
+
     async start() {
         return new Promise((resolve, reject) => {
             this._server.listen(this._port, this._hostname, () => {
-                log.info(
-                    `OpAMP server listening at http://${this._hostname}:${this._port}${this._urlPath}`
-                );
+                const addr = this._server.address();
+                if (addr.family === 'IPv6') {
+                    this._endpointOrigin = `http://[${addr.address}]:${addr.port}`;
+                } else {
+                    this._endpointOrigin = `http://${addr.address}:${addr.port}`;
+                }
+                this._endpoint = this._endpointOrigin + this._endpointPath;
+                log.info(`OpAMP server listening at ${this._endpoint}`);
                 resolve();
             });
             this._server.on('error', reject);
+            this._started = true;
         });
     }
 
     async close() {
-        if (this._server) {
+        if (this._started) {
             return new Promise((resolve, reject) => {
                 this._server.close((err) => {
                     err ? reject(err) : resolve();
                 });
             });
         }
-        if (this._intervalLogAgents) {
-            clearInterval(this._intervalLogAgents);
-            this._intervalLogAgents = null;
-        }
     }
 
     _onRequest(req, res) {
         // Basic HTTP request validations.
-        const u = new URL(req.url, this._urlBase);
-        if (u.pathname !== this._urlPath) {
+        const u = new URL(req.url, this._endpointOrigin);
+        if (u.pathname !== this._endpointPath) {
             respondHttp404(res);
             return;
         }
@@ -324,7 +335,7 @@ class MockOpAMPServer {
 
         // Create or update an agent record for this agent. Also decide if
         // need to request ReportFullState.
-        let agent = this._agents.get(instanceUidStr);
+        let agent = this._activeAgents.get(instanceUidStr);
         if (!agent) {
             agent = new AgentInfo({
                 instanceUidStr,
@@ -335,7 +346,7 @@ class MockOpAMPServer {
                 remoteConfigStatus: a2s.remoteConfigStatus,
                 lastMsgTime: Date.now(),
             });
-            this._agents.set(instanceUidStr, agent);
+            this._activeAgents.set(instanceUidStr, agent);
             log.info({agent}, 'new active agent');
             if (!reportedFullState) {
                 log.debug({instanceUidStr}, 'request ReportFullState');
@@ -363,7 +374,7 @@ class MockOpAMPServer {
                 agent.remoteConfigStatus = a2s.remoteConfigStatus;
             }
             agent.lastMsgTime = Date.now();
-            this._agents.set(instanceUidStr, agent);
+            this._activeAgents.set(instanceUidStr, agent);
         }
 
         // TODO: Offer remote config, if:
