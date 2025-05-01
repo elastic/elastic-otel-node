@@ -22,18 +22,20 @@
   },
   "scripts": {
     "clean": "rm -rf node_modules",
-    "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
-    "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
-    "lint:deps": "dependency-check 'lib/**/*.js' 'examples/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es -i pino-pretty",
-    "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "example": "cd examples && node use-opamp-client.js | pino-pretty",
-    "gen:protos": "buf generate"
+    "gen:protos": "buf generate",
+    "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
+    "lint:eslint": "eslint --ext=js,mjs,cjs .",
+    "lint:deps": "dependency-check 'lib/**/*.js' 'examples/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es -i pino-pretty",
+    "lint:fix": "eslint --ext=js,mjs,cjs --fix .",
+    "lint:license-files": "../../scripts/gen-notice.sh --lint .",
+    "test": "tape test/**/*.test.js"
   },
   "files": [
+    "CHANGELOG.md",
     "lib"
   ],
-  "main": "lib/opamp-client.js",
+  "main": "lib/index.js",
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.5",
     "undici": "^6.21.2",
@@ -42,7 +44,9 @@
   "devDependencies": {
     "@bufbuild/buf": "^1.52.1",
     "@bufbuild/protoc-gen-es": "^2.2.5",
+    "@elastic/mockopampserver": "file:../mockopampserver",
     "luggite": "^0.2.1",
-    "pino-pretty": "^13.0.0"
+    "pino-pretty": "^13.0.0",
+    "tape": "^5.9.0"
   }
 }

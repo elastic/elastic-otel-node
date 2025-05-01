@@ -10,13 +10,13 @@ Features:
 - It supports the OpAMP HTTP transport.
 - It supports the minimal OpAMP capabilities, plus the `OffersRemoteConfig` server capability.
 - It logs the received `AgentToServer` and sent `ServerToAgent` protobuf messages in a somewhat readable format.
+- A way to use this in Node.js testing (see `testMode: true` and `test*` methods). See example usage in "packages/opamp-client-node/test/...".
 
 Limitations:
 - It only supports the HTTP transport of OpAMP, not the [WebSocket Transport](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#websocket-transport). (The spec says "Server implementations SHOULD accept both plain HTTP connections and WebSocket connections.").
 - Most of the optional server capabilities are not implemented: effective config, packages, connection settings, command, custom\ capabilities.
 
 Planned features:
-- A way to use this in Node.js testing, including setting up specific remote config responses.
 - "Bad" options so the server *misbehaves*, to support testing error handling of OpAMP clients.
 
 ## Usage

@@ -73,8 +73,8 @@ test('MockOpAMPServer', (suite) => {
         t.equal(res.status, 200);
         t.equal(res.headers.get('content-type'), 'application/x-protobuf');
         t.ok(res.headers.has('content-length'));
-        // Slurp the response body (a pain because res.bytes() was only added
-        // in Node.js v22).
+        // Slurp the response body. (A pain because res.bytes() was only added
+        // in Node.js v22. Or could use undici.request().)
         const clen = Number(res.headers.get('content-length'));
         const resBody = new Uint8Array(clen);
         let offset = 0;

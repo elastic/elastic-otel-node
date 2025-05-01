@@ -23,8 +23,14 @@ const {
     ServerToAgentFlags,
     AgentDescriptionSchema,
 } = require('./generated/opamp_pb');
-const {KeyValueSchema} = require('./generated/anyvalue_pb');
 const {NoopLogger} = require('./logging');
+const {
+    jitter,
+    logserA2S,
+    logserS2A,
+    isEqualUint8Array,
+    keyValuesFromObj,
+} = require('./utils');
 
 /**
  * @typedef {import('./generated/opamp_pb.js').AgentDescription} AgentDescription
@@ -62,14 +68,6 @@ const DEFAULT_HEARTBEAT_INTERVAL_SECONDS = 30;
 // A 10ms heartbeat interval is crazy low, but might be useful for testing.
 const MIN_HEARTBEAT_INTERVAL_SECONDS = 0.1;
 
-// Randomly adjust to given numeric value by +/- 10%.
-function jitter(val) {
-    assert.equal(typeof val, 'number');
-    const range = val * 0.1; // +/- 10% jitter
-    const jit = range * 2 * Math.random() - range;
-    return val + jit;
-}
-
 function normalizeInstanceUid(input) {
     if (typeof input === 'string') {
         return uuidParse(input);
@@ -82,33 +80,6 @@ function genUuidv7() {
     const b = new Uint8Array(16);
     uuidv7(null, b);
     return b;
-}
-
-// Serialize some commonly logged objects for logging. The default repr is
-// too wordy for the log.
-function logserInstanceUid(instanceUid) {
-    if (!instanceUid) {
-        return instanceUid;
-    }
-    return uuidStringify(instanceUid);
-}
-function logserS2A(s2a) {
-    if (!s2a) {
-        return s2a;
-    }
-    return {
-        ...s2a,
-        instanceUid: logserInstanceUid(s2a.instanceUid),
-    };
-}
-function logserA2S(a2s) {
-    if (!a2s) {
-        return a2s;
-    }
-    return {
-        ...a2s,
-        instanceUid: logserInstanceUid(a2s.instanceUid),
-    };
 }
 
 /**
@@ -146,94 +117,6 @@ function normalizeHeartbeatIntervalSeconds(input) {
         throw new Error(`"heartbeatIntervalSeconds" is too low: ${input}`);
     } else {
         return input;
-    }
-}
-
-function isEqualUint8Array(a, b) {
-    if (a.length !== b.length) {
-        return false;
-    }
-    for (let i = 0; i < a.length; i++) {
-        if (a[i] !== b[i]) {
-            return false;
-        }
-    }
-    return true;
-}
-
-/**
- * Convert a JS object to the `KeyValue[]` type.
- *
- * @returns {KeyValue[]}
- */
-function keyValuesFromObj(obj) {
-    const keyValues = [];
-    if (obj == null) {
-        return keyValues;
-    }
-
-    const keys = Object.keys(obj);
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        const val = obj[key];
-        if (val !== undefined) {
-            keyValues.push(
-                create(KeyValueSchema, {key: key, value: anyValueFromVal(val)})
-            );
-        }
-    }
-
-    return keyValues;
-}
-
-/**
- * Convert a JS value `val` into the `MessageInit<AnyValue>` that makes
- * @bufbuild/protobuf happy.
- *
- * Dev Note: this *would* JSDoc `returns {Partial<AnyValue>}` but I cannot
- * get that to work with ArrayValue and KeyValueList.
- */
-function anyValueFromVal(val) {
-    const typ = typeof val;
-
-    // Dev Note: Compare to `toAnyValue` in opentelemetry-js/experimental/packages/otlp-transformer/src/common/internal.ts.
-    if (typ === 'string') {
-        return {value: {value: val, case: 'stringValue'}};
-    } else if (typ === 'number') {
-        // Note: otlp-transformer uses `intValue` if Number.isInteger(val).
-        // However protobufjs and bufbuild differ in how they represent the
-        // protobuf `int64` type in their JS bindings, so `intValue` isn't
-        // necessarily correct here. Using `intValue` results in getting a
-        // BigInt on the other side. That is surprising.
-        return {value: {value: val, case: 'doubleValue'}};
-    } else if (typ === 'boolean') {
-        return {value: {value: val, case: 'boolValue'}};
-    } else if (typ === 'bigint') {
-        return {value: {value: val, case: 'intValue'}};
-    } else if (val instanceof Uint8Array) {
-        return {value: {value: val, case: 'bytesValue'}};
-    } else if (Array.isArray(val)) {
-        return {
-            value: {
-                case: 'arrayValue',
-                value: {values: val.map(anyValueFromVal)},
-            },
-        };
-    } else if (typ === 'object' && val != null) {
-        const values = [];
-        const valKeys = Object.keys(val);
-        for (let i = 0; i < valKeys.length; i++) {
-            const k = valKeys[i];
-            values.push({key: k, value: anyValueFromVal(val[k])});
-        }
-        return {
-            value: {
-                case: 'kvlistValue',
-                value: {values},
-            },
-        };
-    } else {
-        return {}; // current repr for null, undefined, and unknown types
     }
 }
 
@@ -364,6 +247,15 @@ class OpAMPClient {
         }
     }
 
+    /**
+     * Dev Note: This client manages the `instanceUid`, so I'm not sure if this
+     * API method is useful. The instanceUid *can* be changed by the OpAMP
+     * server.
+     */
+    getInstanceUid() {
+        return this._instanceUid;
+    }
+
     start() {
         if (this._started) {
             throw new Error('OpAMPClient already started');
@@ -384,7 +276,7 @@ class OpAMPClient {
      * Do an orderly shutdown.
      * A shutdown OpAMPClient cannot be restarted.
      */
-    async shutdown() {
+    shutdown() {
         if (this._shutdown) {
             throw new Error('cannot shutdown OpAMPClient multiple times');
         }
@@ -393,15 +285,6 @@ class OpAMPClient {
             this._httpClient.close();
             this._httpClient = null;
         }
-    }
-
-    /**
-     * Dev Note: This client manages the `instanceUid`, so I'm not sure if this
-     * API method is useful. The instanceUid *can* be changed by the OpAMP
-     * server.
-     */
-    getInstanceUid() {
-        return this._instanceUid;
     }
 
     // `_hasCap*` are conveniences to avoid the verbose bitmasking.
@@ -427,7 +310,7 @@ class OpAMPClient {
      *   `this._queue`.
      * - When `_sendMsg()` finishes, it checks the queue. If there is something
      *   to send, it will `_scheduleSendSoon()` to flush the queue. Otherwise
-     *   it will `_scheduleSendHeartbeat()` to maintain period heartbeats.
+     *   it will `_scheduleSendHeartbeat()` to maintain periodic heartbeats.
      * - New info to send can come from any of:
      *      - A ServerToAgent.flags request to "ReportFullState". This is
      *        handled as part of `_sendMsg` calling `_processServerToAgent()`.
@@ -455,9 +338,12 @@ class OpAMPClient {
         }
     }
 
+    // This should only be called by the other `_scheduleSend*` methods above.
     _scheduleSend(delayMs) {
         assert.ok(typeof delayMs === 'number' && delayMs >= 0);
 
+        // Schedule the send in `delayMs`, unless one is already scheduled for
+        // sooner.
         const sendTime = Date.now() + delayMs;
         if (!this._nextSendTime || sendTime < this._nextSendTime) {
             this._log.trace({delayMs}, 'schedule next opamp send');
@@ -474,8 +360,8 @@ class OpAMPClient {
     }
 
     /**
-     * Set a status update to the server, then schedule the next send.
-     * Data to send is on `this._queue`, else this is a simple heartbeat.
+     * Send a status update to the server, then schedule the next send.
+     * Data to send is either on `this._queue`, or this is a simple heartbeat.
      *
      * This sets `this._sending = true` for its duration. This function cannot
      * throw, otherwise the client will be wedged.
@@ -516,22 +402,22 @@ class OpAMPClient {
         this._log.trace({a2s: logserA2S(a2s)}, 'sending AgentToServer');
         const reqBody = toBinary(AgentToServerSchema, a2s);
 
+        // TODO: error handling / retry notes
+        //
         // AFAICT from https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#retrying-messages
         // the only message that "requires a response" is the initial status.
         // So we only need retry/backoff logic for that first message. All
         // others can rely on heartbeating and the server requesting
         // ReportFullState if it needs.
-        // XXX modulo HTTP 503 and 429 with Retry-After
-        // XXX and an errorResponse with RetryInfo
-
-        // XXX HERE error handling
-        // - try https://undici.nodejs.org/#/docs/api/RetryAgent.md
-        // - `retry` fn holds the logic, can immediate callback(err) for cases
-        //   where we don't want retry
-        // - Q: does it already do exp. backoff? Docs don't specify.
-        // - Can errorResponse body with RetryInfo be in here? Probably not
-        //   because the request is done then, so manually need to handle
-        //   that by ... a re-call into _sendMsg???
+        // - Plus HTTP 503 and 429 with Retry-After
+        // - Plus s2a.errorResponse with RetryInfo
+        // - Perhaps use https://undici.nodejs.org/#/docs/api/RetryAgent.md
+        //     - `retry` fn holds the logic, can immediate callback(err) for cases
+        //     where we don't want retry
+        //     - Q: does it already do exp. backoff? Docs don't specify.
+        //     - Can errorResponse body with RetryInfo be in here? Probably not
+        //     because the request is done then, so manually need to handle
+        //     that by ... a re-call into _sendMsg???
 
         let res;
         try {
@@ -546,17 +432,28 @@ class OpAMPClient {
                 body: reqBody,
             });
         } catch (reqErr) {
-            console.log('XXX reqErr: ', reqErr);
+            console.error('TODO: handle reqErr');
+            throw reqErr;
         }
-        console.log('XXX _sendMsg:', res.statusCode, res.headers);
-        // TODO cope with errors, check content-type is x-protobuf
+        if (res.statusCode !== 200) {
+            throw new Error(
+                `TODO: handle non-200 from OpAMP server: ${res.statusCode} ${res.headers}`
+            );
+        }
+        if (res.headers['content-type'] !== 'application/x-protobuf') {
+            throw new Error(
+                `TODO: handle unexpectec content-type from OpAMP server: ${res.statusCode} ${res.headers}`
+            );
+        }
         const resBody = await res.body.bytes();
+        /** @type {ServerToAgent} */
         const s2a = fromBinary(ServerToAgentSchema, resBody);
-        // console.log('XXX _sendMsg: s2a: ', s2a);
         this._log.trace({s2a: logserS2A(s2a)}, 'received ServerToAgent');
-
-        // XXX handle s2a.errorResponse
-        //  - do we handle that even if instanceUid is wrong?
+        if (s2a.errorResponse) {
+            throw new Error(
+                `TODO: cope with ServerToAgent.errorResponse: ${s2a.errorResponse}`
+            );
+        }
 
         this._processServerToAgent(s2a);
 
@@ -635,7 +532,7 @@ class OpAMPClient {
 
         // Call onMessage callback, if any.
         if (this._onMessage && Object.keys(onMessageData).length > 0) {
-            // XXX doc for user: This `onMessage` callback could be called
+            // TODO doc for user: This `onMessage` callback could be called
             //      multiple times with the same data, e.g. with remoteCOnfig.
             //      They should be processed serially with duplicate info
             //      being ignored (e.g. use lastConfigHash to avoid dupe work)
@@ -654,7 +551,4 @@ function createOpAMPClient(opts) {
 module.exports = {
     USER_AGENT,
     createOpAMPClient,
-
-    // Re-exports of some protobuf classes/enums.
-    AgentCapabilities,
 };

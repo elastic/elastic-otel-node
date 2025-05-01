@@ -53,12 +53,11 @@ function respondHttp404(res, errMsg = '404 page not found') {
 }
 
 /**
+ * (Copied from "packages/opamp-client-node/lib/utils.js".)
+ *
  * Convert a `KeyValue[]` type to a JS object.
  * For example, AgentDescription.identifying_attributes are of type `KeyValue[]`.
  * Using that type directly is a huge PITA.
- *
- * Dev Note: For interest, compare to the reverse `keyValuesFromObj()` in
- * the client ("packages/opamp-client-node/...").
  *
  * @param {KeyValue[]}
  * @returns {object}
@@ -151,6 +150,11 @@ class MockOpAMPServer {
      *      accepts any of the log level names supported by Bunyan. Default
      *      is "info".
      * @param {number} [opts.port] An port on which to listen. Default is 4315.
+     * @param {boolean} [opts.testMode] Enable "test mode". This makes the
+     *      `.test*` methods functional. Typically this is useful when using
+     *      this class directly in a test suite. Default false. Note that
+     *      requests and responses are cached in test mode, so this is
+     *      effectively a memory leak if run for a long time in test mode.
      * @param {string} [opts.hostname]
      */
     constructor(opts) {
@@ -173,6 +177,11 @@ class MockOpAMPServer {
                 log.info({instanceUidStr, reason}, 'remove active agent');
             },
         });
+
+        if (opts.testMode) {
+            this._testMode = true;
+            this._testRequests = [];
+        }
     }
 
     get endpoint() {
@@ -211,11 +220,71 @@ class MockOpAMPServer {
         }
     }
 
+    /**
+     * Clear any cached data. This is useful when starting a test.
+     */
+    testReset() {
+        assert.ok(this._testMode, 'must set testMode:true option');
+        this._activeAgents.clear();
+        this._testRequests = [];
+    }
+
+    /**
+     * Return a (shallow) copy of received requests.
+     *
+     * This returns an array of objects of the form:
+     *      {
+     *          req: <incoming HTTP request>,
+     *          a2s: <AgentToServer protobuf message>,
+     *          res: <outgoing HTTP response>,
+     *          s2a: <ServerToAgent protobuf message>,
+     *          err: <Error instance if there was an error>,
+     *      }
+     * If a request fails, some of these fields will not be present.
+     */
+    testGetRequests() {
+        assert.ok(this._testMode, 'must set testMode:true option');
+        return this._testRequests.slice();
+    }
+
+    _testNoteRequest({
+        req,
+        res = undefined,
+        a2s = undefined,
+        s2a = undefined,
+        err = undefined,
+    }) {
+        function pick(obj, propNames) {
+            if (obj === undefined) {
+                return undefined;
+            }
+            const picked = {};
+            for (let n of propNames) {
+                if (n in obj) {
+                    picked[n] = obj[n];
+                }
+            }
+            return picked;
+        }
+
+        if (this._testMode) {
+            const datum = {
+                req: pick(req, ['method', 'path', 'headers']),
+                res: pick(res, ['statusCode', '_header']),
+                a2s,
+                s2a,
+                err,
+            };
+            this._testRequests.push(datum);
+        }
+    }
+
     _onRequest(req, res) {
         // Basic HTTP request validations.
         const u = new URL(req.url, this._endpointOrigin);
         if (u.pathname !== this._endpointPath) {
             respondHttp404(res);
+            this._testNoteRequest({req, res});
             return;
         }
         if (
@@ -227,11 +296,14 @@ class MockOpAMPServer {
                 'Connection upgrade is not supported. mockapmserver does not implement the OpAMP WebSockets transport.',
                 501
             );
+            this._testNoteRequest({req, res});
+            return;
         }
         if (req.method !== 'POST') {
             // Not using HTTP 405, because a 'GET' will eventually be
             // allowed for connection upgrade to websocket.
             respondHttpErr(res);
+            this._testNoteRequest({req, res});
             return;
         }
         if (req.headers['content-type'] !== 'application/x-protobuf') {
@@ -241,6 +313,7 @@ class MockOpAMPServer {
                     req.headers['content-type'] ?? '<empty>'
                 }`
             );
+            this._testNoteRequest({req, res});
             return;
         }
 
@@ -259,6 +332,7 @@ class MockOpAMPServer {
                     `unsupported Content-Encoding: ${req.headers['content-encoding']}`,
                     415
                 );
+                this._testNoteRequest({req, res});
                 return;
         }
         if (req.headers['content-encoding'] === 'gzip') {
@@ -273,6 +347,7 @@ class MockOpAMPServer {
         instream.on('error', (err) => {
             log.warn(err, 'error on instream');
             respondHttpErr(res, err.message);
+            this._testNoteRequest({req, res});
         });
         instream.on('end', () => {
             const reqBuffer = Buffer.concat(chunks);
@@ -282,6 +357,7 @@ class MockOpAMPServer {
             } catch (err) {
                 log.info(err, 'deserialize AgentToServer error');
                 respondHttpErr(res, err.message);
+                this._testNoteRequest({req, res});
                 return;
             }
 
@@ -290,6 +366,7 @@ class MockOpAMPServer {
                     res,
                     `invalid length of instanceUid: ${a2s.instanceUid.length}`
                 );
+                this._testNoteRequest({req, res, a2s});
                 return;
             }
 
@@ -306,6 +383,7 @@ class MockOpAMPServer {
             req.body = a2s; // for logging 'req' serializer
             res.body = s2a; // for logging 'res' serializer
             log.debug({req, res}, 'request');
+            this._testNoteRequest({req, res, a2s, s2a});
         });
     }
 

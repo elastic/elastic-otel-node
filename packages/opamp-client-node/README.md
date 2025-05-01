@@ -2,10 +2,10 @@
 
 An Open Agent Management Protocol (OpAMP) client for Node.js.
 
+
 ## Current status
 
-Vapourware. Still in development.
-
+Still in development.
 
 
 ## Usage
@@ -31,7 +31,10 @@ setInterval(() => {}, 10000); // Keep running.
 Using remote config:
 
 ```js
-import {createOpAMPClient} from '@elastic/opamp-client-node';
+import {
+    createOpAMPClient,
+    AgentCapabilities,
+} from '@elastic/opamp-client-node';
 
 const client = createOpAMPClient({
     endpoint: 'http://localhost:4315/v1/opamp', // mockopampserver default endpoint
@@ -54,42 +57,34 @@ client.start();
 setInterval(() => {}, 10000); // Keep running.
 ```
 
-XXX
-		Capabilities: protobufs.AgentCapabilities_AgentCapabilities_AcceptsRemoteConfig |
-			protobufs.AgentCapabilities_AgentCapabilities_ReportsRemoteConfig |
-			protobufs.AgentCapabilities_AgentCapabilities_ReportsEffectiveConfig |
-			protobufs.AgentCapabilities_AgentCapabilities_ReportsOwnMetrics |
-			protobufs.AgentCapabilities_AgentCapabilities_AcceptsOpAMPConnectionSettings,
-
 Usage more typical if used with an OpenTelemetry JS SDK which has a `Resource` with identifying attributes:
 
 ```js
 import {
     createOpAMPClient,
-    uuidBytesFromString,
     agentDescriptionFromResource,
 } from '@elastic/opamp-client-node';
 
-const res = ...; // from OTel JS resource detectors
-const instId = res.attributes['service.instance.id'];
+const resource = ...; // from OTel JS resource detectors
 const client = createOpAMPClient({
     endpoint: 'http://localhost:4315/v1/opamp',
-    instanceUid: instId && uuidBytesFromString(instId),
     onRemoteConfig: (remoteConfig) => {
         console.log('Got remote config:', remoteConfig);
     }
 });
-client.setAgentDescription(agentDescriptionFromResource(res));
+client.setAgentDescription(agentDescriptionFromResource(resource));
 client.start();
-// XXX do we need shutdown for anything? WS transport does, but
+process.once('beforeExit', () => { client.shutdown(); });
 
 setInterval(() => {}, 10000); // Keep running.
 ```
 
+TODO: ^^ impl agentDescriptionFromResource, test this usage
+
 
 ## Reference
 
-TODO: most of the reference
+TODO: most of the reference docs
 
 
 ### onMessage
@@ -104,3 +99,4 @@ to call `client.setRemoteConfigStatus(...)` as appropriate.
 - Only supports HTTP transport (no WebSocket transport).
 - Supports only a subset of the spec: none of the Beta or Development features
   unless otherwise shown.
+  TODO: be specific
