@@ -288,8 +288,11 @@ function getInstrumentations(opts = {}) {
 
     // Enabling metrics does not depend only on `ELASTIC_OTEL_METRICS_DISABLED`. It also
     // needs to have a valid exporter configured.
-    const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER') ?? ['otlp'];
-    const metricsDisabled = getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
+    const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER') ?? [
+        'otlp',
+    ];
+    const metricsDisabled =
+        getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
     const shouldExportMetrics = metricsExporters.every((e) => e !== 'none');
     const metricsEnabled = !metricsDisabled && shouldExportMetrics;
 

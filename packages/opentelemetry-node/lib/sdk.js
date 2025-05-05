@@ -166,7 +166,8 @@ function startNodeSDK(cfg = {}) {
     // Enabling metrics does not depend only on `ELASTIC_OTEL_METRICS_DISABLED`. It also
     // needs to have a valid exporter configured.
     const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
-    const metricsDisabled = getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
+    const metricsDisabled =
+        getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
     const shouldExportMetrics = metricsExporters.every((e) => e !== 'none');
     const metricsEnabled = !metricsDisabled && shouldExportMetrics;
 
@@ -216,11 +217,17 @@ function startNodeSDK(cfg = {}) {
     // - it must be on the enabled list config (empty means all enabled)
     // - and it must not in the disabled list config
     if (metricsEnabled) {
-        const enabledInstr = getStringListFromEnv('OTEL_NODE_ENABLED_INSTRUMENTATIONS');
-        const disabledInstr = getStringListFromEnv('OTEL_NODE_DISABLED_INSTRUMENTATIONS');
+        const enabledInstr = getStringListFromEnv(
+            'OTEL_NODE_ENABLED_INSTRUMENTATIONS'
+        );
+        const disabledInstr = getStringListFromEnv(
+            'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
+        );
 
-        const isEnabled = !enabledInstr || enabledInstr.includes('host-metrics');
-        const isDisabled = disabledInstr && disabledInstr.includes('host-metrics');
+        const isEnabled =
+            !enabledInstr || enabledInstr.includes('host-metrics');
+        const isDisabled =
+            disabledInstr && disabledInstr.includes('host-metrics');
 
         if (isEnabled && !isDisabled) {
             // TODO: make this configurable, user might collect host metrics with a separate utility. Perhaps use 'host-metrics' in DISABLED_INSTRs existing env var.
