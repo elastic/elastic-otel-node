@@ -104,21 +104,23 @@ const testFixtures = [
             const hasLog = (text) => lines.some((l) => l.includes(text));
             // Logs from the console exporter are not JSON parseable
             // so we check presence of some metric names
-            t.ok(hasLog(`name: 'http.client.request.duration'`));
 
-            // metrics from `@opentelemetry/instrumentation-runtime-node` shouldn't be exported
-            t.ok(!hasLog(`name: 'nodejs.eventloop.utilization'`));
-            t.ok(!hasLog(`name: 'nodejs.eventloop.delay.min'`));
-            t.ok(!hasLog(`name: 'nodejs.eventloop.delay.max'`));
-            // metrics from `@opentelemetry/host-metrics` shouldn't be exported too
-            t.ok(!hasLog(`name: 'process.cpu.utilization'`));
+            // metrics from `@opentelemetry/instrumentation-http` shouldn't be exported
+            t.ok(!hasLog(`name: 'http.client.request.duration'`));
+
+            // metrics from `@opentelemetry/instrumentation-runtime-node`
+            t.ok(hasLog(`name: 'nodejs.eventloop.utilization'`));
+            t.ok(hasLog(`name: 'nodejs.eventloop.delay.min'`));
+            t.ok(hasLog(`name: 'nodejs.eventloop.delay.max'`));
+            // metrics from `@opentelemetry/host-metrics`
+            t.ok(hasLog(`name: 'process.cpu.utilization'`));
         },
         checkTelemetry: (t, col) => {
             t.ok(col.metrics.length > 0);
         },
     },
     {
-        name: 'runtime and host metrics di via `OTEL_NODE_DISABLED_INSTRUMENTATIONS`',
+        name: 'runtime and host metrics disabled via `OTEL_NODE_DISABLED_INSTRUMENTATIONS`',
         args: ['./fixtures/use-http-server-metrics.js'],
         cwd: __dirname,
         env: {
@@ -140,12 +142,15 @@ const testFixtures = [
             // Logs from the console exporter are not JSON parseable
             // so we check presence of some metric names
 
-            // metrics from `@opentelemetry/instrumentation-runtime-node`
-            t.ok(hasLog(`name: 'nodejs.eventloop.utilization'`));
-            t.ok(hasLog(`name: 'nodejs.eventloop.delay.min'`));
-            t.ok(hasLog(`name: 'nodejs.eventloop.delay.max'`));
-            // metrics from `@opentelemetry/host-metrics`
-            t.ok(hasLog(`name: 'process.cpu.utilization'`));
+            // metrics from `@opentelemetry/instrumentation-http`
+            t.ok(hasLog(`name: 'http.client.request.duration'`));
+
+            // metrics from `@opentelemetry/instrumentation-runtime-node` shouldn't be exported
+            t.ok(!hasLog(`name: 'nodejs.eventloop.utilization'`));
+            t.ok(!hasLog(`name: 'nodejs.eventloop.delay.min'`));
+            t.ok(!hasLog(`name: 'nodejs.eventloop.delay.max'`));
+            // metrics from `@opentelemetry/host-metrics` shouldn't be exported
+            t.ok(!hasLog(`name: 'process.cpu.utilization'`));
         },
         checkTelemetry: (t, col) => {
             t.ok(col.metrics.length > 0);

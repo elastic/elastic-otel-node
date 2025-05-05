@@ -163,13 +163,16 @@ function startNodeSDK(cfg = {}) {
     if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
         process.env.OTEL_METRICS_EXPORTER = 'otlp';
     }
+    const metricsDisabled =
+        getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
+    if (metricsDisabled) {
+        // add a `none` exporter so no metrics are exported at all
+        process.env.OTEL_METRICS_EXPORTER += ',none';
+    }
     // Enabling metrics does not depend only on `ELASTIC_OTEL_METRICS_DISABLED`. It also
     // needs to have a valid exporter configured.
     const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
-    const metricsDisabled =
-        getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
-    const shouldExportMetrics = metricsExporters.every((e) => e !== 'none');
-    const metricsEnabled = !metricsDisabled && shouldExportMetrics;
+    const metricsEnabled = metricsExporters.every((e) => e !== 'none');
 
     if (metricsEnabled) {
         defaultConfig.views = [
