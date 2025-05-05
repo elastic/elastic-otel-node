@@ -23,6 +23,9 @@ const {
     NodeSDK,
 } = require('@opentelemetry/sdk-node');
 const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
+const {AggregationType} = require('@opentelemetry/sdk-metrics');
+const {HostMetrics} = require('@opentelemetry/host-metrics');
+
 const {createAddHookMessageChannel} = require('import-in-the-middle');
 
 const {log, registerOTelDiagLogger} = require('./logging');
@@ -30,7 +33,6 @@ const luggite = require('./luggite');
 const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
-const {enableHostMetrics, HOST_METRICS_VIEWS} = require('./metrics/host');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
@@ -161,13 +163,23 @@ function startNodeSDK(cfg = {}) {
     if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
         process.env.OTEL_METRICS_EXPORTER = 'otlp';
     }
+    // Enabling metrics does not depend only on `ELASTIC_OTEL_METRICS_DISABLED`. It also
+    // needs to have a valid exporter configured.
     const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
-    const metricsEnabled = metricsExporters.every((e) => e !== 'none');
+    const metricsDisabled = getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
+    const shouldExportMetrics = metricsExporters.every((e) => e !== 'none');
+    const metricsEnabled = !metricsDisabled && shouldExportMetrics;
+
     if (metricsEnabled) {
         defaultConfig.views = [
-            // Add views for `host-metrics` to avoid excess of data being sent
-            // to the server.
-            ...HOST_METRICS_VIEWS,
+            // Dropping system metrics because:
+            // - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
+            // - not displayed by Kibana in metrics dashboard. Ref: https://github.com/elastic/kibana/pull/199353
+            // - recommendation is to use OTEL collector to get and export them
+            {
+                instrumentName: 'system.*',
+                aggregation: {type: AggregationType.DROP},
+            },
         ];
     }
 
@@ -200,9 +212,21 @@ function startNodeSDK(cfg = {}) {
     sdk.start(); // .start() *does* use `process.env` though I think it should not.
     restoreEnvironment();
 
+    // to enable `@opentelemetry/host-metrics` metrics should be enabled and:
+    // - it must be on the enabled list config (empty means all enabled)
+    // - and it must not in the disabled list config
     if (metricsEnabled) {
-        // TODO: make this configurable, user might collect host metrics with a separate utility. Perhaps use 'host-metrics' in DISABLED_INSTRs existing env var.
-        enableHostMetrics();
+        const enabledInstr = getStringListFromEnv('OTEL_NODE_ENABLED_INSTRUMENTATIONS');
+        const disabledInstr = getStringListFromEnv('OTEL_NODE_DISABLED_INSTRUMENTATIONS');
+
+        const isEnabled = !enabledInstr || enabledInstr.includes('host-metrics');
+        const isDisabled = disabledInstr && disabledInstr.includes('host-metrics');
+
+        if (isEnabled && !isDisabled) {
+            // TODO: make this configurable, user might collect host metrics with a separate utility. Perhaps use 'host-metrics' in DISABLED_INSTRs existing env var.
+            const hostMetricsInstance = new HostMetrics();
+            hostMetricsInstance.start();
+        }
     }
 
     // Return an object that is a subset of the upstream NodeSDK interface,
