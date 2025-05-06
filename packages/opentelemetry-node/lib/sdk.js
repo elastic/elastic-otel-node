@@ -133,8 +133,6 @@ function startNodeSDK(cfg = {}) {
     ];
 
     // Metrics config.
-    // TODO: support `OTEL_METRICS_EXPORTER`, including being a list of exporters (e.g. console, debug)
-    // TODO: metrics exporter should do for metrics what `TracerProviderWithEnvExporters` does for traces, does that include `url` export endpoint?
 
     // Setting default temporality to delta to avoid histogram storing issues in ES.
     // Or log if there is a different value set by the user
@@ -152,37 +150,32 @@ function startNodeSDK(cfg = {}) {
         );
     }
 
-    // The implementation in SDK does treats the undefined and 'none' value
-    // as same. https://github.com/open-telemetry/opentelemetry-js/blob/dac72912b3a895c91ee95cfa39a22a916411ba4c/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L117
-    // According to https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection
-    // the default should be 'otlp' so IMHO the implementation is wrong
-
-    // We need to set the default value if env var is not defined until it's fixed in
-    // upstream SDK
-    // TODO: remove this when https://github.com/open-telemetry/opentelemetry-js/issues/5612 is closed
-    if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
-        process.env.OTEL_METRICS_EXPORTER = 'otlp';
-    }
+    // Check the deprecated `ELASTIC_OTEL_METRICS_DISABLED` env var
     if ('ELASTIC_OTEL_METRICS_DISABLED' in process.env) {
+        // log the deprecation notice
         const exporterDocs =
             'https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection';
         log.info(
             `Environment var "ELASTIC_OTEL_METRICS_DISABLED" is deprecated. Use "OTEL_METRICS_EXPORTER" env var to disable metrics as described in ${exporterDocs}.`
         );
+        // set metrics exporter to `none` if user wants to disable
+        if (getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED')) {
+            process.env.OTEL_METRICS_EXPORTER = 'none';
+        }
     }
-    const metricsDisabled = getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED');
-    if (metricsDisabled) {
-        // add a `none` exporter so no metrics are exported at all
-        process.env.OTEL_METRICS_EXPORTER += ',none';
+
+    // If `OTEL_METRICS_EXPORTER` undefined set the default value according to spec.
+    // ref: https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection
+    // ref: https://github.com/open-telemetry/opentelemetry-js/issues/5612
+    if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
+        process.env.OTEL_METRICS_EXPORTER = 'otlp';
     }
-    // Enabling metrics does not depend only on `ELASTIC_OTEL_METRICS_DISABLED`. It also
-    // needs to have a valid exporter configured.
+    
     const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
     const metricsEnabled = metricsExporters.every((e) => e !== 'none');
 
     if (metricsEnabled) {
-        // XXX: does EDOT gain something by conditionally adding views?
-        // is it maybe easier to have it from the start?
+        // Set the views conditionally so the upstream SDK does not create meter provider for nothing
         defaultConfig.views = [
             // Dropping system metrics because:
             // - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
