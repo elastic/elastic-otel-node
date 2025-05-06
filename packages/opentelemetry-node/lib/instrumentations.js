@@ -286,16 +286,6 @@ function getInstrumentations(opts = {}) {
         });
     }
 
-    // Enabling metrics does not depend only on `ELASTIC_OTEL_METRICS_DISABLED`. It also
-    // needs to have a valid exporter configured.
-    let metricsDisabled =
-        getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
-    if (!metricsDisabled) {
-        const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
-        metricsDisabled =
-            !metricsExporters || metricsExporters.some((e) => e === 'none');
-    }
-
     // TODO: check `opts` and warn if it includes entries for unknown instrumentations (this is what `checkManuallyProvidedInstrumentationNames` does in auto-instrumentations-node).
 
     Object.keys(instrumentationsMap).forEach((name) => {
@@ -305,16 +295,6 @@ function getInstrumentations(opts = {}) {
         }
         // Skip if env has an `disabled` list and it's present (overriding enabled list)
         if (disabledFromEnv && disabledFromEnv.includes(name)) {
-            return;
-        }
-
-        // Skip if metrics are disabled:
-        // - by setting `ELASTIC_OTEL_METRICS_DISABLED` env var to false
-        // - by setting a `none` exporter for metrics
-        if (
-            metricsDisabled &&
-            name === '@opentelemetry/instrumentation-runtime-node'
-        ) {
             return;
         }
 

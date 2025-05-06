@@ -175,6 +175,8 @@ function startNodeSDK(cfg = {}) {
     const metricsEnabled = metricsExporters.every((e) => e !== 'none');
 
     if (metricsEnabled) {
+        // XXX: does EDOT gain something by conditionally adding views?
+        // is it maybe easier to have it from the start?
         defaultConfig.views = [
             // Dropping system metrics because:
             // - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
@@ -216,27 +218,13 @@ function startNodeSDK(cfg = {}) {
     sdk.start(); // .start() *does* use `process.env` though I think it should not.
     restoreEnvironment();
 
-    // to enable `@opentelemetry/host-metrics` metrics should be enabled and:
-    // - it must be on the enabled list config (empty means all enabled)
-    // - and it must not in the disabled list config
-    if (metricsEnabled) {
-        const enabledInstr = getStringListFromEnv(
-            'OTEL_NODE_ENABLED_INSTRUMENTATIONS'
-        );
-        const disabledInstr = getStringListFromEnv(
-            'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
-        );
-
-        const isEnabled =
-            !enabledInstr || enabledInstr.includes('host-metrics');
-        const isDisabled =
-            disabledInstr && disabledInstr.includes('host-metrics');
-
-        if (isEnabled && !isDisabled) {
-            // TODO: make this configurable, user might collect host metrics with a separate utility. Perhaps use 'host-metrics' in DISABLED_INSTRs existing env var.
-            const hostMetricsInstance = new HostMetrics();
-            hostMetricsInstance.start();
-        }
+    // to enable `@opentelemetry/host-metrics` 
+    // - metrics should be enabled (resolved above)
+    // - `ELASTIC_OTEL_DISABLE_HOST_METRICS` must not be "true"
+    const hostMetricsDisabled = getBooleanFromEnv('ELASTIC_OTEL_DISABLE_HOST_METRICS');
+    if (metricsEnabled && !hostMetricsDisabled) {
+        const hostMetricsInstance = new HostMetrics();
+        hostMetricsInstance.start();
     }
 
     // Return an object that is a subset of the upstream NodeSDK interface,
