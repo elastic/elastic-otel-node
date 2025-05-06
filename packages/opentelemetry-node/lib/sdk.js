@@ -170,7 +170,7 @@ function startNodeSDK(cfg = {}) {
     if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
         process.env.OTEL_METRICS_EXPORTER = 'otlp';
     }
-    
+
     const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
     const metricsEnabled = metricsExporters.every((e) => e !== 'none');
 
