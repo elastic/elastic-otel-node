@@ -163,8 +163,14 @@ function startNodeSDK(cfg = {}) {
     if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
         process.env.OTEL_METRICS_EXPORTER = 'otlp';
     }
-    const metricsDisabled =
-        getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
+    if ('ELASTIC_OTEL_METRICS_DISABLED' in process.env) {
+        const exporterDocs =
+            'https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection';
+        log.info(
+            `Environment var "ELASTIC_OTEL_METRICS_DISABLED" is deprecated. Use "OTEL_METRICS_EXPORTER" env var to disable metrics as described in ${exporterDocs}.`
+        );
+    }
+    const metricsDisabled = getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED');
     if (metricsDisabled) {
         // add a `none` exporter so no metrics are exported at all
         process.env.OTEL_METRICS_EXPORTER += ',none';
@@ -218,10 +224,12 @@ function startNodeSDK(cfg = {}) {
     sdk.start(); // .start() *does* use `process.env` though I think it should not.
     restoreEnvironment();
 
-    // to enable `@opentelemetry/host-metrics` 
+    // to enable `@opentelemetry/host-metrics`
     // - metrics should be enabled (resolved above)
     // - `ELASTIC_OTEL_DISABLE_HOST_METRICS` must not be "true"
-    const hostMetricsDisabled = getBooleanFromEnv('ELASTIC_OTEL_DISABLE_HOST_METRICS');
+    const hostMetricsDisabled = getBooleanFromEnv(
+        'ELASTIC_OTEL_DISABLE_HOST_METRICS'
+    );
     if (metricsEnabled && !hostMetricsDisabled) {
         const hostMetricsInstance = new HostMetrics();
         hostMetricsInstance.start();
