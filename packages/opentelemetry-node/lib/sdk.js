@@ -226,9 +226,9 @@ function startNodeSDK(cfg = {}) {
 
     // to enable `@opentelemetry/host-metrics`
     // - metrics should be enabled (resolved above)
-    // - `ELASTIC_OTEL_DISABLE_HOST_METRICS` must not be "true"
+    // - `ELASTIC_OTEL_HOST_METRICS_DISABLED` must not be "true"
     const hostMetricsDisabled = getBooleanFromEnv(
-        'ELASTIC_OTEL_DISABLE_HOST_METRICS'
+        'ELASTIC_OTEL_HOST_METRICS_DISABLED'
     );
     if (metricsEnabled && !hostMetricsDisabled) {
         const hostMetricsInstance = new HostMetrics();

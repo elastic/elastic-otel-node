@@ -78,13 +78,13 @@ const testFixtures = [
         },
     },
     {
-        name: 'host metrics disabled via `ELASTIC_OTEL_DISABLE_HOST_METRICS`',
+        name: 'host metrics disabled via `ELASTIC_OTEL_HOST_METRICS_DISABLED`',
         args: ['./fixtures/use-http-server-metrics.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
             OTEL_METRICS_EXPORTER: 'otlp,console',
-            ELASTIC_OTEL_DISABLE_HOST_METRICS: 'true',
+            ELASTIC_OTEL_HOST_METRICS_DISABLED: 'true',
             // The default metrics interval is 30s, which makes for a slow test.
             // However, too low a value runs into possible:
             //      PeriodicExportingMetricReader: metrics collection errors TimeoutError: Operation timed out.
