@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- feat: add env var `ELASTIC_OTEL_HOST_METRICS_DISABLED` to controll wether
+  EDOT has to send metrics from the host (process, system, ...) or not. This
+  means users can disable host metrics without affecting metrics from instrumentations.
+  (https://github.com/elastic/elastic-otel-node/issues/736)
+
+  The existing `ELASTIC_OTEL_METRICS_DISABLED` becomes deprecated since the
+  disabling of metrics can be done via `OTEL_METRICS_EXPORTER` configuration
+  option.
+
 - feat: Restore the `@elastic/opentelemetry-node/sdk` entry-point and show how
   to use it to bootstrap the EDOT Node.js SDK in code. This means using
   `node --import ./telemetry.mjs app.js`, rather than the typical zero-code
