@@ -7,9 +7,9 @@
   means users can disable host metrics without affecting metrics from instrumentations.
   (https://github.com/elastic/elastic-otel-node/issues/736)
 
-  The existing `ELASTIC_OTEL_METRICS_DISABLED` becomes deprecated since the
-  disabling of metrics can be done via `OTEL_METRICS_EXPORTER` configuration
-  option.
+- The `ELASTIC_OTEL_METRICS_DISABLED` environment variable is now deprecated.
+  Use `OTEL_METRICS_EXPORTER=none` (instead of `ELASTIC_OTEL_METRICS_DISABLED=true`)
+  to disable any metrics being exported by EDOT Node.js.
 
 - feat: Restore the `@elastic/opentelemetry-node/sdk` entry-point and show how
   to use it to bootstrap the EDOT Node.js SDK in code. This means using
