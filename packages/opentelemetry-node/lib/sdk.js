@@ -152,7 +152,6 @@ function startNodeSDK(cfg = {}) {
 
     // Check the deprecated `ELASTIC_OTEL_METRICS_DISABLED` env var
     if ('ELASTIC_OTEL_METRICS_DISABLED' in process.env) {
-        // log the deprecation notice
         const exporterDocs =
             'https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection';
         log.info(
