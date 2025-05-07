@@ -3,7 +3,7 @@
 ## Unreleased
 
 - feat: Add env var `ELASTIC_OTEL_HOST_METRICS_DISABLED` to control whether
-  EDOT has to send metrics from the host (process, system, ...) or not. This
+  EDOT Node.js will collect host metrics (`process.*`). This
   means users can disable host metrics without affecting metrics from instrumentations.
   (https://github.com/elastic/elastic-otel-node/issues/736)
 
