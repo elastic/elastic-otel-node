@@ -22,6 +22,12 @@ const parsersMap = {
     'application/x-protobuf': protoParser,
 };
 
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Method': 'POST, OPTIONS',
+};
+
 function diagChFromReqUrl(reqUrl) {
     switch (reqUrl) {
         case '/v1/traces':
@@ -36,6 +42,19 @@ function diagChFromReqUrl(reqUrl) {
 }
 
 // helper functions
+/**
+ * @param {string} ua 
+ * @returns {boolean}
+ */
+function isBrowserUserAgent(ua) {
+    return [
+        'Mozilla/',
+        'AppleWebKit/',
+        'Chrome/',
+        'Safari/',
+    ].some((str) => ua.includes(str));
+}
+
 function badRequest(
     res,
     errMsg = 'Invalid or no data received',
@@ -125,6 +144,15 @@ class HttpService extends Service {
         const httpTunnel = tunnel && createHttpTunnel(log, tunnel);
 
         this._server = http.createServer((req, res) => {
+            const isBrowserReq = isBrowserUserAgent(req.headers['user-agent']);
+
+            // Accept CORS requests from browsers
+            if (isBrowserReq && req.method.toUpperCase() === 'OPTIONS') {
+                res.writeHead(200, 'OK', corsHeaders);
+                res.end();
+                return;
+            }
+
             const contentType = req.headers['content-type'];
 
             // Tunnel requests if defined or validate otherwise
@@ -154,13 +182,14 @@ class HttpService extends Service {
                     // - something else
                     // PS: maybe collector could be able to tell the sdk/distro to stop sending
                     // because of: high load, sample rate changed, et al??
+                    let resHeaders = isBrowserReq ? corsHeaders : {};
                     let resBody = null;
                     if (contentType === 'application/json') {
                         resBody = JSON.stringify({
                             ok: 1,
                         });
                     }
-                    res.writeHead(200);
+                    res.writeHead(200, 'OK', resHeaders);
                     res.end(resBody);
                 }
 
