@@ -43,16 +43,13 @@ function diagChFromReqUrl(reqUrl) {
 
 // helper functions
 /**
- * @param {string} ua 
+ * @param {string} ua
  * @returns {boolean}
  */
 function isBrowserUserAgent(ua) {
-    return [
-        'Mozilla/',
-        'AppleWebKit/',
-        'Chrome/',
-        'Safari/',
-    ].some((str) => ua.includes(str));
+    return ['Mozilla/', 'AppleWebKit/', 'Chrome/', 'Safari/'].some((str) =>
+        ua.includes(str)
+    );
 }
 
 function badRequest(
