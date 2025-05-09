@@ -58,9 +58,9 @@ function isBrowserUserAgent(ua) {
 
 /**
  * @param {http.IncomingMessage} req
- * @param {http.ServerResponse} res 
+ * @param {http.ServerResponse} res
  * @param {string} [errMsg]
- * @param {number} [errCode] 
+ * @param {number} [errCode]
  */
 function badRequest(
     req,
