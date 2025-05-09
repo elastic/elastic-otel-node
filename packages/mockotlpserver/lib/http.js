@@ -43,21 +43,35 @@ function diagChFromReqUrl(reqUrl) {
 
 // helper functions
 /**
- * @param {string} ua
+ * @param {string|undefined} ua
  * @returns {boolean}
  */
 function isBrowserUserAgent(ua) {
-    return ['Mozilla/', 'AppleWebKit/', 'Chrome/', 'Safari/'].some((str) =>
-        ua.includes(str)
-    );
+    if (typeof ua === 'string') {
+        return ['Mozilla/', 'AppleWebKit/', 'Chrome/', 'Safari/'].some((str) =>
+            ua.includes(str)
+        );
+    }
+
+    return false;
 }
 
+/**
+ * @param {http.IncomingMessage} req
+ * @param {http.ServerResponse} res 
+ * @param {string} [errMsg]
+ * @param {number} [errCode] 
+ */
 function badRequest(
+    req,
     res,
     errMsg = 'Invalid or no data received',
     errCode = 400
 ) {
-    res.writeHead(400);
+    const ua = req.headers['user-agent'];
+    /** @type {http.OutgoingHttpHeaders} */
+    const headers = isBrowserUserAgent(ua) ? corsHeaders : {};
+    res.writeHead(400, 'Bad Request', headers);
     res.end(
         JSON.stringify({
             error: {
@@ -145,7 +159,7 @@ class HttpService extends Service {
 
             // Accept CORS requests from browsers
             if (isBrowserReq && req.method.toUpperCase() === 'OPTIONS') {
-                res.writeHead(200, 'OK', corsHeaders);
+                res.writeHead(204, 'OK', corsHeaders);
                 res.end();
                 return;
             }
@@ -157,6 +171,7 @@ class HttpService extends Service {
                 httpTunnel(req, res);
             } else if (!parsersMap[contentType]) {
                 return badRequest(
+                    req,
                     res,
                     `unexpected request Content-Type: "${contentType}"`
                 );
@@ -169,7 +184,7 @@ class HttpService extends Service {
                 if (!httpTunnel) {
                     // TODO: send back the proper error
                     if (chunks.length === 0) {
-                        return badRequest(res);
+                        return badRequest(req, res);
                     }
 
                     // TODO: in future response may add some header to communicate back
@@ -179,7 +194,9 @@ class HttpService extends Service {
                     // - something else
                     // PS: maybe collector could be able to tell the sdk/distro to stop sending
                     // because of: high load, sample rate changed, et al??
-                    let resHeaders = isBrowserReq ? corsHeaders : {};
+                    // let resHeaders = isBrowserReq ? corsHeaders : {};
+                    /** @type {http.OutgoingHttpHeaders} */
+                    let resHeaders = {};
                     let resBody = null;
                     if (contentType === 'application/json') {
                         resBody = JSON.stringify({
