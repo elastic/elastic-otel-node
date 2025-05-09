@@ -194,9 +194,8 @@ class HttpService extends Service {
                     // - something else
                     // PS: maybe collector could be able to tell the sdk/distro to stop sending
                     // because of: high load, sample rate changed, et al??
-                    // let resHeaders = isBrowserReq ? corsHeaders : {};
                     /** @type {http.OutgoingHttpHeaders} */
-                    let resHeaders = {};
+                    const resHeaders = isBrowserReq ? corsHeaders : {};
                     let resBody = null;
                     if (contentType === 'application/json') {
                         resBody = JSON.stringify({
