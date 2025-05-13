@@ -75,7 +75,9 @@ module.exports = {
         '/.nyc_output',
         'node_modules',
         'tmp',
+        'build',
         '*.min.js',
         'lib/luggite.js',
+        'lib/generated/**',
     ],
 };
