@@ -298,16 +298,6 @@ function getInstrumentations(opts = {}) {
             return;
         }
 
-        // Skip if metrics are disabled by env var
-        const isMetricsDisabled =
-            getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
-        if (
-            isMetricsDisabled &&
-            name === '@opentelemetry/instrumentation-runtime-node'
-        ) {
-            return;
-        }
-
         const isObject = typeof opts[name] === 'object';
         if (!(opts[name] == null || isObject)) {
             log.warn(
