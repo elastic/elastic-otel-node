@@ -101,7 +101,7 @@ function resolveDetectors(detectors) {
     // Dashboard was added in https://github.com/elastic/kibana/pull/215735
     if (!detectorKeys.includes('serviceinstance')) {
         log.info(
-            `The "serviceinstance" resource detector has not been selected. This will result in Kibana's APM Service Metrics dashboard not working. See https://elastic.github.io/opentelemetry/edot-sdks/nodejs/configuration.html#otel_node_resource_detectors-details`
+            `The "serviceinstance" resource detector has not been selected. This will result in Kibana's APM Service Metrics dashboard not working. See https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/nodejs/configuration.html#otel_node_resource_detectors-details`
         );
     }
 

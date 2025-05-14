@@ -144,7 +144,7 @@ function startNodeSDK(cfg = {}) {
         process.env.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE = 'delta';
     } else if (temporalityPreference !== 'delta') {
         const docsUrl =
-            'https://elastic.github.io/opentelemetry/compatibility/limitations.html#ingestion-of-metrics-data';
+            'https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations.html#ingestion-of-metrics-data';
         log.info(
             `Metrics temporality preference set to "${temporalityPreference}". Use "delta" temporality if you want to store Histogram metrics in Elasticsearch. See ${docsUrl}`
         );
