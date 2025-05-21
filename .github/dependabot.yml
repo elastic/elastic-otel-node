@@ -12,8 +12,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
     groups:
       opentelemetry:
         patterns:
@@ -32,8 +30,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
     groups:
       mockotlpserver:
         patterns:
@@ -44,8 +40,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
     ignore:
       # Locked to the same version being used by opentelemetry-js-contrib.
       - dependency-name: "@types/node"
@@ -63,8 +57,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
     ignore:
       # eslint-related deps are skipped until we have upgraded to eslint@9
       # https://github.com/elastic/elastic-otel-node/pull/155
@@ -91,14 +83,9 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
 
   - package-ecosystem: "github-actions"
     directory: "/"
-    reviewers:
-      - "elastic/observablt-ci"
-      - "elastic/apm-agent-node-js"
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -111,7 +98,5 @@ updates:
   - package-ecosystem: "docker"
     directory: "/"
     registries: "*"
-    reviewers:
-      - "elastic/apm-agent-node-js"
     schedule:
       interval: "weekly"
