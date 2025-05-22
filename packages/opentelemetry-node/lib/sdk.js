@@ -110,9 +110,11 @@ function startNodeSDK(cfg = {}) {
         if (getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED')) {
             process.env.OTEL_METRICS_EXPORTER = 'none';
             if (process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS) {
-                process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS += ',runtime-node';
+                process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS +=
+                    ',runtime-node';
             } else {
-                process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS = 'runtime-node';
+                process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS =
+                    'runtime-node';
             }
         }
     }
