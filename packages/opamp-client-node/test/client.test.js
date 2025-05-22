@@ -4,16 +4,28 @@
  */
 
 const {setTimeout: setTimeoutP} = require('timers/promises');
+const {subscribe} = require('diagnostics_channel');
 
 const luggite = require('luggite');
 const {test} = require('tape');
 const {MockOpAMPServer} = require('@elastic/mockopampserver');
 
-const {createOpAMPClient} = require('..');
+const {
+    DIAG_CH_SEND_SUCCESS,
+    DIAG_CH_SEND_FAIL,
+    DIAG_CH_SEND_SCHEDULE,
+    createOpAMPClient,
+} = require('..');
 const {objFromKeyValues, isEqualUint8Array} = require('../lib/utils');
 
 const log = luggite.createLogger({name: 'client-test', level: 'info'});
-// log.level('trace');  // Uncomment this for log output from the client.
+// XXX
+log.level('trace'); // Dev: Uncomment this for log output from the client.
+
+function numIsApprox(val, expectedVal, epsilonRatio) {
+    const epsilon = expectedVal * epsilonRatio;
+    return Math.abs(val - expectedVal) < epsilon;
+}
 
 test('createOpAMPClient', (suite) => {
     let opampServer;
@@ -71,6 +83,42 @@ test('createOpAMPClient', (suite) => {
         t.end();
     });
 
+    suite.test('error case: ECONNREFUSED', async (t) => {
+        opampServer.testReset();
+        const bogusEndpoint = 'http://127.0.0.1:6666/v1/opamp';
+        t.notEqual(opampServer.endpoint, bogusEndpoint);
+
+        let failMsg;
+        let schedMsg;
+        subscribe(DIAG_CH_SEND_FAIL, (msg) => {
+            failMsg = msg;
+        });
+        subscribe(DIAG_CH_SEND_SCHEDULE, (msg) => {
+            schedMsg = msg;
+        });
+
+        const client = createOpAMPClient({
+            log,
+            endpoint: bogusEndpoint,
+            diagEnabled: true,
+        });
+        client.setAgentDescription({identifyingAttributes: {foo: 'bar'}});
+        client.start();
+        await setTimeoutP(100); // Could do better. This is a race.
+        client.shutdown();
+
+        // Expect a send failure and a scheduled next send in 30s (with jitter).
+        t.ok(
+            isEqualUint8Array(failMsg.a2s.instanceUid, client.getInstanceUid())
+        );
+        t.equal(failMsg.err.code, 'ECONNREFUSED');
+        t.equal(schedMsg.errCount, 1);
+        t.ok(numIsApprox(schedMsg.delayMs, 30000, 0.1)); // allow 10% jitter on expected 30s
+
+        t.end();
+    });
+
+    // TODO: test that the backoff is the expected exponential.
     // TODO: test usage with OTel resource (see example in README)
     // TODO: test remote config, once have support for that (with and
     //      without reporting remote config status)

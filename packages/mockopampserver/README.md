@@ -14,7 +14,7 @@ Features:
 
 Limitations:
 - It only supports the HTTP transport of OpAMP, not the [WebSocket Transport](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#websocket-transport). (The spec says "Server implementations SHOULD accept both plain HTTP connections and WebSocket connections.").
-- Most of the optional server capabilities are not implemented: effective config, packages, connection settings, command, custom\ capabilities.
+- Most of the optional server capabilities are not implemented: effective config, packages, connection settings, command, custom capabilities.
 
 Planned features:
 - "Bad" options so the server *misbehaves*, to support testing error handling of OpAMP clients.

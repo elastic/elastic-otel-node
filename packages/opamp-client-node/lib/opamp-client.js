@@ -4,6 +4,7 @@
  */
 
 const assert = require('assert');
+const {channel} = require('diagnostics_channel');
 
 const {
     parse: uuidParse,
@@ -67,6 +68,11 @@ const UNSUPPORTED_CAP_MASK = ALL_SUPPORTED_CAP ^ (2n ** 64n - 1n);
 const DEFAULT_HEARTBEAT_INTERVAL_SECONDS = 30;
 // A 10ms heartbeat interval is crazy low, but might be useful for testing.
 const MIN_HEARTBEAT_INTERVAL_SECONDS = 0.1;
+
+// Diagnostics channel names.
+const DIAG_CH_SEND_SUCCESS = 'opamp-client.send.success';
+const DIAG_CH_SEND_FAIL = 'opamp-client.send.fail';
+const DIAG_CH_SEND_SCHEDULE = 'opamp-client.send.schedule';
 
 function normalizeInstanceUid(input) {
     if (typeof input === 'string') {
@@ -153,6 +159,12 @@ function normalizeHeartbeatIntervalSeconds(input) {
  * @property {Number} [heartbeatIntervalSeconds] The approximate time between
  *      heartbeat messages sent by the client. Default 30.
  * @property {OnMessageCallback} [onMessage] A callback of the form
+ * @property {boolean} [diagEnabled] Diagnostics enabled, typically used for
+ *      testing. When enabled, events will be published to the following
+ *      diagnostics channels:
+ *      - `opamp-client.send.success`: {a2s, s2a}
+ *      - `opamp-client.send.fail`: {a2s, err}
+ *      - `opamp-client.send.schedule`: {delayMs, errCount}
  *
  * TODO: enableCompression or similar option
  * TODO: add {ConnectionOptions} [connect] with a subset of https://undici.nodejs.org/#/docs/api/Client?id=parameter-connectoptions e.g. as used in play.mjs for `ca: [cacert]` to conn to opamp-go example server. Or could expose the full ConnectOptions, but that's heavy.
@@ -176,6 +188,16 @@ class OpAMPClient {
             normalizeHeartbeatIntervalSeconds(opts.heartbeatIntervalSeconds) *
             1000;
         this._onMessage = opts.onMessage;
+        if (opts.diagEnabled) {
+            this._diagChs = {
+                [DIAG_CH_SEND_SUCCESS]: channel(DIAG_CH_SEND_SUCCESS),
+                [DIAG_CH_SEND_FAIL]: channel(DIAG_CH_SEND_FAIL),
+                [DIAG_CH_SEND_SCHEDULE]: channel(DIAG_CH_SEND_SCHEDULE),
+            };
+        } else {
+            this._diagChs = null;
+        }
+        this._diagEnabled = Boolean(opts.diagEnabled);
 
         this._started = false;
         this._shutdown = false;
@@ -188,6 +210,7 @@ class OpAMPClient {
         });
 
         /** @type {AgentToServer} */
+        this._numSendFailures = 0;
         this._nextSendTime = null;
         this._nextSendTimeout = null;
         this._queue = [];
@@ -306,16 +329,21 @@ class OpAMPClient {
      *
      * - Sending is done in `_sendMsg()` -- including retry/backoff handling.
      *   We only ever want one active at a time.
-     * - If there is info to send (e.g. new AgentDescription) it is on
-     *   `this._queue`.
-     * - When `_sendMsg()` finishes, it checks the queue. If there is something
-     *   to send, it will `_scheduleSendSoon()` to flush the queue. Otherwise
-     *   it will `_scheduleSendHeartbeat()` to maintain periodic heartbeats.
      * - New info to send can come from any of:
      *      - A ServerToAgent.flags request to "ReportFullState". This is
      *        handled as part of `_sendMsg` calling `_processServerToAgent()`.
      *      - Client API methods being called, e.g. `.setRemoteConfigStatus()`.
      *        These will append to the `_queue` and call `_scheduleSendSoon()`.
+     * - If there is info to send (e.g. new AgentDescription) it is on
+     *   `this._queue`.
+     * - When `_sendMsg()` finishes successfully, it checks the queue. If there
+     *   is something to send, it will `_scheduleSendSoon()` to flush the queue.
+     *   Otherwise it will `_scheduleSendHeartbeat()` to maintain periodic
+     *   heartbeats.
+     * - If `_sendMsg()` fails, there are a number of failure modes (see the
+     *   specifics in `_sendMsg`). Generally it will log some failure details,
+     *   re-enqueue the msg data to be sent and either retry sending after some
+     *   exponential backoff, or after a given Retry-After header time.
      */
 
     _scheduleSendSoon() {
@@ -325,27 +353,72 @@ class OpAMPClient {
         // for debouncing (https://developer.mozilla.org/en-US/docs/Glossary/Debounce).
         const SOON_MS = 30;
 
-        if (this._started && !this._sending && !this._shutdown) {
-            const delayMs = jitter(SOON_MS);
-            this._scheduleSend(delayMs);
-        }
+        const delayMs = jitter(SOON_MS);
+        this._scheduleSend(delayMs, false);
     }
 
     _scheduleSendHeartbeat() {
-        if (this._started && !this._sending && !this._shutdown) {
-            const delayMs = jitter(this._heartbeatIntervalMs);
-            this._scheduleSend(delayMs);
-        }
+        const delayMs = jitter(this._heartbeatIntervalMs);
+        this._scheduleSend(delayMs, false);
     }
 
-    // This should only be called by the other `_scheduleSend*` methods above.
-    _scheduleSend(delayMs) {
+    /**
+     * @param {number} retryAfterMs
+     */
+    _scheduleSendRetryAfter(retryAfterMs) {
+        const MIN_RETRY_AFTER_MS = 5000;
+        const delayMs = Math.max(MIN_RETRY_AFTER_MS, retryAfterMs);
+        this._scheduleSend(delayMs, true);
+    }
+
+    _scheduleSendAfterErr() {
+        assert.ok(this._numSendFailures > 0);
+
+        // Exponential backoff from 30s to ~5min.
+        // - The "30s" comes from this at https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#plain-http-transport-2:
+        //   > The minimum recommended retry interval is 30 seconds.
+        // - The "~5min" was selected to be >30s, but not too long. There is
+        //   no retry max stated in the OpAMP spec.
+        // - This exponential formula:
+        //      Math.min(300,  (Math.min(n++, 10) ** 3) + 29  )
+        //   results in retry intervals of:
+        //      [30s, 37s, 56s, 93s, 154s, 245s, 300s]
+        const delayS = Math.min(
+            300,
+            Math.min(this._numSendFailures, 10) ** 3 + 29
+        );
+        const delayMs = jitter(delayS * 1000);
+        this._log.trace(
+            {delayS, numSendFailures: this._numSendFailures},
+            '_scheduleSendAfterErr'
+        );
+        this._scheduleSend(delayMs, true);
+    }
+
+    /**
+     * This should only be called by the other `_scheduleSend*` methods above.
+     *
+     * @param {number} delayMs
+     * @param {boolean} overrideExisting - Whether to override an existing
+     *      schedule send that that is *sooner* for this delayMs.
+     */
+    _scheduleSend(delayMs, overrideExisting) {
         assert.ok(typeof delayMs === 'number' && delayMs >= 0);
 
+        if (!(this._started && !this._sending && !this._shutdown)) {
+            // Invalid to schedule a send in the current state.
+            this._log.trace('ignore _scheduleSend');
+            return;
+        }
+
         // Schedule the send in `delayMs`, unless one is already scheduled for
-        // sooner.
+        // sooner or `overrideExisting`.
         const sendTime = Date.now() + delayMs;
-        if (!this._nextSendTime || sendTime < this._nextSendTime) {
+        if (
+            overrideExisting ||
+            !this._nextSendTime ||
+            sendTime < this._nextSendTime
+        ) {
             this._log.trace({delayMs}, 'schedule next opamp send');
             if (this._nextSendTimeout) {
                 clearTimeout(this._nextSendTimeout);
@@ -356,6 +429,12 @@ class OpAMPClient {
                 this._sendMsg();
             }, delayMs);
             this._nextSendTimeout.unref();
+            if (this._diagChs) {
+                this._diagChs[DIAG_CH_SEND_SCHEDULE].publish({
+                    delayMs,
+                    errCount: this._numSendFailures,
+                });
+            }
         }
     }
 
@@ -376,8 +455,9 @@ class OpAMPClient {
             capabilities: this._capabilities,
             sequenceNum: ++this._sequenceNum,
         };
-        while (this._queue.length > 0) {
-            const entry = this._queue.shift();
+        const queue = this._queue;
+        this._queue = [];
+        for (let entry of queue) {
             switch (entry) {
                 case 'ReportFullState':
                     msg.instanceUid = this._instanceUid;
@@ -402,6 +482,90 @@ class OpAMPClient {
         this._log.trace({a2s: logserA2S(a2s)}, 'sending AgentToServer');
         const reqBody = toBinary(AgentToServerSchema, a2s);
 
+        // Retry/backoff behaviour.
+        //
+        // - The relevant spec sections are "Establishing Connection", "Retrying Messages" and "Throttling", starting at https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#retrying-messages.
+        // -
+
+        /*
+- sent a2s, get a response s2a or an err
+    - (treat all failures the same?)
+- if err
+    - is this a first status after new connection? How to tell? How to watch
+      for reconn? That means a diff kind of err? How about if it was just a
+      heartbeat, then base it on that + Retry-After
+    - if err without statusCode, that means we didn't even get to an HTTP response
+      so it is connection issues: start backoff.
+        - calculate backoff starting from current
+        - use the same logic from apm/specs/agents/transport.md
+            > The new HTTP request should not necessarily be started immediately after the previous HTTP request fails, as the reason for the failure might not have been resolved up-stream. Instead an incremental back-off algorithm SHOULD be used to delay new requests. The grace period should be calculated in seconds using the algorithm `min(reconnectCount++, 6) ** 2 ± 10%`, where `reconnectCount` starts at zero. So the delay after the first error is 0 seconds, then circa 1, 4, 9, 16, 25 and finally 36 seconds. We add ±10% jitter to the calculated grace period in case multiple agents entered the grace period simultaneously. This way they will not all try to reconnect at the same time.
+        - Modulo, I wonder about starting with 1s rather than 0s for the first retry.
+          Or 5s min (as mentioned at https://github.com/elastic/apm/blob/main/specs/agents/configuration.md#dealing-with-errors)?
+        - Also I think the defualt should be longer than 36 seconds. In our experience there have been cases where enough agents overwhelmed with 30s heartbeat, I think. E.g. a slow server than cannot sustain 100 req/s is overwhelmed by conn requests from
+        just 1000 agents. So say we increase to about 5min?
+    - if err has statusCode, then we got a response at least, so connection was established:
+        - reset reconnectCount to 0
+        - if HTTP 429 or 503 and Retry-After: then ensure don't send next until
+          after Retry-After.  An invalid Retry-After should be treated as empty,
+          use the default retry interval (XXX what?).  Should not retry sooner
+          than 5s even if Retry-After suggests sooner.
+        - else:
+
+# take 2
+
+- if timeout (connTimeout, fullTimeout sep values):
+    - TODO: suggest timeout default values, what does enode use?
+    - treat same as "unexpected response" below (but watch for HTTP 200, but timeout reading body, TODO: test this)
+- if no conn (i.e. a req error, but no res):
+    - log.error
+    - re-enqueue msg data (i.e. retry)
+    - set next send time to exponential backoff(5s ... 5min)
+- elif HTTP 200:
+        - if unexpected Content-Type: same as "unexpected response" below
+        - elif unparsable protobuf in body: same as "unexpected response" below
+        - elif s2a.errorResponse:
+            - if .type === "Unavailable" and .Details.retryAfterNanoseconds > 0:
+                - log.error
+                - re-enqueue msg data
+                - schedule next send for given time (min 5s)
+            - else:
+                - log.error
+                - backoff 5s...5min (this is NOT a retry because data is dropped, just do next heartbeat per normal)
+- elif HTTP 429 or 503 with Retry-After and valid Retry-After value:
+    - log.debug if 429, log.error if 503
+    - re-enqueue msg data
+    - schedule next send for given time (min 5s delay)
+- elif HTTP 4xx: This is likely not an OpAMP-capable server. Go into slow poll mode: 5min interval. Mostly this behaviour is to differentiate from the following "unexpected response" case for EDOT SDKs that will attempt to *infer* the OpAMP endpoint from the OTLP endpoint. Getting a 404 from a non-OpAMP-y collector: better to go immediately 5min slow poll than to bother with exponential backoff.
+    - log.debug
+    - go into slow poll mode where heartbeat interface is ~5min
+- else "unexpected response" (includes HTTP 5xx, and currently HTTP 3xx redirects):
+    - log.error if 5xx, log.debug otherwise
+    - (do no re-enqueue msg data)
+    - set next send time to exponential backoff(5s ... 5min)
+
+
+# take 3
+
+XXX HERE: implement take 3 logic, with tests
+
+- if `client.request()` reject (no conn, XXX includes headersTimeout?): log.error, re-enqueue, schedule with backoff(30s .. 5min)
+- if HTTP 429 with valid `Retry-After` header: log.debug, re-enqueue, schedule for given time (min 30s)
+- if HTTP 503 with valid `Retry-After` header: log.error, re-enqueue, schedule for given time (min 30s)
+- if HTTP != 200 || content-type != protobuf: log.error, re-enqueue, schedule with backoff(30s .. 5min)
+- if `await res.body.bytes()` rejection (XXX includes bodyTimeout?): log.error, re-enqueue, schedule with backoff(30s .. 5min)
+- if s2a.errorResponse:
+    - if .type == "Unavailable" && .Details.retryAfterNanoseconds > 0: log.debug, re-enqueue, schedule for given time (min 30s)
+    - else: log.error, re-enqueue, schedule with backoff(30s .. 5min)
+- else success: process the `s2a` message
+
+
+- logging errors:
+    - for any of the HTTP 4xx cases, SDK MAY log at debug level
+    - for any of the other cases (HTTP 5xx or no conn): SDK SHOULD log at error level
+
+
+*/
+        //
         // TODO: error handling / retry notes
         //
         // AFAICT from https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#retrying-messages
@@ -419,6 +583,28 @@ class OpAMPClient {
         //     because the request is done then, so manually need to handle
         //     that by ... a re-call into _sendMsg???
 
+        const finishSuccess = () => {
+            this._numSendFailures = 0;
+            this._sending = false;
+            if (this._diagChs) {
+                this._diagChs[DIAG_CH_SEND_SUCCESS].publish({a2s, s2a});
+            }
+            if (this._queue.length > 0) {
+                this._scheduleSendSoon();
+            } else {
+                this._scheduleSendHeartbeat();
+            }
+        };
+        const finishFail = (err) => {
+            this._numSendFailures += 1;
+            this._sending = false;
+            this._queue = queue.concat(this._queue); // Re-enqueue info to send.
+            if (this._diagChs) {
+                this._diagChs[DIAG_CH_SEND_FAIL].publish({a2s, err});
+            }
+            this._scheduleSendAfterErr();
+        };
+
         let res;
         try {
             // https://undici.nodejs.org/#/docs/api/Dispatcher.md?id=dispatcherrequestoptions-callback
@@ -430,10 +616,14 @@ class OpAMPClient {
                     'Content-Type': 'application/x-protobuf',
                 },
                 body: reqBody,
+                // These 10s timeout values were unscientifically chosen.
+                headersTimeout: 10 * 1000,
+                bodyTimeout: 10 * 1000,
             });
         } catch (reqErr) {
-            console.error('TODO: handle reqErr');
-            throw reqErr;
+            this._log.error({err: reqErr}, 'HTTP client request threw');
+            finishFail(reqErr);
+            return;
         }
         if (res.statusCode !== 200) {
             throw new Error(
@@ -445,6 +635,7 @@ class OpAMPClient {
                 `TODO: handle unexpectec content-type from OpAMP server: ${res.statusCode} ${res.headers}`
             );
         }
+        //  XXX try catch
         const resBody = await res.body.bytes();
         /** @type {ServerToAgent} */
         const s2a = fromBinary(ServerToAgentSchema, resBody);
@@ -457,14 +648,7 @@ class OpAMPClient {
 
         this._processServerToAgent(s2a);
 
-        this._sending = false;
-
-        // Schedule next send.
-        if (this._queue.length > 0) {
-            this._scheduleSendSoon();
-        } else {
-            this._scheduleSendHeartbeat();
-        }
+        finishSuccess();
     }
 
     /**
@@ -549,6 +733,9 @@ function createOpAMPClient(opts) {
 }
 
 module.exports = {
+    DIAG_CH_SEND_SUCCESS,
+    DIAG_CH_SEND_FAIL,
+    DIAG_CH_SEND_SCHEDULE,
     USER_AGENT,
     createOpAMPClient,
 };

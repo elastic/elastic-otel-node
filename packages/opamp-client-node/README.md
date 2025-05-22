@@ -93,6 +93,9 @@ Note: If the `ReportsRemoteConfig` capability was set, it is update to user
 to call `client.setRemoteConfigStatus(...)` as appropriate.
 (TODO: example of this)
 
+### diagEnabled
+
+TODO: doc this, mark as experimental unpromised msg structure
 
 ## Limitations
 
