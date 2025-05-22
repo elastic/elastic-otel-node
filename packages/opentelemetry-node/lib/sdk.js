@@ -98,6 +98,25 @@ function startNodeSDK(cfg = {}) {
 
     registerOTelDiagLogger(api);
 
+    // Check the deprecated `ELASTIC_OTEL_METRICS_DISABLED` env var
+    if ('ELASTIC_OTEL_METRICS_DISABLED' in process.env) {
+        const exporterDocs =
+            'https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection';
+        log.info(
+            `Environment var "ELASTIC_OTEL_METRICS_DISABLED" is deprecated. Use "OTEL_METRICS_EXPORTER" env var to disable metrics as described in ${exporterDocs}.`
+        );
+        // set metrics exporter to `none` if user wants to disable
+        // also disable `@opentelemetry/instrumentation-runtime-node`
+        if (getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED')) {
+            process.env.OTEL_METRICS_EXPORTER = 'none';
+            if (process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS) {
+                process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS += ',runtime-node';
+            } else {
+                process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS = 'runtime-node';
+            }
+        }
+    }
+
     /** @type {Partial<NodeSDKConfiguration>} */
     const defaultConfig = {
         resourceDetectors: resolveDetectors(cfg.resourceDetectors),
@@ -148,19 +167,6 @@ function startNodeSDK(cfg = {}) {
         log.info(
             `Metrics temporality preference set to "${temporalityPreference}". Use "delta" temporality if you want to store Histogram metrics in Elasticsearch. See ${docsUrl}`
         );
-    }
-
-    // Check the deprecated `ELASTIC_OTEL_METRICS_DISABLED` env var
-    if ('ELASTIC_OTEL_METRICS_DISABLED' in process.env) {
-        const exporterDocs =
-            'https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection';
-        log.info(
-            `Environment var "ELASTIC_OTEL_METRICS_DISABLED" is deprecated. Use "OTEL_METRICS_EXPORTER" env var to disable metrics as described in ${exporterDocs}.`
-        );
-        // set metrics exporter to `none` if user wants to disable
-        if (getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED')) {
-            process.env.OTEL_METRICS_EXPORTER = 'none';
-        }
     }
 
     // If `OTEL_METRICS_EXPORTER` undefined set the default value according to spec.
