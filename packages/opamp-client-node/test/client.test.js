@@ -62,7 +62,7 @@ function barrierNDiagEvents(n) {
 test('createOpAMPClient', (suite) => {
     let opampServer;
 
-    suite.test('setup: MockOpAMPServer', async (t) => {
+    suite.test('minimal usage', async (t) => {
         opampServer = new MockOpAMPServer({
             logLevel: 'warn', // use 'debug' for some debugging of the server
             // logLevel: 'debug',
@@ -71,11 +71,6 @@ test('createOpAMPClient', (suite) => {
             testMode: true,
         });
         await opampServer.start();
-        t.comment(`MockOpAMPServer started: ${opampServer.endpoint}`);
-    });
-
-    suite.test('minimal usage', async (t) => {
-        opampServer.testReset();
 
         // Minimal usage of the OpAMP client.
         const client = createOpAMPClient({
@@ -114,12 +109,17 @@ test('createOpAMPClient', (suite) => {
         );
 
         await client.shutdown();
+        await opampServer.close();
         t.end();
     });
 
     suite.test('error: ECONNREFUSED', async (t) => {
+        // Need to ensure the process has an active handle, else `tape` will
+        // end the tests prematurely. It does *not* wait for `t.end()` to be
+        // called in async test handlers.
+        const hackInterval = setInterval(() => {}, 1000);
+
         const bogusEndpoint = 'http://127.0.0.1:6666/v1/opamp';
-        t.notEqual(opampServer.endpoint, bogusEndpoint);
 
         const client = createOpAMPClient({
             log,
@@ -137,6 +137,7 @@ test('createOpAMPClient', (suite) => {
 
         client.shutdown();
         t.end();
+        clearInterval(hackInterval);
     });
 
     suite.test('error: unexpected response status code', async (t) => {
@@ -345,12 +346,6 @@ test('createOpAMPClient', (suite) => {
     // TODO: test usage with OTel resource (see example in README)
     // TODO: test remote config, once have support for that (with and
     //      without reporting remote config status)
-
-    suite.test('teardown', async (t) => {
-        if (opampServer) {
-            await opampServer.close();
-        }
-    });
 
     suite.end();
 });
