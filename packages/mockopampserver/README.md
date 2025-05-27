@@ -24,7 +24,7 @@ Planned features:
 Start the mockopampserver:
 
 ```
-npm install
+npm ci
 npm start
 ```
 
@@ -32,7 +32,7 @@ Then call it with an OpAMP client. For example:
 
 ```
 cd ../packages/opamp-client-node
-npm install
+npm ci
 npm run example
 ```
 

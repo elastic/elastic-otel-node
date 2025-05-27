@@ -68,9 +68,11 @@ import {
 const resource = ...; // from OTel JS resource detectors
 const client = createOpAMPClient({
     endpoint: 'http://localhost:4315/v1/opamp',
-    onRemoteConfig: (remoteConfig) => {
-        console.log('Got remote config:', remoteConfig);
-    }
+    onMessage: ({remoteConfig}) => {
+        if (remoteConfig) {
+            console.log('Got remote config:', remoteConfig);
+        }
+    },
 });
 client.setAgentDescription(agentDescriptionFromResource(resource));
 client.start();
