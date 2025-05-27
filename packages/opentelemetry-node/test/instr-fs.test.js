@@ -46,6 +46,7 @@ const testFixtures = [
             //        span 3d03e6 "manual-span" (0.7ms, SPAN_KIND_INTERNAL)
             //   +0ms `- span 1dd30d "fs stat" (0.4ms, SPAN_KIND_INTERNAL)
             const spans = col.sortedSpans;
+            console.dir(spans, {depth:9})
             t.equal(spans.length, 3);
 
             t.strictEqual(
