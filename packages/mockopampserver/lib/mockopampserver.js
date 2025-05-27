@@ -40,8 +40,10 @@ const DEFAULT_PORT = 4320;
 const DEFAULT_ENDPOINT_PATH = '/v1/opamp';
 
 const BAD_MODES = {
-    'server_error_response_unknown': 'Responds to valid AgentToServer requests with a ServerToAgent payload with a ServerErrorResponse of type UNKNOWN.',
-    'server_error_response_unavailable': 'Responds to valid AgentToServer requests with a ServerToAgent payload with a ServerErrorResponse of type UNAVAILABLE and retryAfterNanoseconds of 42e9 (i.e. 42 seconds).',
+    server_error_response_unknown:
+        'Responds to valid AgentToServer requests with a ServerToAgent payload with a ServerErrorResponse of type UNKNOWN.',
+    server_error_response_unavailable:
+        'Responds to valid AgentToServer requests with a ServerToAgent payload with a ServerErrorResponse of type UNAVAILABLE and retryAfterNanoseconds of 42e9 (i.e. 42 seconds).',
 };
 
 /**
