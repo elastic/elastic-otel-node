@@ -15,7 +15,7 @@ const testFixtures = [
         args: ['./fixtures/use-fs.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -37,23 +37,28 @@ const testFixtures = [
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
             OTEL_NODE_ENABLED_INSTRUMENTATIONS: 'fs',
         },
-        // verbose: true,
+        verbose: true,
         checkTelemetry: (t, col) => {
             // We expect spans like this
-            // ------ trace 178891 (1 span) ------
-            //        span 8ee183 "fs realpathSync" (0.5ms, SPAN_KIND_INTERNAL)
-            // ------ trace 9e0f89 (2 spans) ------
-            //        span 3d03e6 "manual-span" (0.7ms, SPAN_KIND_INTERNAL)
-            //   +0ms `- span 1dd30d "fs stat" (0.4ms, SPAN_KIND_INTERNAL)
+            // ------ trace 7c87d0 (1 span) ------
+            //        span 1ecc98 "fs statSync" (0.0ms, SPAN_KIND_INTERNAL)
+            // ------ trace 281967 (1 span) ------
+            //        span 7bab63 "fs statSync" (0.0ms, SPAN_KIND_INTERNAL)
+            // ------ trace 8b214a (1 span) ------
+            //        span 417068 "fs readFileSync" (0.1ms, SPAN_KIND_INTERNAL)
+            // ------ trace d61bc6 (1 span) ------
+            //        span a6f9cc "fs statSync" (0.1ms, SPAN_KIND_INTERNAL)
+            // ------ trace 292114 (2 spans) ------
+            //        span c66b96 "manual-span" (6.6ms, SPAN_KIND_INTERNAL)
+            //   +1ms `- span 5b7d1c "fs stat" (6.3ms, SPAN_KIND_INTERNAL)
             const spans = col.sortedSpans;
-            console.dir(spans, {depth:9})
-            t.equal(spans.length, 3);
+            t.equal(spans.length, 21);
 
             t.strictEqual(
                 spans.filter(
                     (s) => s.scope.name === '@opentelemetry/instrumentation-fs'
                 ).length,
-                2
+                20
             );
             t.ok(spans.every((s) => s.kind === 'SPAN_KIND_INTERNAL'));
         },
