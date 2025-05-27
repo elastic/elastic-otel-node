@@ -39,7 +39,7 @@ npm run example
 Or, if you don't have a particular OpAMP client to use, you can try sending a request via `curl` using the included simple `AgentToServer` protobuf file:
 
 ```
-curl -si http://localhost:4315/v1/opamp -X POST \
+curl -si http://localhost:4320/v1/opamp -X POST \
     -H content-type:application/x-protobuf \
     --data-binary @./test/fixtures/AgentToServer.simple.bin \
     | ./scripts/ServerToAgent

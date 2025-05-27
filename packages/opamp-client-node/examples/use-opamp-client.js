@@ -15,7 +15,7 @@ const log = luggite.createLogger({name: 'use-opamp-client', level: 'trace'});
 async function main() {
     const client = createOpAMPClient({
         log,
-        endpoint: 'http://localhost:4315/v1/opamp', // mockopampserver default endpoint
+        endpoint: 'http://localhost:4320/v1/opamp', // mockopampserver default endpoint
         capabilities:
             AgentCapabilities.AgentCapabilities_AcceptsRemoteConfig |
             AgentCapabilities.AgentCapabilities_ReportsRemoteConfig,

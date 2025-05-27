@@ -34,7 +34,7 @@ const DEFAULT_HOSTNAME = 'localhost';
 // DEFAULT_PORT is close to the OTLP 4317 port, and currently unassigned
 // https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=81
 // This isn't a strong argument for using this port.
-const DEFAULT_PORT = 4315;
+const DEFAULT_PORT = 4320;
 const DEFAULT_ENDPOINT_PATH = '/v1/opamp';
 
 const BAD_MODES = [
@@ -155,7 +155,7 @@ class MockOpAMPServer {
      * @param {string} [opts.logLevel] Optionally change the log level. This
      *      accepts any of the log level names supported by Bunyan. Default
      *      is "info".
-     * @param {number} [opts.port] An port on which to listen. Default is 4315.
+     * @param {number} [opts.port] An port on which to listen. Default is 4320.
      * @param {boolean} [opts.testMode] Enable "test mode". This makes the
      *      `.test*` methods functional. Typically this is useful when using
      *      this class directly in a test suite. Default false. Note that

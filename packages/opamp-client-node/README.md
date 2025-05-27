@@ -16,7 +16,7 @@ Minimally:
 import {createOpAMPClient} from '@elastic/opamp-client-node';
 
 const client = createOpAMPClient({
-    endpoint: 'http://localhost:4315/v1/opamp', // mockopampserver default endpoint
+    endpoint: 'http://localhost:4320/v1/opamp', // mockopampserver default endpoint
 });
 client.setAgentDescription({
     identifyingAttributes: {
@@ -37,7 +37,7 @@ import {
 } from '@elastic/opamp-client-node';
 
 const client = createOpAMPClient({
-    endpoint: 'http://localhost:4315/v1/opamp', // mockopampserver default endpoint
+    endpoint: 'http://localhost:4320/v1/opamp', // mockopampserver default endpoint
     capabilities:
         AgentCapabilities.AgentCapabilities_AcceptsRemoteConfig |
         AgentCapabilities.AgentCapabilities_ReportsRemoteConfig,
@@ -67,7 +67,7 @@ import {
 
 const resource = ...; // from OTel JS resource detectors
 const client = createOpAMPClient({
-    endpoint: 'http://localhost:4315/v1/opamp',
+    endpoint: 'http://localhost:4320/v1/opamp',
     onMessage: ({remoteConfig}) => {
         if (remoteConfig) {
             console.log('Got remote config:', remoteConfig);
