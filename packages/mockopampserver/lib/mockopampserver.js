@@ -31,9 +31,11 @@ const {log} = require('./logging');
 // uses in the OTel core exporter packages. Note that 'localhost' can by IPv6
 // '::1' or IPv4 '127.0.0.1', which can potentially cause confusion.
 const DEFAULT_HOSTNAME = 'localhost';
-// DEFAULT_PORT is close to the OTLP 4317 port, and currently unassigned
-// https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=81
-// This isn't a strong argument for using this port.
+// DEFAULT_PORT is chosen to match that used in Elastic's `apmconfigextension`
+// OTel collector extension:
+//   https://github.com/elastic/opentelemetry-collector-components/blob/a86562325721addc0519bf8aa03423fe46a6516c/extension/apmconfigextension/factory.go#L44-L54
+// and the opamp-go.git examples:
+//   https://github.com/open-telemetry/opamp-go/blob/4e6e224c51cec39046bd2c2a7fa6b1867ab9c4ac/internal/examples/server/opampsrv/opampsrv.go#L59
 const DEFAULT_PORT = 4320;
 const DEFAULT_ENDPOINT_PATH = '/v1/opamp';
 
