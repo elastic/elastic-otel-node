@@ -7,17 +7,9 @@
 const envToRestore = {};
 
 /**
- * This funtion makes necessari changes to the environment so:
- * - Avoid OTEL's NodeSDK known warnings (eg. OTEL_TRACES_EXPORTER not set)
- * - Fix some issues not solved yet in OTEL (https://github.com/open-telemetry/opentelemetry-js/issues/4447)
- * - Others ...
+ * Tweak `process.env` before calling NodeSDK.
  */
 function setupEnvironment() {
-    if (!('OTEL_TRACES_EXPORTER' in process.env)) {
-        // Ensure this envvar is set to avoid a diag.warn() in NodeSDK.
-        process.env.OTEL_TRACES_EXPORTER = 'otlp';
-    }
-
     if ('OTEL_LOG_LEVEL' in process.env) {
         envToRestore['OTEL_LOG_LEVEL'] = process.env.OTEL_LOG_LEVEL;
         // Make sure NodeSDK doesn't see this envvar and overwrite our diag
@@ -35,7 +27,7 @@ function setupEnvironment() {
 }
 
 /**
- * Restores any value stashed in the setup process
+ * Restores any `process.env` stashed in `setupEnvironment()`.
  */
 function restoreEnvironment() {
     Object.keys(envToRestore).forEach((k) => {

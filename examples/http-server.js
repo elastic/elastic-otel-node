@@ -4,7 +4,7 @@
  */
 
 // Usage:
-//  node -r @elastic/opentelemetry-node http-server.js
+//  node --import @elastic/opentelemetry-node http-server.js
 //  curl -i http://127.0.0.1:3000/ping
 
 const http = require('http');

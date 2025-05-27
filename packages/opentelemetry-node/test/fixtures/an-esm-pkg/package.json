@@ -1,0 +1,14 @@
+{
+  "name": "an-esm-pkg",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A type:module package used for testing. Need type:module to be able to use ESM-syntax in type-stripped .ts files.",
+  "type": "module",
+  "dependencies": {
+    "@elastic/opentelemetry-node": "../../..",
+    "@types/node": "^20.17.30"
+  },
+  "scripts": {
+    "compile": "tsc"
+  }
+}

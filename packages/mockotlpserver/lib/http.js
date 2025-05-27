@@ -22,6 +22,12 @@ const parsersMap = {
     'application/x-protobuf': protoParser,
 };
 
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Method': 'POST, OPTIONS',
+};
+
 function diagChFromReqUrl(reqUrl) {
     switch (reqUrl) {
         case '/v1/traces':
@@ -36,12 +42,36 @@ function diagChFromReqUrl(reqUrl) {
 }
 
 // helper functions
+/**
+ * @param {string|undefined} ua
+ * @returns {boolean}
+ */
+function isBrowserUserAgent(ua) {
+    if (typeof ua === 'string') {
+        return ['Mozilla/', 'AppleWebKit/', 'Chrome/', 'Safari/'].some((str) =>
+            ua.includes(str)
+        );
+    }
+
+    return false;
+}
+
+/**
+ * @param {http.IncomingMessage} req
+ * @param {http.ServerResponse} res
+ * @param {string} [errMsg]
+ * @param {number} [errCode]
+ */
 function badRequest(
+    req,
     res,
     errMsg = 'Invalid or no data received',
     errCode = 400
 ) {
-    res.writeHead(400);
+    const ua = req.headers['user-agent'];
+    /** @type {http.OutgoingHttpHeaders} */
+    const headers = isBrowserUserAgent(ua) ? corsHeaders : {};
+    res.writeHead(400, 'Bad Request', headers);
     res.end(
         JSON.stringify({
             error: {
@@ -125,6 +155,15 @@ class HttpService extends Service {
         const httpTunnel = tunnel && createHttpTunnel(log, tunnel);
 
         this._server = http.createServer((req, res) => {
+            const isBrowserReq = isBrowserUserAgent(req.headers['user-agent']);
+
+            // Accept CORS requests from browsers
+            if (isBrowserReq && req.method.toUpperCase() === 'OPTIONS') {
+                res.writeHead(204, 'OK', corsHeaders);
+                res.end();
+                return;
+            }
+
             const contentType = req.headers['content-type'];
 
             // Tunnel requests if defined or validate otherwise
@@ -132,6 +171,7 @@ class HttpService extends Service {
                 httpTunnel(req, res);
             } else if (!parsersMap[contentType]) {
                 return badRequest(
+                    req,
                     res,
                     `unexpected request Content-Type: "${contentType}"`
                 );
@@ -144,7 +184,7 @@ class HttpService extends Service {
                 if (!httpTunnel) {
                     // TODO: send back the proper error
                     if (chunks.length === 0) {
-                        return badRequest(res);
+                        return badRequest(req, res);
                     }
 
                     // TODO: in future response may add some header to communicate back
@@ -154,13 +194,15 @@ class HttpService extends Service {
                     // - something else
                     // PS: maybe collector could be able to tell the sdk/distro to stop sending
                     // because of: high load, sample rate changed, et al??
+                    /** @type {http.OutgoingHttpHeaders} */
+                    const resHeaders = isBrowserReq ? corsHeaders : {};
                     let resBody = null;
                     if (contentType === 'application/json') {
                         resBody = JSON.stringify({
                             ok: 1,
                         });
                     }
-                    res.writeHead(200);
+                    res.writeHead(200, 'OK', resHeaders);
                     res.end(resBody);
                 }
 

@@ -9,9 +9,7 @@
 import {register} from 'node:module';
 import {isMainThread} from 'node:worker_threads';
 
-// TODO: Update @opentelemetry/instrumentation exports to use it rather than IITM directly, if can.
-import {createAddHookMessageChannel} from 'import-in-the-middle';
-
+import {startNodeSDK, createAddHookMessageChannel} from './lib/sdk.js';
 import {log} from './lib/logging.js';
 
 if (isMainThread) {
@@ -21,9 +19,9 @@ if (isMainThread) {
         createAddHookMessageChannel();
 
     log.trace('import.mjs: registering module hook');
-    register('import-in-the-middle/hook.mjs', import.meta.url, registerOptions);
+    register('./hook.mjs', import.meta.url, registerOptions);
 
-    await import('./lib/start.js');
+    startNodeSDK();
 
     // Ensure that the loader has acknowledged all the modules before we allow
     // execution to continue.

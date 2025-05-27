@@ -229,13 +229,9 @@ function getInstrumentationsFromEnv(envvar) {
  *      '@opentelemetry/instrumentation-express': {
  *          enabled: false,
  *      },
- *      // You can replace a instrumentation by using a funciton
- *      '@opentelemetry/instrumentation-mongodb': () => {
- *          return new MyMongoDBInstrumentation();
- *      }
  * });
  *
- * const sdk = new ElasticNodeSDK({
+ * startNodeSDK({
  *      instrumentations: [
  *          ...customInstrumentations,
  *          // You can add here instrumentations from other sources
@@ -299,16 +295,6 @@ function getInstrumentations(opts = {}) {
         }
         // Skip if env has an `disabled` list and it's present (overriding enabled list)
         if (disabledFromEnv && disabledFromEnv.includes(name)) {
-            return;
-        }
-
-        // Skip if metrics are disabled by env var
-        const isMetricsDisabled =
-            getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
-        if (
-            isMetricsDisabled &&
-            name === '@opentelemetry/instrumentation-runtime-node'
-        ) {
             return;
         }
 

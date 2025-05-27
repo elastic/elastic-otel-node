@@ -21,7 +21,7 @@ variable `ELASTIC_OTEL_METRICS_DISABLED` to the string `true`.
 export OTEL_EXPORTER_OTLP_ENDPOINT="${ELASTIC_APM_SERVER_URL}"
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer ${ELASTIC_APM_SECRET_TOKEN}"
 export ELASTIC_OTEL_METRICS_DISABLED=true
-node --import @elastic/opentelemetry-node/start.js my-app.js
+node --import @elastic/opentelemetry-node my-app.js
 ```
 
 ## Advanced configuration
@@ -46,8 +46,8 @@ issues when doing an overview of the instrumented service. These are:
   the event loop delay. The event loop delay measures the time span between
   the scheduling of a callback and its execution. The bigger the number,
   the more sync work you have in your service blocking the event loop.
-- `nodejs.eventloop.utilization` is the utiliation of the event loop reported
-  by [`performance.eventLoopUtilization([utilization1[, utilization2]])`](https://nodejs.org/api/perf_hooks.html#performanceeventlooputilizationutilization1-utilization2) gives which
+- `nodejs.eventloop.utilization` is the utilisation of the event loop reported
+  by [`performance.eventLoopUtilization([utilization1[, utilization2]])`](https://nodejs.org/api/perf_hooks.html#performanceeventlooputilizationutilization1-utilization2) which gives
   the percentage of time the event loop is being used (not idle).
 - `process.cpu.utilization` is the percentage of time the CPU is running
   the service code. Big values in this metric suggest your service is doing

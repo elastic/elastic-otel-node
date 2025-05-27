@@ -23,7 +23,7 @@
     "logs"
   ],
   "author": "Elastic Observability <https://www.elastic.co/observability>",
-  "homepage": "https://elastic.github.io/opentelemetry/edot-sdks/nodejs",
+  "homepage": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/nodejs",
   "engines": {
     "node": "^18.19.0 || >=20.6.0"
   },
@@ -39,13 +39,13 @@
     "require.js"
   ],
   "scripts": {
-    "clean": "rm -rf node_modules test/fixtures/a-ts-proj/node_modules",
+    "clean": "rm -rf node_modules test/fixtures/a-ts-proj/node_modules test/fixtures/an-esm-pkg/{build,node_modules}",
     "example": "cd ../../examples && node --import @elastic/opentelemetry-node simple-http-request.js",
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files && npm run lint:changelog",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "lint:deps": "dependency-check require.js import.mjs 'lib/**/*.js' 'test/**/*.js' '!test/fixtures/a-ts-proj' -e mjs:../../scripts/parse-mjs-source -i @types/tape -i dotenv -i @opentelemetry/winston-transport -i @opentelemetry/exporter-logs-* -i @opentelemetry/exporter-metrics-*",
+    "lint:deps": "dependency-check require.js import.mjs 'lib/**/*.js' 'test/**/*.js' '!test/fixtures/a-ts-proj' '!test/fixtures/an-esm-pkg' -e mjs:../../scripts/parse-mjs-source -i @types/tape -i dotenv -i @opentelemetry/winston-transport -i @opentelemetry/exporter-logs-* -i @opentelemetry/exporter-metrics-*",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "lint:changelog": "../../scripts/extract-release-notes.sh .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
@@ -59,6 +59,11 @@
       "import": "./import.mjs",
       "require": "./require.js"
     },
+    "./sdk": {
+      "types": "./types/sdk.d.ts",
+      "default": "./lib/sdk.js"
+    },
+    "./hook.mjs": "./hook.mjs",
     "./package.json": "./package.json"
   },
   "peerDependency": {
@@ -132,7 +137,7 @@
     "@aws-sdk/client-s3": "^3.658.1",
     "@aws-sdk/client-sns": "^3.658.1",
     "@aws-sdk/client-sqs": "^3.658.1",
-    "@elastic/elasticsearch": "^8.15.0",
+    "@elastic/elasticsearch": "^9.0.0",
     "@elastic/mockotlpserver": ">=0.8.0 <1",
     "@grpc/grpc-js": "^1.11.1",
     "@grpc/proto-loader": "^0.7.13",

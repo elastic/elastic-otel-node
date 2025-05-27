@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Test that the view set by ElasticNodeSdk work as expected
+// Test that the view set by the Node SDK works as expected.
 // - dropping data points for `system.*` metrics
 // - exporting data points for `process.*` metrics
 // - exporting data points for `nodejs.*` metrics
