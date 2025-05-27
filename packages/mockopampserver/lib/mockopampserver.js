@@ -16,6 +16,7 @@ const {
     ServerToAgentFlags,
     ServerCapabilities,
     AgentCapabilities,
+    ServerErrorResponseType,
 } = require('./generated/opamp_pb.js');
 const {log} = require('./logging');
 
@@ -35,6 +36,11 @@ const DEFAULT_HOSTNAME = 'localhost';
 // This isn't a strong argument for using this port.
 const DEFAULT_PORT = 4315;
 const DEFAULT_ENDPOINT_PATH = '/v1/opamp';
+
+const BAD_MODES = [
+    'server_error_response_unknown',
+    'server_error_response_unavailable',
+];
 
 /**
  * @param {http.OutgoingMessage} res
@@ -156,6 +162,9 @@ class MockOpAMPServer {
      *      requests and responses are cached in test mode, so this is
      *      effectively a memory leak if run for a long time in test mode.
      * @param {string} [opts.hostname]
+     * @param {string} [opts.badMode] Enable a specific "bad" mode where the
+     *      server responds in various bad ways. Supported badMode values:
+     *      - server_error_response_unknown
      */
     constructor(opts) {
         opts = opts ?? {};
@@ -181,6 +190,12 @@ class MockOpAMPServer {
         if (opts.testMode) {
             this._testMode = true;
             this._testRequests = [];
+        }
+        if (opts.badMode) {
+            if (!BAD_MODES.includes(opts.badMode)) {
+                throw new Error(`unknown "badMode" value: "${opts.badMode}"`);
+            }
+            this._badMode = opts.badMode;
         }
     }
 
@@ -293,7 +308,7 @@ class MockOpAMPServer {
         ) {
             respondHttpErr(
                 res,
-                'Connection upgrade is not supported. mockapmserver does not implement the OpAMP WebSockets transport.',
+                'Connection upgrade is not supported. mockopampserver does not implement the OpAMP WebSockets transport.',
                 501
             );
             this._testNoteRequest({req, res});
@@ -370,7 +385,34 @@ class MockOpAMPServer {
                 return;
             }
 
-            const s2a = this._processAgentToServer(a2s);
+            let s2a;
+            if (this._badMode === 'server_error_response_unknown') {
+                const resData = {
+                    instanceUid: a2s.instanceUid,
+                    errorResponse: {
+                        type: ServerErrorResponseType.ServerErrorResponseType_Unknown,
+                        errorMessage: 'some unknown error',
+                    },
+                };
+                s2a = create(ServerToAgentSchema, resData);
+            } else if (this._badMode === 'server_error_response_unavailable') {
+                const resData = {
+                    instanceUid: a2s.instanceUid,
+                    errorResponse: {
+                        type: ServerErrorResponseType.ServerErrorResponseType_Unavailable,
+                        errorMessage: 'some reason',
+                        Details: {
+                            case: 'retryInfo',
+                            value: {
+                                retryAfterNanoseconds: 42_000_000_000n,
+                            },
+                        },
+                    },
+                };
+                s2a = create(ServerToAgentSchema, resData);
+            } else {
+                s2a = this._processAgentToServer(a2s);
+            }
 
             // TODO: compress if `Accept-Encoding: gzip`
             const resBody = toBinary(ServerToAgentSchema, s2a);

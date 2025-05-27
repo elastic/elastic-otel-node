@@ -46,3 +46,9 @@ curl -si http://localhost:4315/v1/opamp -X POST \
 ```
 
 (The [`ServerToAgent`](./scripts/ServerToAgent) script will deserialize [opamp.proto.ServerToAgent`](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#servertoagent-message) binary content on stdin and dump a representation to stdout.)
+
+
+## Reference
+
+TODO: describe `badMode: ...`
+

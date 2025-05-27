@@ -184,6 +184,56 @@ function valFromAnyValue(anyValue) {
     return val;
 }
 
+/**
+ * Parse a Retry-After HTTP header to a number of milliseconds.
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After
+ *
+ * This clamps to [30s, 1d], and defaults to 5 minutes if the value is not
+ * given or is invalid. The 30s value is from
+ * https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#plain-http-transport-2
+ * which says "The minimum recommended retry interval is 30 seconds."
+ *
+ * @param {string | undefined}
+ * @returns {number}
+ */
+function msFromRetryAfterHeader(header) {
+    if (!header) {
+        return DEFAULT_RETRY_AFTER_MS;
+    }
+    let retryAfterMs;
+    if (RETRY_AFTER_SECONDS_RE.test(header)) {
+        retryAfterMs = Number(header) * 1000;
+    } else {
+        retryAfterMs = new Date(header).getTime() - Date.now();
+    }
+    if (isNaN(retryAfterMs) || retryAfterMs < 0) {
+        return DEFAULT_RETRY_AFTER_MS;
+    }
+    return Math.min(
+        MAX_RETRY_AFTER_MS,
+        Math.max(MIN_RETRY_AFTER_MS, retryAfterMs)
+    );
+}
+const RETRY_AFTER_SECONDS_RE = /^\d+$/;
+const MIN_RETRY_AFTER_MS = 30 * 1000;
+const DEFAULT_RETRY_AFTER_MS = 5 * 60 * 1000;
+const MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Handle a retry-after value from a
+ * ServerErrorResponse.Details.value.retryAfterNanoseconds.
+ */
+function msFromRetryAfterNs(ns) {
+    if (ns > Number.MAX_SAFE_INTEGER) {
+        return DEFAULT_RETRY_AFTER_MS;
+    }
+    const retryAfterMs = Number(ns / BigInt(1e6));
+    return Math.min(
+        MAX_RETRY_AFTER_MS,
+        Math.max(MIN_RETRY_AFTER_MS, retryAfterMs)
+    );
+}
+
 module.exports = {
     jitter,
     logserA2S,
@@ -191,4 +241,6 @@ module.exports = {
     isEqualUint8Array,
     keyValuesFromObj,
     objFromKeyValues,
+    msFromRetryAfterHeader,
+    msFromRetryAfterNs,
 };
