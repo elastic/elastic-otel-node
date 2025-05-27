@@ -26,7 +26,7 @@
     "gen:protos": "buf generate",
     "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs .",
-    "lint:deps": "dependency-check 'lib/**/*.js' 'examples/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es -i pino-pretty",
+    "lint:deps": "dependency-check '{examples,lib,test}/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es -i pino-pretty",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix .",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .",
     "test": "tape test/**/*.test.js"

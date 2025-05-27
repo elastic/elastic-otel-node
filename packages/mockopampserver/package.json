@@ -26,7 +26,7 @@
     "gen:protos": "buf generate",
     "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
-    "lint:deps": "dependency-check 'lib/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es",
+    "lint:deps": "dependency-check '{lib,test}/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "start": "node lib/cli.js | bunyan",
