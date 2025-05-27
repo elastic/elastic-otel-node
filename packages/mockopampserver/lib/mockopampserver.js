@@ -39,13 +39,13 @@ const DEFAULT_HOSTNAME = 'localhost';
 const DEFAULT_PORT = 4320;
 const DEFAULT_ENDPOINT_PATH = '/v1/opamp';
 
-const BAD_MODES = [
-    'server_error_response_unknown',
-    'server_error_response_unavailable',
-];
+const BAD_MODES = {
+    'server_error_response_unknown': 'Responds to valid AgentToServer requests with a ServerToAgent payload with a ServerErrorResponse of type UNKNOWN.',
+    'server_error_response_unavailable': 'Responds to valid AgentToServer requests with a ServerToAgent payload with a ServerErrorResponse of type UNAVAILABLE and retryAfterNanoseconds of 42e9 (i.e. 42 seconds).',
+};
 
 /**
- * @param {http.OutgoingMessage} res
+ * @param {http.ServerResponse} res
  */
 function respondHttpErr(res, errMsg = 'Bad Request', errCode = 400) {
     res.writeHead(errCode, {
@@ -53,6 +53,10 @@ function respondHttpErr(res, errMsg = 'Bad Request', errCode = 400) {
     });
     res.end(errMsg);
 }
+
+/**
+ * @param {http.ServerResponse} res
+ */
 function respondHttp404(res, errMsg = '404 page not found') {
     res.writeHead(404, {
         'Content-Type': 'text/plain',
@@ -165,8 +169,8 @@ class MockOpAMPServer {
      *      effectively a memory leak if run for a long time in test mode.
      * @param {string} [opts.hostname]
      * @param {string} [opts.badMode] Enable a specific "bad" mode where the
-     *      server responds in various bad ways. Supported badMode values:
-     *      - server_error_response_unknown
+     *      server responds in various bad ways. See `BAD_MODES` for supported
+     *      values of `badMode`.
      */
     constructor(opts) {
         opts = opts ?? {};
@@ -194,7 +198,7 @@ class MockOpAMPServer {
             this._testRequests = [];
         }
         if (opts.badMode) {
-            if (!BAD_MODES.includes(opts.badMode)) {
+            if (!(opts.badMode in BAD_MODES)) {
                 throw new Error(`unknown "badMode" value: "${opts.badMode}"`);
             }
             this._badMode = opts.badMode;
@@ -364,7 +368,7 @@ class MockOpAMPServer {
         instream.on('error', (err) => {
             log.warn(err, 'error on instream');
             respondHttpErr(res, err.message);
-            this._testNoteRequest({req, res});
+            this._testNoteRequest({req, res, err});
         });
         instream.on('end', () => {
             const reqBuffer = Buffer.concat(chunks);
@@ -374,7 +378,7 @@ class MockOpAMPServer {
             } catch (err) {
                 log.info(err, 'deserialize AgentToServer error');
                 respondHttpErr(res, err.message);
-                this._testNoteRequest({req, res});
+                this._testNoteRequest({req, res, err});
                 return;
             }
 
@@ -403,6 +407,7 @@ class MockOpAMPServer {
                     errorResponse: {
                         type: ServerErrorResponseType.ServerErrorResponseType_Unavailable,
                         errorMessage: 'some reason',
+                        // TODO: I'm not sure `Details` is correct here.
                         Details: {
                             case: 'retryInfo',
                             value: {

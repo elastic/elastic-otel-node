@@ -2,8 +2,8 @@
 
 A mock Open Agent Management Protocol (OpAMP, https://github.com/open-telemetry/opamp-spec)
 server for development and testing.  The intent is that this is something useful
-to maintainers of OpAMP clients, especially for the Elastic's coming Node.js
-OpAMP client (package `@elastic/opamp-client-node`).
+to maintainers of OpAMP clients, especially for Elastic's Node.js OpAMP client
+(package `@elastic/opamp-client-node`).
 
 Features:
 - It is a Node.js server (this may or may not be a feature to you :)
@@ -11,15 +11,16 @@ Features:
 - It supports the minimal OpAMP capabilities, plus the `OffersRemoteConfig` server capability.
 - It logs the received `AgentToServer` and sent `ServerToAgent` protobuf messages in a somewhat readable format.
 - A way to use this in Node.js testing (see `testMode: true` and `test*` methods). See example usage in "packages/opamp-client-node/test/...".
+- "Bad mode": the `MockOpAMPServer` can be configured to be in one of a number of "bad modes" where it responds in an atypical way, to support testing error cases / failure modes. See `badMode` usages in "packages/opamp-client-node/test/client.test.js".
 
 Limitations:
-- It only supports the HTTP transport of OpAMP, not the [WebSocket Transport](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#websocket-transport). (The spec says "Server implementations SHOULD accept both plain HTTP connections and WebSocket connections.").
+- It only supports the HTTP transport of OpAMP, not the [WebSocket Transport](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#websocket-transport). (The spec says "Server implementations SHOULD accept both plain HTTP connections and WebSocket connections.")
 - Most of the optional server capabilities are not implemented: effective config, packages, connection settings, command, custom capabilities.
 
-Planned features:
-- "Bad" options so the server *misbehaves*, to support testing error handling of OpAMP clients.
 
 ## Usage
+
+### CLI usage
 
 Start the mockopampserver:
 
@@ -47,8 +48,105 @@ curl -si http://localhost:4320/v1/opamp -X POST \
 
 (The [`ServerToAgent`](./scripts/ServerToAgent) script will deserialize [opamp.proto.ServerToAgent`](https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#servertoagent-message) binary content on stdin and dump a representation to stdout.)
 
+### Module usage
 
-## Reference
+See the block comment for [`class MockOpAMPServer`](./lib/mockopampserver.js#:~:text=class%20MockOpAMPServer) for docs on all config options.
 
-TODO: describe `badMode: ...`
+
+```js
+const {MockOpAMPServer} = require('@elastic/mockopampserver');
+
+test('some OpAMP client test', async (t) => {
+    opampServer = new MockOpAMPServer({
+        logLevel: 'warn', // use 'debug' for some debugging of the server
+        hostname: '127.0.0.1',
+        port: 0,
+        testMode: true,
+    });
+    await opampServer.start();
+    t.comment(`MockOpAMPServer started: ${opampServer.endpoint}`);
+
+    // Reset test data in the OpAMP server for each test.
+    opampServer.testReset();
+
+    // Use an OpAMP client with `opampServer.endpoint`.
+    // ...
+
+    // Get details of every request/response from the server's point of view.
+    // Each entry can include the following fields:
+    // - `req`: some fields from the incoming HTTP request
+    // - `res`: some fields from the outgoing HTTP response
+    // - `a2s`: the parsed AgentToServer protobuf object sent by the client
+    // - `s2a`: the parsed ServerToAgent protobuf object sent by the server
+    // - `err`: an Error instance, in some failure cases
+    const reqs = opampServer.testGetRequests();
+    // console.dir(reqs, {depth: 50});
+});
+```
+
+An example "test request" object:
+
+```js
+[
+  {
+    req: {
+      method: 'POST',
+      headers: {
+        host: '127.0.0.1:51204',
+        connection: 'keep-alive',
+        'user-agent': '@elastic/opamp-client-node/0.1.0',
+        'content-type': 'application/x-protobuf',
+        'content-length': '39'
+      }
+    },
+    res: {
+      statusCode: 200,
+      _header: 'HTTP/1.1 200 OK\r\n' +
+        'Content-Type: application/x-protobuf\r\n' +
+        'Content-Length: 20\r\n' +
+        'Date: Tue, 27 May 2025 21:49:36 GMT\r\n' +
+        'Connection: keep-alive\r\n' +
+        'Keep-Alive: timeout=5\r\n' +
+        '\r\n'
+    },
+    a2s: {
+      '$typeName': 'opamp.proto.AgentToServer',
+      instanceUid: Buffer(16) [Uint8Array] [
+          1, 151,  19, 184, 240, 118,
+        118, 159, 172,  57,  91,  52,
+         29, 167,  17,  41
+      ],
+      sequenceNum: 1n,
+      capabilities: 8193n,
+      flags: 0n,
+      agentDescription: {
+        '$typeName': 'opamp.proto.AgentDescription',
+        identifyingAttributes: [
+          {
+            '$typeName': 'opamp.proto.KeyValue',
+            key: 'foo',
+            value: {
+              '$typeName': 'opamp.proto.AnyValue',
+              value: { case: 'stringValue', value: 'bar' }
+            }
+          }
+        ],
+        nonIdentifyingAttributes: []
+      }
+    },
+    s2a: {
+      '$typeName': 'opamp.proto.ServerToAgent',
+      instanceUid: Buffer(16) [Uint8Array] [
+          1, 151,  19, 184, 240, 118,
+        118, 159, 172,  57,  91,  52,
+         29, 167,  17,  41
+      ],
+      flags: 0,
+      capabilities: 3
+    },
+    err: undefined
+  }
+]
+```
+
 
