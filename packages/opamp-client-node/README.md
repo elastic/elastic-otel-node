@@ -83,6 +83,15 @@ setInterval(() => {}, 10000); // Keep running.
 
 TODO: ^^ impl agentDescriptionFromResource, test this usage
 
+TODO: more detail on using remote config
+    - onMessage shouldn't throw
+    - should handle multiple calls with dupe data: e.g. use remoteConfig.configHash
+      to reduce work. They should be processed *serially*. I.e. for node.js the
+      configHash check should be sync.
+    - mention how to set status APPLIED and FAILED if surprised by the config
+        - this requires setting the ReportsRemoteConfig capability
+    - perhaps utility for single JSON config.
+
 
 ## Reference
 
@@ -103,5 +112,4 @@ TODO: doc this, mark as experimental unpromised msg structure
 
 - Only supports HTTP transport (no WebSocket transport).
 - Supports only a subset of the spec: none of the Beta or Development features
-  unless otherwise shown.
-  TODO: be specific
+  unless otherwise shown. TODO: be specific

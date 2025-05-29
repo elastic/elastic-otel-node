@@ -22,33 +22,6 @@ function jitter(val) {
     return val + jit;
 }
 
-// Serialize some commonly logged objects for logging. The default repr is
-// too wordy for the log.
-function logserInstanceUid(instanceUid) {
-    if (!instanceUid) {
-        return instanceUid;
-    }
-    return uuidStringify(instanceUid);
-}
-function logserS2A(s2a) {
-    if (!s2a) {
-        return s2a;
-    }
-    return {
-        ...s2a,
-        instanceUid: logserInstanceUid(s2a.instanceUid),
-    };
-}
-function logserA2S(a2s) {
-    if (!a2s) {
-        return a2s;
-    }
-    return {
-        ...a2s,
-        instanceUid: logserInstanceUid(a2s.instanceUid),
-    };
-}
-
 function isEqualUint8Array(a, b) {
     if (a.length !== b.length) {
         return false;
@@ -236,8 +209,6 @@ function msFromRetryAfterNs(ns) {
 
 module.exports = {
     jitter,
-    logserA2S,
-    logserS2A,
     isEqualUint8Array,
     keyValuesFromObj,
     objFromKeyValues,

@@ -6,6 +6,7 @@
 const assert = require('assert');
 const {channel} = require('diagnostics_channel');
 
+const once = require('once');
 const {
     parse: uuidParse,
     stringify: uuidStringify,
@@ -19,17 +20,14 @@ const {
     AgentToServerSchema,
     ServerToAgentSchema,
     RemoteConfigStatusSchema,
-    RemoteConfigStatuses,
     ServerCapabilities,
     ServerToAgentFlags,
     AgentDescriptionSchema,
     ServerErrorResponseType,
 } = require('./generated/opamp_pb');
-const {NoopLogger} = require('./logging');
+const {logserA2S, logserS2A, NoopLogger} = require('./logging');
 const {
     jitter,
-    logserA2S,
-    logserS2A,
     isEqualUint8Array,
     keyValuesFromObj,
     msFromRetryAfterHeader,
@@ -163,9 +161,13 @@ function normalizeHeartbeatIntervalSeconds(input) {
  *          - ReportsRemoteConfig
  *      It is an error to specify other capabilities.
  *      https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#agenttoservercapabilities
+ * @property {OnMessageCallback} [onMessage] A callback of the form
+ *      `({remoteConfig}) => {}` that is called when a server response provides
+ *      data for the client. Currently the only type of data supported is
+ *      remote config. Receiving remote config requires setting the
+ *      `AcceptsRemoteConfig` capability in `capabilities`.
  * @property {Number} [heartbeatIntervalSeconds] The approximate time between
  *      heartbeat messages sent by the client. Default 30.
- * @property {OnMessageCallback} [onMessage] A callback of the form
  * @property {number} [headersTimeout] The timeout (in milliseconds) to wait
  *      for the response headers on a request to the OpAMP server. Default 10s.
  * @property {number} [bodyTimeout] The timeout (in milliseconds) to wait for
@@ -194,6 +196,7 @@ class OpAMPClient {
         this._instanceUid = normalizeInstanceUid(
             opts.instanceUid ?? genUuidv7()
         );
+        this._instanceUidStr = uuidStringify(this._instanceUid);
         this._capabilities = normalizeCapabilities(opts.capabilities);
         this._heartbeatIntervalMs =
             normalizeHeartbeatIntervalSeconds(opts.heartbeatIntervalSeconds) *
@@ -216,10 +219,8 @@ class OpAMPClient {
         this._serverCapabilities = null;
         /** @type {AgentDescription} */
         this._agentDescription = null;
-        this._remoteConfigStatus = create(RemoteConfigStatusSchema, {
-            lastRemoteConfigHash: new Uint8Array(0),
-            status: RemoteConfigStatuses.RemoteConfigStatuses_UNSET,
-        });
+        /** @type {RemoteConfigStatus} */
+        this._remoteConfigStatus = create(RemoteConfigStatusSchema, {});
 
         /** @type {AgentToServer} */
         this._numSendFailures = 0;
@@ -325,6 +326,62 @@ class OpAMPClient {
         return this._httpClient.close();
     }
 
+    /**
+     * setRemoteConfigStatus sets the current RemoteConfigStatus and, if
+     * changed, schedules sending a message to the server.
+     *
+     * May be called anytime after start(), including from the `onMessage`
+     * handler.
+     *
+     * @param {RemoteConfigStatus} remoteConfigStatus - The
+     *      `lastRemoteConfigHash` property must be set, other properties are
+     *      optional.
+     */
+    setRemoteConfigStatus(remoteConfigStatus) {
+        if (!this._hasCapReportsRemoteConfig()) {
+            throw new Error(
+                'do not call `setRemoteConfigStatus()` when `ReportsRemoteConfig` capability is not set'
+            );
+        }
+        if (!remoteConfigStatus.lastRemoteConfigHash) {
+            throw new Error('`lastRemoteConfigHash` is not set');
+        }
+
+        // Save the new status and determine if changed.
+        let isChanged = false;
+        if (
+            'status' in remoteConfigStatus &&
+            remoteConfigStatus.status !== this._remoteConfigStatus.status
+        ) {
+            isChanged = true;
+            this._remoteConfigStatus.status = remoteConfigStatus.status;
+        }
+        if (
+            !isEqualUint8Array(
+                remoteConfigStatus.lastRemoteConfigHash,
+                this._remoteConfigStatus.lastRemoteConfigHash
+            )
+        ) {
+            isChanged = true;
+            this._remoteConfigStatus.lastRemoteConfigHash =
+                remoteConfigStatus.lastRemoteConfigHash;
+        }
+        if (
+            'errorString' in remoteConfigStatus &&
+            remoteConfigStatus.errorString !==
+                this._remoteConfigStatus.errorString
+        ) {
+            isChanged = true;
+            this._remoteConfigStatus.errorString =
+                remoteConfigStatus.errorString;
+        }
+
+        if (isChanged) {
+            this._queue.push('RemoteConfigStatus');
+            this._scheduleSendSoon();
+        }
+    }
+
     // `_hasCap*` are conveniences to avoid the verbose bitmasking.
     _hasCapReportsRemoteConfig() {
         return (
@@ -363,6 +420,15 @@ class OpAMPClient {
 
     _scheduleSendSoon() {
         assert.ok(this._queue.length > 0);
+        if (this._numSendFailures > 0) {
+            this._log.trace(
+                {
+                    numSendFailures: this._numSendFailures,
+                },
+                'ignore _scheduleSendSoon because have send failures'
+            );
+            return;
+        }
 
         // "Soon" is short enough to be timely enough for OpAMP, but long enough
         // for debouncing (https://developer.mozilla.org/en-US/docs/Glossary/Debounce).
@@ -422,7 +488,14 @@ class OpAMPClient {
 
         if (!(this._started && !this._sending && !this._shutdown)) {
             // Invalid to schedule a send in the current state.
-            this._log.trace('ignore _scheduleSend');
+            this._log.trace(
+                {
+                    started: this._started,
+                    sending: this._sending,
+                    shutdown: this._shutdown,
+                },
+                'ignore _scheduleSend'
+            );
             return;
         }
 
@@ -444,9 +517,11 @@ class OpAMPClient {
                 this._sendMsg();
             }, delayMs);
             this._nextSendTimeout.unref();
-            if (this._diagChs) {
+            if (this._diagChs && !this._shutdown) {
                 this._diagChs[DIAG_CH_SEND_SCHEDULE].publish({
+                    instanceUidStr: this._instanceUidStr,
                     name: DIAG_CH_SEND_SCHEDULE,
+                    time: Date.now(),
                     delayMs,
                     errCount: this._numSendFailures,
                 });
@@ -517,9 +592,11 @@ class OpAMPClient {
         const finishSuccess = () => {
             this._numSendFailures = 0;
             this._sending = false;
-            if (this._diagChs) {
+            if (this._diagChs && !this._shutdown) {
                 this._diagChs[DIAG_CH_SEND_SUCCESS].publish({
+                    instanceUidStr: this._instanceUidStr,
                     name: DIAG_CH_SEND_SUCCESS,
+                    time: Date.now(),
                     a2s,
                     s2a,
                 });
@@ -535,15 +612,17 @@ class OpAMPClient {
          * @param {boolean} shouldReenqueue
          * @param {number | null} retryAfterMs
          */
-        const finishFail = (err, shouldReenqueue, retryAfterMs) => {
+        let finishFail = (err, shouldReenqueue, retryAfterMs) => {
             this._numSendFailures += 1;
             this._sending = false;
             if (shouldReenqueue) {
                 this._queue = queue.concat(this._queue); // Re-enqueue info to send.
             }
-            if (this._diagChs) {
+            if (this._diagChs && !this._shutdown) {
                 this._diagChs[DIAG_CH_SEND_FAIL].publish({
+                    instanceUidStr: this._instanceUidStr,
                     name: DIAG_CH_SEND_FAIL,
+                    time: Date.now(),
                     a2s,
                     err,
                     retryAfterMs,
@@ -555,6 +634,7 @@ class OpAMPClient {
                 this._scheduleSendAfterErr();
             }
         };
+        finishFail = once(finishFail);
 
         // Make the request.
         let res;
@@ -719,22 +799,25 @@ class OpAMPClient {
         // rather than having the calling code responsible for that.
         if (s2a.agentIdentification?.newInstanceUid) {
             // TODO: test this
-            const oldInstanceUidStr = uuidStringify(this._instanceUid);
+            const oldInstanceUidStr = this._instanceUidStr;
             this._instanceUid = s2a.agentIdentification.newInstanceUid;
-            let newInstanceUidStr = uuidStringify(this._instanceUid);
+            this._instanceUidStr = uuidStringify(this._instanceUid);
             this._log.info(
-                {oldInstanceUidStr, newInstanceUidStr},
+                {oldInstanceUidStr, newInstanceUidStr: this._instanceUidStr},
                 'AgentIdentification.new_instance_id'
             );
         }
 
         // Call onMessage callback, if any.
         if (this._onMessage && Object.keys(onMessageData).length > 0) {
-            // TODO doc for user: This `onMessage` callback could be called
-            //      multiple times with the same data, e.g. with remoteCOnfig.
-            //      They should be processed serially with duplicate info
-            //      being ignored (e.g. use lastConfigHash to avoid dupe work)
-            this._onMessage(onMessageData);
+            try {
+                this._onMessage(onMessageData);
+            } catch (err) {
+                this._log.warn(
+                    err,
+                    'ignoring exception from `onMessage` callback'
+                );
+            }
         }
     }
 }

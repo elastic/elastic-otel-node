@@ -246,9 +246,5 @@ test('OpAMPClient error cases', (suite) => {
         t.end();
     });
 
-    // TODO: test usage with OTel resource (see example in README)
-    // TODO: test remote config, once have support for that (with and
-    //      without reporting remote config status)
-
     suite.end();
 });

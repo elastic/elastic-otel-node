@@ -8,7 +8,11 @@
  */
 
 const luggite = require('luggite');
-const {createOpAMPClient, AgentCapabilities} = require('..'); // @elastic/opamp-client-node
+const {
+    createOpAMPClient,
+    AgentCapabilities,
+    RemoteConfigStatuses,
+} = require('..'); // @elastic/opamp-client-node
 
 const log = luggite.createLogger({name: 'use-opamp-client', level: 'trace'});
 
@@ -21,8 +25,17 @@ async function main() {
             AgentCapabilities.AgentCapabilities_ReportsRemoteConfig,
         onMessage: ({remoteConfig}) => {
             if (remoteConfig) {
-                console.log('Got remote config:', remoteConfig);
-                // TODO: should report remote config status
+                console.log('Got remote config:');
+                console.dir(remoteConfig, {depth: 50});
+
+                // Apply the remote config.
+                // ...
+
+                // Report the remote config status.
+                client.setRemoteConfigStatus({
+                    status: RemoteConfigStatuses.RemoteConfigStatuses_APPLIED,
+                    lastRemoteConfigHash: remoteConfig.configHash,
+                });
             }
         },
     });

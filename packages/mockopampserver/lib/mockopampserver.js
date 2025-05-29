@@ -19,10 +19,12 @@ const {
     ServerErrorResponseType,
 } = require('./generated/opamp_pb.js');
 const {log} = require('./logging');
+const {objFromKeyValues, isEqualUint8Array} = require('./utils');
 
 /**
  * @typedef {import('./generated/opamp_pb.js').AgentToServer} AgentToServer
  * @typedef {import('./generated/opamp_pb.js').ServerToAgent} ServerToAgent
+ * @typedef {import('./generated/opamp_pb.js').AgentConfigMap} AgentConfigMap
  * @typedef {import('./generated/anyvalue_pb.js').AnyValue} AnyValue
  * @typedef {import('./generated/anyvalue_pb.js').KeyValue} KeyValue
  */
@@ -67,52 +69,27 @@ function respondHttp404(res, errMsg = '404 page not found') {
 }
 
 /**
- * (Copied from "packages/opamp-client-node/lib/utils.js".)
+ * AFAICT the OpAMP spec doesn't specify how to create this hash, but that's
+ * fine.
  *
- * Convert a `KeyValue[]` type to a JS object.
- * For example, AgentDescription.identifying_attributes are of type `KeyValue[]`.
- * Using that type directly is a huge PITA.
- *
- * @param {KeyValue[]}
- * @returns {object}
+ * @param {AgentConfigMap} agentConfigMap
+ * @return {Uint8Array}
  */
-function objFromKeyValues(keyValues) {
-    const obj = {};
-    if (keyValues == null) {
-        return obj;
-    }
-    for (let i = 0; i < keyValues.length; i++) {
-        const kv = keyValues[i];
-        obj[kv.key] = valFromAnyValue(kv.value);
-    }
-    return obj;
-}
-
-/**
- * @param {AnyValue}
- * @returns {any}
- */
-function valFromAnyValue(anyValue) {
-    let val;
-    switch (anyValue.value.case) {
-        case 'stringValue':
-        case 'boolValue':
-        case 'doubleValue':
-        case 'bytesValue':
-            val = anyValue.value.value;
-            break;
-        case 'intValue':
-            val = anyValue.value.value;
-            break;
-        case 'arrayValue':
-            val = anyValue.value.value.values.map(valFromAnyValue);
-            break;
-        case 'kvlistValue':
-            val = objFromKeyValues(anyValue.value.value.values);
-            break;
-        // default: val is undefined
-    }
-    return val;
+function hashAgentConfigMap(agentConfigMap) {
+    const {createHash} = require('crypto');
+    const hash = createHash('sha256');
+    const keys = Object.keys(agentConfigMap.configMap);
+    keys.sort();
+    keys.forEach((key) => {
+        hash.update(key);
+        hash.update('\0');
+        const agentConfigFile = agentConfigMap.configMap[key];
+        hash.update(agentConfigFile.contentType);
+        hash.update('\0');
+        hash.update(agentConfigFile.body);
+        hash.update('\0');
+    });
+    return hash.digest();
 }
 
 /**
@@ -163,13 +140,28 @@ class MockOpAMPServer {
      * @param {string} [opts.logLevel] Optionally change the log level. This
      *      accepts any of the log level names supported by Bunyan. Default
      *      is "info".
+     * @param {string} [opts.hostname]
      * @param {number} [opts.port] An port on which to listen. Default is 4320.
+     * @param {AgentConfigMap} [opts.agentConfigMap] An optional config map
+     *      to offer to clients with the `AcceptsRemoteConfig` capability.
+     *      For example:
+     *          const config = {foo: 42};
+     *          const body = Buffer.from(JSON.stringify(config), 'utf8');
+     *          const agentConfigMap = {
+     *              configMap: {
+     *                  '': {body, contentType: 'application/json'}
+     *              }
+     *          };
+     *      Notes:
+     *      - This structure is a bit painful. Could hide some of the details.
+     *      - MockOpAMPServer does not support providing different remote config
+     *        depending on client/agent identifying attributes, though that
+     *        would be an interesting feature to add.
      * @param {boolean} [opts.testMode] Enable "test mode". This makes the
      *      `.test*` methods functional. Typically this is useful when using
      *      this class directly in a test suite. Default false. Note that
      *      requests and responses are cached in test mode, so this is
      *      effectively a memory leak if run for a long time in test mode.
-     * @param {string} [opts.hostname]
      * @param {string} [opts.badMode] Enable a specific "bad" mode where the
      *      server responds in various bad ways. See `BAD_MODES` for supported
      *      values of `badMode`.
@@ -183,6 +175,10 @@ class MockOpAMPServer {
         this._hostname = opts.hostname ?? DEFAULT_HOSTNAME;
         this._port = opts.port ?? DEFAULT_PORT;
         this._endpointPath = DEFAULT_ENDPOINT_PATH;
+        if (opts.agentConfigMap) {
+            this._agentConfigMap = opts.agentConfigMap;
+            this._agentConfigMapHash = hashAgentConfigMap(opts.agentConfigMap);
+        }
         this._server = http.createServer(this._onRequest.bind(this));
         this._started = false;
 
@@ -506,11 +502,28 @@ class MockOpAMPServer {
             this._activeAgents.set(instanceUidStr, agent);
         }
 
-        // TODO: Offer remote config, if:
+        // Offer remote config, if:
         // - the agent accepts remote config
         // - the server has remote config for this agent
         // - the RemoteConfigStatus.lastRemoteConfigHash differs, if have
         //   remoteConfigStatus from the agent
+        const acceptsRemoteConfig =
+            a2s.capabilities &
+            BigInt(AgentCapabilities.AgentCapabilities_AcceptsRemoteConfig);
+        if (
+            acceptsRemoteConfig &&
+            this._agentConfigMap &&
+            (!agent.remoteConfigStatus ||
+                !isEqualUint8Array(
+                    agent.remoteConfigStatus.lastRemoteConfigHash,
+                    this._agentConfigMapHash
+                ))
+        ) {
+            resData.remoteConfig = {
+                config: this._agentConfigMap,
+                configHash: this._agentConfigMapHash,
+            };
+        }
 
         return create(ServerToAgentSchema, resData);
     }

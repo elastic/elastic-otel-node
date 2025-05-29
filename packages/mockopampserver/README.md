@@ -8,7 +8,7 @@ to maintainers of OpAMP clients, especially for Elastic's Node.js OpAMP client
 Features:
 - It is a Node.js server (this may or may not be a feature to you :)
 - It supports the OpAMP HTTP transport.
-- It supports the minimal OpAMP capabilities, plus the `OffersRemoteConfig` server capability.
+- Remote config (i.e. the `OffersRemoteConfig` server capability).
 - It logs the received `AgentToServer` and sent `ServerToAgent` protobuf messages in a somewhat readable format.
 - A way to use this in Node.js testing (see `testMode: true` and `test*` methods). See example usage in "packages/opamp-client-node/test/...".
 - "Bad mode": the `MockOpAMPServer` can be configured to be in one of a number of "bad modes" where it responds in an atypical way, to support testing error cases / failure modes. See `badMode` usages in "packages/opamp-client-node/test/client.test.js".
@@ -52,6 +52,7 @@ curl -si http://localhost:4320/v1/opamp -X POST \
 
 See the block comment for [`class MockOpAMPServer`](./lib/mockopampserver.js#:~:text=class%20MockOpAMPServer) for docs on all config options.
 
+Here is an example showing how MockOpAMPServer could be used in a JS test case:
 
 ```js
 const {MockOpAMPServer} = require('@elastic/mockopampserver');
@@ -66,7 +67,8 @@ test('some OpAMP client test', async (t) => {
     await opampServer.start();
     t.comment(`MockOpAMPServer started: ${opampServer.endpoint}`);
 
-    // Reset test data in the OpAMP server for each test.
+    // Reset test data in the OpAMP server for each test, if re-using the same
+    // mock server for multiple tests.
     opampServer.testReset();
 
     // Use an OpAMP client with `opampServer.endpoint`.
@@ -149,4 +151,60 @@ An example "test request" object:
 ]
 ```
 
+### Remote config
 
+Remote config is an important use case for OpAMP. Here is how it can be used
+with MockOpAMPServer.
+
+The CLI supports a `--json-remote-config=./some-file.json` option. This will
+setup the mock server to offer that file as remote config to requesting
+clients/agents. It will use the empty string in the `AgentConfigMap`, resulting
+in a server response with:
+
+```
+      ...
+      remoteConfig: {
+        '$typeName': 'opamp.proto.AgentRemoteConfig',
+        configHash: Uint8Array(32) [ ... ],
+        config: {
+          '$typeName': 'opamp.proto.AgentConfigMap',
+          configMap: {
+            '': {
+              '$typeName': 'opamp.proto.AgentConfigFile',
+              body: Uint8Array(...) [ ... ],
+              contentType: 'application/json'
+            }
+          }
+        }
+      }
+```
+
+To see an example:
+
+```
+# Run the server with config.
+cd packages/mockopampserver
+npm run example:remote-config
+
+# Run the client.
+cd packages/opamp-client-node
+npm run example
+```
+
+The equivalent setup of the server in code is:
+
+```js
+    const config = {foo: 42};
+    const opampServer = new MockOpAMPServer({
+        agentConfigMap: {
+            configMap: {
+                '': {
+                    contentType: 'application/json',
+                    body: Buffer.from(JSON.stringify(config), 'utf8'),
+                },
+            },
+        },
+        // ... other config options.
+    });
+    await opampServer.start();
+```

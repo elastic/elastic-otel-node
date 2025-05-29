@@ -9,6 +9,8 @@
  * mockopampserver CLI. Try `mockopampserver --htlp`.
  */
 
+const fs = require('fs');
+
 const dashdash = require('dashdash');
 
 const {log} = require('./logging');
@@ -31,6 +33,11 @@ const OPTIONS = [
         names: ['hostname'],
         type: 'string',
         help: `The hostname on which servers should listen, by default this is "${DEFAULT_HOSTNAME}".`,
+    },
+    {
+        names: ['json-remote-config-file'],
+        type: 'string',
+        help: 'Provide the path to a JSON file that will be offered as remote config to clients (with the config map key "", the empty string).',
     },
     // TODO: port option?
 ];
@@ -57,10 +64,20 @@ async function main() {
         process.exit(0);
     }
 
-    const opampServer = new MockOpAMPServer({
+    const serverOpts = {
         log,
         hostname: opts.hostname || DEFAULT_HOSTNAME,
-    });
+    };
+    if (opts.json_remote_config_file) {
+        const buf = fs.readFileSync(opts.json_remote_config_file);
+        serverOpts.agentConfigMap = {
+            configMap: {
+                '': {body: buf, contentType: 'application/json'},
+            },
+        };
+    }
+
+    const opampServer = new MockOpAMPServer(serverOpts);
     await opampServer.start();
 
     log.trace({cliOpts: opts}, 'started');

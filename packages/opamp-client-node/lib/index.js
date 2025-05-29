@@ -10,7 +10,10 @@ const {
     USER_AGENT,
     createOpAMPClient,
 } = require('./opamp-client');
-const {AgentCapabilities} = require('./generated/opamp_pb');
+const {
+    AgentCapabilities,
+    RemoteConfigStatuses,
+} = require('./generated/opamp_pb');
 
 module.exports = {
     DIAG_CH_SEND_SUCCESS,
@@ -19,6 +22,7 @@ module.exports = {
     USER_AGENT,
     createOpAMPClient,
 
-    // Re-exports of some protobuf classes/enums.
+    // Re-exports of some protobuf classes/enums as needed for usage.
     AgentCapabilities,
+    RemoteConfigStatuses,
 };

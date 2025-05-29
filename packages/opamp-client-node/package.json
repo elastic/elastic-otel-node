@@ -38,6 +38,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.5",
+    "once": "^1.4.0",
     "undici": "^6.21.2",
     "uuid": "^11.1.0"
   },
