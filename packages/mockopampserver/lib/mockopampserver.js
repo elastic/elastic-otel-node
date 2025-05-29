@@ -382,6 +382,8 @@ class MockOpAMPServer {
                 this._testNoteRequest({req, res, a2s});
                 return;
             }
+            // TODO: validate sequenceNum is set
+            // TODO: validate capabilities
 
             let s2a;
             if (this._badMode === 'server_error_response_unknown') {

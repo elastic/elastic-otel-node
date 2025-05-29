@@ -5,7 +5,6 @@
 
 const assert = require('assert');
 
-const {stringify: uuidStringify} = require('uuid');
 const {create} = require('@bufbuild/protobuf');
 
 const {KeyValueSchema} = require('./generated/anyvalue_pb');
