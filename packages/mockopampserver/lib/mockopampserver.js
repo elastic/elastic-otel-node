@@ -354,12 +354,6 @@ class MockOpAMPServer {
                 this._testNoteRequest({req, res});
                 return;
         }
-        if (req.headers['content-encoding'] === 'gzip') {
-            instream = req.pipe(zlib.createGunzip());
-        } else if (req.headers['content-encoding'] === 'deflate') {
-            // Go agent uses "deflate"
-            instream = req.pipe(zlib.createInflate());
-        }
 
         const chunks = [];
         instream.on('data', (chunk) => chunks.push(chunk));
