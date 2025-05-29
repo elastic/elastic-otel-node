@@ -429,7 +429,7 @@ class MockOpAMPServer {
     }
 
     /**
-     * @param {AgentToServer} s2a
+     * @param {AgentToServer} a2s
      * @returns {ServerToAgent}
      */
     _processAgentToServer(a2s) {
