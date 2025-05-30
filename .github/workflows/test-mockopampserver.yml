@@ -1,0 +1,45 @@
+name: test-mockopampserver
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    paths:
+    - 'packages/mockopampserver/**'
+    - '.github/workflows/test-mockopampserver.yml'
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'packages/mockopampserver/**'
+    - '.github/workflows/test-mockopampserver.yml'
+
+# Cancel jobs running for old commits on a PR. Allow concurrent runs on 'main'.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '24'
+          - '22'
+          - '20'
+          - '18'
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm ci
+      working-directory: packages/mockopampserver
+    - run: npm test
+      working-directory: packages/mockopampserver

@@ -1,0 +1,555 @@
+/*
+ * Copyright Elasticsearch B.V. and contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+const assert = require('assert');
+const http = require('http');
+const {inspect} = require('util');
+const zlib = require('zlib');
+const TTLCache = require('@isaacs/ttlcache');
+const {create, toBinary, fromBinary} = require('@bufbuild/protobuf');
+const {stringify: uuidStringify} = require('uuid');
+const {
+    AgentToServerSchema,
+    ServerToAgentSchema,
+    ServerToAgentFlags,
+    ServerCapabilities,
+    AgentCapabilities,
+    ServerErrorResponseType,
+} = require('./generated/opamp_pb.js');
+const {log} = require('./logging');
+const {objFromKeyValues, isEqualUint8Array} = require('./utils');
+
+/**
+ * @typedef {import('./generated/opamp_pb.js').AgentToServer} AgentToServer
+ * @typedef {import('./generated/opamp_pb.js').ServerToAgent} ServerToAgent
+ * @typedef {import('./generated/opamp_pb.js').AgentConfigMap} AgentConfigMap
+ * @typedef {import('./generated/anyvalue_pb.js').AnyValue} AnyValue
+ * @typedef {import('./generated/anyvalue_pb.js').KeyValue} KeyValue
+ */
+
+// Default hostname to 'localhost', because that is what `DEFAULT_COLLECTOR_URL`
+// uses in the OTel core exporter packages. Note that 'localhost' can by IPv6
+// '::1' or IPv4 '127.0.0.1', which can potentially cause confusion.
+const DEFAULT_HOSTNAME = 'localhost';
+// DEFAULT_PORT is chosen to match that used in Elastic's `apmconfigextension`
+// OTel collector extension:
+//   https://github.com/elastic/opentelemetry-collector-components/blob/a86562325721addc0519bf8aa03423fe46a6516c/extension/apmconfigextension/factory.go#L44-L54
+// and the opamp-go.git examples:
+//   https://github.com/open-telemetry/opamp-go/blob/4e6e224c51cec39046bd2c2a7fa6b1867ab9c4ac/internal/examples/server/opampsrv/opampsrv.go#L59
+const DEFAULT_PORT = 4320;
+const DEFAULT_ENDPOINT_PATH = '/v1/opamp';
+
+const BAD_MODES = {
+    server_error_response_unknown:
+        'Responds to valid AgentToServer requests with a ServerToAgent payload with a ServerErrorResponse of type UNKNOWN.',
+    server_error_response_unavailable:
+        'Responds to valid AgentToServer requests with a ServerToAgent payload with a ServerErrorResponse of type UNAVAILABLE and retryAfterNanoseconds of 42e9 (i.e. 42 seconds).',
+};
+
+/**
+ * @param {http.ServerResponse} res
+ */
+function respondHttpErr(res, errMsg = 'Bad Request', errCode = 400) {
+    res.writeHead(errCode, {
+        'Content-Type': 'text/plain',
+    });
+    res.end(errMsg);
+}
+
+/**
+ * @param {http.ServerResponse} res
+ */
+function respondHttp404(res, errMsg = '404 page not found') {
+    res.writeHead(404, {
+        'Content-Type': 'text/plain',
+    });
+    res.end(errMsg);
+}
+
+/**
+ * AFAICT the OpAMP spec doesn't specify how to create this hash, but that's
+ * fine.
+ *
+ * @param {AgentConfigMap} agentConfigMap
+ * @return {Uint8Array}
+ */
+function hashAgentConfigMap(agentConfigMap) {
+    const {createHash} = require('crypto');
+    const hash = createHash('sha256');
+    const keys = Object.keys(agentConfigMap.configMap);
+    keys.sort();
+    keys.forEach((key) => {
+        hash.update(key);
+        hash.update('\0');
+        const agentConfigFile = agentConfigMap.configMap[key];
+        hash.update(agentConfigFile.contentType);
+        hash.update('\0');
+        hash.update(agentConfigFile.body);
+        hash.update('\0');
+    });
+    return hash.digest();
+}
+
+/**
+ * A data class to store info about active agents, where "active" means the
+ * server has received a recent heartbeat status from the client.
+ */
+class AgentInfo {
+    constructor(data) {
+        this.instanceUidStr = data.instanceUidStr;
+        this.instanceUid = data.instanceUid;
+        this.sequenceNum = data.sequenceNum;
+        this.capabilities = data.capabilities;
+        this.agentDescription = data.agentDescription;
+        this.remoteConfigStatus = data.remoteConfigStatus;
+        this.lastMsgTime = data.lastMsgTime;
+    }
+
+    /**
+     * Return a JS object representation of `agentDescription.identifyingAttributes`.
+     */
+    getIdentifyingAttributes() {
+        return objFromKeyValues(this.agentDescription.identifyingAttributes);
+    }
+
+    /**
+     * Return a JS object representation of `agentDescription.nonIdentifyingAttributes`.
+     */
+    getNonIdentifyingAttributes() {
+        return objFromKeyValues(this.agentDescription.nonIdentifyingAttributes);
+    }
+
+    [inspect.custom](depth, options, inspect) {
+        const subset = {
+            instanceUidStr: this.instanceUidStr,
+            sequenceNum: this.sequenceNum,
+            capabilities: this.capabilities,
+            agentDescription_: {
+                identifyingAttributes: objFromKeyValues(
+                    this.agentDescription?.identifyingAttributes
+                ),
+                nonIdentifyingAttributes: objFromKeyValues(
+                    this.agentDescription?.nonIdentifyingAttributes
+                ),
+            },
+            remoteConfigStatus: this.remoteConfigStatus,
+            lastMsgTime: this.lastMsgTime,
+        };
+        return `AgentInfo ${inspect(subset, {...options, depth: 10})}`;
+    }
+}
+
+class MockOpAMPServer {
+    /**
+     * @param {object} [opts]
+     * @param {string} [opts.logLevel] Optionally change the log level. This
+     *      accepts any of the log level names supported by Bunyan. Default
+     *      is "info".
+     * @param {string} [opts.hostname]
+     * @param {number} [opts.port] An port on which to listen. Default is 4320.
+     * @param {AgentConfigMap} [opts.agentConfigMap] An optional config map
+     *      to offer to clients with the `AcceptsRemoteConfig` capability.
+     *      For example:
+     *          const config = {foo: 42};
+     *          const body = Buffer.from(JSON.stringify(config), 'utf8');
+     *          const agentConfigMap = {
+     *              configMap: {
+     *                  '': {body, contentType: 'application/json'}
+     *              }
+     *          };
+     *      Notes:
+     *      - This structure is a bit painful. Could hide some of the details.
+     *      - MockOpAMPServer does not support providing different remote config
+     *        depending on client/agent identifying attributes, though that
+     *        would be an interesting feature to add.
+     * @param {boolean} [opts.testMode] Enable "test mode". This makes the
+     *      `.test*` methods functional. Typically this is useful when using
+     *      this class directly in a test suite. Default false. Note that
+     *      requests and responses are cached in test mode, so this is
+     *      effectively a memory leak if run for a long time in test mode.
+     * @param {string} [opts.badMode] Enable a specific "bad" mode where the
+     *      server responds in various bad ways. See `BAD_MODES` for supported
+     *      values of `badMode`.
+     */
+    constructor(opts) {
+        opts = opts ?? {};
+        if (opts.logLevel != null) {
+            log.level(opts.logLevel);
+        }
+
+        this._hostname = opts.hostname ?? DEFAULT_HOSTNAME;
+        this._port = opts.port ?? DEFAULT_PORT;
+        this._endpointPath = DEFAULT_ENDPOINT_PATH;
+        if (opts.agentConfigMap) {
+            this._agentConfigMap = opts.agentConfigMap;
+            this._agentConfigMapHash = hashAgentConfigMap(opts.agentConfigMap);
+        }
+        this._server = http.createServer(this._onRequest.bind(this));
+        this._started = false;
+
+        const HEARTBEAT_INTERVAL = 30 * 1000;
+        this._activeAgents = new TTLCache({
+            max: 10000,
+            ttl: 5 * HEARTBEAT_INTERVAL,
+            dispose: (_value, instanceUidStr, reason) => {
+                log.info({instanceUidStr, reason}, 'remove active agent');
+            },
+        });
+
+        if (opts.testMode) {
+            this._testMode = true;
+            this._testRequests = [];
+        }
+        if (opts.badMode) {
+            if (!(opts.badMode in BAD_MODES)) {
+                throw new Error(`unknown "badMode" value: "${opts.badMode}"`);
+            }
+            this._badMode = opts.badMode;
+        }
+    }
+
+    get endpoint() {
+        assert.ok(
+            this._started,
+            'MockOpAMPServer must be started to have an `endpoint`.'
+        );
+        return this._endpoint;
+    }
+
+    async start() {
+        return new Promise((resolve, reject) => {
+            this._server.listen(this._port, this._hostname, () => {
+                const addr = this._server.address();
+                if (addr.family === 'IPv6') {
+                    this._endpointOrigin = `http://[${addr.address}]:${addr.port}`;
+                } else {
+                    this._endpointOrigin = `http://${addr.address}:${addr.port}`;
+                }
+                this._endpoint = this._endpointOrigin + this._endpointPath;
+                log.info(`OpAMP server listening at ${this._endpoint}`);
+                resolve();
+            });
+            this._server.on('error', reject);
+            this._started = true;
+        });
+    }
+
+    async close() {
+        if (this._started) {
+            return new Promise((resolve, reject) => {
+                this._server.close((err) => {
+                    err ? reject(err) : resolve();
+                });
+            });
+        }
+    }
+
+    /**
+     * Lookup an active agent by `instanceUid`.
+     *
+     * MockOpAMPServer maintains a set of "active" agents. "Active" means that
+     * the agent (a.k.a. OpAMP client) has sent a message recently -- where
+     * "recent" is currently hardcoded to 2m30s (5 times the default 30s
+     * heartbeat interval). "Agent" is an `AgentInfo` object with cached
+     * data from the client `AgentToServer` messages.
+     *
+     * @param {Uint8Array} instanceUid
+     * @returns {AgentInfo | undefined}
+     */
+    getActiveAgent(instanceUid) {
+        const instanceUidStr = uuidStringify(instanceUid);
+        return this._activeAgents.get(instanceUidStr);
+    }
+
+    /**
+     * Clear any cached data. This is useful when starting a test.
+     */
+    testReset() {
+        assert.ok(this._testMode, 'must set testMode:true option');
+        this._activeAgents.clear();
+        this._testRequests = [];
+    }
+
+    /**
+     * Return a (shallow) copy of received requests.
+     *
+     * This returns an array of objects of the form:
+     *      {
+     *          req: <incoming HTTP request>,
+     *          a2s: <AgentToServer protobuf message>,
+     *          res: <outgoing HTTP response>,
+     *          s2a: <ServerToAgent protobuf message>,
+     *          err: <Error instance if there was an error>,
+     *      }
+     * If a request fails, some of these fields will not be present.
+     */
+    testGetRequests() {
+        assert.ok(this._testMode, 'must set testMode:true option');
+        return this._testRequests.slice();
+    }
+
+    _testNoteRequest({
+        req,
+        res = undefined,
+        a2s = undefined,
+        s2a = undefined,
+        err = undefined,
+    }) {
+        function pick(obj, propNames) {
+            if (obj === undefined) {
+                return undefined;
+            }
+            const picked = {};
+            for (let n of propNames) {
+                if (n in obj) {
+                    picked[n] = obj[n];
+                }
+            }
+            return picked;
+        }
+
+        if (this._testMode) {
+            const datum = {
+                req: pick(req, ['method', 'path', 'headers']),
+                res: pick(res, ['statusCode', '_header']),
+                a2s,
+                s2a,
+                err,
+            };
+            this._testRequests.push(datum);
+        }
+    }
+
+    _onRequest(req, res) {
+        // Basic HTTP request validations.
+        const u = new URL(req.url, this._endpointOrigin);
+        if (u.pathname !== this._endpointPath) {
+            respondHttp404(res);
+            this._testNoteRequest({req, res});
+            return;
+        }
+        if (
+            req.method == 'GET' &&
+            req.headers.connection?.trim()?.toLowerCase() == 'upgrade'
+        ) {
+            respondHttpErr(
+                res,
+                'Connection upgrade is not supported. mockopampserver does not implement the OpAMP WebSockets transport.',
+                501
+            );
+            this._testNoteRequest({req, res});
+            return;
+        }
+        if (req.method !== 'POST') {
+            // Not using HTTP 405, because a 'GET' will eventually be
+            // allowed for connection upgrade to websocket.
+            respondHttpErr(res);
+            this._testNoteRequest({req, res});
+            return;
+        }
+        if (req.headers['content-type'] !== 'application/x-protobuf') {
+            respondHttpErr(
+                res,
+                `invalid Content-Type, expect "application/x-protobuf", got ${
+                    req.headers['content-type'] ?? '<empty>'
+                }`
+            );
+            this._testNoteRequest({req, res});
+            return;
+        }
+
+        // Handle possible gzip compression;
+        let instream;
+        switch (req.headers['content-encoding']) {
+            case undefined:
+                instream = req;
+                break;
+            case 'gzip':
+                instream = req.pipe(zlib.createGunzip());
+                break;
+            default:
+                respondHttpErr(
+                    res,
+                    `unsupported Content-Encoding: ${req.headers['content-encoding']}`,
+                    415
+                );
+                this._testNoteRequest({req, res});
+                return;
+        }
+
+        const chunks = [];
+        instream.on('data', (chunk) => chunks.push(chunk));
+        instream.on('error', (err) => {
+            log.warn(err, 'error on instream');
+            respondHttpErr(res, err.message);
+            this._testNoteRequest({req, res, err});
+        });
+        instream.on('end', () => {
+            const reqBuffer = Buffer.concat(chunks);
+            let a2s;
+            try {
+                a2s = fromBinary(AgentToServerSchema, reqBuffer);
+            } catch (err) {
+                log.info(err, 'deserialize AgentToServer error');
+                respondHttpErr(res, err.message);
+                this._testNoteRequest({req, res, err});
+                return;
+            }
+
+            if (a2s.instanceUid.length !== 16) {
+                respondHttpErr(
+                    res,
+                    `invalid length of instanceUid: ${a2s.instanceUid.length}`
+                );
+                this._testNoteRequest({req, res, a2s});
+                return;
+            }
+            // TODO: validate sequenceNum is set
+            // TODO: validate capabilities
+
+            let s2a;
+            if (this._badMode === 'server_error_response_unknown') {
+                const resData = {
+                    instanceUid: a2s.instanceUid,
+                    errorResponse: {
+                        type: ServerErrorResponseType.ServerErrorResponseType_Unknown,
+                        errorMessage: 'some unknown error',
+                    },
+                };
+                s2a = create(ServerToAgentSchema, resData);
+            } else if (this._badMode === 'server_error_response_unavailable') {
+                const resData = {
+                    instanceUid: a2s.instanceUid,
+                    errorResponse: {
+                        type: ServerErrorResponseType.ServerErrorResponseType_Unavailable,
+                        errorMessage: 'some reason',
+                        // TODO: I'm not sure `Details` is correct here.
+                        Details: {
+                            case: 'retryInfo',
+                            value: {
+                                retryAfterNanoseconds: 42_000_000_000n,
+                            },
+                        },
+                    },
+                };
+                s2a = create(ServerToAgentSchema, resData);
+            } else {
+                s2a = this._processAgentToServer(a2s);
+            }
+
+            // TODO: compress if `Accept-Encoding: gzip`
+            const resBody = toBinary(ServerToAgentSchema, s2a);
+            res.writeHead(200, {
+                'Content-Type': 'application/x-protobuf',
+                'Content-Length': resBody.length,
+            });
+            res.end(resBody);
+
+            req.body = a2s; // for logging 'req' serializer
+            res.body = s2a; // for logging 'res' serializer
+            log.debug({req, res}, 'request');
+            this._testNoteRequest({req, res, a2s, s2a});
+        });
+    }
+
+    /**
+     * @param {AgentToServer} a2s
+     * @returns {ServerToAgent}
+     */
+    _processAgentToServer(a2s) {
+        const instanceUidStr = uuidStringify(a2s.instanceUid);
+        const reportedFullState = Boolean(
+            a2s.agentDescription &&
+                (!(
+                    a2s.capabilities &
+                    BigInt(
+                        AgentCapabilities.AgentCapabilities_ReportsRemoteConfig
+                    )
+                ) ||
+                    a2s.remoteConfigStatus)
+        );
+        const resData = {
+            instanceUid: a2s.instanceUid,
+            flags: 0,
+            capabilities:
+                ServerCapabilities.ServerCapabilities_AcceptsStatus |
+                ServerCapabilities.ServerCapabilities_OffersRemoteConfig,
+        };
+
+        // Create or update an agent record for this agent. Also decide if
+        // need to request ReportFullState.
+        let agent = this._activeAgents.get(instanceUidStr);
+        if (!agent) {
+            agent = new AgentInfo({
+                instanceUidStr,
+                instanceUid: a2s.instanceUid,
+                sequenceNum: a2s.sequenceNum,
+                capabilities: a2s.capabilities,
+                agentDescription: a2s.agentDescription,
+                remoteConfigStatus: a2s.remoteConfigStatus,
+                lastMsgTime: Date.now(),
+            });
+            this._activeAgents.set(instanceUidStr, agent);
+            log.info({agent}, 'new active agent');
+            if (!reportedFullState) {
+                log.debug({instanceUidStr}, 'request ReportFullState');
+                resData.flags |=
+                    ServerToAgentFlags.ServerToAgentFlags_ReportFullState;
+            }
+        } else {
+            if (
+                a2s.sequenceNum !== agent.sequenceNum + 1n &&
+                !reportedFullState
+            ) {
+                log.debug(
+                    {instanceUidStr, agentSeqNum: agent.sequenceNum},
+                    'request ReportFullState (sequenceNum missed)'
+                );
+                resData.flags |=
+                    ServerToAgentFlags.ServerToAgentFlags_ReportFullState;
+            }
+            agent.sequenceNum = a2s.sequenceNum;
+            agent.capabilities = a2s.capabilities;
+            if (a2s.agentDescription) {
+                agent.agentDescription = a2s.agentDescription;
+            }
+            if (a2s.remoteConfigStatus) {
+                agent.remoteConfigStatus = a2s.remoteConfigStatus;
+            }
+            agent.lastMsgTime = Date.now();
+            this._activeAgents.set(instanceUidStr, agent);
+        }
+
+        // Offer remote config, if:
+        // - the agent accepts remote config
+        // - the server has remote config for this agent
+        // - the RemoteConfigStatus.lastRemoteConfigHash differs, if have
+        //   remoteConfigStatus from the agent
+        const acceptsRemoteConfig =
+            a2s.capabilities &
+            BigInt(AgentCapabilities.AgentCapabilities_AcceptsRemoteConfig);
+        if (
+            acceptsRemoteConfig &&
+            this._agentConfigMap &&
+            (!agent.remoteConfigStatus ||
+                !isEqualUint8Array(
+                    agent.remoteConfigStatus.lastRemoteConfigHash,
+                    this._agentConfigMapHash
+                ))
+        ) {
+            resData.remoteConfig = {
+                config: this._agentConfigMap,
+                configHash: this._agentConfigMapHash,
+            };
+        }
+
+        return create(ServerToAgentSchema, resData);
+    }
+}
+
+module.exports = {
+    DEFAULT_HOSTNAME,
+    MockOpAMPServer,
+};

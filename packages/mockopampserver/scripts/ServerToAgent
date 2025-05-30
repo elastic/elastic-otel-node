@@ -1,0 +1,87 @@
+#!/usr/bin/env node
+
+/*
+ * Copyright Elasticsearch B.V. and contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * Decode OpAMP `ServerToAgent` binary data and print to stdout.
+ * This will skip over an HTTP header block, so it can be used to pipe from
+ * `curl -i` or similar.
+ *
+ * Usage:
+ *      cat response.bin | ./scripts/ServerToAgent
+ *      ./scripts/ServerToAgent response.bin
+ *
+ *      # Talk to mockopampserver.
+ *      curl -si http://localhost:4320/v1/opamp -X POST -H content-type:application/x-protobuf --data-binary @./AgentToServer.simple.bin -o- | ./scripts/ServerToAgent
+ *
+ *      # Talk to the example OpAMP server in opamp-go.git.
+ *      curl -si --cacert .../opamp-go/internal/certs/certs/ca.cert.pem \
+ *          https://127.0.0.1:4320/v1/opamp -X POST \
+ *          -H content-type:application/x-protobuf \
+ *          --data-binary ./etc/AgentToServer.simple.bin \
+ *          --output - | ./scripts/ServerToAgent
+ *
+ */
+
+const fs = require('fs');
+
+const {fromBinary} = require('@bufbuild/protobuf');
+
+const {ServerToAgentSchema} = require('../lib/generated/opamp_pb.js');
+
+/**
+ * Take off a leading HTTP header block (as from `curl -i`), if any.
+ * The header block is written to stdout.
+ */
+function stripHeaders(s) {
+    while (true) {
+        if (s.slice(0, 5).toString('utf8') === 'HTTP/') {
+            var index = s.indexOf('\r\n\r\n');
+            var sepLen = 4;
+            if (index == -1) {
+                index = s.indexOf('\n\n');
+                sepLen = 2;
+            }
+            if (index != -1) {
+                process.stdout.write(s.slice(0, index + sepLen));
+                var is100Continue = s.slice(0, 21) === 'HTTP/1.1 100 Continue';
+                s = s.slice(index + sepLen);
+                if (is100Continue) {
+                    continue;
+                }
+            }
+        }
+        break;
+    }
+    return s;
+}
+
+async function slurpStdin() {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        process.stdin.on('data', (chunk) => {
+            chunks.push(chunk);
+        });
+        process.stdin.on('end', function () {
+            resolve(Buffer.concat(chunks));
+        });
+        process.stdin.on('error', reject);
+    });
+}
+
+async function main() {
+    let content;
+    if (process.argv.length > 2) {
+        content = fs.readFileSync(process.argv[2]);
+    } else {
+        content = await slurpStdin();
+    }
+    content = stripHeaders(content);
+    const s2a = fromBinary(ServerToAgentSchema, content);
+    console.dir(s2a, {depth: 50});
+}
+
+main();

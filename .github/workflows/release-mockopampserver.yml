@@ -1,0 +1,94 @@
+# Release a tagged version of the '@elastic/mockopampserver' package.
+name: release-mockopampserver
+
+on:
+  push:
+    tags:
+      - mockopampserver-v*.*.*
+
+# 'id-token' perm needed for npm publishing with provenance (see
+# https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
+permissions:
+  attestations: write
+  contents: write
+  packages: write
+  pull-requests: read
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    env:
+      PKGDIR: packages/mockopampserver
+      PKGNAME: "@elastic/mockopampserver"
+      DOCKER_IMAGE_NAME: ghcr.io/${{ github.repository }}/mockopampserver
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'v22.16.0'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Push a Docker image.
+      - uses: docker/setup-buildx-action@v3
+      - id: docker-meta
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804  # v5.7.0
+        with:
+          images: ${{ env.DOCKER_IMAGE_NAME }}
+          flavor: |
+            latest=auto
+          tags: |
+            # git tag "mockopampserver-v1.2.3" -> Docker tags "1.2.3", "latest"
+            type=match,pattern=mockopampserver-v(\d+\.\d+\.\d+),group=1
+          labels: |
+            org.opencontainers.image.vendor=Elastic
+            org.opencontainers.image.title=mockopampserver
+            org.opencontainers.image.description=A mock OpAMP server, for dev and testing
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        id: docker-push
+        uses: docker/build-push-action@1dc73863535b631f98b2378be8619f83b136f4a0  # v6.17.0
+        with:
+          context: ${{ env.PKGDIR }}
+          platforms: linux/amd64,linux/arm64
+          file: 'packages/mockopampserver/Dockerfile'
+          push: true
+          tags: ${{ steps.docker-meta.outputs.tags }}
+          labels: ${{ steps.docker-meta.outputs.labels }}
+      - name: Attest Docker image
+        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd  # v2.3.0
+        with:
+          subject-name: ${{ env.DOCKER_IMAGE_NAME }}
+          subject-digest: ${{ steps.docker-push.outputs.digest }}
+          push-to-registry: true
+
+      - run: npm publish
+        working-directory: ${{ env.PKGDIR }}
+        env:
+          # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: GitHub release
+        run: |
+          npm ci  # need top-level devDeps for github-release.sh script
+          ./scripts/github-release.sh "$PKGDIR" "${{ github.ref_name }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Notify in Slack
+        # Only notify on failure, because on success the published GitHub
+        # Release will result in a notification from the GitHub Slack app
+        # (assuming '/github subscribe elastic/elastic-otel-node').
+        if: ${{ failure() }}
+        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+        with:
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-node"
+          message: '[${{ github.repository }}] Release `${{ env.PKGNAME }}` *${{ github.ref_name }}*'
