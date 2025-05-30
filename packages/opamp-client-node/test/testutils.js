@@ -19,6 +19,9 @@ function numIsApprox(val, expectedVal, epsilonRatio) {
 /**
  * Wait for `n` OpAMPClient diagnostics channel events, and return them.
  *
+ * These events are published when OpAMPClient is configured with
+ * `diagEvents: true`.
+ *
  * @param {Number} n
  * @returns {Promise<any>}
  */

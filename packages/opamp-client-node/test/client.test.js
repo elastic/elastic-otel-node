@@ -258,7 +258,5 @@ test('OpAMPClient', (suite) => {
         t.end();
     });
 
-    // TODO: test usage with OTel resource (see example in README)
-
     suite.end();
 });

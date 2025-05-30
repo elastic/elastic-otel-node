@@ -260,7 +260,6 @@ class OpAMPClient {
             ),
         };
 
-        // TODO: test re-setting this and determining if changed
         const agentDescriptionSer = toBinary(
             AgentDescriptionSchema,
             create(AgentDescriptionSchema, agentDescription)
@@ -297,7 +296,6 @@ class OpAMPClient {
             throw new Error('OpAMPClient already started');
         }
         if (!this._agentDescription) {
-            // TODO: allow agentDescription arg in ctor?
             throw new Error(
                 'OpAMPClient#setAgentDescription() must be called before start()'
             );
