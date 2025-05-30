@@ -40,10 +40,16 @@ function barrierNDiagEvents(n) {
         // console.log('barrierNDiagEvents: onEvent:', e);
         events.push(e);
         if (events.length >= n) {
-            chNames.forEach((ch) => {
-                unsubscribe(ch, onEvent);
+            // Use `setImmediate` to work around a bug in diagnostics_channel
+            // unsubscribing *during* a publish. This was breaking tests with
+            // Node.js v18.20.8.
+            // https://github.com/nodejs/node/pull/55116
+            setImmediate(() => {
+                chNames.forEach((ch) => {
+                    unsubscribe(ch, onEvent);
+                });
+                barrierResolve(events);
             });
-            barrierResolve(events);
         }
     };
     chNames.forEach((ch) => {
