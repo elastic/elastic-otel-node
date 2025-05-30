@@ -70,6 +70,89 @@ test('OpAMPClient', (suite) => {
         t.end();
     });
 
+    suite.test('client.setAgentDescription', async (t) => {
+        const server = new MockOpAMPServer({
+            logLevel: 'warn', // use 'debug' for some debugging of the server
+            hostname: '127.0.0.1',
+            port: 0,
+            testMode: true,
+        });
+        await server.start();
+
+        const client = createOpAMPClient({
+            log,
+            endpoint: server.endpoint,
+            diagEnabled: true,
+        });
+        const desc = {
+            identifyingAttributes: {
+                'service.name': 'foo-bar',
+            },
+            // Exercise the various value types.
+            nonIdentifyingAttributes: {
+                aStr: 'strVal',
+                aBool: true,
+                aBool2: false,
+                anInt: 42,
+                aFloat: 3.141,
+                aBigInt: 1152921504606846976n, // less than 2**64, bigger than MAX_SAFE_INTEGER
+                aBuffer: Buffer.from([1, 2, 3]),
+                anArray: [1, 2, 3, 'a', 'b', 'c', {spam: 'eggs'}],
+                anObj: {foo: 'bar', baz: 'blam'},
+            },
+        };
+        const instanceUid = client.getInstanceUid();
+        client.setAgentDescription(desc);
+        client.start();
+
+        // events: 1. send.schedule, 2. send.success, 3. send.schedule.
+        await barrierNDiagEvents(3);
+
+        const serverAgentInfo = server.getActiveAgent(instanceUid);
+        t.ok(serverAgentInfo);
+        t.deepEqual(
+            serverAgentInfo.getIdentifyingAttributes(),
+            desc.identifyingAttributes
+        );
+        t.deepEqual(
+            serverAgentInfo.getNonIdentifyingAttributes(),
+            desc.nonIdentifyingAttributes
+        );
+
+        // Test changing the description again:
+        // - Ensure the server gets the update, and
+        // - ensure a Uint8Array value works, which is more finnicky to test
+        //   because it gets translated to a `Buffer` by bufbuild (the protobuf
+        //   lib).
+        const desc2 = {
+            identifyingAttributes: desc.identifyingAttributes,
+            nonIdentifyingAttributes: {
+                aUint8Array: new Uint8Array([4, 5, 6]),
+            },
+        };
+        client.setAgentDescription(desc2);
+        await barrierNDiagEvents(2); // events: 1. send.success, 2. send.schedule
+        const serverAgentInfo2 = server.getActiveAgent(instanceUid);
+        t.ok(serverAgentInfo2);
+        t.deepEqual(
+            serverAgentInfo2.getIdentifyingAttributes(),
+            desc2.identifyingAttributes
+        );
+        const nia2 = serverAgentInfo2.getNonIdentifyingAttributes();
+        t.equal(Object.keys(nia2).length, 1);
+        t.ok(
+            isEqualUint8Array(
+                nia2.aUint8Array, // Buffer
+                desc2.nonIdentifyingAttributes.aUint8Array // Uint8Array
+            ),
+            'aUint8Array attribute matches'
+        );
+
+        await client.shutdown();
+        await server.close();
+        t.end();
+    });
+
     suite.test('remote config', async (t) => {
         // Setup MockOpAMPServer to provide `config` as remote config.
         const config = {foo: 42};
@@ -126,7 +209,6 @@ test('OpAMPClient', (suite) => {
         // to reduce the noise of re-sending the same config all the time.
 
         await barrierNDiagEvents(6);
-        // console.log('events: ', events);
         const reqs = opampServer.testGetRequests();
         // console.dir(reqs, {depth: 50});
 

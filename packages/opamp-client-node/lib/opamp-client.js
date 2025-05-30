@@ -269,7 +269,7 @@ class OpAMPClient {
         if (!this._agentDescription) {
             isChanged = true;
         } else {
-            isChanged = isEqualUint8Array(
+            isChanged = !isEqualUint8Array(
                 this._agentDescriptionSer,
                 agentDescriptionSer
             );
@@ -306,7 +306,8 @@ class OpAMPClient {
 
         this._queue.push('ReportFullState');
         // Use `setImmediate` so a caller of `client.start()` can do synchronous
-        // setup before scheduling happens.
+        // setup before scheduling happens. Specifically this is helpful for
+        // calling .start() and *then* subscribing to diag events in tests.
         setImmediate(() => {
             this._scheduleSendSoon();
         });

@@ -114,6 +114,13 @@ class AgentInfo {
         return objFromKeyValues(this.agentDescription.identifyingAttributes);
     }
 
+    /**
+     * Return a JS object representation of `agentDescription.nonIdentifyingAttributes`.
+     */
+    getNonIdentifyingAttributes() {
+        return objFromKeyValues(this.agentDescription.nonIdentifyingAttributes);
+    }
+
     [inspect.custom](depth, options, inspect) {
         const subset = {
             instanceUidStr: this.instanceUidStr,
@@ -237,6 +244,23 @@ class MockOpAMPServer {
                 });
             });
         }
+    }
+
+    /**
+     * Lookup an active agent by `instanceUid`.
+     *
+     * MockOpAMPServer maintains a set of "active" agents. "Active" means that
+     * the agent (a.k.a. OpAMP client) has sent a message recently -- where
+     * "recent" is currently hardcoded to 2m30s (5 times the default 30s
+     * heartbeat interval). "Agent" is an `AgentInfo` object with cached
+     * data from the client `AgentToServer` messages.
+     *
+     * @param {Uint8Array} instanceUid
+     * @returns {AgentInfo | undefined}
+     */
+    getActiveAgent(instanceUid) {
+        const instanceUidStr = uuidStringify(instanceUid);
+        return this._activeAgents.get(instanceUidStr);
     }
 
     /**
