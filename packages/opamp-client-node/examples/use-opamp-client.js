@@ -46,7 +46,7 @@ async function main() {
     });
     client.start();
 
-    setInterval(() => {}, 10000); // Keep running.
+    setInterval(() => {}, 10000); // Keep running until Ctrl+C.
 }
 
 main();
