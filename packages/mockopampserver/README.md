@@ -20,16 +20,34 @@ Limitations:
 
 ## Usage
 
-### CLI usage
+### CLI usage with Docker
 
-Start the mockopampserver:
+Releases of mockopampserver include published Docker images. You can start a server via:
 
 ```
+docker run --rm -it -p 4320:4320 --name mockopampserver \
+    ghcr.io/elastic/elastic-otel-node/mockopampserver:latest
+```
+
+### CLI usage with npx
+
+If you use `npx`, you can start a server via:
+
+```bash
+npx @elastic/mockopampserver
+```
+
+### CLI usage from the repository
+
+To build and use the server from this repository:
+
+```
+cd packages/mockopampserver
 npm ci
 npm start
 ```
 
-Then call it with an OpAMP client. For example:
+Once the server is started, you can use it with an OpAMP client. For example:
 
 ```
 cd ../packages/opamp-client-node
@@ -171,7 +189,7 @@ in a server response with:
           configMap: {
             '': {
               '$typeName': 'opamp.proto.AgentConfigFile',
-              body: Uint8Array(...) [ ... ],
+              body: Uint8Array(...) [ ... ],   // <--- file content is here
               contentType: 'application/json'
             }
           }
