@@ -36,10 +36,17 @@ jobs:
           - '18'
     steps:
     - uses: actions/checkout@v4
+
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
+
+    # TODO: remove this once opamp-client-node uses a *release* of mockopampserver
+    - run: npm ci
+      working-directory: packages/mockopampserver
+
     - run: npm ci
       working-directory: packages/opamp-client-node
+
     - run: npm test
       working-directory: packages/opamp-client-node
