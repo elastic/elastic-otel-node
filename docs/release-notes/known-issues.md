@@ -11,5 +11,5 @@ products:
   - id: edot-sdk
 ---
 
-# Elastic Distribution of OpenTelemetry  known issues
+# Elastic Distribution of OpenTelemetry Node.js known issues
 
