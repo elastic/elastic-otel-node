@@ -6,7 +6,6 @@
 const assert = require('assert');
 const {channel} = require('diagnostics_channel');
 
-const once = require('once');
 const {
     parse: uuidParse,
     stringify: uuidStringify,
@@ -602,7 +601,12 @@ class OpAMPClient {
         const reqBody = toBinary(AgentToServerSchema, a2s);
 
         // `_sendMsg()` ends with a single `finishSuccess` or `finishFail`.
+        let isFinished = false;
         const finishSuccess = () => {
+            if (isFinished) {
+                throw new Error('_sendMsg finish called more than once');
+            }
+            isFinished = true;
             this._numSendFailures = 0;
             this._sending = false;
             if (this._diagChs && !this._shutdown) {
@@ -625,7 +629,11 @@ class OpAMPClient {
          * @param {boolean} shouldReenqueue
          * @param {number | null} retryAfterMs
          */
-        let finishFail = (err, shouldReenqueue, retryAfterMs) => {
+        const finishFail = (err, shouldReenqueue, retryAfterMs) => {
+            if (isFinished) {
+                throw new Error('_sendMsg finish called more than once');
+            }
+            isFinished = true;
             this._numSendFailures += 1;
             this._sending = false;
             if (shouldReenqueue) {
@@ -647,7 +655,6 @@ class OpAMPClient {
                 this._scheduleSendAfterErr();
             }
         };
-        finishFail = once(finishFail);
 
         // Make the request.
         let res;
