@@ -329,6 +329,11 @@ class OpAMPClient {
             throw new Error('cannot shutdown OpAMPClient multiple times');
         }
         this._shutdown = true;
+        if (this._nextSendTimeout) {
+            clearTimeout(this._nextSendTimeout);
+            this._nextSendTimeout = null;
+        }
+        this._nextSendTime = null;
 
         // https://undici.nodejs.org/#/docs/api/Dispatcher.md?id=dispatcherclosecallback-promise
         return this._httpClient.close();
@@ -375,13 +380,13 @@ class OpAMPClient {
                 remoteConfigStatus.lastRemoteConfigHash;
         }
         if (
-            'errorString' in remoteConfigStatus &&
-            remoteConfigStatus.errorString !==
-                this._remoteConfigStatus.errorString
+            'errorMessage' in remoteConfigStatus &&
+            remoteConfigStatus.errorMessage !==
+                this._remoteConfigStatus.errorMessage
         ) {
             isChanged = true;
-            this._remoteConfigStatus.errorString =
-                remoteConfigStatus.errorString;
+            this._remoteConfigStatus.errorMessage =
+                remoteConfigStatus.errorMessage;
         }
 
         if (isChanged) {
@@ -592,7 +597,7 @@ class OpAMPClient {
             }
         }
 
-        const a2s = create(AgentToServerSchema, msg);
+        const a2s = create(AgentToServerSchema, structuredClone(msg));
         this._log.trace({a2s: logserA2S(a2s)}, 'sending AgentToServer');
         const reqBody = toBinary(AgentToServerSchema, a2s);
 
@@ -820,14 +825,18 @@ class OpAMPClient {
 
         // Call onMessage callback, if any.
         if (this._onMessage && Object.keys(onMessageData).length > 0) {
-            try {
-                this._onMessage(onMessageData);
-            } catch (err) {
-                this._log.warn(
-                    err,
-                    'ignoring exception from `onMessage` callback'
-                );
-            }
+            // Use queueMicrotask to allow `_sendMsg` to *finish* before the
+            // user callback is called.
+            queueMicrotask(() => {
+                try {
+                    this._onMessage(onMessageData);
+                } catch (err) {
+                    this._log.warn(
+                        err,
+                        'ignoring exception from `onMessage` callback'
+                    );
+                }
+            });
         }
     }
 }

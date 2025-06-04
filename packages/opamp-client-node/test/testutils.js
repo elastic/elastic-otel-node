@@ -23,10 +23,12 @@ function numIsApprox(val, expectedVal, epsilonRatio) {
  * `diagEvents: true`.
  *
  * @param {Number} n
+ * @param {string[] | undefined} channels - The diag channel names to wait for.
+ *      If undefined, then all channels are waited on.
  * @returns {Promise<any>}
  */
-function barrierNDiagEvents(n) {
-    const chNames = [
+function barrierNDiagEvents(n, channels) {
+    const chNames = channels || [
         DIAG_CH_SEND_SUCCESS,
         DIAG_CH_SEND_FAIL,
         DIAG_CH_SEND_SCHEDULE,
