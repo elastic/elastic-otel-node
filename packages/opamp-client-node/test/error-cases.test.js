@@ -117,7 +117,7 @@ test('OpAMPClient error cases', (suite) => {
         const badOpampServer = http.createServer((req, res) => {
             req.resume();
             req.on('end', () => {
-                res.writeHead(429, {'retry-after': retryAfterS});
+                res.writeHead(503, {'retry-after': retryAfterS});
                 res.end();
             });
         });

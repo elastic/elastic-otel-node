@@ -71,7 +71,7 @@ const ALL_SUPPORTED_CAP = BigInt(
 const UNSUPPORTED_CAP_MASK = ALL_SUPPORTED_CAP ^ (2n ** 64n - 1n);
 
 const DEFAULT_HEARTBEAT_INTERVAL_SECONDS = 30;
-// A 10ms heartbeat interval is crazy low, but might be useful for testing.
+// A 100ms heartbeat interval is crazy low, but might be useful for testing.
 const MIN_HEARTBEAT_INTERVAL_SECONDS = 0.1;
 
 // Diagnostics channel names.
@@ -79,6 +79,10 @@ const DIAG_CH_SEND_SUCCESS = 'opamp-client.send.success';
 const DIAG_CH_SEND_FAIL = 'opamp-client.send.fail';
 const DIAG_CH_SEND_SCHEDULE = 'opamp-client.send.schedule';
 
+/**
+ * @param {string | Uint8Array} input
+ * @returns {Uint8Array}
+ */
 function normalizeInstanceUid(input) {
     if (typeof input === 'string') {
         return uuidParse(input);
@@ -132,7 +136,6 @@ function normalizeHeartbeatIntervalSeconds(input) {
 }
 
 /**
- * @typedef {function(OnMessageData): void} OnMessageCallback
  * @callback OnMessageCallback
  * @param {OnMessageData} data
  */
@@ -222,7 +225,6 @@ class OpAMPClient {
         /** @type {RemoteConfigStatus} */
         this._remoteConfigStatus = create(RemoteConfigStatusSchema, {});
 
-        /** @type {AgentToServer} */
         this._numSendFailures = 0;
         this._nextSendTime = null;
         this._nextSendTimeout = null;
@@ -667,9 +669,11 @@ class OpAMPClient {
             finishFail(errMsg, true, retryAfterMs);
             return;
         }
-        if (res.statusCode == 503 && 'retry-after' in res.headers) {
+        if (res.statusCode == 503) {
             const retryAfter = res.headers['retry-after'];
-            const retryAfterMs = msFromRetryAfterHeader(retryAfter);
+            const retryAfterMs = retryAfter
+                ? msFromRetryAfterHeader(retryAfter)
+                : null;
             const errMsg = 'OpAMP server HTTP 503';
             this._log.error(
                 {endpoint: this._endpoint.href, retryAfter, retryAfterMs},
