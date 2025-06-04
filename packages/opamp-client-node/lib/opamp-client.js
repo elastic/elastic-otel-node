@@ -146,13 +146,20 @@ function normalizeHeartbeatIntervalSeconds(input) {
  */
 
 /**
+ * @typedef {import('undici').Client.Options['connect']} UndiciConnect
+ */
+/**
+ * @typedef {Pick<UndiciConnect, 'ca'>} ConnectOptions
+ */
+
+/**
  * @typedef {Object} OpAMPClientOptions
  * @property {Object} [log] - A logger instance with .trace(), .debug(), etc.
  *      methods a la Pino/Bunyan/Luggite.
  * @property {String} endpoint - The URL of the OpAMP server, including the
  *      path (typically '/v1/opamp').
  * @property {Object} [headers] - Additional HTTP headers to include in requests.
- * @property {Uint8Array[16] | string} [instanceUid] - Globally unique identifier
+ * @property {Uint8Array | string} [instanceUid] - Globally unique identifier
  *      for the OpAMP agent. Should be a UUID v7. Could also be set to an OTel
  *      'service.instance.id' resource attribute. If not provided, a UUID v7
  *      will generated.
@@ -175,6 +182,9 @@ function normalizeHeartbeatIntervalSeconds(input) {
  *      for the response headers on a request to the OpAMP server. Default 10s.
  * @property {number} [bodyTimeout] The timeout (in milliseconds) to wait for
  *      the response body on a request to the OpAMP server. Default 10s.
+ * @property {ConnectOptions} [connect] A small subset of Undici client connect
+ *      options (https://undici.nodejs.org/#/docs/api/Client?id=parameter-connectoptions):
+ *          - 'ca'
  * @property {boolean} [diagEnabled] Diagnostics enabled, typically used for
  *      testing. When enabled, events will be published to the following
  *      diagnostics channels:
@@ -233,12 +243,9 @@ class OpAMPClient {
         this._httpClient = new undici.Client(this._endpoint.origin, {
             headersTimeout: opts.headersTimeout ?? DEFAULT_HEADERS_TIMEOUT,
             bodyTimeout: opts.bodyTimeout ?? DEFAULT_BODY_TIMEOUT,
-            // `connect` is an undocumented access to undici ConnectionOptions,
-            // useful for TLS options.
+            // A limited subset (because the full set is huge) of undici ConnectionOptions
             // https://undici.nodejs.org/#/docs/api/Client?id=parameter-connectoptions
-            // TODO: limit this to a subset b/c the available options are huge
             connect: opts.connect,
-            // TODO: allowH2: true ?
         });
     }
 
