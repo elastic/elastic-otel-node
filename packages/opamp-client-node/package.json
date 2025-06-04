@@ -23,6 +23,7 @@
   "scripts": {
     "clean": "rm -rf node_modules",
     "example": "cd examples && node use-opamp-client.js | pino-pretty",
+    "example:instrumented": "cd examples && node --import ../../opentelemetry-node/import.mjs use-opamp-client.js | pino-pretty",
     "gen:protos": "buf generate",
     "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs .",
