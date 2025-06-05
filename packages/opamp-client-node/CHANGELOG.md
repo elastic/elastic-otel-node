@@ -1,3 +1,5 @@
 # @elastic/opamp-client-node Changelog
 
-## Unreleased
+## v0.1.0
+
+Initial release.
