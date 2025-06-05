@@ -6,16 +6,18 @@ on:
     tags:
       - opamp-client-node-v*.*.*
 
-# 'id-token' perm needed for npm publishing with provenance (see
-# https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
 permissions:
-  contents: write
-  pull-requests: read
-  id-token: write
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: read
+      # 'id-token' perm needed for npm publishing with provenance (see
+      # https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
+      id-token: write
     env:
       PKGDIR: packages/opamp-client-node
       PKGNAME: "@elastic/opamp-client-node"
@@ -50,7 +52,7 @@ jobs:
         # Release will result in a notification from the GitHub Slack app
         # (assuming '/github subscribe elastic/elastic-otel-node').
         if: ${{ failure() }}
-        uses: elastic/oblt-actions/slack/notify-result@v1.16.0
+        uses: elastic/oblt-actions/slack/notify-result@v1
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"
