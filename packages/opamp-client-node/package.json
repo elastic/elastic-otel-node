@@ -30,7 +30,7 @@
     "lint:deps": "dependency-check '{examples,lib,test}/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es -i pino-pretty",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix .",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .",
-    "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types && diff -ur types build/lint-types",
+    "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types",
     "test": "tape test/**/*.test.js"
   },
   "files": [

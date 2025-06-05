@@ -11,6 +11,7 @@ const {KeyValueSchema} = require('./generated/anyvalue_pb');
 
 /**
  * @typedef {import('./generated/anyvalue_pb.js').KeyValue} KeyValue
+ * @typedef {import('./generated/anyvalue_pb.js').AnyValue} AnyValue
  */
 
 // Randomly adjust to given numeric value by +/- 10%.
@@ -114,7 +115,7 @@ function anyValueFromVal(val) {
  * For example, AgentDescription.identifying_attributes are of type `KeyValue[]`.
  * Using that type directly is a huge PITA.
  *
- * @param {KeyValue[]}
+ * @param {KeyValue[]} keyValues
  * @returns {object}
  */
 function objFromKeyValues(keyValues) {
@@ -130,7 +131,7 @@ function objFromKeyValues(keyValues) {
 }
 
 /**
- * @param {AnyValue}
+ * @param {AnyValue} anyValue
  * @returns {any}
  */
 function valFromAnyValue(anyValue) {
@@ -165,7 +166,7 @@ function valFromAnyValue(anyValue) {
  * https://github.com/open-telemetry/opamp-spec/blob/main/specification.md#plain-http-transport-2
  * which says "The minimum recommended retry interval is 30 seconds."
  *
- * @param {string | undefined}
+ * @param {string | undefined} header
  * @returns {number}
  */
 function msFromRetryAfterHeader(header) {

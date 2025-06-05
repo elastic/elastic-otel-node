@@ -145,10 +145,10 @@ function normalizeHeartbeatIntervalSeconds(input) {
  */
 
 /**
- * @typedef {import('undici').Client.Options['connect']} UndiciConnect
+ * @typedef {import('tls').ConnectionOptions} TLSConnectionOptions
  */
 /**
- * @typedef {Pick<UndiciConnect, 'ca'>} ConnectOptions
+ * @typedef {Pick<TLSConnectionOptions, 'ca'>} ConnectOptions
  */
 
 /**
@@ -231,7 +231,6 @@ class OpAMPClient {
         this._serverCapabilities = null;
         /** @type {AgentDescription} */
         this._agentDescription = null;
-        /** @type {RemoteConfigStatus} */
         this._remoteConfigStatus = create(RemoteConfigStatusSchema, {});
 
         this._numSendFailures = 0;
@@ -260,17 +259,16 @@ class OpAMPClient {
      * @param {{identifyingAttributes?: object, nonIdentifyingAttributes?: object}} desc
      */
     setAgentDescription(desc) {
-        /** @type {Partial<AgentDescription>} */
-        const agentDescription = {
+        const agentDescription = create(AgentDescriptionSchema, {
             identifyingAttributes: keyValuesFromObj(desc.identifyingAttributes),
             nonIdentifyingAttributes: keyValuesFromObj(
                 desc.nonIdentifyingAttributes
             ),
-        };
+        });
 
         const agentDescriptionSer = toBinary(
             AgentDescriptionSchema,
-            create(AgentDescriptionSchema, agentDescription)
+            agentDescription
         );
         let isChanged = false;
         if (!this._agentDescription) {
@@ -567,36 +565,42 @@ class OpAMPClient {
         this._sending = true;
         this._log.trace({queue: this._queue}, '_sendMsg start');
 
-        /** @type {AgentToServer} */
-        let msg = {
+        let a2s = create(AgentToServerSchema, {
             instanceUid: this._instanceUid,
             capabilities: this._capabilities,
             sequenceNum: ++this._sequenceNum,
-        };
+        });
         const queue = this._queue;
         this._queue = [];
         for (let entry of queue) {
             switch (entry) {
                 case 'ReportFullState':
-                    msg.instanceUid = this._instanceUid;
-                    msg.capabilities = this._capabilities;
-                    msg.agentDescription = this._agentDescription;
+                    a2s.instanceUid = this._instanceUid;
+                    a2s.capabilities = this._capabilities;
+                    a2s.agentDescription = structuredClone(
+                        this._agentDescription
+                    );
                     if (this._hasCapReportsRemoteConfig()) {
-                        msg.remoteConfigStatus = this._remoteConfigStatus;
+                        a2s.remoteConfigStatus = structuredClone(
+                            this._remoteConfigStatus
+                        );
                     }
                     break;
                 case 'AgentDescription':
-                    msg.agentDescription = this._agentDescription;
+                    a2s.agentDescription = structuredClone(
+                        this._agentDescription
+                    );
                     break;
                 case 'RemoteConfigStatus':
-                    msg.remoteConfigStatus = this._remoteConfigStatus;
+                    a2s.remoteConfigStatus = structuredClone(
+                        this._remoteConfigStatus
+                    );
                     break;
                 default:
                     throw new Error(`unknown queue entry: ${entry}`);
             }
         }
 
-        const a2s = create(AgentToServerSchema, structuredClone(msg));
         this._log.trace({a2s: logserA2S(a2s)}, 'sending AgentToServer');
         const reqBody = toBinary(AgentToServerSchema, a2s);
 
@@ -678,7 +682,10 @@ class OpAMPClient {
             return;
         }
         if (res.statusCode == 429) {
-            const retryAfter = res.headers['retry-after'] || '';
+            let retryAfter = res.headers['retry-after'] || '';
+            if (Array.isArray(retryAfter)) {
+                retryAfter = retryAfter[retryAfter.length - 1];
+            }
             const retryAfterMs = msFromRetryAfterHeader(retryAfter);
             const errMsg = 'OpAMP server HTTP 429';
             this._log.debug(
@@ -689,7 +696,10 @@ class OpAMPClient {
             return;
         }
         if (res.statusCode == 503) {
-            const retryAfter = res.headers['retry-after'];
+            let retryAfter = res.headers['retry-after'];
+            if (Array.isArray(retryAfter)) {
+                retryAfter = retryAfter[retryAfter.length - 1];
+            }
             const retryAfterMs = retryAfter
                 ? msFromRetryAfterHeader(retryAfter)
                 : null;
