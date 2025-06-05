@@ -1,2 +1,4 @@
 *  @elastic/apm-agent-node-js
 /.github/workflows/  @elastic/apm-agent-node-js @elastic/observablt-ci
+*.md @elastic/ingest-docs 
+/docs/ @elastic/ingest-docs
