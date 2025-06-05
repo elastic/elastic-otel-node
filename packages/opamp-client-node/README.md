@@ -126,7 +126,7 @@ TODO: most of the reference docs
 
 ### onMessage
 
-Note: If the `ReportsRemoteConfig` capability was set, it is update to user
+Note: If the `ReportsRemoteConfig` capability was set, it is up to user
 to call `client.setRemoteConfigStatus(...)` as appropriate.
 (TODO: example of this)
 
