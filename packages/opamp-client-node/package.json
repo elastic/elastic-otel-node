@@ -25,7 +25,7 @@
     "example": "cd examples && node use-opamp-client.js | pino-pretty",
     "example:instrumented": "cd examples && node --import ../../opentelemetry-node/import.mjs use-opamp-client.js | pino-pretty",
     "gen:protos": "buf generate",
-    "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
+    "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files && npm run lint:types",
     "lint:eslint": "eslint --ext=js,mjs,cjs .",
     "lint:deps": "dependency-check '{examples,lib,test}/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es -i pino-pretty",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix .",
