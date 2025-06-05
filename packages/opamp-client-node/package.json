@@ -1,0 +1,54 @@
+{
+  "name": "@elastic/opamp-client-node",
+  "version": "0.1.0",
+  "type": "commonjs",
+  "description": "an OpAMP client for Node.js",
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elastic/elastic-otel-node.git",
+    "directory": "packages/opamp-client-node"
+  },
+  "keywords": [
+    "elastic",
+    "opentelemetry",
+    "opamp",
+    "client"
+  ],
+  "author": "Elastic Observability <https://www.elastic.co/observability>",
+  "engines": {
+    "node": "^18.19.0 || >=20.6.0"
+  },
+  "scripts": {
+    "clean": "rm -rf node_modules",
+    "example": "cd examples && node use-opamp-client.js | pino-pretty",
+    "example:instrumented": "cd examples && node --import ../../opentelemetry-node/import.mjs use-opamp-client.js | pino-pretty",
+    "gen:protos": "buf generate",
+    "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files && npm run lint:types",
+    "lint:eslint": "eslint --ext=js,mjs,cjs .",
+    "lint:deps": "dependency-check '{examples,lib,test}/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es -i pino-pretty",
+    "lint:fix": "eslint --ext=js,mjs,cjs --fix .",
+    "lint:license-files": "../../scripts/gen-notice.sh --lint .",
+    "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types",
+    "test": "tape test/**/*.test.js"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.2.5",
+    "undici": "^6.21.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.52.1",
+    "@bufbuild/protoc-gen-es": "^2.2.5",
+    "@elastic/mockopampserver": "file:../mockopampserver",
+    "luggite": "^0.2.1",
+    "pino-pretty": "^13.0.0",
+    "tape": "^5.9.0"
+  }
+}

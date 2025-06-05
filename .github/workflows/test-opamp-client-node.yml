@@ -1,0 +1,52 @@
+name: test-opamp-client-node
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+    paths:
+    - 'packages/opamp-client-node/**'
+    - '.github/workflows/test-opamp-client-node.yml'
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'packages/opamp-client-node/**'
+    - '.github/workflows/test-opamp-client-node.yml'
+
+# Cancel jobs running for old commits on a PR. Allow concurrent runs on 'main'.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '24'
+          - '22'
+          - '20'
+          - '18'
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+
+    # TODO: remove this once opamp-client-node uses a *release* of mockopampserver
+    - run: npm ci
+      working-directory: packages/mockopampserver
+
+    - run: npm ci
+      working-directory: packages/opamp-client-node
+
+    - run: npm test
+      working-directory: packages/opamp-client-node
