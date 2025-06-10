@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- chore: update `@opentelemetry/*` dependencies.
+  (https://github.com/elastic/elastic-otel-node/pull/788.)
+
+  **WARNING:** this includes and update of `@opentelemetry/instrumentation-aws-sdk`
+  which drops support for AWS SDK v2. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0510-2025-04-08>
+
 - feat: Add env var `ELASTIC_OTEL_HOST_METRICS_DISABLED` to control whether
   EDOT Node.js will collect host metrics (`process.*`). This
   means users can disable host metrics without affecting metrics from instrumentations.

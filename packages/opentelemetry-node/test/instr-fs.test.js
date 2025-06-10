@@ -53,16 +53,22 @@ const testFixtures = [
             //   +1ms `- span 5b7d1c "fs stat" (6.3ms, SPAN_KIND_INTERNAL)
             const spans = col.sortedSpans;
 
-            // TODO: check why we may get different number of spans depeding on
-            // - the environment (nodejs version, host)
-            // - use of --import or --require
-            t.strictEqual(
-                spans.filter(
-                    (s) => s.scope.name === '@opentelemetry/instrumentation-fs'
-                ).length,
-                spans.length - 1
+            // fs instrumentation exports a lot of spans (files required by the app)
+            // we will assert only what's in the manual span from the fxture
+            const manualSpan = spans.find((s) => s.name === 'manual-span');
+            t.ok(manualSpan);
+
+            const childSpans = spans.filter(
+                (s) => s.parentSpanId === manualSpan.spanId
             );
-            t.ok(spans.every((s) => s.kind === 'SPAN_KIND_INTERNAL'));
+            t.strictEqual(childSpans.length, 1);
+
+            const fsSpan = childSpans[0];
+            t.strictEqual(
+                fsSpan.scope.name,
+                '@opentelemetry/instrumentation-fs'
+            );
+            t.strictEqual(fsSpan.kind, 'SPAN_KIND_INTERNAL');
         },
     },
 ];
