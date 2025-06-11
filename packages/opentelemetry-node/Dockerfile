@@ -16,7 +16,7 @@
 # Typically the build is handled by CI, which also adds other build tags,
 # handles provenance, etc.
 
-FROM node:22 AS build
+FROM node:24 AS build
 
 WORKDIR /build/src
 COPY ./packages/opentelemetry-node/ /build/src/packages/opentelemetry-node/
