@@ -1,6 +1,6 @@
 # @elastic/opentelemetry-node Changelog
 
-## Unreleased
+## v1.1.0
 
 - **BREAKING CHANGE**: This includes an update to `@opentelemetry/instrumentation-aws-sdk`
   v0.54.0 which inclues the following breaking changes:
