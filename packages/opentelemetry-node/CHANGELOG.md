@@ -2,11 +2,10 @@
 
 ## Unreleased
 
-- chore: update `@opentelemetry/*` dependencies.
-  (https://github.com/elastic/elastic-otel-node/pull/788.)
-
-  **WARNING:** this includes and update of `@opentelemetry/instrumentation-aws-sdk`
-  which drops support for AWS SDK v2. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0510-2025-04-08>
+- **BREAKING CHANGE**: This includes an update to `@opentelemetry/instrumentation-aws-sdk`
+  v0.51.0 which drops support for AWS SDK v2. See
+  <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0510-2025-04-08>.
+  (https://github.com/elastic/elastic-otel-node/pull/788)
 
 - feat: Add env var `ELASTIC_OTEL_HOST_METRICS_DISABLED` to control whether
   EDOT Node.js will collect host metrics (`process.*`). This
@@ -36,7 +35,7 @@
 
 ## v1.0.0
 
-- BREAKING CHANGE: Change the default behavior of logging framework
+- **BREAKING CHANGE**: Change the default behavior of logging framework
   instrumentations (for Bunyan, Pino, and Winston), to *not* do "log sending"
   by default. "Log sending" is the feature name of
   [`@opentelemetry/instrumentation-bunyan`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-bunyan/README.md#log-sending),
