@@ -3,9 +3,9 @@
 ## Unreleased
 
 - **BREAKING CHANGE**: This includes an update to `@opentelemetry/instrumentation-aws-sdk`
-  v0.51.0 which drops support for AWS SDK v2. See
-  <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0510-2025-04-08>.
-  (https://github.com/elastic/elastic-otel-node/pull/788)
+  v0.54.0 which inclues the following breaking changes:
+    - Instrumentation of AWS SDK v2 has been dropped. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0510-2025-04-08>. (https://github.com/elastic/elastic-otel-node/pull/788)
+    - The `aws.region` span attribute has been changed to `cloud.region`. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0540-2025-06-02>. (https://github.com/elastic/elastic-otel-node/pull/814)
 
 - feat: Add env var `ELASTIC_OTEL_HOST_METRICS_DISABLED` to control whether
   EDOT Node.js will collect host metrics (`process.*`). This
