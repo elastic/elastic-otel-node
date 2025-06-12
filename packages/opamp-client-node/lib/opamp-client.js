@@ -72,6 +72,7 @@ const UNSUPPORTED_CAP_MASK = ALL_SUPPORTED_CAP ^ (2n ** 64n - 1n);
 const DEFAULT_HEARTBEAT_INTERVAL_SECONDS = 30;
 // A 100ms heartbeat interval is crazy low, but might be useful for testing.
 const MIN_HEARTBEAT_INTERVAL_SECONDS = 0.1;
+const MAX_HEARTBEAT_INTERVAL_SECONDS = 86400; // 1d
 
 // Diagnostics channel names.
 const DIAG_CH_SEND_SUCCESS = 'opamp-client.send.success';
@@ -123,12 +124,14 @@ function normalizeCapabilities(input) {
 function normalizeHeartbeatIntervalSeconds(input) {
     if (input == null) {
         return DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
-    } else if (typeof input !== 'number') {
+    } else if (typeof input !== 'number' || isNaN(input)) {
         throw new Error(
-            `invalid "heartbeatIntervalSeconds" value type: ${typeof input}`
+            `invalid "heartbeatIntervalSeconds" value: ${input}`
         );
-    } else if (input <= MIN_HEARTBEAT_INTERVAL_SECONDS) {
-        throw new Error(`"heartbeatIntervalSeconds" is too low: ${input}`);
+    } else if (input < MIN_HEARTBEAT_INTERVAL_SECONDS) {
+        return MIN_HEARTBEAT_INTERVAL_SECONDS;
+    } else if (input > MAX_HEARTBEAT_INTERVAL_SECONDS) {
+        return MAX_HEARTBEAT_INTERVAL_SECONDS;
     } else {
         return input;
     }
@@ -177,6 +180,7 @@ function normalizeHeartbeatIntervalSeconds(input) {
  *      `AcceptsRemoteConfig` capability in `capabilities`.
  * @property {Number} [heartbeatIntervalSeconds] The approximate time between
  *      heartbeat messages sent by the client. Default 30.
+ *      Clamped to [100ms, 1d].
  * @property {number} [headersTimeout] The timeout (in milliseconds) to wait
  *      for the response headers on a request to the OpAMP server. Default 10s.
  * @property {number} [bodyTimeout] The timeout (in milliseconds) to wait for
@@ -210,9 +214,14 @@ class OpAMPClient {
         );
         this._instanceUidStr = uuidStringify(this._instanceUid);
         this._capabilities = normalizeCapabilities(opts.capabilities);
-        this._heartbeatIntervalMs =
-            normalizeHeartbeatIntervalSeconds(opts.heartbeatIntervalSeconds) *
-            1000;
+        try {
+            this._heartbeatIntervalMs =
+                normalizeHeartbeatIntervalSeconds(opts.heartbeatIntervalSeconds) *
+                1000;
+        } catch (err) {
+            this._log.warn({err, heartbeatIntervalSeconds: opts.heartbeatIntervalSeconds}, 'invalid heartbeatIntervalSeconds')
+            this._heartbeatIntervalMs = DEFAULT_HEARTBEAT_INTERVAL_SECONDS * 1000;
+        }
         this._onMessage = opts.onMessage;
 
         if (opts.diagEnabled) {
