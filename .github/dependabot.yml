@@ -96,7 +96,12 @@ updates:
           - "*"
 
   - package-ecosystem: "docker"
-    directory: "/"
+    directories:
+      - "/examples/otel-operator"
+      - "/packages/mockopampserver"
+      - "/packages/mockotlpserver"
+      - "/packages/mockotlpserver/share/k8s/example-app-manual"
+      - "/packages/opentelemetry-node"
     registries: "*"
     schedule:
       interval: "weekly"

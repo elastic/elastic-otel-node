@@ -15,7 +15,7 @@ const testFixtures = [
         args: ['./fixtures/use-fs.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -34,7 +34,7 @@ const testFixtures = [
         args: ['./fixtures/use-fs.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
             OTEL_NODE_ENABLED_INSTRUMENTATIONS: 'fs',
         },
         // verbose: true,
@@ -52,15 +52,23 @@ const testFixtures = [
             //        span c66b96 "manual-span" (6.6ms, SPAN_KIND_INTERNAL)
             //   +1ms `- span 5b7d1c "fs stat" (6.3ms, SPAN_KIND_INTERNAL)
             const spans = col.sortedSpans;
-            t.equal(spans.length, 18);
 
-            t.strictEqual(
-                spans.filter(
-                    (s) => s.scope.name === '@opentelemetry/instrumentation-fs'
-                ).length,
-                17
+            // fs instrumentation exports a lot of spans (files required by the app)
+            // we will assert only what's in the manual span from the fxture
+            const manualSpan = spans.find((s) => s.name === 'manual-span');
+            t.ok(manualSpan);
+
+            const childSpans = spans.filter(
+                (s) => s.parentSpanId === manualSpan.spanId
             );
-            t.ok(spans.every((s) => s.kind === 'SPAN_KIND_INTERNAL'));
+            t.strictEqual(childSpans.length, 1);
+
+            const fsSpan = childSpans[0];
+            t.strictEqual(
+                fsSpan.scope.name,
+                '@opentelemetry/instrumentation-fs'
+            );
+            t.strictEqual(fsSpan.kind, 'SPAN_KIND_INTERNAL');
         },
     },
 ];

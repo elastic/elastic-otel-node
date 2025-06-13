@@ -1,6 +1,21 @@
 # @elastic/opentelemetry-node Changelog
 
-## Unreleased
+## v1.1.1
+
+- Fix publishing so that the "hook.mjs" file is included.
+  (https://github.com/elastic/elastic-otel-node/pull/835)
+
+  Without this fix, using `node --import @elastic/opentelemetry-node ...` will
+  crash with:
+
+        Cannot find module '.../node_modules/@elastic/opentelemetry-node/hook.mjs' imported from .../node_modules/@elastic/opentelemetry-node/import.mjs
+
+## v1.1.0
+
+- **BREAKING CHANGE**: This includes an update to `@opentelemetry/instrumentation-aws-sdk`
+  v0.54.0 which inclues the following breaking changes:
+    - Instrumentation of AWS SDK v2 has been dropped. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0510-2025-04-08>. (https://github.com/elastic/elastic-otel-node/pull/788)
+    - The `aws.region` span attribute has been changed to `cloud.region`. See <https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0540-2025-06-02>. (https://github.com/elastic/elastic-otel-node/pull/814)
 
 - feat: Add env var `ELASTIC_OTEL_HOST_METRICS_DISABLED` to control whether
   EDOT Node.js will collect host metrics (`process.*`). This
@@ -30,7 +45,7 @@
 
 ## v1.0.0
 
-- BREAKING CHANGE: Change the default behavior of logging framework
+- **BREAKING CHANGE**: Change the default behavior of logging framework
   instrumentations (for Bunyan, Pino, and Winston), to *not* do "log sending"
   by default. "Log sending" is the feature name of
   [`@opentelemetry/instrumentation-bunyan`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-bunyan/README.md#log-sending),
