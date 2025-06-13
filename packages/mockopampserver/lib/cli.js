@@ -70,9 +70,7 @@ async function main() {
     };
     if (opts.F) {
         serverOpts.agentConfigMap = {
-            configMap: {
-                // '': {body: buf, contentType: 'application/json'},
-            },
+            configMap: {},
         };
         const pat = /^([^;]*)=@([^;]+)(;type=(.*))?$/;
         for (let remoteConfigArg of opts.F) {

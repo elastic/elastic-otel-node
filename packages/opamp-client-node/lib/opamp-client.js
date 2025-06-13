@@ -125,9 +125,7 @@ function normalizeHeartbeatIntervalSeconds(input) {
     if (input == null) {
         return DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
     } else if (typeof input !== 'number' || isNaN(input)) {
-        throw new Error(
-            `invalid "heartbeatIntervalSeconds" value: ${input}`
-        );
+        throw new Error(`invalid "heartbeatIntervalSeconds" value: ${input}`);
     } else if (input < MIN_HEARTBEAT_INTERVAL_SECONDS) {
         return MIN_HEARTBEAT_INTERVAL_SECONDS;
     } else if (input > MAX_HEARTBEAT_INTERVAL_SECONDS) {
@@ -216,11 +214,16 @@ class OpAMPClient {
         this._capabilities = normalizeCapabilities(opts.capabilities);
         try {
             this._heartbeatIntervalMs =
-                normalizeHeartbeatIntervalSeconds(opts.heartbeatIntervalSeconds) *
-                1000;
+                normalizeHeartbeatIntervalSeconds(
+                    opts.heartbeatIntervalSeconds
+                ) * 1000;
         } catch (err) {
-            this._log.warn({err, heartbeatIntervalSeconds: opts.heartbeatIntervalSeconds}, 'invalid heartbeatIntervalSeconds')
-            this._heartbeatIntervalMs = DEFAULT_HEARTBEAT_INTERVAL_SECONDS * 1000;
+            this._log.warn(
+                {err, heartbeatIntervalSeconds: opts.heartbeatIntervalSeconds},
+                'invalid heartbeatIntervalSeconds'
+            );
+            this._heartbeatIntervalMs =
+                DEFAULT_HEARTBEAT_INTERVAL_SECONDS * 1000;
         }
         this._onMessage = opts.onMessage;
 

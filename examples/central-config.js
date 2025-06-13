@@ -68,7 +68,12 @@
 const http = require('http');
 
 const server = http.createServer(function onRequest(req, res) {
-    console.log('\nincoming request: %s %s %s', req.method, req.url, req.headers);
+    console.log(
+        '\nincoming request: %s %s %s',
+        req.method,
+        req.url,
+        req.headers
+    );
     req.resume();
     req.on('end', function () {
         const body = 'pong';
