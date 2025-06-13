@@ -1,5 +1,15 @@
 # @elastic/opentelemetry-node Changelog
 
+## v1.1.1
+
+- Fix publishing so that the "hook.mjs" file is included.
+  (https://github.com/elastic/elastic-otel-node/pull/835)
+
+  Without this fix, using `node --import @elastic/opentelemetry-node ...` will
+  crash with:
+
+        Cannot find module '.../node_modules/@elastic/opentelemetry-node/hook.mjs' imported from .../node_modules/@elastic/opentelemetry-node/import.mjs
+
 ## v1.1.0
 
 - **BREAKING CHANGE**: This includes an update to `@opentelemetry/instrumentation-aws-sdk`
