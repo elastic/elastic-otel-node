@@ -15,7 +15,7 @@ import { getInstrumentations } from "./instrumentations";
  *
  * While this returns an object with `shutdown()` method, the default behavior
  * is to setup `process.on(...)` handlers to handle shutdown. See the
- * `setupShutdownHandlers` boolean option.
+ * `elasticSetupShutdownHandlers` boolean option.
  *
  * @param {Partial<NodeSDKConfiguration & ElasticNodeSDKOptions>} cfg
  * @returns {{ shutdown(): Promise<void>; }}

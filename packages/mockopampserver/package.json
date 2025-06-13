@@ -26,7 +26,9 @@
   },
   "scripts": {
     "clean": "rm -rf node_modules",
-    "example:remote-config": "node lib/cli.js --json-remote-config-file=test/fixtures/agent-config.json | bunyan",
+    "example:remote-config": "node lib/cli.js -F '=@test/fixtures/agent-config.json' | bunyan",
+    "example:elastic-remote-config": "node lib/cli.js -F 'elastic=@test/fixtures/agent-config.json' | bunyan",
+    "example:elastic-empty-remote-config": "node lib/cli.js -F 'elastic=@test/fixtures/empty-config.json' | bunyan",
     "gen:protos": "buf generate",
     "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",

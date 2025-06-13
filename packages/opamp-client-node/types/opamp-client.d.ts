@@ -58,6 +58,7 @@ export type OpAMPClientOptions = {
     /**
      * The approximate time between
      * heartbeat messages sent by the client. Default 30.
+     * Clamped to [100ms, 1d].
      */
     heartbeatIntervalSeconds?: number;
     /**
@@ -137,6 +138,7 @@ export function createOpAMPClient(opts: OpAMPClientOptions): OpAMPClient;
  *      `AcceptsRemoteConfig` capability in `capabilities`.
  * @property {Number} [heartbeatIntervalSeconds] The approximate time between
  *      heartbeat messages sent by the client. Default 30.
+ *      Clamped to [100ms, 1d].
  * @property {number} [headersTimeout] The timeout (in milliseconds) to wait
  *      for the response headers on a request to the OpAMP server. Default 10s.
  * @property {number} [bodyTimeout] The timeout (in milliseconds) to wait for
