@@ -36,7 +36,8 @@
     "README.md",
     "import.mjs",
     "package.json",
-    "require.js"
+    "require.js",
+    "hook.mjs"
   ],
   "scripts": {
     "clean": "rm -rf node_modules test/fixtures/a-ts-proj/node_modules test/fixtures/an-esm-pkg/{build,node_modules}",
