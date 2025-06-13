@@ -42,6 +42,15 @@ Breaking changes can impact your Elastic applications, potentially disrupting no
 % 4. You can then call the link from any Kibana code. For example: `href: docLinks.links.upgradeAssistant.id`
 % Check https://docs.elastic.dev/docs/kibana-doc-links (internal) for more details about the Doc links service.
 
+## 1.1.0
+
+::::{dropdown} AWS SDK v2 instrumentation has been dropped
+
+Refer to the [opentelemetry-instrumentation-aws-sdk release notes](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/plugins/node/opentelemetry-instrumentation-aws-sdk/CHANGELOG.md#0510-2025-04-08). The `aws.region` span attribute has been changed to `cloud.region`. 
+
+Refer to [Issue #814](https://github.com/elastic/elastic-otel-node/pull/814) and [Issue #788](https://github.com/elastic/elastic-otel-node/pull/788).
+::::
+
 ## 1.0.0
 
 ::::{dropdown} Changed the default behavior of logging framework instrumentations

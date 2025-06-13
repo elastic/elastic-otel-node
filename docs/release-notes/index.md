@@ -27,6 +27,24 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [kibana-X.X.X-fixes]
 % *
 
+## 1.1.0
+
+### Features and enhancements
+
+- Added the `ELASTIC_OTEL_HOST_METRICS_DISABLED` environment variable to control whether EDOT Node.js collects host metrics (`process.*`). This means users can turn off host metrics without affecting metrics from instrumentations. [#736](https://github.com/elastic/elastic-otel-node/pull/736)
+
+The `ELASTIC_OTEL_METRICS_DISABLED` environment variable is now deprecated. Use `OTEL_METRICS_EXPORTER=none` to turn off any metrics exported by EDOT Node.js.
+
+- Restored the `@elastic/opentelemetry-node/sdk` entry point. You can use `node --import ./telemetry.mjs app.js` rather than the typical zero-code
+`node --import @elastic/opentelemetry-node app.js` method for starting the SDK. [#718](https://github.com/elastic/elastic-otel-node/pull/718).
+
+The `./telemetry.mjs` file uses APIs exported by `@elastic/opentelemetry-node/sdk`
+to configure and start the OpenTelemetry Node.js SDK. See `examples/telemetry.mjs`.
+
+::::{warning}
+Bootstrapping the Node SDK in code often requires using OpenTelemetry JS APIs that are not yet stable. These APIs might break in minor versions of `@elastic/opentelemetry-node`.
+::::
+
 ## 1.0.0
 
 ### Features and enhancements
