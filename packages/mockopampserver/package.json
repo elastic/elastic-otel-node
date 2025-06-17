@@ -1,0 +1,59 @@
+{
+  "name": "@elastic/mockopampserver",
+  "version": "0.2.0",
+  "type": "commonjs",
+  "description": "A mock OpAMP server, useful for dev and testing",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elastic/elastic-otel-node.git",
+    "directory": "packages/mockopampserver"
+  },
+  "keywords": [
+    "elastic",
+    "opentelemetry",
+    "opamp",
+    "testing",
+    "mock"
+  ],
+  "author": "Elastic Observability <https://www.elastic.co/observability>",
+  "engines": {
+    "node": "^18.19.0 || >=20.6.0"
+  },
+  "scripts": {
+    "clean": "rm -rf node_modules",
+    "example:remote-config": "node lib/cli.js --json-remote-config-file=test/fixtures/agent-config.json | bunyan",
+    "gen:protos": "buf generate",
+    "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
+    "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
+    "lint:deps": "dependency-check '{lib,test}/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es",
+    "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
+    "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
+    "start": "node lib/cli.js | bunyan",
+    "test": "tape test/**/*.test.js",
+    "watch": "node --watch lib/cli.js | bunyan"
+  },
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "bin": {
+    "mockopampserver": "lib/cli.js"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.2.5",
+    "@isaacs/ttlcache": "^1.4.1",
+    "bunyan": "^1.8.15",
+    "dashdash": "^2.0.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.52.1",
+    "@bufbuild/protoc-gen-es": "^2.2.5",
+    "tape": "^5.9.0"
+  }
+}
