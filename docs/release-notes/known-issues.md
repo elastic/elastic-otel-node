@@ -13,3 +13,4 @@ products:
 
 # Elastic Distribution of OpenTelemetry Node.js known issues
 
+No known issues.
