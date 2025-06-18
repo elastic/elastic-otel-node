@@ -5,6 +5,15 @@ cross_links:
 toc:
   - toc: release-notes
 subs:
+  edot:    "Elastic Distribution of OpenTelemetry"
+  ecloud:   "Elastic Cloud"
+  ech:   "Elastic Cloud Hosted"
+  ess:   "Elasticsearch Service"
+  ece:   "Elastic Cloud Enterprise"
+  serverless-full:   "Elastic Cloud Serverless"
   agent:   "Elastic Agent"
   agents:   "Elastic Agents"
-  edot:    "Elastic Distribution of OpenTelemetry"
+  stack:   "Elastic Stack"
+  es:   "Elasticsearch"
+  kib:   "Kibana"
+  ls:   "Logstash"
