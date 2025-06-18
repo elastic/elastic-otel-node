@@ -1,5 +1,5 @@
 ---
-navigation_title: EDOT Node.js 
+navigation_title: EDOT Node.js
 description: Release notes for Elastic Distribution of OpenTelemetry Node.js.
 applies_to:
   stack:
@@ -26,6 +26,19 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
+
+## 1.1.1 [edot-node-1.1.1-release-notes]
+
+### Fixes [edot-node-1.1.1-fixes]
+
+- Fix publishing so that the "hook.mjs" file is included.
+  [#835](https://github.com/elastic/elastic-otel-node/pull/835)
+
+  Without this fix, using `node --import @elastic/opentelemetry-node ...` will
+  crash with:
+
+        Cannot find module '.../node_modules/@elastic/opentelemetry-node/hook.mjs' imported from .../node_modules/@elastic/opentelemetry-node/import.mjs
+
 
 ## 1.1.0 [edot-node-1.1.0-release-notes]
 

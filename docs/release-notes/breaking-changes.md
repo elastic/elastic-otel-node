@@ -1,5 +1,5 @@
 ---
-navigation_title: Breaking changes 
+navigation_title: Breaking changes
 description: Breaking changes for Elastic Distribution of OpenTelemetry Node.js.
 applies_to:
   stack:
