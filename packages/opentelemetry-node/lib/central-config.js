@@ -79,8 +79,7 @@ const SETTER_FROM_REMOTE_CONFIG_KEY = {
  * `.setRemoteConfigStatus(...)` as appropriate.
  */
 function onRemoteConfig(opampClient, remoteConfig) {
-    console.log('XXX remoteConfig:');
-    console.dir(remoteConfig, {depth: 50}); // XXX
+    let configJson;
     try {
         // Validate the remote config.
         const agentConfigFile =
@@ -109,9 +108,8 @@ function onRemoteConfig(opampClient, remoteConfig) {
                 `unexpected contentType for remoteConfig file: ${agentConfigFile.contentType}`
             );
         }
-        const config = JSON.parse(
-            Buffer.from(agentConfigFile.body).toString('utf8')
-        );
+        configJson = Buffer.from(agentConfigFile.body).toString('utf8');
+        const config = JSON.parse(configJson);
         log.debug({config}, 'received remoteConfig');
         if (typeof config !== 'object' || config == null) {
             throw new Error(
@@ -168,7 +166,7 @@ function onRemoteConfig(opampClient, remoteConfig) {
             });
         }
     } catch (err) {
-        log.warn(err, 'could not apply remoteConfig');
+        log.warn({err, configJson}, 'could not apply remoteConfig');
         opampClient.setRemoteConfigStatus({
             lastRemoteConfigHash: remoteConfig.configHash,
             status: RemoteConfigStatuses.RemoteConfigStatuses_FAILED,
@@ -216,8 +214,13 @@ function setupCentralConfig(resource) {
             Number(
                 process.env.ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL
             ) / 1000;
-        if (isNaN(heartbeatIntervalSeconds)) {
+        if (isNaN(heartbeatIntervalSeconds) || heartbeatIntervalSeconds < 0) {
             log.warn(
+                {
+                    heartbeatIntervalSeconds:
+                        process.env
+                            .ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL,
+                },
                 `invalid ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: using default`
             );
             heartbeatIntervalSeconds = undefined;

@@ -20,6 +20,7 @@
  *    https://github.com/elastic/opentelemetry-collector-components/tree/main/extension/apmconfigextension#readme
  *    This extension implements an OpAMP server. OpAMP is the protocol used
  *    by EDOT to communicate remote configuration.
+ *    (https://github.com/open-telemetry/opamp-spec/blob/main/specification.md)
  *
  * 3. Set `ELASTIC_OTEL_OPAMP_ENDPOINT=...` to tell the EDOT SDK to enable
  *    central config, and where to find the OpAMP server:
