@@ -39,7 +39,11 @@ const OPTIONS = [
         type: 'arrayOfString',
         help: 'Provide a remote config file. `-F foo=@config.json` provides a remote config with the file name "foo" and the content from "config.json". The default content-type is "application/json". Use `-F =@config.json` to use an empty string for the file name. Use `-F "foo=@config.yml;type=application/yaml" to specify a content-type. (This option syntax is modelled after curl\'s `-F`.)',
     },
-    // TODO: port option?
+    {
+        names: ['test-mode', 'T'],
+        type: 'bool',
+        help: 'Enable test mode (see _testMode in the code for what this enables).',
+    },
 ];
 
 async function main() {
@@ -85,6 +89,9 @@ async function main() {
             const contentType = match[4] || 'application/json';
             serverOpts.agentConfigMap.configMap[filename] = {body, contentType};
         }
+    }
+    if (opts.test_mode) {
+        serverOpts.testMode = true;
     }
 
     const opampServer = new MockOpAMPServer(serverOpts);
