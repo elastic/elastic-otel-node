@@ -144,6 +144,9 @@ jobs:
     - name: npm ci in mockopampserver package
       run: npm ci
       working-directory: packages/mockopampserver
+    - name: npm ci in opamp-client-node package
+      run: npm ci
+      working-directory: packages/opamp-client-node
     - run: npm run dev:use-local-deps
       working-directory: packages/opentelemetry-node
 
