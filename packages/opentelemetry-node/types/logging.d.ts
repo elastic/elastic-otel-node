@@ -28,3 +28,4 @@ export const log: {
  * Register the singleton `log` to handle OTel `api.diag.*()` calls.
  */
 export function registerOTelDiagLogger(api: any): void;
+export const DEFAULT_LOG_LEVEL: string;

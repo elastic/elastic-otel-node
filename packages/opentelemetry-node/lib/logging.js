@@ -28,6 +28,8 @@ const LUGGITE_LEVEL_FROM_OTEL_LOG_LEVEL = {
     VERBOSE: 'trace',
     ALL: 'trace',
 };
+const DEFAULT_LOG_LEVEL =
+    LUGGITE_LEVEL_FROM_OTEL_LOG_LEVEL[DEFAULT_OTEL_LOG_LEVEL];
 
 // As a hack for occasional unergonomic diag logging from upstream OTel JS, we
 // sometimes filter out specific log messages. This should be used sparingly,
@@ -112,4 +114,5 @@ const log = _globalThis[_symLog];
 module.exports = {
     log,
     registerOTelDiagLogger,
+    DEFAULT_LOG_LEVEL,
 };

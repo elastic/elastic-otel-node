@@ -13,7 +13,9 @@ products:
 
 # Elastic Distribution of OpenTelemetry Node.js release notes [edot-nodejs-release-notes]
 
-Review the changes, fixes, and more in each version of Elastic Distribution of OpenTelemetry Node.js.
+Review the changes, fixes, and more in each version of Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js).
+
+To check for breaking changes, see [EDOT Node.js Breaking Changes](./breaking-changes.md).
 
 To check for security updates, go to [Security announcements for the Elastic stack](https://discuss.elastic.co/c/announcements/security-announcements/31).
 
@@ -26,6 +28,16 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
+
+## Next [edot-node-next]
+
+### Features and enhancements [edot-node-next-features-enhancements]
+
+- Initial support for Central Configuration: the ability to configure some aspects of EDOT Node.js in running instrumented applications from a central Kibana. This feature is in technical preview. [#834](https://github.com/elastic/elastic-otel-node/pull/834)
+
+  This release includes support for the following settings: `logging_level`
+
+### Fixes [edot-node-next-fixes]
 
 ## 1.1.1 [edot-node-1.1.1-release-notes]
 

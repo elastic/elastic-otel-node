@@ -35,11 +35,15 @@ const OPTIONS = [
         help: `The hostname on which servers should listen, by default this is "${DEFAULT_HOSTNAME}".`,
     },
     {
-        names: ['json-remote-config-file'],
-        type: 'string',
-        help: 'Provide the path to a JSON file that will be offered as remote config to clients (with the config map key "", the empty string).',
+        names: ['F'],
+        type: 'arrayOfString',
+        help: 'Provide a remote config file. `-F foo=@config.json` provides a remote config with the file name "foo" and the content from "config.json". The default content-type is "application/json". Use `-F =@config.json` to use an empty string for the file name. Use `-F "foo=@config.yml;type=application/yaml" to specify a content-type. (This option syntax is modelled after curl\'s `-F`.)',
     },
-    // TODO: port option?
+    {
+        names: ['test-mode', 'T'],
+        type: 'bool',
+        help: 'Enable test mode (see _testMode in the code for what this enables).',
+    },
 ];
 
 async function main() {
@@ -68,13 +72,26 @@ async function main() {
         log,
         hostname: opts.hostname || DEFAULT_HOSTNAME,
     };
-    if (opts.json_remote_config_file) {
-        const buf = fs.readFileSync(opts.json_remote_config_file);
+    if (opts.F) {
         serverOpts.agentConfigMap = {
-            configMap: {
-                '': {body: buf, contentType: 'application/json'},
-            },
+            configMap: {},
         };
+        const pat = /^([^;]*)=@([^;]+)(;type=(.*))?$/;
+        for (let remoteConfigArg of opts.F) {
+            const match = pat.exec(remoteConfigArg);
+            if (!match) {
+                throw new Error(
+                    `invalid '-F' arg '${remoteConfigArg}': does not match ${pat}`
+                );
+            }
+            const filename = match[1];
+            const body = fs.readFileSync(match[2]);
+            const contentType = match[4] || 'application/json';
+            serverOpts.agentConfigMap.configMap[filename] = {body, contentType};
+        }
+    }
+    if (opts.test_mode) {
+        serverOpts.testMode = true;
     }
 
     const opampServer = new MockOpAMPServer(serverOpts);
