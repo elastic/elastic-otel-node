@@ -33,6 +33,7 @@ const luggite = require('./luggite');
 const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
+const {getSpanProcessors} = require('./processors');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
@@ -123,8 +124,7 @@ function startNodeSDK(cfg = {}) {
     const defaultConfig = {
         resourceDetectors: resolveDetectors(cfg.resourceDetectors),
         instrumentations: cfg.instrumentations || getInstrumentations(),
-        // Avoid setting `spanProcessor` or `traceExporter` to have NodeSDK
-        // use its `TracerProviderWithEnvExporters` for tracing setup.
+        spanProcessors: getSpanProcessors(cfg.spanProcessors),
     };
 
     const exporterPkgNameFromEnvVar = {
