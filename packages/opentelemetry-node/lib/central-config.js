@@ -8,7 +8,9 @@ const {
     AgentCapabilities,
     RemoteConfigStatuses,
 } = require('@elastic/opamp-client-node');
+const {context} = require('@opentelemetry/api');
 const {ATTR_SERVICE_NAME} = require('@opentelemetry/semantic-conventions');
+const {getBooleanFromEnv, suppressTracing} = require('@opentelemetry/core');
 
 const {
     ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
@@ -227,6 +229,12 @@ function setupCentralConfig(resource) {
         }
     }
 
+    // ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED can be used to enable the
+    // `diagEnabled` facility in opamp-client-node, intended for testing.
+    const diagEnabled = getBooleanFromEnv(
+        'ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED'
+    );
+
     // Gather initial effective config.
     initialConfig.logging_level =
         LOGGING_LEVEL_FROM_LUGGITE_LEVEL[
@@ -250,6 +258,7 @@ function setupCentralConfig(resource) {
                 onRemoteConfig(client, remoteConfig);
             }
         },
+        diagEnabled,
     });
 
     // Dev Note: The OpAMP spec recommends more attribute be included in
@@ -267,7 +276,10 @@ function setupCentralConfig(resource) {
     });
     // TODO: handle and test for a custom resource detector that does these *async*.
 
-    client.start();
+    // Suppress tracing of HTTP calls made by the OpAMP client.
+    context.with(suppressTracing(context.active()), () => {
+        client.start();
+    });
 
     return client;
 }
