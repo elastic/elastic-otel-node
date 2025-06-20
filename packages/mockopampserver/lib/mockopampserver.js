@@ -359,14 +359,14 @@ class MockOpAMPServer {
             respondHttpErr(res, err.message);
         });
 
-        let agentConfigMap = { configMap: {} };
+        let agentConfigMap = {configMap: {}};
         const finish = () => {
             log.trace({agentConfigMap}, 'SetAgentConfigMap');
             this._setAgentConfigMap(agentConfigMap);
             res.writeHead(204);
             res.end();
             log.debug({req, res}, 'test API request: SetAgentConfigMap');
-        }
+        };
 
         const ct = req.headers['content-type'];
         if (ct === 'application/json') {
@@ -379,8 +379,9 @@ class MockOpAMPServer {
                     for (let key of Object.keys(data)) {
                         agentConfigMap.configMap[key] = {
                             body: Buffer.from(data[key].body),
-                            contentType: data[key].contentType || 'application/json'
-                        }
+                            contentType:
+                                data[key].contentType || 'application/json',
+                        };
                     }
                 } catch (err) {
                     respondHttpErr(res, err.message, 400);
@@ -390,9 +391,9 @@ class MockOpAMPServer {
             });
         } else {
             // Try busboy to handle form-urlencoded form and multipart/form-data.
-            let busboy
+            let busboy;
             try {
-                busboy = new Busboy({ headers: req.headers });
+                busboy = new Busboy({headers: req.headers});
             } catch (ctErr) {
                 respondHttpErr(
                     res,
@@ -402,25 +403,41 @@ class MockOpAMPServer {
                 );
                 return;
             }
-            busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-                // curl http://127.0.0.1:4320/api/agentConfigMap -F ...
-                if (!mimetype || mimetype === 'application/octet-stream') {
-                    mimetype = 'application/json'
+            busboy.on(
+                'file',
+                (fieldname, file, filename, encoding, mimetype) => {
+                    // curl http://127.0.0.1:4320/api/agentConfigMap -F ...
+                    if (!mimetype || mimetype === 'application/octet-stream') {
+                        mimetype = 'application/json';
+                    }
+                    const chunks = [];
+                    file.on('data', (chunk) => chunks.push(chunk));
+                    file.on('end', () => {
+                        const body = Buffer.concat(chunks);
+                        agentConfigMap.configMap[fieldname] = {
+                            body,
+                            contentType: mimetype,
+                        };
+                    });
                 }
-                const chunks = [];
-                file.on('data', (chunk) => chunks.push(chunk));
-                file.on('end', () => {
-                    const body = Buffer.concat(chunks);
-                    agentConfigMap.configMap[fieldname] = {body, contentType: mimetype};
-                });
-            });
-            busboy.on('field', (fieldname, val, _fieldnameTruncated, _valTruncated, _encoding, mimetype) => {
-                // curl http://127.0.0.1:4320/api/agentConfigMap -d ...
-                agentConfigMap.configMap[fieldname] = {
-                    body: Buffer.from(val),
-                    contentType: 'application/json'
-                };
-            });
+            );
+            busboy.on(
+                'field',
+                (
+                    fieldname,
+                    val,
+                    _fieldnameTruncated,
+                    _valTruncated,
+                    _encoding,
+                    mimetype
+                ) => {
+                    // curl http://127.0.0.1:4320/api/agentConfigMap -d ...
+                    agentConfigMap.configMap[fieldname] = {
+                        body: Buffer.from(val),
+                        contentType: 'application/json',
+                    };
+                }
+            );
             busboy.on('finish', () => {
                 finish();
             });
@@ -433,7 +450,11 @@ class MockOpAMPServer {
 
         // Handle non-OpAMP route "POST /api/agentConfigMap". This route is only
         // enabled if `testMode==true`. It is not a part of the OpAMP spec.
-        if (this._testMode && req.method == 'POST' && u.pathname == '/api/agentConfigMap') {
+        if (
+            this._testMode &&
+            req.method == 'POST' &&
+            u.pathname == '/api/agentConfigMap'
+        ) {
             this._testApiSetAgentConfigMap(req, res);
             return;
         }
