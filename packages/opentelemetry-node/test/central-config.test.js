@@ -3,36 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
-XXX
-- do we do test with EDOT collector with apmconfig? That means a LOT of setup: ES, kib -> TODO later
-- scenario
-    - out of process
-    - start mockotlpserver
-    - start mockopampserver
-    - start http-server
-    - add level=debug to opamp server
-    - wait for opamp client NDiags
-        - log.info central-config change with "\bset\b"
-    - make http://localhost:3000/ping requxest
-        - this case reults in log.debug:
-            {"name":"elastic-otel-node","level":20,"msg":"@opentelemetry/instrumentation-http http instrumentation incomingRequest","time":"2025-06-13T22:37:10.889Z"}
-    - change opamp server to empty config
-        - log.info central-config change with "\breset\b"
-    - make http://localhost:3000 N times and exit
-        - *no* other log.debug's for central-config at all.
-    -
-
-XXX how to coord the mockopampserver changes?
-    HERE
-
-expected debug log when making HTTP request to createServer.
-{"name":"elastic-otel-node","level":20,"msg":"@opentelemetry/instrumentation-http http instrumentation incomingRequest","time":"2025-06-13T22:37:10.889Z"}
-*/
-
 const test = require('tape');
-
 const {MockOpAMPServer} = require('@elastic/mockopampserver');
+
 const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 test('central-config', (suite) => {
