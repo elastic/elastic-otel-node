@@ -8,6 +8,7 @@
 // - metric.otel.sdk.span.live.count
 // - metric.otel.sdk.span.ended.count
 
+const {metrics} = require('@opentelemetry/api');
 const {getStringListFromEnv, getStringFromEnv} = require('@opentelemetry/core');
 const {
     BatchSpanProcessor,
@@ -17,9 +18,10 @@ const {
 const {log} = require('./logging');
 
 /**
+ * @typedef {import('@opentelemetry/api').Meter} Meter
+ * @typedef {import('@opentelemetry/api').UpDownCounter} UpDownCounter
+ * @typedef {import('@opentelemetry/api').Counter} Counter
  * @typedef {import('@opentelemetry/sdk-trace-base').SpanProcessor} SpanProcessor
- */
-/**
  * @typedef {import('@opentelemetry/sdk-trace-base').SpanExporter} SpanExporter
  */
 
@@ -29,18 +31,66 @@ const otlpProtocol =
     getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ??
     'http/protobuf';
 
+// NOTE: assuming the meter provider is not going to be replaced once
+// the EDOT is started we can cache the meter and metrics in these vars
+/** @type {Meter} */
+let selfMetricsMeter;
+/** @type {UpDownCounter} */
+let liveSpans;
+/** @type {Counter} */
+let closedSpans;
+
+/**
+ * @returns {Meter}
+ */
+function getSpanMeter() {
+    if (selfMetricsMeter) {
+        return selfMetricsMeter;
+    }
+    // TODO: name & verison
+    selfMetricsMeter = metrics.getMeter('edot-nodejs', '1.2.3');
+    return selfMetricsMeter;
+}
+
+/**
+ * @returns {UpDownCounter}
+ */
+function getLiveSpans() {
+    if (liveSpans) {
+        return liveSpans;
+    }
+    liveSpans = getSpanMeter().createUpDownCounter('otel.sdk.span.live.count', {
+        description:
+            'Number of created spans for which the end operation has not been called yet',
+    });
+    return liveSpans;
+}
+
+/**
+ * @returns {Counter}
+ */
+function getClosedSpans() {
+    if (closedSpans) {
+        return closedSpans;
+    }
+    closedSpans = getSpanMeter().createCounter('otel.sdk.span.closed.count', {
+        description:
+            'Number of created spans for which the end operation was called',
+    });
+    return closedSpans;
+}
+
 /** @type {SpanProcessor} */
 const spanMetricsPrcessor = {
     forceFlush: function () {
         return Promise.resolve();
     },
     onStart: function (span, parentContext) {
-        // TODO:
-        // console.log('processor onStart');
+        getLiveSpans().add(1);
     },
     onEnd: function (span) {
-        // TODO: update metrics
-        // console.log('processor onEnd');
+        getLiveSpans().add(-1);
+        getClosedSpans().add(1);
     },
     shutdown: function () {
         // TODO: shutdown meter?
@@ -57,7 +107,7 @@ function getSpanExporter(type) {
         const {ZipkinExporter} = require('@opentelemetry/exporter-zipkin');
         return new ZipkinExporter();
     } else if (type === 'jaeger') {
-        // TODO: this shold be installed and there is a possible issue with bundlers. refs:
+        // TODO: this should be installed and there is a possible issue with bundlers. refs:
         // - is a dev-dependency? https://github.com/open-telemetry/opentelemetry-js/blob/ec17ce48d0e5a99a122da5add612a20e2dd84ed5/experimental/packages/opentelemetry-sdk-node/package.json#L76
         // - surreunded with try catch in https://github.com/open-telemetry/opentelemetry-js/blob/ec17ce48d0e5a99a122da5add612a20e2dd84ed5/experimental/packages/opentelemetry-sdk-node/src/utils.ts#L120
         // const {JaegerExporter} = require('@opentelemetry/exporter-jaeger');
