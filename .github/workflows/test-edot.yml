@@ -140,7 +140,7 @@ jobs:
     - run: npm ci
       working-directory: packages/opentelemetry-node
 
-    # XXX These two are currently needed until we get a release of mockopampserver.
+    # TODO: These are currently needed until we get a release of mockopampserver.
     - name: npm ci in mockopampserver package
       run: npm ci
       working-directory: packages/mockopampserver
