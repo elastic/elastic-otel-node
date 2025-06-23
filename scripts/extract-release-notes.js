@@ -53,7 +53,12 @@ async function getBranch() {
             },
             (err, stdout, _stderr) => {
                 if (err) {
-                    reject(err);
+                    // Get this error in CI:
+                    //      fatal: ref HEAD is not a symbolic ref
+                    // because `actions/checkout` checks out a merge commit.
+                    // https://github.com/actions/checkout#Checkout-pull-request-HEAD-commit-instead-of-merge-commit
+                    // Let's default to 'main'.
+                    resolve('main');
                 } else {
                     resolve(stdout.trim().split('/').pop());
                 }
