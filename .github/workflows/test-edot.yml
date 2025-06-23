@@ -137,11 +137,19 @@ jobs:
     - name: Update npm to a version that supports package-lock lockfileVersion=2.
       if: ${{ startsWith(matrix.node, '14') }}
       run: npm install -g npm@9 # npm@9 supports node >=14.17.0
-    - name: npm ci in mockotlpserver package, used in EDOT tests
-      run: npm ci
-      working-directory: packages/mockotlpserver
     - run: npm ci
       working-directory: packages/opentelemetry-node
+
+    # TODO: These are currently needed until we get a release of mockopampserver.
+    - name: npm ci in mockopampserver package
+      run: npm ci
+      working-directory: packages/mockopampserver
+    - name: npm ci in opamp-client-node package
+      run: npm ci
+      working-directory: packages/opamp-client-node
+    - run: npm run dev:use-local-deps
+      working-directory: packages/opentelemetry-node
+
     - run: npm test
       working-directory: packages/opentelemetry-node
 

@@ -505,7 +505,9 @@ class TestCollector {
  * @property {number} [timeout] A timeout number of milliseconds for the process
  *    to execute. Default is no timeout.
  * @property {number} [maxBuffer] A maxBuffer to use for the exec.
- * @property {NodeJS.ProcessEnv} [env] Any custom envvars, e.g. `{NODE_OPTIONS:...}`.
+ * @property {NodeJS.ProcessEnv | (() => NodeJS.ProcessEnv)} [env]
+ *    Any custom envvars, e.g. `{NODE_OPTIONS:...}`, or a function that
+ *    returns custom envvars (which allows lazy calculation).
  * @property {boolean} [verbose] Set to `true` to include `t.comment()`s showing
  *    the command run and its output. This can be helpful to run the script
  *    manually for dev/debugging.
@@ -587,10 +589,11 @@ function runTestFixtures(suite, testFixtures) {
                 await otlpServer.start();
 
                 const cwd = tf.cwd || process.cwd();
+                const env = typeof tf.env === 'function' ? tf.env() : tf.env;
                 if (tf.verbose) {
                     t.comment(
                         `running: (cd "${cwd}" && ${quoteEnv(
-                            tf.env
+                            env
                         )} node ${quoteArgv(tf.args)})`
                     );
                 }
@@ -611,7 +614,7 @@ function runTestFixtures(suite, testFixtures) {
                                         otlpServer.httpUrl.href,
                                     OTEL_EXPORTER_OTLP_PROTOCOL: 'http/json',
                                 },
-                                tf.env
+                                env
                             ),
                             maxBuffer: tf.maxBuffer,
                         },

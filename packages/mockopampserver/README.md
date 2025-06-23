@@ -174,10 +174,9 @@ An example "test request" object:
 Remote config is an important use case for OpAMP. Here is how it can be used
 with MockOpAMPServer.
 
-The CLI supports a `--json-remote-config=./some-file.json` option. This will
+The CLI supports a `-F key=./some-file.json` option. This will
 setup the mock server to offer that file as remote config to requesting
-clients/agents. It will use the empty string in the `AgentConfigMap`, resulting
-in a server response with:
+clients/agents, resulting in a server response with:
 
 ```
       ...
@@ -187,9 +186,9 @@ in a server response with:
         config: {
           '$typeName': 'opamp.proto.AgentConfigMap',
           configMap: {
-            '': {
+            'key': {                            // <--- given "key" is here
               '$typeName': 'opamp.proto.AgentConfigFile',
-              body: Uint8Array(...) [ ... ],   // <--- file content is here
+              body: Uint8Array(...) [ ... ],    // <--- content of ./some-file.json is here
               contentType: 'application/json'
             }
           }
@@ -226,3 +225,26 @@ The equivalent setup of the server in code is:
     });
     await opampServer.start();
 ```
+
+### Test mode API to live-update agent config
+
+In addition to the `agentConfigMap` constructor option, the MockOpAMPServer
+supports a `POST /api/agentConfigMap` HTTP endpoint to update the Agent Config
+that the server will use. This endpoint is *not* part of the OpAMP spec. The
+endpoint is only enabled when `testMode: true`.
+
+Here are some `curl` examples showing how to live-update the Agent Config
+offered by a running MockOpAMPServer
+
+```bash
+# Set `logging_level` for the "elastic" configMap key.
+curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic={"logging_level":"debug"}'
+
+# Set empty config for the "elastic" key.
+curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic={}'
+
+# Set the config to the contents of a local JSON file.
+curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic=@./my-agent-config.json'
+```
+
+See `SetAgentConfigMap` in ["lib/mockopampserver.js"](./lib/mockopampserver.js) for more examples.

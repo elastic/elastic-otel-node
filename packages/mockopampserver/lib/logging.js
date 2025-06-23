@@ -61,7 +61,7 @@ function createLogger() {
 if (_globalThis[_symLog] === undefined) {
     _globalThis[_symLog] = createLogger();
 }
-/** @type {import('./bunyan').Logger} */
+/** @type {import('./luggite').Logger} */
 const log = _globalThis[_symLog];
 
 // ---- exports
