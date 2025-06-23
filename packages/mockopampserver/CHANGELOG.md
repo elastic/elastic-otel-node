@@ -1,6 +1,6 @@
 # @elastic/mockopampserver Changelog
 
-## Unreleased
+## v0.3.0
 
 - Add a `POST /api/agentConfigMap` API endpoint that is only supported if
   `testMode` is true. This is not an OpAMP endpoint. It exists to support

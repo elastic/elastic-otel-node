@@ -26,7 +26,7 @@ Assuming "x.y.z" is the release verison:
 2. Create a PR with these changes:
     - Bump the "version" in "packages/opentelemetry-node/package.json".
     - Run `npm install` in "packages/opentelemetry-node/" to update "packages/opentelemetry-node/package-lock.json".
-    - Update "packages/opentelemetry-node/CHANGELOG.md" as necessary.
+    - Update release notes in "docs/release-notes/*" as necessary.
     - Name the PR something like "release @elastic/opentelemetry-node@x.y.z".
 
 3. Get the PR approved and merged.
