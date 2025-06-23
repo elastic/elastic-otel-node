@@ -85,7 +85,7 @@ npm ls --omit=dev --all --parseable \
             "pg-types": "license.pg-types.txt",
             "undici-types": "license.undici.txt",
             "tr46": "license.MIT.txt",
-            "@bufbuild/protobuf": "../LICENSE", // re-use Apache-2.0 from this repo
+            "@bufbuild/protobuf": "license.apache2.txt",
             "safe-json-stringify": "license.MIT.txt",
         }
         const allowNoLicFile = [
