@@ -8,7 +8,7 @@
 
         curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic={"logging_level":"debug"}'
 
-- Drop `--json-remote-config-file` CLI option. in favour of more capable
+- Drop `--json-remote-config-file` CLI option in favour of more capable
   `-F` option. See example usage in `npm run example:*` scripts in package.json.
 
 ## v0.2.0
