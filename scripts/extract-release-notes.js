@@ -85,12 +85,12 @@ async function main() {
     await mkdirp(BUILD_DIR);
 
     const dest = path.join(BUILD_DIR, 'release-notes.md');
-    if (pkgDir === 'packages/opentelemetry-node') {
+    if (path.posix.resolve(pkgDir).endsWith('/packages/opentelemetry-node')) {
         // docsv3-syntax release notes in "docs/release-notes/..."
         const chunks = [];
         try {
             const breaking = extractText(
-                'docs/release-notes/breaking-changes.md',
+                path.join(TOP, 'docs/release-notes/breaking-changes.md'),
                 new RegExp(`^## ${pj.version}$`, 'm'),
                 new RegExp(`^## `, 'm')
             );
@@ -104,7 +104,7 @@ async function main() {
         }
 
         const relnotes = extractText(
-            'docs/release-notes/index.md',
+            path.join(TOP, 'docs/release-notes/index.md'),
             new RegExp(`^## ${pj.version} `, 'm'),
             new RegExp(`^## `, 'm')
         );
