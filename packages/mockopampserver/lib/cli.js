@@ -10,6 +10,7 @@
  */
 
 const fs = require('fs');
+const os = require('os');
 
 const dashdash = require('dashdash');
 
@@ -99,5 +100,11 @@ async function main() {
 
     log.trace({cliOpts: opts}, 'started');
 }
+
+// If running as PID 1, e.g. as the top-level process in Docker, then an
+// unhandled SIGINT will not exit this process.
+process.on('SIGINT', () => {
+    process.exit(128 + os.constants.signals.SIGINT);
+});
 
 main();

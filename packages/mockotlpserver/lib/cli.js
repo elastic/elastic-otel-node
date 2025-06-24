@@ -9,6 +9,7 @@
  * mockotlpserver CLI. Try `mockotlpserver --htlp`.
  */
 
+const os = require('os');
 const dashdash = require('dashdash');
 
 const luggite = require('./luggite');
@@ -230,5 +231,11 @@ async function main() {
 
     log.trace({cliOpts: opts}, 'started');
 }
+
+// If running as PID 1, e.g. as the top-level process in Docker, then an
+// unhandled SIGINT will not exit this process.
+process.on('SIGINT', () => {
+    process.exit(128 + os.constants.signals.SIGINT);
+});
 
 main();
