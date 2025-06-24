@@ -139,17 +139,6 @@ jobs:
       run: npm install -g npm@9 # npm@9 supports node >=14.17.0
     - run: npm ci
       working-directory: packages/opentelemetry-node
-
-    # TODO: These are currently needed until we get a release of mockopampserver.
-    - name: npm ci in mockopampserver package
-      run: npm ci
-      working-directory: packages/mockopampserver
-    - name: npm ci in opamp-client-node package
-      run: npm ci
-      working-directory: packages/opamp-client-node
-    - run: npm run dev:use-local-deps
-      working-directory: packages/opentelemetry-node
-
     - run: npm test
       working-directory: packages/opentelemetry-node
 
