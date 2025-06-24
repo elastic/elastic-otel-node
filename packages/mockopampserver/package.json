@@ -1,6 +1,6 @@
 {
   "name": "@elastic/mockopampserver",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "commonjs",
   "description": "A mock OpAMP server, useful for dev and testing",
   "publishConfig": {
