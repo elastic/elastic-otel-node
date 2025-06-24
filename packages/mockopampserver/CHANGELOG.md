@@ -1,5 +1,9 @@
 # @elastic/mockopampserver Changelog
 
+## Unreleased
+
+- chore: Excluding devDeps from Docker images should make them smaller.
+
 ## v0.3.0
 
 - Add a `POST /api/agentConfigMap` API endpoint that is only supported if

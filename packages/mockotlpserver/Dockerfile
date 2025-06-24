@@ -11,6 +11,6 @@ COPY opentelemetry ./opentelemetry/
 COPY ui ./ui/
 COPY package.json ./
 COPY README.md LICENSE NOTICE.md ./
-RUN npm install
+RUN npm ci --omit=dev --ignore-scripts
 EXPOSE 4317 4318
 CMD ["npm", "start", "--", "--hostname=0.0.0.0"]
