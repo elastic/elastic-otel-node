@@ -3,6 +3,7 @@
 ## Unreleased
 
 - chore: Excluding devDeps from Docker images should make them smaller.
+- Fix an issue where Ctrl+C would not exit mockopampserver *when running the Docker image*.
 
 ## v0.3.0
 
