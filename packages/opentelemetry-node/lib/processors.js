@@ -170,13 +170,14 @@ function getSpanProcessors(processors) {
     }
 
     if (exporters.length === 0) {
-        log.debug(
+        log.trace(
             'OTEL_TRACES_EXPORTER is empty. Using the default "otlp" exporter.'
         );
         exporters.push('otlp');
     }
 
     for (const name of exporters) {
+        log.trace(`Initializing "${name}" traces exporter.`);
         switch (name) {
             case 'otlp':
                 result.push(new BatchSpanProcessor(getSpanExporter('otlp')));
