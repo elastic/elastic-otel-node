@@ -9,8 +9,10 @@ WORKDIR /app
 COPY lib ./lib/
 COPY opentelemetry ./opentelemetry/
 COPY ui ./ui/
+COPY db ./db/
 COPY package.json ./
+COPY package-lock.json ./
 COPY README.md LICENSE NOTICE.md ./
-RUN npm install
+RUN npm ci --omit=dev --ignore-scripts
 EXPOSE 4317 4318
-CMD ["npm", "start", "--", "--hostname=0.0.0.0"]
+CMD ["node", "lib/cli.js", "--hostname=0.0.0.0"]

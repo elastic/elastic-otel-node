@@ -1,5 +1,10 @@
 # @elastic/mockopampserver Changelog
 
+## Unreleased
+
+- chore: Excluding devDeps from Docker images should make them smaller.
+- Fix an issue where Ctrl+C would not exit mockopampserver *when running the Docker image*.
+
 ## v0.3.0
 
 - Add a `POST /api/agentConfigMap` API endpoint that is only supported if

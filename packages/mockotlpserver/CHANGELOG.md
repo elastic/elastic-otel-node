@@ -1,5 +1,9 @@
 # @elastic/mockotlpserver Changelog
 
+## Unreleased
+
+- chore: Excluding devDeps from Docker images should make them smaller.
+
 ## v0.8.0
 
 - feat: 'summary' rendering of Sum and Gauge metric types
