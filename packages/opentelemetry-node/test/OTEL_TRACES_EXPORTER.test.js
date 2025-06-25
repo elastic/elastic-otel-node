@@ -47,7 +47,11 @@ const testFixtures = [
             const lines = stdout.split('\n');
             const hasLog = (text) =>
                 getLogs(lines).some((log) => log.msg.includes(text));
-            t.ok(hasLog('OTEL_TRACES_EXPORTER contains "none". No trace information or Spans will be exported.'));
+            t.ok(
+                hasLog(
+                    'OTEL_TRACES_EXPORTER contains "none". No trace information or Spans will be exported.'
+                )
+            );
             t.ok(!hasLog('Initializing "otlp" traces exporter.'));
             t.ok(!hasLog('Initializing "zipkin" traces exporter.'));
             t.ok(!hasLog('Initializing "jaeger" traces exporter.'));
