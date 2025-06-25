@@ -54,7 +54,7 @@ if [[ "$TAG_NAME" != "$EXPECTED_TAG_NAME" ]]; then
 fi
 
 # Extract the changelog section for this version.
-$TOP/scripts/extract-release-notes.sh $PKG_DIR
+$TOP/scripts/extract-release-notes.js $PKG_DIR
 echo "INFO: Extracted changelog"
 echo "--"
 cat build/release-notes.md

@@ -41,6 +41,7 @@
   ],
   "scripts": {
     "clean": "rm -rf node_modules test/fixtures/a-ts-proj/node_modules test/fixtures/an-esm-pkg/{build,node_modules}",
+    "dev:use-local-deps": "npm install --no-save ../opamp-client-node ../mockopampserver",
     "example": "cd ../../examples && node --import @elastic/opentelemetry-node simple-http-request.js",
     "lint": "npm run lint:eslint && npm run lint:types && npm run lint:deps && npm run lint:license-files && npm run lint:changelog",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
@@ -48,7 +49,7 @@
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
     "lint:deps": "dependency-check require.js import.mjs 'lib/**/*.js' 'test/**/*.js' '!test/fixtures/a-ts-proj' '!test/fixtures/an-esm-pkg' -e mjs:../../scripts/parse-mjs-source -i @types/tape -i dotenv -i @opentelemetry/winston-transport -i @opentelemetry/exporter-logs-* -i @opentelemetry/exporter-metrics-*",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
-    "lint:changelog": "../../scripts/extract-release-notes.sh .",
+    "lint:changelog": "../../scripts/extract-release-notes.js .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
     "test:without-test-services": "tape test/**/*.test.js",
     "test-services:start": "docker compose -f ./test/docker-compose.yaml up -d --wait",
@@ -71,6 +72,7 @@
     "@opentelemetry/api": ">=1.3.0 <1.10.0"
   },
   "dependencies": {
+    "@elastic/opamp-client-node": "^0.2.0",
     "@elastic/opentelemetry-instrumentation-openai": "^0.5.0",
     "@opentelemetry/core": "^2.0.0",
     "@opentelemetry/exporter-logs-otlp-grpc": "^0.202.0",
@@ -139,6 +141,7 @@
     "@aws-sdk/client-sns": "^3.658.1",
     "@aws-sdk/client-sqs": "^3.658.1",
     "@elastic/elasticsearch": "^9.0.0",
+    "@elastic/mockopampserver": "^0.2.0",
     "@elastic/mockotlpserver": ">=0.8.0 <1",
     "@grpc/grpc-js": "^1.11.1",
     "@grpc/proto-loader": "^0.7.13",

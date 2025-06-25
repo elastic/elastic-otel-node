@@ -34,6 +34,7 @@ const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {getSpanProcessors} = require('./processors');
+const {setupCentralConfig} = require('./central-config');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
@@ -49,11 +50,11 @@ const DISTRO_VERSION = require('../package.json').version;
  * properities of this type should be prefixed with "elastic".
  */
 
-function setupShutdownHandlers(sdk) {
+function setupShutdownHandlers(shutdownFn) {
     // TODO avoid possible double sdk.shutdown(). I think that results in unnecessary work.
     process.on('SIGTERM', async () => {
         try {
-            await sdk.shutdown();
+            await shutdownFn();
         } catch (err) {
             console.warn('warning: error shutting down OTel SDK', err);
         }
@@ -63,7 +64,7 @@ function setupShutdownHandlers(sdk) {
     process.once('beforeExit', async () => {
         // Flush recent telemetry data if about the shutdown.
         try {
-            await sdk.shutdown();
+            await shutdownFn();
         } catch (err) {
             console.warn('warning: error shutting down OTel SDK', err);
         }
@@ -75,7 +76,7 @@ function setupShutdownHandlers(sdk) {
  *
  * While this returns an object with `shutdown()` method, the default behavior
  * is to setup `process.on(...)` handlers to handle shutdown. See the
- * `setupShutdownHandlers` boolean option.
+ * `elasticSetupShutdownHandlers` boolean option.
  *
  * @param {Partial<NodeSDKConfiguration & ElasticNodeSDKOptions>} cfg
  * @returns {{ shutdown(): Promise<void>; }}
@@ -200,10 +201,7 @@ function startNodeSDK(cfg = {}) {
     setupEnvironment();
     const sdk = new NodeSDK(config);
 
-    if (config.elasticSetupShutdownHandlers ?? true) {
-        setupShutdownHandlers(sdk);
-    }
-
+    // TODO perhaps include some choice resource attrs in this log (sync ones): service.name, deployment.environment.name
     log.info(
         {
             preamble: true,
@@ -224,7 +222,7 @@ function startNodeSDK(cfg = {}) {
     sdk.start(); // .start() *does* use `process.env` though I think it should not.
     restoreEnvironment();
 
-    // to enable `@opentelemetry/host-metrics`
+    // To enable `@opentelemetry/host-metrics`:
     // - metrics should be enabled (resolved above)
     // - `ELASTIC_OTEL_HOST_METRICS_DISABLED` must not be "true"
     const hostMetricsDisabled = getBooleanFromEnv(
@@ -235,12 +233,27 @@ function startNodeSDK(cfg = {}) {
         hostMetricsInstance.start();
     }
 
+    // OpAMP for central config.
+    // TODO: handle resource in this SDK, so don't have use private `_resource`
+    // @ts-ignore: Ignore access of private _resource for now.
+    const opampClient = setupCentralConfig(sdk._resource);
+
+    // Shutdown handling.
+    const shutdownFn = () => {
+        const promises = [sdk.shutdown()];
+        if (opampClient) {
+            promises.push(opampClient.shutdown());
+        }
+        return Promise.all(promises).then(() => {});
+    };
+    if (config.elasticSetupShutdownHandlers ?? true) {
+        setupShutdownHandlers(shutdownFn);
+    }
+
     // Return an object that is a subset of the upstream NodeSDK interface,
     // just enough to shutdown.
     return {
-        shutdown() {
-            return sdk.shutdown();
-        },
+        shutdown: shutdownFn,
     };
 }
 

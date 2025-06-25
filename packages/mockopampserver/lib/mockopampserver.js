@@ -9,6 +9,7 @@ const {inspect} = require('util');
 const zlib = require('zlib');
 const TTLCache = require('@isaacs/ttlcache');
 const {create, toBinary, fromBinary} = require('@bufbuild/protobuf');
+const {Busboy} = require('@fastify/busboy');
 const {stringify: uuidStringify} = require('uuid');
 const {
     AgentToServerSchema,
@@ -183,8 +184,7 @@ class MockOpAMPServer {
         this._port = opts.port ?? DEFAULT_PORT;
         this._endpointPath = DEFAULT_ENDPOINT_PATH;
         if (opts.agentConfigMap) {
-            this._agentConfigMap = opts.agentConfigMap;
-            this._agentConfigMapHash = hashAgentConfigMap(opts.agentConfigMap);
+            this._setAgentConfigMap(opts.agentConfigMap);
         }
         this._server = http.createServer(this._onRequest.bind(this));
         this._started = false;
@@ -208,6 +208,11 @@ class MockOpAMPServer {
             }
             this._badMode = opts.badMode;
         }
+    }
+
+    _setAgentConfigMap(agentConfigMap) {
+        this._agentConfigMap = agentConfigMap;
+        this._agentConfigMapHash = hashAgentConfigMap(agentConfigMap);
     }
 
     get endpoint() {
@@ -322,9 +327,139 @@ class MockOpAMPServer {
         }
     }
 
+    /**
+     * SetAgentConfigMap
+     * POST /api/agentConfigMap
+     *
+     * This *assumes* the content-type is JSON, but it doesn't check the
+     * header. This handler also isn't careful to check that the format of the
+     * given data is correct. Some curl examples:
+     *
+     *  # With multipart-form data.
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic={"logging_level":"debug"}'
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic={}'
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic=@test/fixtures/agent-config.json'
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic=@foo.yaml;type=application/yaml'
+     *
+     *  # With form-urlencoded data (does not support setting 'contentType').
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap -d 'elastic={"logging_level":"debug"}'
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap --data-urlencode elastic@./config.json
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap -d 'elastic={}'
+     *
+     *  # set logging_level=debug for "elastic" key
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap -H content-type:application/json \
+     *      -d '{"elastic": {"body": "{\"logging_level\":\"debug\"}", "contentType": "application/json"}}'
+     *  # empty "elastic" config
+     *  curl -i http://127.0.0.1:4320/api/agentConfigMap -H content-type:application/json \
+     *      -d '{"elastic": {"body": "{}"}}'
+     */
+    _testApiSetAgentConfigMap(req, res) {
+        req.on('error', (err) => {
+            log.warn(err, 'error on req');
+            respondHttpErr(res, err.message);
+        });
+
+        let agentConfigMap = {configMap: {}};
+        const finish = () => {
+            log.trace({agentConfigMap}, 'SetAgentConfigMap');
+            this._setAgentConfigMap(agentConfigMap);
+            res.writeHead(204);
+            res.end();
+            log.debug({req, res}, 'test API request: SetAgentConfigMap');
+        };
+
+        const ct = req.headers['content-type'];
+        if (ct === 'application/json') {
+            const chunks = [];
+            req.on('data', (chunk) => chunks.push(chunk));
+            req.on('end', () => {
+                const body = Buffer.concat(chunks).toString('utf8');
+                try {
+                    const data = JSON.parse(body);
+                    for (let key of Object.keys(data)) {
+                        agentConfigMap.configMap[key] = {
+                            body: Buffer.from(data[key].body),
+                            contentType:
+                                data[key].contentType || 'application/json',
+                        };
+                    }
+                } catch (err) {
+                    respondHttpErr(res, err.message, 400);
+                    return;
+                }
+                finish();
+            });
+        } else {
+            // Try busboy to handle form-urlencoded form and multipart/form-data.
+            let busboy;
+            try {
+                busboy = new Busboy({headers: req.headers});
+            } catch (ctErr) {
+                respondHttpErr(
+                    res,
+                    `unsupported Content-Type, got ${
+                        req.headers['content-type'] ?? '<empty>'
+                    }`
+                );
+                return;
+            }
+            busboy.on(
+                'file',
+                (fieldname, file, filename, encoding, mimetype) => {
+                    // curl http://127.0.0.1:4320/api/agentConfigMap -F ...
+                    if (!mimetype || mimetype === 'application/octet-stream') {
+                        mimetype = 'application/json';
+                    }
+                    const chunks = [];
+                    file.on('data', (chunk) => chunks.push(chunk));
+                    file.on('end', () => {
+                        const body = Buffer.concat(chunks);
+                        agentConfigMap.configMap[fieldname] = {
+                            body,
+                            contentType: mimetype,
+                        };
+                    });
+                }
+            );
+            busboy.on(
+                'field',
+                (
+                    fieldname,
+                    val,
+                    _fieldnameTruncated,
+                    _valTruncated,
+                    _encoding,
+                    mimetype
+                ) => {
+                    // curl http://127.0.0.1:4320/api/agentConfigMap -d ...
+                    agentConfigMap.configMap[fieldname] = {
+                        body: Buffer.from(val),
+                        contentType: 'application/json',
+                    };
+                }
+            );
+            busboy.on('finish', () => {
+                finish();
+            });
+            req.pipe(busboy);
+        }
+    }
+
     _onRequest(req, res) {
-        // Basic HTTP request validations.
         const u = new URL(req.url, this._endpointOrigin);
+
+        // Handle non-OpAMP route "POST /api/agentConfigMap". This route is only
+        // enabled if `testMode==true`. It is not a part of the OpAMP spec.
+        if (
+            this._testMode &&
+            req.method == 'POST' &&
+            u.pathname == '/api/agentConfigMap'
+        ) {
+            this._testApiSetAgentConfigMap(req, res);
+            return;
+        }
+
+        // Basic HTTP request validations.
         if (u.pathname !== this._endpointPath) {
             respondHttp404(res);
             this._testNoteRequest({req, res});
