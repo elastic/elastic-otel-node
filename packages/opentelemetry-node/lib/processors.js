@@ -25,6 +25,11 @@ const {log} = require('./logging');
  * @typedef {import('@opentelemetry/sdk-trace-base').SpanExporter} SpanExporter
  */
 
+// @ts-ignore - compiler options do not allow lookp outside `lib` folder
+const ELASTIC_PKG = require('../package.json');
+const ELASTIC_SDK_VERSION = ELASTIC_PKG.version;
+const ELASTIC_SDK_SCOPE = ELASTIC_PKG.name;
+
 const otlpPkgPreffix = '@opentelemetry/exporter-trace-otlp-';
 const otlpProtocol =
     getStringFromEnv('OTEL_EXPORTER_OTLP_TRACES_PROTOCOL') ??
@@ -43,37 +48,39 @@ let closedSpans;
 /**
  * @returns {Meter}
  */
-function getSpanMeter() {
+function getSpansMeter() {
     if (selfMetricsMeter) {
         return selfMetricsMeter;
     }
-    // TODO: name & verison
-    selfMetricsMeter = metrics.getMeter('edot-nodejs', '1.2.3');
+    selfMetricsMeter = metrics.getMeter(ELASTIC_SDK_SCOPE, ELASTIC_SDK_VERSION);
     return selfMetricsMeter;
 }
 
 /**
  * @returns {UpDownCounter}
  */
-function getLiveSpans() {
+function getLiveSpansCounter() {
     if (liveSpans) {
         return liveSpans;
     }
-    liveSpans = getSpanMeter().createUpDownCounter('otel.sdk.span.live.count', {
-        description:
-            'Number of created spans for which the end operation has not been called yet',
-    });
+    liveSpans = getSpansMeter().createUpDownCounter(
+        'otel.sdk.span.live.count',
+        {
+            description:
+                'Number of created spans for which the end operation has not been called yet',
+        }
+    );
     return liveSpans;
 }
 
 /**
  * @returns {Counter}
  */
-function getClosedSpans() {
+function getClosedSpansCounter() {
     if (closedSpans) {
         return closedSpans;
     }
-    closedSpans = getSpanMeter().createCounter('otel.sdk.span.closed.count', {
+    closedSpans = getSpansMeter().createCounter('otel.sdk.span.closed.count', {
         description:
             'Number of created spans for which the end operation was called',
     });
@@ -86,14 +93,13 @@ const spanMetricsPrcessor = {
         return Promise.resolve();
     },
     onStart: function (span, parentContext) {
-        getLiveSpans().add(1);
+        getLiveSpansCounter().add(1);
     },
     onEnd: function (span) {
-        getLiveSpans().add(-1);
-        getClosedSpans().add(1);
+        getLiveSpansCounter().add(-1);
+        getClosedSpansCounter().add(1);
     },
     shutdown: function () {
-        // TODO: shutdown meter?
         return Promise.resolve();
     },
 };
