@@ -35,6 +35,7 @@ const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {getSpanProcessors} = require('./processors');
 const {setupCentralConfig} = require('./central-config');
+const {setupSdkMetrics} = require('./sdk-metrics');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
@@ -125,7 +126,7 @@ function startNodeSDK(cfg = {}) {
     const defaultConfig = {
         resourceDetectors: resolveDetectors(cfg.resourceDetectors),
         instrumentations: cfg.instrumentations || getInstrumentations(),
-        spanProcessors: getSpanProcessors(cfg.spanProcessors),
+        spanProcessors: cfg.spanProcessors || getSpanProcessors(),
     };
 
     const exporterPkgNameFromEnvVar = {
@@ -194,6 +195,10 @@ function startNodeSDK(cfg = {}) {
                 aggregation: {type: AggregationType.DROP},
             },
         ];
+
+        // Configure OTEL SDK metrics
+        // ref: https://github.com/open-telemetry/semantic-conventions/blob/main/model/otel/metrics.yaml
+        setupSdkMetrics(defaultConfig);
     }
 
     const config = Object.assign(defaultConfig, cfg);

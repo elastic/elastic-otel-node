@@ -4,11 +4,7 @@
  */
 
 // This replicates the SDKs logic of getting processors from env
-// and also adds a new one to collect span metrics like:
-// - metric.otel.sdk.span.live.count
-// - metric.otel.sdk.span.ended.count
 
-const {metrics} = require('@opentelemetry/api');
 const {getStringListFromEnv, getStringFromEnv} = require('@opentelemetry/core');
 const {
     BatchSpanProcessor,
@@ -18,91 +14,32 @@ const {
 const {log} = require('./logging');
 
 /**
- * @typedef {import('@opentelemetry/api').Meter} Meter
- * @typedef {import('@opentelemetry/api').UpDownCounter} UpDownCounter
- * @typedef {import('@opentelemetry/api').Counter} Counter
  * @typedef {import('@opentelemetry/sdk-trace-base').SpanProcessor} SpanProcessor
  * @typedef {import('@opentelemetry/sdk-trace-base').SpanExporter} SpanExporter
  */
 
-// @ts-ignore - compiler options do not allow lookp outside `lib` folder
-const ELASTIC_PKG = require('../package.json');
-const ELASTIC_SDK_VERSION = ELASTIC_PKG.version;
-const ELASTIC_SDK_SCOPE = ELASTIC_PKG.name;
-
-const otlpPkgPreffix = '@opentelemetry/exporter-trace-otlp-';
+const otlpPkgPrefix = '@opentelemetry/exporter-trace-otlp-';
 const otlpProtocol =
     getStringFromEnv('OTEL_EXPORTER_OTLP_TRACES_PROTOCOL') ??
     getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ??
     'http/protobuf';
 
-// NOTE: assuming the meter provider is not going to be replaced once
-// the EDOT is started we can cache the meter and metrics in these vars
-/** @type {Meter} */
-let selfMetricsMeter;
-/** @type {UpDownCounter} */
-let liveSpans;
-/** @type {Counter} */
-let closedSpans;
-
-/**
- * @returns {Meter}
- */
-function getSpansMeter() {
-    if (selfMetricsMeter) {
-        return selfMetricsMeter;
+// Jeager exporter is deprecated but upstream stills support it (for now)
+// ref: https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/CHANGELOG.md#0440
+function getJaegerExporter() {
+    // The JaegerExporter does not support being required in bundled
+    // environments. By delaying the require statement to here, we only crash when
+    // the exporter is actually used in such an environment.
+    try {
+        // @ts-ignore
+        const {JaegerExporter} = require('@opentelemetry/exporter-jaeger');
+        return new JaegerExporter();
+    } catch (e) {
+        throw new Error(
+            `Could not instantiate JaegerExporter. This could be due to the JaegerExporter's lack of support for bundling. If possible, use @opentelemetry/exporter-trace-otlp-proto instead. Original Error: ${e}`
+        );
     }
-    selfMetricsMeter = metrics.getMeter(ELASTIC_SDK_SCOPE, ELASTIC_SDK_VERSION);
-    return selfMetricsMeter;
 }
-
-/**
- * @returns {UpDownCounter}
- */
-function getLiveSpansCounter() {
-    if (liveSpans) {
-        return liveSpans;
-    }
-    liveSpans = getSpansMeter().createUpDownCounter(
-        'otel.sdk.span.live.count',
-        {
-            description:
-                'Number of created spans for which the end operation has not been called yet',
-        }
-    );
-    return liveSpans;
-}
-
-/**
- * @returns {Counter}
- */
-function getClosedSpansCounter() {
-    if (closedSpans) {
-        return closedSpans;
-    }
-    closedSpans = getSpansMeter().createCounter('otel.sdk.span.closed.count', {
-        description:
-            'Number of created spans for which the end operation was called',
-    });
-    return closedSpans;
-}
-
-/** @type {SpanProcessor} */
-const spanMetricsPrcessor = {
-    forceFlush: function () {
-        return Promise.resolve();
-    },
-    onStart: function (span, parentContext) {
-        getLiveSpansCounter().add(1);
-    },
-    onEnd: function (span) {
-        getLiveSpansCounter().add(-1);
-        getClosedSpansCounter().add(1);
-    },
-    shutdown: function () {
-        return Promise.resolve();
-    },
-};
 
 /**
  * @param {'otlp' | 'zipkin' | 'jaeger' | 'console'} type
@@ -122,7 +59,7 @@ function getSpanExporter(type) {
         return new ConsoleSpanExporter();
     }
 
-    let exporterPkgName = `${otlpPkgPreffix}`;
+    let exporterPkgName = `${otlpPkgPrefix}`;
     switch (otlpProtocol) {
         case 'grpc':
             exporterPkgName += 'grpc';
@@ -144,25 +81,14 @@ function getSpanExporter(type) {
 }
 
 /**
- * @param {SpanProcessor[]} [processors]
+ * @returns {SpanProcessor[]}
  */
-function getSpanProcessors(processors) {
-    const metricsExporters =
-        getStringListFromEnv('OTEL_METRICS_EXPORTER') || [];
-    const metricsEnabled = metricsExporters.every((e) => e !== 'none');
-
-    if (Array.isArray(processors)) {
-        if (metricsEnabled) {
-            processors.push(spanMetricsPrcessor);
-        }
-        return processors;
-    }
-
+function getSpanProcessors() {
     // Get from env
     const exporters = getStringListFromEnv('OTEL_TRACES_EXPORTER') ?? [];
-    const result = metricsEnabled ? [spanMetricsPrcessor] : [];
+    const result = [];
 
-    if (exporters.some((exp) => exp === 'none')) {
+    if (exporters[0] === 'none') {
         log.warn(
             'OTEL_TRACES_EXPORTER contains "none". No trace information or Spans will be exported.'
         );
@@ -173,6 +99,12 @@ function getSpanProcessors(processors) {
         log.trace(
             'OTEL_TRACES_EXPORTER is empty. Using the default "otlp" exporter.'
         );
+        exporters.push('otlp');
+    } else if (exporters.length > 1 && exporters.includes('none')) {
+        log.warn(
+            'OTEL_TRACES_EXPORTER contains "none" along with other exporters. Using default otlp exporter.'
+        );
+        exporters.length = 0;
         exporters.push('otlp');
     }
 
@@ -191,11 +123,7 @@ function getSpanProcessors(processors) {
                 result.push(new BatchSpanProcessor(getSpanExporter('zipkin')));
                 break;
             case 'jaeger':
-                // TODO: check comment in `getSpanExporter` function
-                // result.push(new BatchSpanProcessor(getSpanExporter('zipkin')));
-                log.warn(
-                    `OTEL_TRACES_EXPORTER value "${name}" not available yet.`
-                );
+                result.push(new BatchSpanProcessor(getJaegerExporter()));
                 break;
             default:
                 log.warn(`Unrecognized OTEL_TRACES_EXPORTER value: ${name}.`);

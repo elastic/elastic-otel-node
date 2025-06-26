@@ -35,8 +35,8 @@ const testFixtures = [
             t.ok(hasLog(`name: 'nodejs.eventloop.delay.max'`));
             t.ok(hasLog(`name: 'process.cpu.utilization'`));
             t.ok(hasLog(`name: 'process.cpu.utilization'`));
-            t.ok(hasLog(`name: 'otel.sdk.span.live.count'`));
-            t.ok(hasLog(`name: 'otel.sdk.span.closed.count'`));
+            t.ok(hasLog(`name: 'otel.sdk.span.live'`));
+            t.ok(hasLog(`name: 'otel.sdk.span.ended'`));
         },
         checkTelemetry: (t, col) => {
             t.ok(col.metrics.length > 0);
