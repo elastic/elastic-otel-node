@@ -10,6 +10,6 @@ COPY lib ./lib/
 COPY package.json ./
 COPY package-lock.json ./
 COPY README.md LICENSE NOTICE.md ./
-RUN npm ci
+RUN npm ci --omit=dev --ignore-scripts
 EXPOSE 4320
 CMD ["node", "lib/cli.js", "--hostname=0.0.0.0"]
