@@ -47,7 +47,7 @@
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
     "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:fix": "eslint --ext=js,mjs,cjs --fix . # requires node >=16.0.0",
-    "lint:deps": "dependency-check require.js import.mjs 'lib/**/*.js' 'test/**/*.js' '!test/fixtures/a-ts-proj' '!test/fixtures/an-esm-pkg' -e mjs:../../scripts/parse-mjs-source -i @types/tape -i dotenv -i @opentelemetry/winston-transport -i @opentelemetry/exporter-logs-* -i @opentelemetry/exporter-metrics-*",
+    "lint:deps": "dependency-check require.js import.mjs 'lib/**/*.js' 'test/**/*.js' '!test/fixtures/a-ts-proj' '!test/fixtures/an-esm-pkg' -e mjs:../../scripts/parse-mjs-source -i @types/tape -i dotenv -i @opentelemetry/winston-transport -i @opentelemetry/exporter-logs-* -i @opentelemetry/exporter-metrics-* -i @opentelemetry/exporter-jaeger",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "lint:changelog": "../../scripts/extract-release-notes.js .",
     "test": "NODE_OPTIONS='-r dotenv/config' DOTENV_CONFIG_PATH=./test/test-services.env tape test/**/*.test.js",
