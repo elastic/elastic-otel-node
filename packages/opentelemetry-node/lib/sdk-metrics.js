@@ -4,7 +4,7 @@
  */
 
 // Gets the SDK configuration and updates it to have instruments
-// to collect metrics related to the SDK like:
+// to collect metrics related to the SDK, for now:
 // - otel.sdk.span.live
 // - otel.sdk.span.ended
 
@@ -13,7 +13,6 @@ const {
     METRIC_OTEL_SDK_SPAN_ENDED,
     METRIC_OTEL_SDK_SPAN_LIVE,
     ATTR_OTEL_SPAN_SAMPLING_RESULT,
-    OTEL_SPAN_SAMPLING_RESULT_VALUE_DROP,
     OTEL_SPAN_SAMPLING_RESULT_VALUE_RECORD_AND_SAMPLE,
     OTEL_SPAN_SAMPLING_RESULT_VALUE_RECORD_ONLY,
 } = require('./semconv');
@@ -22,6 +21,8 @@ const {
  * @typedef {import('@opentelemetry/api').Meter} Meter
  * @typedef {import('@opentelemetry/api').UpDownCounter} UpDownCounter
  * @typedef {import('@opentelemetry/api').Counter} Counter
+ * @typedef {import('@opentelemetry/sdk-trace-base').Span} Span
+ * @typedef {import('@opentelemetry/sdk-trace-base').ReadableSpan} ReadableSpan
  * @typedef {import('@opentelemetry/sdk-trace-base').SpanProcessor} SpanProcessor
  */
 
@@ -46,6 +47,8 @@ function getSpansMeter() {
     if (selfMetricsMeter) {
         return selfMetricsMeter;
     }
+    // NOTE: we have a metter for a single scope which is the EDOT package
+    // TODO: check WWJD (what would Java do?)
     selfMetricsMeter = metrics.getMeter(ELASTIC_SDK_SCOPE, ELASTIC_SDK_VERSION);
     return selfMetricsMeter;
 }
@@ -79,26 +82,16 @@ function getEndedSpansCounter() {
 }
 
 /**
- * @param {any} span - an Span form the API or a ReadableSpan from the trace SDK
+ * All Spans treated in SpanProcessors are recording so here none will have
+ * a "DROP" sampling result
+ * @param {Span | ReadableSpan} span
  * @returns {string}
  */
 function getSamplingResult(span) {
-    let result;
-    const isRecording =
-        typeof span.isRecording === 'function'
-            ? span.isRecording()
-            : !span.ended;
-
-    if (isRecording) {
-        const isSampled = span.spanContext().traceFlags & TraceFlags.SAMPLED;
-        result = isSampled
-            ? OTEL_SPAN_SAMPLING_RESULT_VALUE_RECORD_AND_SAMPLE
-            : OTEL_SPAN_SAMPLING_RESULT_VALUE_RECORD_ONLY;
-    } else {
-        result = OTEL_SPAN_SAMPLING_RESULT_VALUE_DROP;
-    }
-
-    return result;
+    const isSampled = span.spanContext().traceFlags & TraceFlags.SAMPLED;
+    return isSampled
+        ? OTEL_SPAN_SAMPLING_RESULT_VALUE_RECORD_AND_SAMPLE
+        : OTEL_SPAN_SAMPLING_RESULT_VALUE_RECORD_ONLY;
 }
 
 /** @type {SpanProcessor} */
@@ -106,18 +99,17 @@ const spanMetricsProcessor = {
     forceFlush: function () {
         return Promise.resolve();
     },
-    onStart: function (span, parentContext) {
+    onStart: function (span) {
         getLiveSpansCounter().add(1, {
             [ATTR_OTEL_SPAN_SAMPLING_RESULT]: getSamplingResult(span),
         });
     },
     onEnd: function (span) {
-        getLiveSpansCounter().add(-1, {
+        const attrs = {
             [ATTR_OTEL_SPAN_SAMPLING_RESULT]: getSamplingResult(span),
-        });
-        getEndedSpansCounter().add(1, {
-            [ATTR_OTEL_SPAN_SAMPLING_RESULT]: getSamplingResult(span),
-        });
+        };
+        getLiveSpansCounter().add(-1, attrs);
+        getEndedSpansCounter().add(1, attrs);
     },
     shutdown: function () {
         return Promise.resolve();

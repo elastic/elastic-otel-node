@@ -195,15 +195,16 @@ function startNodeSDK(cfg = {}) {
                 aggregation: {type: AggregationType.DROP},
             },
         ];
-
-        // Configure OTEL SDK metrics
-        // ref: https://github.com/open-telemetry/semantic-conventions/blob/main/model/otel/metrics.yaml
-        setupSdkMetrics(defaultConfig);
     }
 
     const config = Object.assign(defaultConfig, cfg);
 
     setupEnvironment();
+    if (metricsEnabled) {
+        // Configure OTEL SDK metrics
+        // ref: https://github.com/open-telemetry/semantic-conventions/blob/main/model/otel/metrics.yaml
+        setupSdkMetrics(config);
+    }
     const sdk = new NodeSDK(config);
 
     // TODO perhaps include some choice resource attrs in this log (sync ones): service.name, deployment.environment.name
