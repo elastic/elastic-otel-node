@@ -49,10 +49,6 @@ export const METRIC_OTEL_SDK_SPAN_LIVE: "otel.sdk.span.live";
  */
 export const ATTR_OTEL_SPAN_SAMPLING_RESULT: "otel.span.sampling_result";
 /**
- * Enum value "DROP" for attribute {@link ATTR_OTEL_SPAN_SAMPLING_RESULT}.
- */
-export const OTEL_SPAN_SAMPLING_RESULT_VALUE_DROP: "DROP";
-/**
  * Enum value "RECORD_AND_SAMPLE" for attribute {@link ATTR_OTEL_SPAN_SAMPLING_RESULT}.
  */
 export const OTEL_SPAN_SAMPLING_RESULT_VALUE_RECORD_AND_SAMPLE: "RECORD_AND_SAMPLE";

@@ -50,11 +50,7 @@ function getSpanExporter(type) {
         const {ZipkinExporter} = require('@opentelemetry/exporter-zipkin');
         return new ZipkinExporter();
     } else if (type === 'jaeger') {
-        // TODO: this should be installed and there is a possible issue with bundlers. refs:
-        // - is a dev-dependency? https://github.com/open-telemetry/opentelemetry-js/blob/ec17ce48d0e5a99a122da5add612a20e2dd84ed5/experimental/packages/opentelemetry-sdk-node/package.json#L76
-        // - surreunded with try catch in https://github.com/open-telemetry/opentelemetry-js/blob/ec17ce48d0e5a99a122da5add612a20e2dd84ed5/experimental/packages/opentelemetry-sdk-node/src/utils.ts#L120
-        // const {JaegerExporter} = require('@opentelemetry/exporter-jaeger');
-        // result.push(new BatchSpanProcessor(new JaegerExporter()));
+        return getJaegerExporter();
     } else if (type === 'console') {
         return new ConsoleSpanExporter();
     }
