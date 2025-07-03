@@ -201,8 +201,6 @@ function startNodeSDK(cfg = {}) {
 
     setupEnvironment();
     if (metricsEnabled) {
-        // Configure OTEL SDK metrics
-        // ref: https://github.com/open-telemetry/semantic-conventions/blob/main/model/otel/metrics.yaml
         setupSdkMetrics(config);
     }
     const sdk = new NodeSDK(config);

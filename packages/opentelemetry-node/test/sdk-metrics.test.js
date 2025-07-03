@@ -9,12 +9,11 @@ const {runTestFixtures} = require('./testutils');
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'basic scenario with no sampling configutarion involved (all spans sampled)',
+        name: 'basic scenario with no sampling configuration involved (all spans sampled)',
         args: ['./fixtures/use-http-server-metrics.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
-            OTEL_METRICS_EXPORTER: 'otlp,console',
             // The default metrics interval is 30s, which makes for a slow test.
             // However, too low a value runs into possible:
             //      PeriodicExportingMetricReader: metrics collection errors TimeoutError: Operation timed out.
@@ -23,15 +22,13 @@ const testFixtures = [
             OTEL_METRIC_EXPORT_TIMEOUT: '900',
         },
         // verbose: true,
-        checkResult: (t, err, stdout) => {
-            t.error(err);
-        },
         checkTelemetry: (t, col) => {
             t.ok(col.metrics.length > 0);
 
             const spanMetrics = col.metrics.filter((m) =>
                 m.name.startsWith('otel.sdk.span')
             );
+            t.ok(spanMetrics.length > 0);
             t.ok(
                 spanMetrics.every((m) => {
                     const dataPoints = m.sum.dataPoints;
@@ -50,7 +47,6 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
-            OTEL_METRICS_EXPORTER: 'otlp,console',
             OTEL_TRACES_SAMPLER: 'always_off',
             // The default metrics interval is 30s, which makes for a slow test.
             // However, too low a value runs into possible:
@@ -60,9 +56,6 @@ const testFixtures = [
             OTEL_METRIC_EXPORT_TIMEOUT: '900',
         },
         // verbose: true,
-        checkResult: (t, err, stdout) => {
-            t.error(err);
-        },
         checkTelemetry: (t, col) => {
             t.ok(col.metrics.length > 0);
 

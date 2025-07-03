@@ -5,7 +5,8 @@ export type Span = import('@opentelemetry/sdk-trace-base').Span;
 export type ReadableSpan = import('@opentelemetry/sdk-trace-base').ReadableSpan;
 export type SpanProcessor = import('@opentelemetry/sdk-trace-base').SpanProcessor;
 /**
- *
+ * Updates the configuration to add OTEL SDK metrics
+ * ref: https://github.com/open-telemetry/semantic-conventions/blob/main/model/otel/metrics.yaml
  * @param {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} cfg
  * @returns
  */

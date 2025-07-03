@@ -47,8 +47,7 @@ function getSpansMeter() {
     if (selfMetricsMeter) {
         return selfMetricsMeter;
     }
-    // NOTE: we have a metter for a single scope which is the EDOT package
-    // TODO: check WWJD (what would Java do?)
+    // NOTE: we have a meter for a single scope which is the EDOT package
     selfMetricsMeter = metrics.getMeter(ELASTIC_SDK_SCOPE, ELASTIC_SDK_VERSION);
     return selfMetricsMeter;
 }
@@ -117,7 +116,8 @@ const spanMetricsProcessor = {
 };
 
 /**
- *
+ * Updates the configuration to add OTEL SDK metrics
+ * ref: https://github.com/open-telemetry/semantic-conventions/blob/main/model/otel/metrics.yaml
  * @param {Partial<import('@opentelemetry/sdk-node').NodeSDKConfiguration>} cfg
  * @returns
  */
