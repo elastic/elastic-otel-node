@@ -24,7 +24,7 @@ const otlpProtocol =
     getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ??
     'http/protobuf';
 
-// Jeager exporter is deprecated but upstream stills support it (for now)
+// Jaeger exporter is deprecated but upstream stills support it (for now)
 // ref: https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/CHANGELOG.md#0440
 function getJaegerExporter() {
     // The JaegerExporter does not support being required in bundled
