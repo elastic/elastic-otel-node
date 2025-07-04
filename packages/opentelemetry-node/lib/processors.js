@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// This replicates the SDKs logic of getting processors from env
+// This replicates the sdk-node logic of getting processors from env, because
+// the created NodeSDK doesn't expose the created processors and EDOT Node.js
+// wants to customize the default.
 
 const {getStringListFromEnv, getStringFromEnv} = require('@opentelemetry/core');
 const {
