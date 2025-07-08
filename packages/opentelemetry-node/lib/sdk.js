@@ -33,7 +33,9 @@ const luggite = require('./luggite');
 const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
+const {getSpanProcessors} = require('./processors');
 const {setupCentralConfig} = require('./central-config');
+const {setupSdkMetrics} = require('./sdk-metrics');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
@@ -124,8 +126,7 @@ function startNodeSDK(cfg = {}) {
     const defaultConfig = {
         resourceDetectors: resolveDetectors(cfg.resourceDetectors),
         instrumentations: cfg.instrumentations || getInstrumentations(),
-        // Avoid setting `spanProcessor` or `traceExporter` to have NodeSDK
-        // use its `TracerProviderWithEnvExporters` for tracing setup.
+        spanProcessors: cfg.spanProcessors || getSpanProcessors(),
     };
 
     const exporterPkgNameFromEnvVar = {
@@ -199,6 +200,9 @@ function startNodeSDK(cfg = {}) {
     const config = Object.assign(defaultConfig, cfg);
 
     setupEnvironment();
+    if (metricsEnabled) {
+        setupSdkMetrics(config);
+    }
     const sdk = new NodeSDK(config);
 
     // TODO perhaps include some choice resource attrs in this log (sync ones): service.name, deployment.environment.name
