@@ -1,5 +1,9 @@
 # @elastic/opentelemetry-instrumentation-openai Changelog
 
+## v0.5.1
+
+- Update OpenTelemetry JS dependencies to latest.
+
 ## v0.5.0
 
 - Update to [OpenTelemetry JS SDK 2.0](https://github.com/open-telemetry/opentelemetry-js/blob/main/doc/upgrade-to-2.x.md).
