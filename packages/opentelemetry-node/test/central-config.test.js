@@ -6,9 +6,12 @@
 const test = require('tape');
 const {MockOpAMPServer} = require('@elastic/mockopampserver');
 
-const {filterOutDnsNetSpans, findObjInArray, runTestFixtures} = require('./testutils');
+const {
+    filterOutDnsNetSpans,
+    findObjInArray,
+    runTestFixtures,
+} = require('./testutils');
 const luggite = require('../lib/luggite');
-
 
 /**
  * Assert expected telemetry from having run `central-config-gen-telemetry.js`.
@@ -39,7 +42,11 @@ function assertCentralConfigGenTelemetry(t, col, expectations = []) {
             t.equal(s2.parentSpanId, s1?.spanId || s0.spanId);
         }
     }
-    t.equal(spans.length, 0, `no unexpected extra spans: ${JSON.stringify(spans)}`);
+    t.equal(
+        spans.length,
+        0,
+        `no unexpected extra spans: ${JSON.stringify(spans)}`
+    );
 
     // TODO: cannot yet test metrics, because disabling metrics from some instrs is not yet implemented.
     //
@@ -109,9 +116,10 @@ test('central-config', (suite) => {
             checkResult: (t, err, stdout, _stderr) => {
                 t.error(err, `exited successfully: err=${err}`);
 
-                const recs = stdout.split(/\r?\n/g)
-                    .filter(ln => ln.startsWith('{'))
-                    .map(ln => JSON.parse(ln));
+                const recs = stdout
+                    .split(/\r?\n/g)
+                    .filter((ln) => ln.startsWith('{'))
+                    .map((ln) => JSON.parse(ln));
 
                 // Check that the `diag.*` calls worked as expected.
                 t.ok(!findObjInArray(recs, 'msg', 'verbose1'));
@@ -146,17 +154,16 @@ test('central-config', (suite) => {
             checkTelemetry: (t, col) => {
                 // Drop the expected `http://127.0.0.1:$port/api/agentConfigMap`
                 // API calls made to the OpAMP server by the script.
-                let spans = col.sortedSpans
-                    .filter((s) => {
-                        if (
-                            s.attributes['url.full']?.endsWith(
-                                '/api/agentConfigMap'
-                            )
-                        ) {
-                            return false;
-                        }
-                        return true;
-                    });
+                let spans = col.sortedSpans.filter((s) => {
+                    if (
+                        s.attributes['url.full']?.endsWith(
+                            '/api/agentConfigMap'
+                        )
+                    ) {
+                        return false;
+                    }
+                    return true;
+                });
                 // Should not be any other spans, e.g. for the OpAMP client
                 // communication.
                 const unexpectedSpans = spans.map((s) => {
@@ -194,7 +201,8 @@ test('central-config', (suite) => {
                 NODE_OPTIONS: '--import @elastic/opentelemetry-node',
                 ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
                 // Skip cloud resource detectors to avoid delay and noise.
-                OTEL_NODE_RESOURCE_DETECTORS: 'env,host,os,process,serviceinstance,container',
+                OTEL_NODE_RESOURCE_DETECTORS:
+                    'env,host,os,process,serviceinstance,container',
             },
             // verbose: true,
             checkTelemetry: (t, col) => {
@@ -218,7 +226,8 @@ test('central-config', (suite) => {
                     NODE_OPTIONS: '--import @elastic/opentelemetry-node',
                     ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
                     // Skip cloud resource detectors to avoid delay and noise.
-                    OTEL_NODE_RESOURCE_DETECTORS: 'env,host,os,process,serviceinstance,container',
+                    OTEL_NODE_RESOURCE_DETECTORS:
+                        'env,host,os,process,serviceinstance,container',
                     ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
                     ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
                     ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
@@ -226,19 +235,19 @@ test('central-config', (suite) => {
             },
             before: () => {
                 const config = {
-                    deactivate_all_instrumentations: 'true'
+                    deactivate_all_instrumentations: 'true',
                 };
                 opampServer.setAgentConfigMap({
                     configMap: {
                         elastic: {
                             body: Buffer.from(JSON.stringify(config), 'utf8'),
                             contentType: 'application/json',
-                        }
-                    }
+                        },
+                    },
                 });
             },
             after: () => {
-                opampServer.setAgentConfigMap({ configMap: {} });
+                opampServer.setAgentConfigMap({configMap: {}});
             },
             verbose: true,
             checkTelemetry: (t, col) => {

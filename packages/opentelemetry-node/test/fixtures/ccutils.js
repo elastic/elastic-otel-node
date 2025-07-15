@@ -85,5 +85,4 @@ module.exports = {
     DIAG_CH_SEND_SCHEDULE,
     barrierOpAMPClientDiagEvents,
     setAgentConfig,
-}
-
+};

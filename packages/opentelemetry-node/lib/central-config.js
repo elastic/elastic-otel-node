@@ -45,8 +45,9 @@ const LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL = {
 };
 const CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL = {};
 Object.keys(LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL).forEach(function (name) {
-    CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL[LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL[name]] =
-        name;
+    CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL[
+        LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL[name]
+    ] = name;
 });
 
 /**
@@ -169,11 +170,15 @@ const REMOTE_CONFIG_HANDLERS = [
                                 val = false;
                                 break;
                             default:
-                                return `unknown 'deactivate_all_instrumentations' value: ${JSON.stringify(val)}`;
+                                return `unknown 'deactivate_all_instrumentations' value: ${JSON.stringify(
+                                    val
+                                )}`;
                         }
                         break;
                     default:
-                        return `unknown 'deactivate_all_instrumentations' value type: ${typeof val} (${JSON.stringify(val)})`;
+                        return `unknown 'deactivate_all_instrumentations' value type: ${typeof val} (${JSON.stringify(
+                            val
+                        )})`;
                 }
             }
 
@@ -182,7 +187,7 @@ const REMOTE_CONFIG_HANDLERS = [
                 switch (instr.instrumentationName) {
                     case '@opentelemetry/instrumentation-undici':
                     case '@opentelemetry/instrumentation-runtime-node':
-                    // TODO: add and test the logger-related instrs
+                        // TODO: add and test the logger-related instrs
                         if (val) {
                             instr.disable();
                         } else {
@@ -198,10 +203,10 @@ const REMOTE_CONFIG_HANDLERS = [
                         break;
                 }
             }
-            log.info(`central-config: ${verb} all instrumentations`)
+            log.info(`central-config: ${verb} all instrumentations`);
 
             return null;
-        }
+        },
     },
 ];
 

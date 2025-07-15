@@ -98,7 +98,7 @@ function registerOTelDiagLogger(api) {
         {
             // Set the diag log level to pass through *all* records. The
             // luggite logger (`log`) will handle filtering based on level.
-            logLevel: api.DiagLogLevel['ALL']
+            logLevel: api.DiagLogLevel['ALL'],
         }
     );
 }
