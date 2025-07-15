@@ -150,7 +150,9 @@ function renderSpan(span, prefix = '') {
     }
     let scopeName = span.scope?.name;
     if (scopeName) {
-        const commonInstr = /^@opentelemetry\/instrumentation-(.*)$/.exec(scopeName);
+        const commonInstr = /^@opentelemetry\/instrumentation-(.*)$/.exec(
+            scopeName
+        );
         if (commonInstr) {
             extras.push(`scope=${commonInstr[1]}`);
         } else {
