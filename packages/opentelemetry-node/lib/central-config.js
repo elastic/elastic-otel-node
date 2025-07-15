@@ -264,7 +264,10 @@ function onRemoteConfig(sdkInfo, opampClient, remoteConfig) {
                 const currVal = lastAppliedConfig[key];
                 const val = config[key];
                 if (currVal !== val) {
-                    valsChanged ||= true;
+                    // Dev Note: dependency-check breaks on `||=` syntax.
+                    // (tail wagging the dog). TODO: switch to knip.
+                    //    valsChanged ||= true;
+                    valsChanged = valsChanged || true;
                 }
             }
             if (valsChanged) {
