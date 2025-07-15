@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Expose `MockOpAMPServer#setAgentConfigMap(...)` method, for use in testing.
 - chore: Excluding devDeps from Docker images should make them smaller.
 - Fix an issue where Ctrl+C would not exit mockopampserver *when running the Docker image*.
 

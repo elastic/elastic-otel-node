@@ -34,7 +34,7 @@ let lastAppliedConfig = {};
  * those for this package's logger (`luggite`).
  * https://github.com/elastic/kibana/blob/main/x-pack/solutions/observability/plugins/apm/common/agent_configuration/runtime_types/logging_level_rt.ts
  */
-const LUGGITE_LEVEL_FROM_LOGGING_LEVEL = {
+const LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL = {
     off: luggite.FATAL + 1, // TODO: support 'silent'  or 'off' luggite level
     fatal: 'fatal',
     error: 'error',
@@ -43,44 +43,173 @@ const LUGGITE_LEVEL_FROM_LOGGING_LEVEL = {
     debug: 'debug',
     trace: 'trace',
 };
-const LOGGING_LEVEL_FROM_LUGGITE_LEVEL = {};
-Object.keys(LUGGITE_LEVEL_FROM_LOGGING_LEVEL).forEach(function (name) {
-    LOGGING_LEVEL_FROM_LUGGITE_LEVEL[LUGGITE_LEVEL_FROM_LOGGING_LEVEL[name]] =
+const CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL = {};
+Object.keys(LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL).forEach(function (name) {
+    CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL[LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL[name]] =
         name;
 });
 
 /**
- * A "setter" is a function that applies the given config `val`.
+ * A "setter" is a function that applies one or more config keys.
  *
- * - A `val` of `undefined` means that the setting should be reset to its default value.
+ * - A config value of `undefined` means that the setting should be reset to its default value.
  * - After setting the value: `log.info('central-config: ...')`
  * - If there is an error applying the value, an error message string must be returned.
  *
- * @type Record<string, (any) => string | null>
+ * @typedef {object} RemoteConfigHandler
+ * @property {string[]} keys
+ * @property {(config: any, _sdkInfo: any) => string | null} setter
+ *
  */
-const SETTER_FROM_REMOTE_CONFIG_KEY = {
-    logging_level: (val) => {
-        let verb = 'set';
-        if (val === undefined) {
-            val = initialConfig.logging_level;
-            verb = 'reset';
-        }
-        const luggiteLevel = LUGGITE_LEVEL_FROM_LOGGING_LEVEL[val];
-        if (luggiteLevel) {
-            log.level(luggiteLevel);
-            log.info(`central-config: ${verb} "logging_level" to "${val}"`);
-        } else {
-            return `unknown 'logging_level' value: ${JSON.stringify(val)}`;
-        }
-        return null;
+/** @type {RemoteConfigHandler[]} */
+const REMOTE_CONFIG_HANDLERS = [
+    {
+        keys: ['logging_level'],
+        setter: (config, _sdkInfo) => {
+            let val = config['logging_level'];
+            let verb = 'set';
+            if (val === undefined) {
+                val = initialConfig.logging_level;
+                verb = 'reset';
+            }
+            const luggiteLevel = LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL[val];
+            if (luggiteLevel) {
+                log.level(luggiteLevel);
+                log.info(`central-config: ${verb} "logging_level" to "${val}"`);
+            } else {
+                return `unknown 'logging_level' value: ${JSON.stringify(val)}`;
+            }
+            return null;
+        },
     },
-};
+
+    /**
+     * How to dynamically enable/disable instrumentations.
+     *
+     * # The "right" way
+     *
+     * The OTel spec currently (2025-07) has "Development" phase
+     * configuration plans that provide exactly what we'd need:
+     * - TracerConfigurator (https://opentelemetry.io/docs/specs/otel/trace/sdk/#configuration)
+     * - MeterConfigurator (https://opentelemetry.io/docs/specs/otel/metrics/sdk/#configuration),
+     * - LoggerConfigurator (https://opentelemetry.io/docs/specs/otel/logs/sdk/#configuration)
+     *
+     * To *use* this with OTel SDK we will need:
+     * - the API to add support for the "Enabled" API, e.g. https://opentelemetry.io/docs/specs/otel/trace/api/#enabled
+     *   for tracing,
+     * - the SDK packages (sdk-metrics et al) to implement the Configurators, and
+     * - the instrumentations to use the new APIs to deactivate themselves when
+     *   their tracer/meter/logger is disabled.
+     *
+     * This will take a while.
+     *
+     * # The workaround way
+     *
+     * For now, we'll use the following techniques to deactivate as best we can.
+     *
+     * For **tracing** we typically `instr.setTracerProvider(noop)`, after
+     * which, any instrumentation will create `NonRecordingSpan`s which
+     * effectively disables tracing.
+     *
+     * Note that there are `disable() / enable()` methods on the base
+     * instrumentation class. However, for instrumentations that monkey-patch
+     * libraries, disabling/enabling means unpatching and re-patching via the
+     * RITM/IITM hooks. It is generally agreed by OTel JS maintainers that this
+     * is not reliable: it doesn't work in all cases (user code with a ref to
+     * patched function), ESM limitations.
+     *
+     * `instr.disable()` *is* a good mechanism for specific instrumentations
+     * that don't use patching and do a good job guarding on whether they are
+     * enabled (e.g. undici), and when usable, this also handles disabling
+     * metrics.
+     *
+     * For **metrics**, the general mechanism is TBD.
+     * (TODO: finish these docs, hope to use views)
+     *
+     * For **logs**, there is a difference between the "log correlation" and
+     * "log sending" features, for example see
+     * https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/instrumentation-bunyan/README.md#usage
+     * "log correlation" can be disabled via `instr.disable()`.
+     *
+     * Currently "log sending" cannot disabled this way, because an appender has
+     * already been attached to a user's `Logger` object which has no connection
+     * back to the instrumentation instance. It *might* be possible to always
+     * install a `LogRecordProcessor` that dynamically drops logs for disabled
+     * instrumentations. However this feels like a poor/heavy solution.
+     * Suggestion: document the limitation and suggest usage of the eventual
+     * `send_logs` central config setting.
+     *
+     * # Non-solutions
+     *
+     * Using `instr.setMeterProvider()` is not a solution. At least with
+     * instr-runtime-node it results in creating *more* Instruments without
+     * removing the old ones. The result is some metrics are still emitted *and*
+     * there is a memleak.
+     */
+    {
+        keys: ['deactivate_all_instrumentations'],
+        setter: (config, sdkInfo) => {
+            // Validate the given config value.
+            let val = config['deactivate_all_instrumentations'];
+            let verb = 'deactivated';
+            if (val === undefined) {
+                val = false;
+                verb = 'reactivated';
+            } else {
+                switch (typeof val) {
+                    case 'boolean':
+                        // pass
+                        break;
+                    case 'string':
+                        switch (val.trim().toLowerCase()) {
+                            case 'true':
+                                val = true;
+                                break;
+                            case 'false':
+                                val = false;
+                                break;
+                            default:
+                                return `unknown 'deactivate_all_instrumentations' value: ${JSON.stringify(val)}`;
+                        }
+                        break;
+                    default:
+                        return `unknown 'deactivate_all_instrumentations' value type: ${typeof val} (${JSON.stringify(val)})`;
+                }
+            }
+
+            // (De)activate instrumentations, as appropriate.
+            for (let instr of sdkInfo.instrs) {
+                switch (instr.instrumentationName) {
+                    case '@opentelemetry/instrumentation-undici':
+                    case '@opentelemetry/instrumentation-runtime-node':
+                    // TODO: add and test the logger-related instrs
+                        if (val) {
+                            instr.disable();
+                        } else {
+                            instr.enable();
+                        }
+                        break;
+                    default:
+                        if (val) {
+                            instr.setTracerProvider(sdkInfo.noopTracerProvider);
+                        } else {
+                            instr.setTracerProvider(sdkInfo.sdkTracerProvider);
+                        }
+                        break;
+                }
+            }
+            log.info(`central-config: ${verb} all instrumentations`)
+
+            return null;
+        }
+    },
+];
 
 /**
  * Apply the `remoteConfig` received from the OpAMP server and
  * `.setRemoteConfigStatus(...)` as appropriate.
  */
-function onRemoteConfig(opampClient, remoteConfig) {
+function onRemoteConfig(sdkInfo, opampClient, remoteConfig) {
     let configJson;
     try {
         // Validate the remote config.
@@ -123,19 +252,25 @@ function onRemoteConfig(opampClient, remoteConfig) {
         const appliedKeys = [];
         const applyErrs = [];
         const configKeys = new Set(Object.keys(config));
-        for (let [key, setter] of Object.entries(
-            SETTER_FROM_REMOTE_CONFIG_KEY
-        )) {
-            configKeys.delete(key);
-            const currVal = lastAppliedConfig[key];
-            const val = config[key];
-            if (currVal !== val) {
-                const errMsg = setter(val);
+        for (const {keys, setter} of REMOTE_CONFIG_HANDLERS) {
+            let valsChanged = false;
+            for (const key of keys) {
+                configKeys.delete(key);
+                const currVal = lastAppliedConfig[key];
+                const val = config[key];
+                if (currVal !== val) {
+                    valsChanged ||= true;
+                }
+            }
+            if (valsChanged) {
+                const errMsg = setter(config, sdkInfo);
                 if (errMsg) {
                     applyErrs.push(errMsg);
                 } else {
-                    appliedKeys.push(key);
-                    lastAppliedConfig[key] = val;
+                    for (const key of keys) {
+                        appliedKeys.push(key);
+                        lastAppliedConfig[key] = config[key];
+                    }
                 }
             }
         }
@@ -143,6 +278,7 @@ function onRemoteConfig(opampClient, remoteConfig) {
             applyErrs.push(`config name "${key}" is unsupported`);
         }
 
+        // Report config status.
         if (applyErrs.length > 0) {
             log.error(
                 {config, applyErrs},
@@ -180,9 +316,11 @@ function onRemoteConfig(opampClient, remoteConfig) {
 /**
  * Setup an OpAMP client, if configured to use one.
  *
+ * TODO: type for sdkInfo
+ *
  * @returns {object | null} OpAMPClient, if configured to use one.
  */
-function setupCentralConfig(resource) {
+function setupCentralConfig(sdkInfo) {
     if (!process.env.ELASTIC_OTEL_OPAMP_ENDPOINT) {
         return null;
     }
@@ -237,7 +375,7 @@ function setupCentralConfig(resource) {
 
     // Gather initial effective config.
     initialConfig.logging_level =
-        LOGGING_LEVEL_FROM_LUGGITE_LEVEL[
+        CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL[
             luggite.nameFromLevel[log.level()] ?? DEFAULT_LOG_LEVEL
         ];
     log.debug({initialConfig}, 'initial central config values');
@@ -255,7 +393,7 @@ function setupCentralConfig(resource) {
         ),
         onMessage: ({remoteConfig}) => {
             if (remoteConfig) {
-                onRemoteConfig(client, remoteConfig);
+                onRemoteConfig(sdkInfo, client, remoteConfig);
             }
         },
         diagEnabled,
@@ -268,10 +406,10 @@ function setupCentralConfig(resource) {
     // `service.name` and `deployment.environment.name`.
     client.setAgentDescription({
         identifyingAttributes: {
-            [ATTR_SERVICE_NAME]: resource.attributes[ATTR_SERVICE_NAME],
+            [ATTR_SERVICE_NAME]: sdkInfo.resource.attributes[ATTR_SERVICE_NAME],
             [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]:
-                resource.attributes[ATTR_DEPLOYMENT_ENVIRONMENT_NAME] ||
-                resource.attributes[ATTR_DEPLOYMENT_NAME],
+                sdkInfo.resource.attributes[ATTR_DEPLOYMENT_ENVIRONMENT_NAME] ||
+                sdkInfo.resource.attributes[ATTR_DEPLOYMENT_NAME],
         },
     });
     // TODO: handle and test for a custom resource detector that does these *async*.

@@ -427,6 +427,10 @@ class TestCollector {
         return metrics;
     }
 
+    /*
+     * TODO: actual type (see TestSpan type from otel-js-contrib)
+     * @return {Array<object>}
+     */
     get logs() {
         const logs = [];
         this.rawLogs.forEach((logsServiceRequest) => {
@@ -508,6 +512,9 @@ class TestCollector {
  * @property {NodeJS.ProcessEnv | (() => NodeJS.ProcessEnv)} [env]
  *    Any custom envvars, e.g. `{NODE_OPTIONS:...}`, or a function that
  *    returns custom envvars (which allows lazy calculation).
+ * @property {() => void} [before] A function to run before spawning the script.
+ *    This can be used to setup whatever may be needed for the script.
+ * @property {() => void} [after] A function to run after executing the script.
  * @property {boolean} [verbose] Set to `true` to include `t.comment()`s showing
  *    the command run and its output. This can be helpful to run the script
  *    manually for dev/debugging.
@@ -587,6 +594,8 @@ function runTestFixtures(suite, testFixtures) {
                     onLogs: collector.onLogs.bind(collector),
                 });
                 await otlpServer.start();
+
+                await tf.before?.();
 
                 const cwd = tf.cwd || process.cwd();
                 const env = typeof tf.env === 'function' ? tf.env() : tf.env;
@@ -671,6 +680,7 @@ function runTestFixtures(suite, testFixtures) {
                                     await tf.checkTelemetry(t, collector);
                                 }
                             }
+                            await tf.after?.();
                             await otlpServer.close();
                             t.end();
                             resolve();
