@@ -1,6 +1,6 @@
 # @elastic/mockopampserver Changelog
 
-## Unreleased
+## v0.4.0
 
 - Expose `MockOpAMPServer#setAgentConfigMap(...)` method, for use in testing.
 - chore: Excluding devDeps from Docker images should make them smaller.
