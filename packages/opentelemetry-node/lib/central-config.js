@@ -195,10 +195,8 @@ const REMOTE_CONFIG_HANDLERS = [
             // (De)activate instrumentations, as appropriate.
             for (let instr of sdkInfo.instrs) {
                 switch (instr.instrumentationName) {
-                    // instr-undici: `instr.disable()` is good b/c it doesn't use patching
-                    case '@opentelemetry/instrumentation-undici':
-                    // instr-runtime-node: metrics signal only so `instr.disable()` is good
-                    case '@opentelemetry/instrumentation-runtime-node':
+                    case '@opentelemetry/instrumentation-undici': // doesn't use patching, so `instr.disable()` is ok
+                    case '@opentelemetry/instrumentation-runtime-node': // metrics-only, so `instr.disable()` is ok
                         // TODO:
                         // instr-pg: only way would be via `instr.disable()`, unpatching probably ok
                         // instr-mongodb: only way would be via `instr.disable()`, unpatching probably ok
