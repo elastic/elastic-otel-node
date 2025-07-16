@@ -124,19 +124,21 @@ const REMOTE_CONFIG_HANDLERS = [
      * enabled (e.g. undici), and when usable, this also handles disabling
      * metrics.
      *
-     * For **metrics**, the general mechanism is TBD.
-     * (TODO: finish these docs, hope to use views)
+     * For **metrics**, there is *no* alternative mechanism to `instr.disable()`
+     * (see "Non-solutions" below). `instr.disable()` *can* be fine for
+     * instrumentations if patching isn't used or if its specific
+     * unpatching/re-patching is fine.
      *
      * For **logs**, there is a difference between the "log correlation" and
      * "log sending" features, for example see
      * https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/instrumentation-bunyan/README.md#usage
-     * "log correlation" can be disabled via `instr.disable()`.
+     * "Log correlation" *can* be disabled via `instr.disable()`.
      *
-     * Currently "log sending" cannot disabled this way, because an appender has
-     * already been attached to a user's `Logger` object which has no connection
-     * back to the instrumentation instance. It *might* be possible to always
-     * install a `LogRecordProcessor` that dynamically drops logs for disabled
-     * instrumentations. However this feels like a poor/heavy solution.
+     * Currently "log sending" *cannot* be disabled this way, because an
+     * appender has already been attached to a user's `Logger` object which has
+     * no link back to the instrumentation instance. It *might* be possible to
+     * always install a `LogRecordProcessor` that dynamically drops logs for
+     * disabled instrumentations. However this feels like a poor/heavy solution.
      * Suggestion: document the limitation and suggest usage of the eventual
      * `send_logs` central config setting.
      *
@@ -146,7 +148,15 @@ const REMOTE_CONFIG_HANDLERS = [
      * instr-runtime-node it results in creating *more* Instruments without
      * removing the old ones. The result is some metrics are still emitted *and*
      * there is a memleak.
+     *
+     * Using metrics Views is not an option because they cannot be dynamically
+     * added/updated/removed.
      */
+    // TODO: Test unpatch cases with ESM. Does that work?
+    // TODO: Could perhaps resolve the "only way would be via instr.disable()"
+    //  cases by adding a `if (!span.isRecording()) { return; }` or similar
+    //  guard in those instrumentations. Argument being that if a span is
+    //  suppressed, then shouldn't be recording metrics for it.
     {
         keys: ['deactivate_all_instrumentations'],
         setter: (config, sdkInfo) => {
@@ -185,8 +195,25 @@ const REMOTE_CONFIG_HANDLERS = [
             // (De)activate instrumentations, as appropriate.
             for (let instr of sdkInfo.instrs) {
                 switch (instr.instrumentationName) {
+                    // instr-undici: `instr.disable()` is good b/c it doesn't use patching
                     case '@opentelemetry/instrumentation-undici':
+                    // instr-runtime-node: metrics signal only so `instr.disable()` is good
                     case '@opentelemetry/instrumentation-runtime-node':
+                        // TODO:
+                        // instr-pg: only way would be via `instr.disable()`, unpatching probably ok
+                        // instr-mongodb: only way would be via `instr.disable()`, unpatching probably ok
+                        // instr-kafkajs: only way would be via `instr.disable()`, unpatching probably ok
+                        // instr-aws-sdk: `@smithy/middleware-stack` patch does *not* unpatch so instr.disable/enable() is probably *not* good
+                        //     - bedrock-runtime.ts stats usage is guarded by:
+                        //             if (!span.isRecording()) { return; }
+                        //       so setTracerProvider(noop) *might* suffice for it.
+                        //     - TODO: verify that. If so, then tracer disable might suffice.
+                        // instr-mysql: only way would be via `instr.disable()`, but unpatch will not always
+                        //     work (if user does `const {createConnection} = require('mysql');`), so
+                        //     *could* do *both* instr.disable() and instr.setTracerProvider().
+                        // instr-http: only way would be via `instr.disable()`, but unpatch will not always
+                        //     work (if user does `const {request} = require('http');`), so *could* do
+                        //     *both*.
                         // TODO: add and test the logger-related instrs
                         if (val) {
                             instr.disable();
@@ -195,6 +222,9 @@ const REMOTE_CONFIG_HANDLERS = [
                         }
                         break;
                     default:
+                        // `instr.disable/enable()` can be problematic for
+                        // some instrs that patch.
+                        // TODO: verify propwrap and no unwrap in instr-aws-sdk is problematic
                         if (val) {
                             instr.setTracerProvider(sdkInfo.noopTracerProvider);
                         } else {
