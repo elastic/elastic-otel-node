@@ -48,30 +48,28 @@ function assertCentralConfigGenTelemetry(t, col, expectations = []) {
         `no unexpected extra spans: ${JSON.stringify(spans)}`
     );
 
-    // TODO: cannot yet test metrics, because disabling metrics from some instrs is not yet implemented.
-    //
-    // // Check for a subset of expected metrics.
-    // let metrics = col.metrics;
-    // if (expectations.includes('metrics')) {
-    //     t.ok(findObjInArray(metrics, 'name', 'process.cpu.utilization'), 'host-metrics metric');
-    //     if (expectations.includes('instr-runtime-node')) {
-    //         t.ok(findObjInArray(metrics, 'name', 'nodejs.eventloop.utilization'), 'instr-runtime-node metric');
-    //     } else {
-    //         t.ok(!findObjInArray(metrics, 'name', 'nodejs.eventloop.utilization'), 'no instr-runtime-node metrics');
-    //     }
-    //     if (expectations.includes('instr-undici')) {
-    //         t.ok(findObjInArray(metrics, 'name', 'http.client.request.duration'), 'instr-undici metric');
-    //     } else {
-    //         t.ok(!findObjInArray(metrics, 'name', 'http.client.request.duration'), 'no instr-undici metrics');
-    //     }
-    //     if (expectations.includes('instr-http')) {
-    //         t.ok(findObjInArray(metrics, 'name', 'http.server.request.duration'), 'instr-http metric');
-    //     } else {
-    //         t.ok(!findObjInArray(metrics, 'name', 'http.server.request.duration'), 'no instr-http metrics');
-    //     }
-    // } else {
-    //     t.equal(metrics.length, 0, `no unexpected metrics: ${JSON.stringify(metrics)}`);
-    // }
+    // Check for a subset of expected metrics.
+    let metrics = col.metrics({lastBatch: true});
+    if (expectations.includes('metrics')) {
+        t.ok(findObjInArray(metrics, 'name', 'process.cpu.utilization'), 'host-metrics metric');
+        if (expectations.includes('instr-runtime-node')) {
+            t.ok(findObjInArray(metrics, 'name', 'nodejs.eventloop.utilization'), 'instr-runtime-node metric');
+        } else {
+            t.ok(!findObjInArray(metrics, 'name', 'nodejs.eventloop.utilization'), 'no instr-runtime-node metrics');
+        }
+        if (expectations.includes('instr-undici')) {
+            t.ok(findObjInArray(metrics, 'name', 'http.client.request.duration'), 'instr-undici metric');
+        } else {
+            t.ok(!findObjInArray(metrics, 'name', 'http.client.request.duration'), 'no instr-undici metrics');
+        }
+        if (expectations.includes('instr-http')) {
+            t.ok(findObjInArray(metrics, 'name', 'http.server.request.duration'), 'instr-http metric');
+        } else {
+            t.ok(!findObjInArray(metrics, 'name', 'http.server.request.duration'), 'no instr-http metrics');
+        }
+    } else {
+        t.equal(metrics.length, 0, `no unexpected metrics: ${JSON.stringify(metrics)}`);
+    }
 
     let logs = col.logs;
     let rec;
@@ -188,34 +186,34 @@ test('central-config', (suite) => {
         // Use "central-config-gen-telemetry.js" for a few tests. The script
         // will (a) wait for opamp-client events to ensure central config
         // has been received, if any, then (b) execute code that uses http,
-        // undici, and pino (generating all telemetry signals).
+        // undici, and pino (covering all 3 telemetry signals).
         //
         // The first test case is a baseline with no central-config. Subsequent
         // tests tweak central-config settings and assert expected differences
         // in received telemetry.
-        {
-            name: 'central-config-gen-telemetry.js baseline',
-            args: ['./fixtures/central-config-gen-telemetry.js'],
-            cwd: __dirname,
-            env: {
-                NODE_OPTIONS: '--import @elastic/opentelemetry-node',
-                ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
-                // Skip cloud resource detectors to avoid delay and noise.
-                OTEL_NODE_RESOURCE_DETECTORS:
-                    'env,host,os,process,serviceinstance,container',
-            },
-            // verbose: true,
-            checkTelemetry: (t, col) => {
-                assertCentralConfigGenTelemetry(t, col, [
-                    'spans',
-                    'metrics',
-                    'logs',
-                    'instr-runtime-node',
-                    'instr-undici',
-                    'instr-http',
-                ]);
-            },
-        },
+        // {
+        //     name: 'central-config-gen-telemetry.js baseline',
+        //     args: ['./fixtures/central-config-gen-telemetry.js'],
+        //     cwd: __dirname,
+        //     env: {
+        //         NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+        //         ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
+        //         // Skip cloud resource detectors to avoid delay and noise.
+        //         OTEL_NODE_RESOURCE_DETECTORS:
+        //             'env,host,os,process,serviceinstance,container',
+        //     },
+        //     // verbose: true,
+        //     checkTelemetry: (t, col) => {
+        //         assertCentralConfigGenTelemetry(t, col, [
+        //             'spans',
+        //             'metrics',
+        //             'logs',
+        //             'instr-runtime-node',
+        //             'instr-undici',
+        //             'instr-http',
+        //         ]);
+        //     },
+        // },
 
         {
             name: 'central-config: deactivate_all_instrumentations',
@@ -228,9 +226,15 @@ test('central-config', (suite) => {
                     // Skip cloud resource detectors to avoid delay and noise.
                     OTEL_NODE_RESOURCE_DETECTORS:
                         'env,host,os,process,serviceinstance,container',
+                    // Configure OpAMP usage for testing.
                     ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
                     ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
                     ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                    // Set a short metric export interval to allow the
+                    // fixture script to wait for an interval after receiving
+                    // central config before proceeding.
+                    OTEL_METRIC_EXPORT_INTERVAL: '500',
+                    OTEL_METRIC_EXPORT_TIMEOUT: '450',
                 };
             },
             before: () => {

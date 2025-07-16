@@ -87,6 +87,13 @@ const REMOTE_CONFIG_HANDLERS = [
     /**
      * How to dynamically enable/disable instrumentations.
      *
+     * # tl;dr
+     *
+     * The OTel spec has a better "right" way to do this, that isn't implemented
+     * in OTel JS. Instead we'll use `instr.disable() / .enable()` when pretty
+     * sure this is safe for a given instrumentation. Otherwise we'll fallback
+     * to `instr.setTracerProvider(noop)`, which works for the tracing signal.
+     *
      * # The "right" way
      *
      * The OTel spec currently (2025-07) has "Development" phase
@@ -209,9 +216,6 @@ const REMOTE_CONFIG_HANDLERS = [
                         // instr-mysql: only way would be via `instr.disable()`, but unpatch will not always
                         //     work (if user does `const {createConnection} = require('mysql');`), so
                         //     *could* do *both* instr.disable() and instr.setTracerProvider().
-                        // instr-http: only way would be via `instr.disable()`, but unpatch will not always
-                        //     work (if user does `const {request} = require('http');`), so *could* do
-                        //     *both*.
                         // TODO: add and test the logger-related instrs
                         if (val) {
                             instr.disable();
@@ -219,9 +223,26 @@ const REMOTE_CONFIG_HANDLERS = [
                             instr.enable();
                         }
                         break;
+                    case '@opentelemetry/instrumentation-http':
+                        // For instr-http, the only way to disable its *metrics*
+                        // is via `instr.disable()`. However, the unpatching
+                        // doesn't work when user code gets a direct ref like
+                        //      const {request} = require('http');
+                        // so we also `instr.setTracerProvider(noop);` to at
+                        // least disable tracing for this case.
+                        // TODO: instr-http test case using `const {request} = ...`
+                        if (val) {
+                            instr.setTracerProvider(sdkInfo.noopTracerProvider);
+                            instr.disable();
+                        } else {
+                            instr.setTracerProvider(sdkInfo.sdkTracerProvider);
+                            instr.enable();
+                        }
+                        break;
                     default:
                         // `instr.disable/enable()` can be problematic for
-                        // some instrs that patch.
+                        // some instrs that patch. As a fallback we at least
+                        // disable the traces signal.
                         // TODO: verify propwrap and no unwrap in instr-aws-sdk is problematic
                         if (val) {
                             instr.setTracerProvider(sdkInfo.noopTracerProvider);

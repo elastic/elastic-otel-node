@@ -11,6 +11,7 @@
 
 const http = require('http');
 const pino = require('pino');
+const {setTimeout} = require('timers/promises');
 const otel = require('@opentelemetry/api');
 const {
     DIAG_CH_SEND_SUCCESS,
@@ -53,6 +54,10 @@ async function main() {
         // 1. initial heartbeat which receives `remoteConfig`, and
         // 2. client message with `remoteConfigStatus`
         await barrierOpAMPClientDiagEvents(2, [DIAG_CH_SEND_SUCCESS]);
+        // Wait for a couple metric intervals before proceeding, so that
+        // already recording metrics can be excluded in tests.
+        const metricInterval = Number(process.env.OTEL_METRIC_EXPORT_INTERVAL);
+        await setTimeout(metricInterval * 2);
     }
 
     await tracer.startActiveSpan('manual-span', async (span) => {

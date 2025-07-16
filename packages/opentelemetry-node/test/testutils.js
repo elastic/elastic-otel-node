@@ -333,7 +333,7 @@ function quoteEnv(env) {
  *
  * @typedef {Object} CollectorStore
  * @property {CollectedSpan[]} sortedSpans
- * @property {CollectedMetric[]} metrics
+ * @property {() => CollectedMetric[]} metrics
  * @property {import('@opentelemetry/api-logs').LogRecord[]} logs
  */
 
@@ -349,11 +349,11 @@ class TestCollector {
     onTrace(trace) {
         this.rawTraces.push(trace);
     }
-    onMetrics(trace) {
-        this.rawMetrics.push(trace);
+    onMetrics(metrics) {
+        this.rawMetrics.push(metrics);
     }
-    onLogs(trace) {
-        this.rawLogs.push(trace);
+    onLogs(logs) {
+        this.rawLogs.push(logs);
     }
 
     /**
@@ -404,10 +404,21 @@ class TestCollector {
         });
     }
 
-    get metrics() {
+    /**
+     * Return an array of received metrics, normalized for convenience.
+     *
+     * @param {object} opts
+     * @property {boolean} opts.lastBatch Set to true to filter the returned
+     *      metrics to just those received in the last intake request.
+     */
+    metrics({lastBatch} = {lastBatch: false}) {
         const metrics = [];
 
-        this.rawMetrics.forEach((rawMetric) => {
+        let rawMetrics = this.rawMetrics;
+        if (lastBatch) {
+            rawMetrics = rawMetrics.slice(-1);
+        }
+        rawMetrics.forEach((rawMetric) => {
             const normMetric = normalizeMetrics(rawMetric);
             normMetric.resourceMetrics.forEach((resourceMetrics) => {
                 // The `?.` usages are guards against empty array values (e.g. a
@@ -481,8 +492,8 @@ class TestCollector {
  *        args: ['-r', '@elastic/opentelemetry-node', 'fixtures/hello.js'],
  *        cwd: __dirname,
  *        verbose: true, // use to get debug output for the script's run
- *        checkTelemetry: (t, tel) => {
- *          const spans = tel.sortedSpans;
+ *        checkTelemetry: (t, col) => {
+ *          const spans = col.sortedSpans;
  *          t.equal(spans.length, 1)
  *          t.ok(spans[0].name, 'GET')
  *        }

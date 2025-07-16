@@ -26,7 +26,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const histogramMetrics = col.metrics.filter((m) => !!m.histogram);
+            const histogramMetrics = col.metrics().filter((m) => !!m.histogram);
 
             t.ok(histogramMetrics.length > 0);
             // AGGREGATION_TEMPORALITY_DELTA == 1
@@ -54,7 +54,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            const histogramMetrics = col.metrics.filter((m) => !!m.histogram);
+            const histogramMetrics = col.metrics().filter((m) => !!m.histogram);
 
             t.ok(histogramMetrics.length > 0);
             t.ok(
