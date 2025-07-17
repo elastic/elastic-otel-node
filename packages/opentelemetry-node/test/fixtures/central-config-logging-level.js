@@ -23,7 +23,7 @@ const {
     DIAG_CH_SEND_SUCCESS,
     barrierOpAMPClientDiagEvents,
     setAgentConfig,
-} = require('./ccutils');
+} = require('../ccutils');
 const {diag} = require('@opentelemetry/api');
 
 async function main() {

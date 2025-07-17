@@ -16,7 +16,7 @@ const otel = require('@opentelemetry/api');
 const {
     DIAG_CH_SEND_SUCCESS,
     barrierOpAMPClientDiagEvents,
-} = require('./ccutils.js');
+} = require('../ccutils.js');
 
 const log = pino();
 const tracer = otel.trace.getTracer('central-config-gen-telemetry');
