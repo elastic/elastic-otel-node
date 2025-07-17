@@ -10,6 +10,7 @@ const {
     filterOutDnsNetSpans,
     findObjInArray,
     runTestFixtures,
+    findObjsInArray,
 } = require('./testutils');
 const luggite = require('../lib/luggite');
 
@@ -134,7 +135,7 @@ test('central-config', (suite) => {
     });
 
     /** @type {import('./testutils').TestFixture[]} */
-    const testFixtures = [
+    var testFixtures = [
         {
             name: 'logging_level',
             args: ['./fixtures/central-config-logging-level.js'],
@@ -228,29 +229,29 @@ test('central-config', (suite) => {
         // The first test case is a baseline with no central-config. Subsequent
         // tests tweak central-config settings and assert expected differences
         // in received telemetry.
-        // {
-        //     name: 'central-config-gen-telemetry.js baseline',
-        //     args: ['./fixtures/central-config-gen-telemetry.js'],
-        //     cwd: __dirname,
-        //     env: {
-        //         NODE_OPTIONS: '--import @elastic/opentelemetry-node',
-        //         ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
-        //         // Skip cloud resource detectors to avoid delay and noise.
-        //         OTEL_NODE_RESOURCE_DETECTORS:
-        //             'env,host,os,process,serviceinstance,container',
-        //     },
-        //     // verbose: true,
-        //     checkTelemetry: (t, col) => {
-        //         assertCentralConfigGenTelemetry(t, col, [
-        //             'spans',
-        //             'metrics',
-        //             'logs',
-        //             'instr-runtime-node',
-        //             'instr-undici',
-        //             'instr-http',
-        //         ]);
-        //     },
-        // },
+        {
+            name: 'central-config-gen-telemetry.js baseline',
+            args: ['./fixtures/central-config-gen-telemetry.js'],
+            cwd: __dirname,
+            env: {
+                NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
+                // Skip cloud resource detectors to avoid delay and noise.
+                OTEL_NODE_RESOURCE_DETECTORS:
+                    'env,host,os,process,serviceinstance,container',
+            },
+            // verbose: true,
+            checkTelemetry: (t, col) => {
+                assertCentralConfigGenTelemetry(t, col, [
+                    'spans',
+                    'metrics',
+                    'logs',
+                    'instr-runtime-node',
+                    'instr-undici',
+                    'instr-http',
+                ]);
+            },
+        },
 
         {
             name: 'central-config: deactivate_all_instrumentations',
@@ -291,6 +292,19 @@ test('central-config', (suite) => {
                 opampServer.setAgentConfigMap({configMap: {}});
             },
             verbose: true,
+            checkResult: (t, err, stdout, _stderr) => {
+                t.error(err, `exited successfully: err=${err}`);
+                const recs = stdout
+                    .split(/\r?\n/g)
+                    .filter((ln) => ln.startsWith('{'))
+                    .map((ln) => JSON.parse(ln));
+                const pinoRec = findObjInArray(recs, 'msg', 'hi at info level');
+                t.ok(pinoRec);
+                t.notOk(
+                    pinoRec.trace_id || pinoRec.span_id,
+                    'pino log record does not have logCorrelation fields'
+                );
+            },
             checkTelemetry: (t, col) => {
                 assertCentralConfigGenTelemetry(t, col, [
                     'spans',
@@ -349,10 +363,145 @@ test('central-config', (suite) => {
         //     },
         // },
 
-        // TODO add subsequent tests that tweak central config deactivate_ et al values.
-        // TODO deact pino
-        // TODO send_traces
+        // This is an attempt at an exhaustive test that
+        // `deactivate_all_instrumentations` works as expected for *every*
+        // instrumentation -- or at least every one that we've managed to add a
+        // test for here.
+        {
+            name: 'central-config: deactivate_all_instrumentations on all the things',
+            args: ['./fixtures/central-config-use-all-the-things.js'],
+            skip: () => {
+                // https://github.com/elastic/elastic-otel-node/blob/main/packages/opentelemetry-node/TESTING.md#requirements-for-writing-test-files
+                const missingEnvVars = ['MONGODB_HOST'].filter(
+                    (k) => !process.env[k]
+                );
+                if (missingEnvVars.length > 0) {
+                    return 'missing envvars ' + missingEnvVars.join(', ');
+                }
+            },
+            cwd: __dirname,
+            env: () => {
+                return {
+                    NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                    ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
+                    // Skip cloud resource detectors to avoid delay and noise.
+                    OTEL_NODE_RESOURCE_DETECTORS:
+                        'env,host,os,process,serviceinstance,container',
+                    // Configure OpAMP usage for testing.
+                    ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
+                    ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
+                    ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                    // Set a short metric export interval to allow the
+                    // fixture script to wait for an interval after receiving
+                    // central config before proceeding.
+                    OTEL_METRIC_EXPORT_INTERVAL: '500',
+                    OTEL_METRIC_EXPORT_TIMEOUT: '450',
+                };
+            },
+            verbose: true,
+            checkTelemetry: (t, col) => {
+                const spans = filterOutDnsNetSpans(col.sortedSpans);
+                const allMetrics = col.metrics();
+                const lastMetrics = col.metrics({lastBatch: true});
+
+                // --- Phase A: baseline check on expected telemetry from instrs.
+                t.comment('phase A');
+                const a = findObjInArray(spans, 'name', 'a');
+                const aChildren = findObjsInArray(
+                    spans,
+                    'parentSpanId',
+                    a.spanId
+                );
+                t.equal(aChildren.length, 3, 'expected num children of "a"');
+                let span, metric;
+
+                // pg
+                t.ok(
+                    findObjInArray(
+                        aChildren,
+                        'name',
+                        'pg.query:SELECT postgres'
+                    ),
+                    'pg span'
+                );
+                metric = findObjInArray(
+                    allMetrics,
+                    'scope.name',
+                    '@opentelemetry/instrumentation-pg'
+                );
+                t.equal(
+                    metric.name,
+                    'db.client.operation.duration',
+                    'pg metric'
+                );
+
+                // http.get
+                span = findObjInArray(
+                    aChildren,
+                    'scope.name',
+                    '@opentelemetry/instrumentation-http'
+                );
+                t.equal(span.name, 'GET', 'http.get span');
+                metric = findObjInArray(
+                    allMetrics,
+                    'scope.name',
+                    '@opentelemetry/instrumentation-http'
+                );
+                t.equal(
+                    metric.name,
+                    'http.client.request.duration',
+                    'http.get metric'
+                );
+
+                // mongodb
+                span = findObjInArray(
+                    aChildren,
+                    'scope.name',
+                    '@opentelemetry/instrumentation-mongodb'
+                );
+                t.equal(span.name, 'mongodb.insert', 'mongodb span');
+                metric = findObjInArray(
+                    allMetrics,
+                    'scope.name',
+                    '@opentelemetry/instrumentation-mongodb'
+                );
+                t.equal(
+                    metric.name,
+                    'db.client.connections.usage',
+                    'mongodb metric'
+                );
+
+                // --- Phase B: should not see telemetry from phase B.
+                t.comment('phase B');
+                const b = findObjInArray(spans, 'name', 'b');
+                const bChildren = findObjsInArray(
+                    spans,
+                    'parentSpanId',
+                    b.spanId
+                );
+                t.equal(bChildren.length, 0, 'expected num children of "b"');
+                t.notOk(
+                    findObjInArray(
+                        lastMetrics,
+                        'scope.name',
+                        '@opentelemetry/instrumentation-pg'
+                    ),
+                    'no pg metrics'
+                );
+                // Limitations:
+                // - The current technique for disabling instr-http is
+                //   insufficient to disable its client metrics when client code
+                //   has a ref to the previously patched export via:
+                //      const {get, request} = require('http');
+                //   So we cannot make this assertion:
+                //      t.notOk(findObjInArray(allMetrics, 'scope.name', '@opentelemetry/instrumentation-http'), 'no http metrics');
+                // - Cannot disable metrics for instr-mongodb.
+            },
+        },
+
+        // TODO: Test unpatching cases with ESM. Does that work?
     ];
+
     runTestFixtures(suite, testFixtures);
 
     suite.test('teardown: MockOpAMPServer', async (t) => {

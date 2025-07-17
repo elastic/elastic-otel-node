@@ -61,13 +61,13 @@ function barrierOpAMPClientDiagEvents(n, channels) {
  * testMode) live setting the `agentConfigMap` that is used for remote config
  * in `ServerToAgent` responses.
  */
-async function setAgentConfig(config, endpoint) {
+async function setAgentConfig(agentConfig, endpoint) {
     const u = new URL(endpoint || process.env.ELASTIC_OTEL_OPAMP_ENDPOINT);
     u.pathname = '/api/agentConfigMap';
     const res = await fetch(u.href, {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify(config),
+        body: JSON.stringify(agentConfig),
     });
     if (res.status === 204) {
         await res.arrayBuffer(); // https://undici.nodejs.org/#/?id=garbage-collection
@@ -79,10 +79,22 @@ async function setAgentConfig(config, endpoint) {
     }
 }
 
+/**
+ * A convenience wrapper around `setAgentConfig` to allow passing in just
+ * the config object that you expect an EDOT Node.js to receive for central
+ * config. For example:
+ *
+ *  setElasticConfig({logging_level: 'info'});
+ */
+function setElasticConfig(config) {
+    return setAgentConfig({elastic: {body: JSON.stringify(config)}});
+}
+
 module.exports = {
     DIAG_CH_SEND_SUCCESS,
     DIAG_CH_SEND_FAIL,
     DIAG_CH_SEND_SCHEDULE,
     barrierOpAMPClientDiagEvents,
     setAgentConfig,
+    setElasticConfig,
 };

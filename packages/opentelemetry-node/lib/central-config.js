@@ -159,11 +159,6 @@ const REMOTE_CONFIG_HANDLERS = [
      * Using metrics Views is not an option because they cannot be dynamically
      * added/updated/removed.
      */
-    // TODO: Test unpatch cases with ESM. Does that work?
-    // TODO: Could perhaps resolve the "only way would be via instr.disable()"
-    //  cases by adding a `if (!span.isRecording()) { return; }` or similar
-    //  guard in those instrumentations. Argument being that if a span is
-    //  suppressed, then shouldn't be recording metrics for it.
     {
         keys: ['deactivate_all_instrumentations'],
         setter: (config, sdkInfo) => {
@@ -204,19 +199,26 @@ const REMOTE_CONFIG_HANDLERS = [
                 switch (instr.instrumentationName) {
                     case '@opentelemetry/instrumentation-undici': // doesn't use patching, so `instr.disable()` is ok
                     case '@opentelemetry/instrumentation-runtime-node': // metrics-only, so `instr.disable()` is ok
-                        // TODO:
-                        // instr-pg: only way would be via `instr.disable()`, unpatching probably ok
-                        // instr-mongodb: only way would be via `instr.disable()`, unpatching probably ok
-                        // instr-kafkajs: only way would be via `instr.disable()`, unpatching probably ok
-                        // instr-aws-sdk: `@smithy/middleware-stack` patch does *not* unpatch so instr.disable/enable() is probably *not* good
+                    case '@opentelemetry/instrumentation-pg': // need .disable() for its metrics, unpatching ok
+                    case '@opentelemetry/instrumentation-mongodb':
+                    case '@opentelemetry/instrumentation-kafkajs':
+                    case '@opentelemetry/instrumentation-bunyan':
+                    case '@opentelemetry/instrumentation-pino':
+                    case '@opentelemetry/instrumentation-winston':
+                        // TODO: work through instrumentations and add to this
+                        //    case if unpatching is safe.
+                        // Notes / Limitations:
+                        // - instr-mongodb: Cannot dynamically disable
+                        //   `db.client.connections.usage` metric from this
+                        //   instr.
+                        // - instr-aws-sdk: `@smithy/middleware-stack` patch
+                        //   does *not* support unpatching, so `instr.disable()`
+                        //   is not good.
                         //     - bedrock-runtime.ts stats usage is guarded by:
                         //             if (!span.isRecording()) { return; }
                         //       so setTracerProvider(noop) *might* suffice for it.
-                        //     - TODO: verify that. If so, then tracer disable might suffice.
-                        // instr-mysql: only way would be via `instr.disable()`, but unpatch will not always
-                        //     work (if user does `const {createConnection} = require('mysql');`), so
-                        //     *could* do *both* instr.disable() and instr.setTracerProvider().
-                        // TODO: add and test the logger-related instrs
+                        // - instr-{pino,bunyan,winston}: `instr.disable() is
+                        //   needed to disable "logCorrelation" handling.
                         if (val) {
                             instr.disable();
                         } else {
@@ -224,13 +226,12 @@ const REMOTE_CONFIG_HANDLERS = [
                         }
                         break;
                     case '@opentelemetry/instrumentation-http':
-                        // For instr-http, the only way to disable its *metrics*
-                        // is via `instr.disable()`. However, the unpatching
-                        // doesn't work when user code gets a direct ref like
+                        // - instr-http: The only way to disable its *metrics*
+                        //   is via `instr.disable()`. However, the unpatching
+                        //   doesn't work when user code gets a direct ref like
                         //      const {request} = require('http');
-                        // so we also `instr.setTracerProvider(noop);` to at
-                        // least disable tracing for this case.
-                        // TODO: instr-http test case using `const {request} = ...`
+                        //   so we also `instr.setTracerProvider(noop);` to at
+                        //   least disable tracing for this case.
                         if (val) {
                             instr.setTracerProvider(sdkInfo.noopTracerProvider);
                             instr.disable();
@@ -243,7 +244,6 @@ const REMOTE_CONFIG_HANDLERS = [
                         // `instr.disable/enable()` can be problematic for
                         // some instrs that patch. As a fallback we at least
                         // disable the traces signal.
-                        // TODO: verify propwrap and no unwrap in instr-aws-sdk is problematic
                         if (val) {
                             instr.setTracerProvider(sdkInfo.noopTracerProvider);
                         } else {

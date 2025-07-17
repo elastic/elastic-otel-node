@@ -333,7 +333,7 @@ function quoteEnv(env) {
  *
  * @typedef {Object} CollectorStore
  * @property {CollectedSpan[]} sortedSpans
- * @property {() => CollectedMetric[]} metrics
+ * @property {(any) => CollectedMetric[]} metrics
  * @property {import('@opentelemetry/api-logs').LogRecord[]} logs
  */
 
@@ -514,6 +514,8 @@ class TestCollector {
  *
  * @typedef {Object} TestFixture
  * @property {string} [name] The name of the test.
+ * @property {() => string | undefined} [skip] A function that determines if
+ *    this fixture should be skipped.
  * @property {Array<string>} args The args to `node`.
  * @property {string} [cwd] Typically this is `__dirname`, then the `args` can
  *    be relative to the test file.
@@ -568,6 +570,16 @@ function runTestFixtures(suite, testFixtures) {
             const testName = tf.name ?? quoteArgv(tf.args);
             const testOpts = Object.assign({}, tf.testOpts);
             suite.test(testName, testOpts, async (t) => {
+                if (tf.skip) {
+                    const skipReason = tf.skip();
+                    if (skipReason) {
+                        t.comment(`SKIP "${testName}" fixture: ${skipReason}`);
+                        t.end();
+                        outerResolve();
+                        return;
+                    }
+                }
+
                 // Handle "tf.versionRanges"-based skips here, because `tape` doesn't
                 // print any message for `testOpts.skip`.
                 if (tf.versionRanges) {

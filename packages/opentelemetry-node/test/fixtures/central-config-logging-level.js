@@ -22,7 +22,7 @@
 const {
     DIAG_CH_SEND_SUCCESS,
     barrierOpAMPClientDiagEvents,
-    setAgentConfig,
+    setElasticConfig,
 } = require('../ccutils');
 const {diag} = require('@opentelemetry/api');
 
@@ -43,9 +43,7 @@ async function main() {
     //    avoid a race where the client is just sending a heartbeat while
     //   `setAgentConfig` is being called.
     if (process.env.ELASTIC_OTEL_OPAMP_ENDPOINT) {
-        setAgentConfig({
-            elastic: {body: JSON.stringify({logging_level: 'debug'})},
-        });
+        await setElasticConfig({logging_level: 'debug'});
         await barrierOpAMPClientDiagEvents(3, [DIAG_CH_SEND_SUCCESS]);
     }
 
@@ -60,9 +58,7 @@ async function main() {
     //    in Kibana being removed. We expect the EDOT Node.js SDK to reset back
     //    to the default (info) log level.
     if (process.env.ELASTIC_OTEL_OPAMP_ENDPOINT) {
-        setAgentConfig({
-            elastic: {body: JSON.stringify({})},
-        });
+        await setElasticConfig({});
         await barrierOpAMPClientDiagEvents(3, [DIAG_CH_SEND_SUCCESS]);
     }
 
