@@ -51,24 +51,61 @@ function assertCentralConfigGenTelemetry(t, col, expectations = []) {
     // Check for a subset of expected metrics.
     let metrics = col.metrics({lastBatch: true});
     if (expectations.includes('metrics')) {
-        t.ok(findObjInArray(metrics, 'name', 'process.cpu.utilization'), 'host-metrics metric');
+        t.ok(
+            findObjInArray(metrics, 'name', 'process.cpu.utilization'),
+            'host-metrics metric'
+        );
         if (expectations.includes('instr-runtime-node')) {
-            t.ok(findObjInArray(metrics, 'name', 'nodejs.eventloop.utilization'), 'instr-runtime-node metric');
+            t.ok(
+                findObjInArray(metrics, 'name', 'nodejs.eventloop.utilization'),
+                'instr-runtime-node metric'
+            );
         } else {
-            t.ok(!findObjInArray(metrics, 'name', 'nodejs.eventloop.utilization'), 'no instr-runtime-node metrics');
+            t.ok(
+                !findObjInArray(
+                    metrics,
+                    'name',
+                    'nodejs.eventloop.utilization'
+                ),
+                'no instr-runtime-node metrics'
+            );
         }
         if (expectations.includes('instr-undici')) {
-            t.ok(findObjInArray(metrics, 'name', 'http.client.request.duration'), 'instr-undici metric');
+            t.ok(
+                findObjInArray(metrics, 'name', 'http.client.request.duration'),
+                'instr-undici metric'
+            );
         } else {
-            t.ok(!findObjInArray(metrics, 'name', 'http.client.request.duration'), 'no instr-undici metrics');
+            t.ok(
+                !findObjInArray(
+                    metrics,
+                    'name',
+                    'http.client.request.duration'
+                ),
+                'no instr-undici metrics'
+            );
         }
         if (expectations.includes('instr-http')) {
-            t.ok(findObjInArray(metrics, 'name', 'http.server.request.duration'), 'instr-http metric');
+            t.ok(
+                findObjInArray(metrics, 'name', 'http.server.request.duration'),
+                'instr-http metric'
+            );
         } else {
-            t.ok(!findObjInArray(metrics, 'name', 'http.server.request.duration'), 'no instr-http metrics');
+            t.ok(
+                !findObjInArray(
+                    metrics,
+                    'name',
+                    'http.server.request.duration'
+                ),
+                'no instr-http metrics'
+            );
         }
     } else {
-        t.equal(metrics.length, 0, `no unexpected metrics: ${JSON.stringify(metrics)}`);
+        t.equal(
+            metrics.length,
+            0,
+            `no unexpected metrics: ${JSON.stringify(metrics)}`
+        );
     }
 
     let logs = col.logs;
