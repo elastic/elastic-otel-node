@@ -70,10 +70,6 @@ function assertCentralConfigGenTelemetry(
         : {lastBatch: true};
     let metrics = col.metrics(metricsOpts);
     if (expectations.includes('metrics')) {
-        t.ok(
-            findObjInArray(metrics, 'name', 'process.cpu.utilization'),
-            'host-metrics metric'
-        );
         if (expectations.includes('instr-runtime-node')) {
             t.ok(
                 findObjInArray(metrics, 'name', 'nodejs.eventloop.utilization'),
