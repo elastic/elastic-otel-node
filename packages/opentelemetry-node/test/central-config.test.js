@@ -17,7 +17,12 @@ const luggite = require('../lib/luggite');
 /**
  * Assert expected telemetry from having run `central-config-gen-telemetry.js`.
  */
-function assertCentralConfigGenTelemetry(t, col, expectations = []) {
+function assertCentralConfigGenTelemetry(
+    t,
+    col,
+    expectations = [],
+    metricsAfterNs = undefined
+) {
     // Expected trace (when all instrs are enabled):
     //  span 53aa39 "manual-span" (SPAN_KIND_INTERNAL, scope=test)
     //  `- span 2c466b "GET" (SPAN_KIND_CLIENT, scope=undici)
@@ -56,7 +61,14 @@ function assertCentralConfigGenTelemetry(t, col, expectations = []) {
     );
 
     // Check for expected metrics.
-    let metrics = col.metrics({lastBatch: true});
+    // When doing negative tests, i.e. ensuring that a metric is *not* reported,
+    // we need to only consider metrics collected *after* central-config
+    // changes were applied. The most reliable way to do this is by passing in
+    // `metricsAfterNs` -- this exclude metrics collected before this time.
+    const metricsOpts = metricsAfterNs
+        ? {afterUnixNano: metricsAfterNs}
+        : {lastBatch: true};
+    let metrics = col.metrics(metricsOpts);
     if (expectations.includes('metrics')) {
         t.ok(
             findObjInArray(metrics, 'name', 'process.cpu.utilization'),
@@ -366,15 +378,23 @@ test('central-config', (suite) => {
                 opampServer.setAgentConfigMap({configMap: {}});
             },
             verbose: true,
-            checkTelemetry: (t, col) => {
-                assertCentralConfigGenTelemetry(t, col, [
-                    'spans',
-                    'metrics',
-                    'logs',
-                    // 'instr-runtime-node',
-                    // 'instr-undici',
-                    'instr-http',
-                ]);
+            checkTelemetry: (t, col, stdout) => {
+                const ccAppliedRe = /^CENTRAL_CONFIG_APPLIED: (\d+)$/m;
+                const ccAppliedStr = ccAppliedRe.exec(stdout)[1];
+                const ccAppliedNs = BigInt(ccAppliedStr) * 1000000n;
+                assertCentralConfigGenTelemetry(
+                    t,
+                    col,
+                    [
+                        'spans',
+                        'metrics',
+                        'logs',
+                        // 'instr-runtime-node',
+                        // 'instr-undici',
+                        'instr-http',
+                    ],
+                    ccAppliedNs
+                );
             },
         },
 

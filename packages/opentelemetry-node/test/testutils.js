@@ -407,15 +407,19 @@ class TestCollector {
     /**
      * Return an array of received metrics, normalized for convenience.
      *
-     * @param {object} opts
+     * @param {object} [opts]
      * @property {boolean} opts.lastBatch Set to true to filter the returned
      *      metrics to just those received in the last intake request.
+     * @property {BigInt} opts.afterUnixNano If given, only metrics with
+     *      data points with `startTimeUnixNano >= afterUnixNano` will be
+     *      included.
      */
-    metrics({lastBatch} = {lastBatch: false}) {
+    metrics(opts) {
+        opts = opts || {};
         const metrics = [];
 
         let rawMetrics = this.rawMetrics;
-        if (lastBatch) {
+        if (opts.lastBatch) {
             rawMetrics = rawMetrics.slice(-1);
         }
         rawMetrics.forEach((rawMetric) => {
@@ -427,6 +431,31 @@ class TestCollector {
                 // that normalization isn't a bug itself.
                 resourceMetrics.scopeMetrics?.forEach((scopeMetrics) => {
                     scopeMetrics.metrics?.forEach((metric) => {
+                        if (opts.afterUnixNano) {
+                            const dataPoints =
+                                metric.gauge?.dataPoints ||
+                                metric.sum?.dataPoints ||
+                                metric.histogram?.dataPoints ||
+                                metric.exponentialHistogram?.dataPoints ||
+                                metric.summary?.dataPoints ||
+                                [];
+                            let include = false;
+                            for (let dp of dataPoints) {
+                                if (
+                                    dp.startTimeUnixNano &&
+                                    BigInt(dp.startTimeUnixNano) >=
+                                        opts.afterUnixNano
+                                ) {
+                                    include = true;
+                                    break;
+                                }
+                            }
+                            if (!include) {
+                                return;
+                            }
+                            // Note that we have not stripped possible earlier
+                            // dataPoints.
+                        }
                         metric.resource = resourceMetrics.resource;
                         metric.scope = scopeMetrics.scope;
                         metrics.push(metric);
@@ -472,6 +501,7 @@ class TestCollector {
  * @callback CheckTelemetryCallback
  * @param {import('tape').Test} t
  * @param {CollectorStore} collector
+ * @param {string} stdout
  */
 
 /**
@@ -491,7 +521,7 @@ class TestCollector {
  *      {
  *        args: ['-r', '@elastic/opentelemetry-node', 'fixtures/hello.js'],
  *        cwd: __dirname,
- *        verbose: true, // use to get debug output for the script's run
+ *        verbose: true, // use to print output for the script's run
  *        checkTelemetry: (t, col) => {
  *          const spans = col.sortedSpans;
  *          t.equal(spans.length, 1)
@@ -545,7 +575,7 @@ class TestCollector {
  *    script: `checkResult(t, err, stdout, stderr)`. If not provided, by
  *    default it will be asserted that the script exited successfully.
  * @property {CheckTelemetryCallback} [checkTelemetry] Check the results received by the mock
- *    OTLP server. `checkTelemetry(t, collector)`. The second arg is a
+ *    OTLP server. `checkTelemetry(t, collector, stdout)`. The second arg is a
  *    `TestCollector` object that has some convenience methods to use the
  *    collected data.
  *
@@ -700,7 +730,11 @@ function runTestFixtures(suite, testFixtures) {
                                         'skip checkTelemetry because process errored out'
                                     );
                                 } else {
-                                    await tf.checkTelemetry(t, collector);
+                                    await tf.checkTelemetry(
+                                        t,
+                                        collector,
+                                        stdout
+                                    );
                                 }
                             }
                             await tf.after?.();

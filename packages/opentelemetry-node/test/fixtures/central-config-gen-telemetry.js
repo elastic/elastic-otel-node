@@ -60,6 +60,7 @@ async function main() {
             process.env.OTEL_METRIC_EXPORT_INTERVAL || 30000
         );
         await setTimeout(metricInterval * 2);
+        console.log('CENTRAL_CONFIG_APPLIED:', Date.now()); // used by test driver
     }
 
     await tracer.startActiveSpan('manual-span', async (span) => {
