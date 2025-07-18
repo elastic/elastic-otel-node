@@ -120,10 +120,11 @@ function startNodeSDK(cfg = {}) {
         }
     }
 
+    const instrs = cfg.instrumentations || getInstrumentations();
     /** @type {Partial<NodeSDKConfiguration>} */
     const defaultConfig = {
         resourceDetectors: resolveDetectors(cfg.resourceDetectors),
-        instrumentations: cfg.instrumentations || getInstrumentations(),
+        instrumentations: instrs,
         // Avoid setting `spanProcessor` or `traceExporter` to have NodeSDK
         // use its `TracerProviderWithEnvExporters` for tracing setup.
     };
@@ -198,6 +199,13 @@ function startNodeSDK(cfg = {}) {
 
     const config = Object.assign(defaultConfig, cfg);
 
+    // Some tricks to get a handle on noop signal providers, to be used for
+    // dynamic configuration.
+    const tracerProviderProxy = new api.ProxyTracerProvider();
+    const noopTracerProvider = tracerProviderProxy.getDelegate();
+    // TODO: set our `tracerProviderProxy` as the global for `send_traces` config
+    //      const success = api.trace.setGlobalTracerProvider(tracerProviderProxy);
+
     setupEnvironment();
     const sdk = new NodeSDK(config);
 
@@ -235,8 +243,16 @@ function startNodeSDK(cfg = {}) {
 
     // OpAMP for central config.
     // TODO: handle resource in this SDK, so don't have use private `_resource`
-    // @ts-ignore: Ignore access of private _resource for now.
-    const opampClient = setupCentralConfig(sdk._resource);
+    const opampClient = setupCentralConfig({
+        // @ts-ignore: Ignore access of private _resource for now. (TODO)
+        resource: sdk._resource,
+        instrs,
+        sdk,
+        // TODO: Get some structure here. Perhaps our own SdkAdmin or SdkInfo class or whatever.
+        noopTracerProvider,
+        // @ts-ignore: Ignore access of private _resource for now. (TODO)
+        sdkTracerProvider: sdk._tracerProvider,
+    });
 
     // Shutdown handling.
     const shutdownFn = () => {

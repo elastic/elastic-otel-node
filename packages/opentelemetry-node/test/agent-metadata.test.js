@@ -20,8 +20,8 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
-        checkTelemetry: (t, collector) => {
-            const span = collector.sortedSpans[0];
+        checkTelemetry: (t, col) => {
+            const span = col.sortedSpans[0];
             const attribs = span.resource.attributes;
 
             // Test OTel SDK add its metadata

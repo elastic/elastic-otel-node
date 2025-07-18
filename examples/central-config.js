@@ -14,7 +14,7 @@
  * # Usage
  *
  * 1. Ensure you are using an Elastic Cloud Hosted or on-prem Elastic of at
- *    least version 8.19 or 9.1.
+ *    least version 9.1.
  *
  * 2. Start an EDOT Collector configured to use the `apmconfig` extension:
  *    https://github.com/elastic/opentelemetry-collector-components/tree/main/extension/apmconfigextension#readme
@@ -69,12 +69,7 @@
 const http = require('http');
 
 const server = http.createServer(function onRequest(req, res) {
-    console.log(
-        '\nincoming request: %s %s %s',
-        req.method,
-        req.url,
-        req.headers
-    );
+    console.log('\nincoming request: %s %s', req.method, req.url);
     req.resume();
     req.on('end', function () {
         const body = 'pong';
@@ -86,22 +81,15 @@ const server = http.createServer(function onRequest(req, res) {
     });
 });
 
-function makeReq() {
-    const clientReq = http.request('http://localhost:3000/', function (cres) {
-        console.log('client response: %s', cres.statusCode);
-        const chunks = [];
-        cres.on('data', function (chunk) {
-            chunks.push(chunk);
-        });
-        cres.on('end', function () {
-            const body = chunks.join('');
-            console.log('client response body: %j', body);
-        });
-    });
-    clientReq.end();
+async function makeReq() {
+    const cres = await fetch('http://localhost:3000/');
+    console.log('fetch response: status=%s', cres.status);
+    const body = await cres.text();
+    console.log('fetch body: %s', body);
 }
 
 server.listen(3000, function () {
-    makeReq();
-    // `server` is not closed, so the app stays running.
+    setInterval(async () => {
+        await makeReq();
+    }, 3000);
 });

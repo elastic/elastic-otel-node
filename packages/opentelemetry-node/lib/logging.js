@@ -77,7 +77,6 @@ function createLogger() {
  */
 function registerOTelDiagLogger(api) {
     // TODO: when luggite supports .child, add a module/component attr for diag log output
-    const diagLevel = otelLogLevelFromEnv();
     api.diag.setLogger(
         {
             error: (msg, ...args) => {
@@ -96,7 +95,11 @@ function registerOTelDiagLogger(api) {
             debug: log.debug.bind(log),
             verbose: log.trace.bind(log),
         },
-        api.DiagLogLevel[diagLevel]
+        {
+            // Set the diag log level to pass through *all* records. The
+            // luggite logger (`log`) will handle filtering based on level.
+            logLevel: api.DiagLogLevel['ALL'],
+        }
     );
 }
 
@@ -114,5 +117,5 @@ const log = _globalThis[_symLog];
 module.exports = {
     log,
     registerOTelDiagLogger,
-    DEFAULT_LOG_LEVEL,
+    DEFAULT_LOG_LEVEL, // this is a *luggite* log level
 };

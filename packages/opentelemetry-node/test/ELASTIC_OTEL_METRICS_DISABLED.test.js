@@ -24,7 +24,7 @@ const testFixtures = [
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            t.ok(col.metrics.length === 0);
+            t.ok(col.metrics().length === 0);
         },
     },
 ];
