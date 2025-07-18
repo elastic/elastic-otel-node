@@ -7,7 +7,6 @@
 
 // A dumping ground for testing utility functions.
 
-const assert = require('assert');
 const fs = require('fs');
 const {execFile} = require('child_process');
 
@@ -395,13 +394,15 @@ class TestCollector {
         }
         for (let s of spans) {
             if (s.parentSpanId && s.parentSpanId in childIdsFromSpanId) {
-                childIdsFromSpanId[s.parentSpanId].push(s.spanId)
+                childIdsFromSpanId[s.parentSpanId].push(s.spanId);
             }
         }
         let needAnotherPass;
         do {
             needAnotherPass = false;
-            for (const [spanId, childIds] of Object.entries(childIdsFromSpanId)) {
+            for (const [spanId, childIds] of Object.entries(
+                childIdsFromSpanId
+            )) {
                 const sSortKey = sortKeyFromSpanId[spanId];
                 for (let childId of childIds) {
                     while (sortKeyFromSpanId[childId] <= sSortKey) {
