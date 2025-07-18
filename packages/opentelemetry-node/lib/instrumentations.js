@@ -45,7 +45,6 @@ const {log} = require('./logging');
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentationConfig
  *  "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentationConfig
  *  "@opentelemetry/instrumentation-redis": import('@opentelemetry/instrumentation-redis').RedisInstrumentationConfig,
- *  "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentationConfig,
  *  "@opentelemetry/instrumentation-restify": import('@opentelemetry/instrumentation-restify').RestifyInstrumentationConfig,
  *  "@opentelemetry/instrumentation-router": import('@opentelemetry/instrumentation').InstrumentationConfig,
  *  "@opentelemetry/instrumentation-runtime-node": import('@opentelemetry/instrumentation-runtime-node').RuntimeNodeInstrumentationConfig,
@@ -89,7 +88,6 @@ const {NetInstrumentation} = require('@opentelemetry/instrumentation-net');
 const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
 const {PinoInstrumentation} = require('@opentelemetry/instrumentation-pino');
 const {RedisInstrumentation} = require('@opentelemetry/instrumentation-redis');
-const {RedisInstrumentation: RedisFourInstrumentation} = require('@opentelemetry/instrumentation-redis-4');
 const {RestifyInstrumentation} = require('@opentelemetry/instrumentation-restify');
 const {RouterInstrumentation} = require('@opentelemetry/instrumentation-router');
 const {RuntimeNodeInstrumentation} = require('@opentelemetry/instrumentation-runtime-node');
@@ -139,7 +137,6 @@ const instrumentationsMap = {
     '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
     '@opentelemetry/instrumentation-pino': (cfg) => new PinoInstrumentation(cfg),
     '@opentelemetry/instrumentation-redis': (cfg) => new RedisInstrumentation(cfg),
-    '@opentelemetry/instrumentation-redis-4': (cfg) => new RedisFourInstrumentation(cfg),
     '@opentelemetry/instrumentation-restify': (cfg) => new RestifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-router': (cfg) => new RouterInstrumentation(cfg),
     '@opentelemetry/instrumentation-runtime-node': (cfg) => new RuntimeNodeInstrumentation(cfg),
