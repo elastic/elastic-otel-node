@@ -18,7 +18,7 @@ const luggite = require('../lib/luggite');
  * Assert expected telemetry from having run `central-config-gen-telemetry.js`.
  */
 function assertCentralConfigGenTelemetry(t, col, expectations = []) {
-    // Expected trace:
+    // Expected trace (when all instrs are enabled):
     //  span 53aa39 "manual-span" (SPAN_KIND_INTERNAL, scope=test)
     //  `- span 2c466b "GET" (SPAN_KIND_CLIENT, scope=undici)
     //    `- span 5a94ec "GET" (SPAN_KIND_SERVER, scope=http)
@@ -40,7 +40,13 @@ function assertCentralConfigGenTelemetry(t, col, expectations = []) {
             t.equal(s2.name, 'GET', 'http server span');
             t.equal(s2.kind, 'SPAN_KIND_SERVER');
             t.equal(s2.attributes['url.path'], '/');
-            t.equal(s2.parentSpanId, s1?.spanId || s0.spanId);
+            if (s1) {
+                t.equal(
+                    s2.parentSpanId,
+                    s1.spanId,
+                    'http server span is child of undici client span'
+                );
+            }
         }
     }
     t.equal(
@@ -49,7 +55,7 @@ function assertCentralConfigGenTelemetry(t, col, expectations = []) {
         `no unexpected extra spans: ${JSON.stringify(spans)}`
     );
 
-    // Check for a subset of expected metrics.
+    // Check for expected metrics.
     let metrics = col.metrics({lastBatch: true});
     if (expectations.includes('metrics')) {
         t.ok(
@@ -73,15 +79,19 @@ function assertCentralConfigGenTelemetry(t, col, expectations = []) {
         }
         if (expectations.includes('instr-undici')) {
             t.ok(
-                findObjInArray(metrics, 'name', 'http.client.request.duration'),
+                findObjInArray(
+                    metrics,
+                    'scope.name',
+                    '@opentelemetry/instrumentation-undici'
+                ),
                 'instr-undici metric'
             );
         } else {
             t.ok(
                 !findObjInArray(
                     metrics,
-                    'name',
-                    'http.client.request.duration'
+                    'scope.name',
+                    '@opentelemetry/instrumentation-undici'
                 ),
                 'no instr-undici metrics'
             );
@@ -318,50 +328,55 @@ test('central-config', (suite) => {
             },
         },
 
-        // TODO: deactivate_instrumentations
-        // {
-        //     name: 'central-config: deactivate_instrumentations=undici,runtime-node',
-        //     args: ['./fixtures/central-config-gen-telemetry.js'],
-        //     cwd: __dirname,
-        //     env: () => {
-        //         return {
-        //             NODE_OPTIONS: '--import @elastic/opentelemetry-node',
-        //             ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
-        //             // Skip cloud resource detectors to avoid delay and noise.
-        //             OTEL_NODE_RESOURCE_DETECTORS: 'env,host,os,process,serviceinstance,container',
-        //             ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
-        //             ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
-        //             ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
-        //         };
-        //     },
-        //     before: () => {
-        //         const config = {
-        //             deactivate_instrumentations: 'undici, runtime-node'
-        //         };
-        //         opampServer.setAgentConfigMap({
-        //             configMap: {
-        //                 elastic: {
-        //                     body: Buffer.from(JSON.stringify(config), 'utf8'),
-        //                     contentType: 'application/json',
-        //                 }
-        //             }
-        //         });
-        //     },
-        //     after: () => {
-        //         opampServer.setAgentConfigMap({ configMap: {} });
-        //     },
-        //     verbose: true,
-        //     checkTelemetry: (t, col) => {
-        //         assertCentralConfigGenTelemetry(t, col, [
-        //             'spans',
-        //             'metrics',
-        //             'logs',
-        //             // 'instr-runtime-node',
-        //             // 'instr-undici',
-        //             'instr-http',
-        //         ]);
-        //     },
-        // },
+        {
+            name: 'central-config: deactivate_instrumentations=undici,runtime-node',
+            args: ['./fixtures/central-config-gen-telemetry.js'],
+            cwd: __dirname,
+            env: () => {
+                return {
+                    NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                    ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
+                    // Skip cloud resource detectors to avoid delay and noise.
+                    OTEL_NODE_RESOURCE_DETECTORS:
+                        'env,host,os,process,serviceinstance,container',
+                    ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
+                    ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
+                    ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                    // Set a short metric export interval to allow the
+                    // fixture script to wait for an interval after receiving
+                    // central config before proceeding.
+                    OTEL_METRIC_EXPORT_INTERVAL: '500',
+                    OTEL_METRIC_EXPORT_TIMEOUT: '450',
+                };
+            },
+            before: () => {
+                const config = {
+                    deactivate_instrumentations: 'undici, runtime-node',
+                };
+                opampServer.setAgentConfigMap({
+                    configMap: {
+                        elastic: {
+                            body: Buffer.from(JSON.stringify(config), 'utf8'),
+                            contentType: 'application/json',
+                        },
+                    },
+                });
+            },
+            after: () => {
+                opampServer.setAgentConfigMap({configMap: {}});
+            },
+            verbose: true,
+            checkTelemetry: (t, col) => {
+                assertCentralConfigGenTelemetry(t, col, [
+                    'spans',
+                    'metrics',
+                    'logs',
+                    // 'instr-runtime-node',
+                    // 'instr-undici',
+                    'instr-http',
+                ]);
+            },
+        },
 
         // This is an attempt at an exhaustive test that
         // `deactivate_all_instrumentations` works as expected for *every*
@@ -501,6 +516,20 @@ test('central-config', (suite) => {
 
         // TODO: Test unpatching cases with ESM. Does that work?
     ];
+
+    // Dev Note: use DEV_TEST_FILTER envvar to limit to a subset of fixtures.
+    if (process.env.DEV_TEST_FILTER) {
+        testFixtures = testFixtures.filter((tf) =>
+            tf.name.includes(process.env.DEV_TEST_FILTER)
+        );
+        suite.ok(
+            testFixtures.length > 0,
+            'DEV_TEST_FILTER should not result in an *empty* `testFixtures`'
+        );
+        suite.comment(
+            `Filtering "testFixtures" with DEV_TEST_FILTER="${process.env.DEV_TEST_FILTER}"`
+        );
+    }
 
     runTestFixtures(suite, testFixtures);
 

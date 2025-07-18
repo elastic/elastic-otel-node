@@ -56,7 +56,9 @@ async function main() {
         await barrierOpAMPClientDiagEvents(2, [DIAG_CH_SEND_SUCCESS]);
         // Wait for a couple metric intervals before proceeding, so that
         // already recording metrics can be excluded in tests.
-        const metricInterval = Number(process.env.OTEL_METRIC_EXPORT_INTERVAL);
+        const metricInterval = Number(
+            process.env.OTEL_METRIC_EXPORT_INTERVAL || 30000
+        );
         await setTimeout(metricInterval * 2);
     }
 

@@ -18,6 +18,7 @@ const {
 } = require('./semconv');
 const {log, DEFAULT_LOG_LEVEL} = require('./logging');
 const luggite = require('./luggite');
+const {getInstrumentationNamesFromStr} = require('./instrumentations');
 
 // The key used in the AgentConfigMap.configMap for the Elastic central config
 // AgentConfigFile.
@@ -160,43 +161,77 @@ const REMOTE_CONFIG_HANDLERS = [
      * added/updated/removed.
      */
     {
-        keys: ['deactivate_all_instrumentations'],
+        keys: [
+            'deactivate_all_instrumentations',
+            'deactivate_instrumentations',
+        ],
         setter: (config, sdkInfo) => {
-            // Validate the given config value.
-            let val = config['deactivate_all_instrumentations'];
-            let verb = 'deactivated';
-            if (val === undefined) {
-                val = false;
-                verb = 'reactivated';
+            // Validate the given config values.
+            const rawAll = config['deactivate_all_instrumentations'];
+            let valAll;
+            if (rawAll === undefined) {
+                valAll = undefined;
             } else {
-                switch (typeof val) {
+                switch (typeof rawAll) {
                     case 'boolean':
                         // pass
                         break;
                     case 'string':
-                        switch (val.trim().toLowerCase()) {
+                        switch (rawAll.trim().toLowerCase()) {
                             case 'true':
-                                val = true;
+                                valAll = true;
                                 break;
                             case 'false':
-                                val = false;
+                                valAll = false;
                                 break;
                             default:
-                                return `unknown 'deactivate_all_instrumentations' value: ${JSON.stringify(
-                                    val
-                                )}`;
+                                return `unknown 'deactivate_all_instrumentations' value: "${rawAll}"`;
                         }
                         break;
                     default:
-                        return `unknown 'deactivate_all_instrumentations' value type: ${typeof val} (${JSON.stringify(
-                            val
-                        )})`;
+                        return `unknown 'deactivate_all_instrumentations' value type: ${typeof rawAll} (${rawAll})`;
                 }
             }
 
+            const rawSome = config['deactivate_instrumentations'];
+            let valSome;
+            if (rawSome === undefined) {
+                valSome = undefined;
+            } else if (typeof rawSome !== 'string') {
+                return `unknown 'deactivate_instrumentations' value type: ${typeof rawSome} (${rawSome})`;
+            } else {
+                valSome = getInstrumentationNamesFromStr(
+                    rawSome,
+                    `central-config "deactivate_instrumentations" setting`
+                );
+            }
+
             // (De)activate instrumentations, as appropriate.
+            const logEach = valAll === undefined && valSome !== undefined;
             for (let instr of sdkInfo.instrs) {
-                switch (instr.instrumentationName) {
+                const instrName = instr.instrumentationName;
+                let deactivate;
+                if (valAll !== undefined) {
+                    deactivate = valAll;
+                } else if (valSome !== undefined) {
+                    deactivate = valSome.includes(instrName);
+                } else {
+                    // Default/reset state is *enabled*.
+                    deactivate = false;
+                }
+                // Note: instr-runtime-node@0.17.0 current always returns false
+                // for "instr.isEnabled()". TODO: Remove this instr-runtime-node
+                // workaround, when this PR is released we've updated:
+                //      https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2946
+                let currDeactivated = !instr.isEnabled();
+                if (
+                    deactivate === currDeactivated &&
+                    instrName !== '@opentelemetry/instrumentation-runtime-node'
+                ) {
+                    continue;
+                }
+
+                switch (instrName) {
                     case '@opentelemetry/instrumentation-undici': // doesn't use patching, so `instr.disable()` is ok
                     case '@opentelemetry/instrumentation-runtime-node': // metrics-only, so `instr.disable()` is ok
                     case '@opentelemetry/instrumentation-pg': // need .disable() for its metrics, unpatching ok
@@ -219,7 +254,7 @@ const REMOTE_CONFIG_HANDLERS = [
                         //       so setTracerProvider(noop) *might* suffice for it.
                         // - instr-{pino,bunyan,winston}: `instr.disable() is
                         //   needed to disable "logCorrelation" handling.
-                        if (val) {
+                        if (deactivate) {
                             instr.disable();
                         } else {
                             instr.enable();
@@ -232,7 +267,7 @@ const REMOTE_CONFIG_HANDLERS = [
                         //      const {request} = require('http');
                         //   so we also `instr.setTracerProvider(noop);` to at
                         //   least disable tracing for this case.
-                        if (val) {
+                        if (deactivate) {
                             instr.setTracerProvider(sdkInfo.noopTracerProvider);
                             instr.disable();
                         } else {
@@ -244,15 +279,24 @@ const REMOTE_CONFIG_HANDLERS = [
                         // `instr.disable/enable()` can be problematic for
                         // some instrs that patch. As a fallback we at least
                         // disable the traces signal.
-                        if (val) {
+                        if (deactivate) {
                             instr.setTracerProvider(sdkInfo.noopTracerProvider);
                         } else {
                             instr.setTracerProvider(sdkInfo.sdkTracerProvider);
                         }
                         break;
                 }
+                if (logEach) {
+                    const verb = deactivate ? 'deactivate' : 'reactivate';
+                    log.info(
+                        `central-config: ${verb} instrumentation "${instrName}"`
+                    );
+                }
             }
-            log.info(`central-config: ${verb} all instrumentations`);
+            if (!logEach) {
+                const verb = valAll ? 'deactivate' : 'reactivate';
+                log.info(`central-config: ${verb} all instrumentations`);
+            }
 
             return null;
         },

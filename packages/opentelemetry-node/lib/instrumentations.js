@@ -172,33 +172,50 @@ for (const name of Object.keys(instrumentationsMap)) {
  * list for OTEL environment vars. Example:
  * https://opentelemetry.io/docs/languages/sdk-configuration/general/#otel_propagators
  *
- * If the param is not defined or falsy it returns an empty array. The resulting
- * array has only nonempty string.
+ * If the envvar is not defined or an empty string, this returns undefined.
  *
  * @param {string} envvar
- * @returns {Array<string> | undefined}
+ * @returns {string[] | undefined}
  */
-function getInstrumentationsFromEnv(envvar) {
-    const names = getStringListFromEnv(envvar);
-    if (names) {
-        const instrumentations = [];
-
-        for (const name of names) {
-            if (otelInstrShortNames.has(name)) {
-                instrumentations.push(`${otelInstrPrefix}${name}`);
-            } else if (nonOtelInstrNames.has(name)) {
-                instrumentations.push(name);
-            } else {
-                log.warn(
-                    `Unknown instrumentation "${name}" specified in the environment variable ${envvar}`
-                );
-            }
-        }
-
-        return instrumentations;
+function getInstrumentationNamesFromEnv(envvar) {
+    const raw = process.env[envvar];
+    if (raw === undefined || raw.trim() === '') {
+        return undefined;
     }
+    return getInstrumentationNamesFromStr(
+        raw,
+        `environment variable "${envvar}"`
+    );
+}
 
-    return undefined;
+/**
+ * Get an array of full instrumentation names from the given string.
+ *
+ * Here "full" means that `express` is expanded to the
+ * `@opentelemtry/instrumentation-express`. This applies to the set of
+ * well-known upstream OTel JS instrumentations.
+ *
+ * @param {string} s - Comma-separated string to parse.
+ * @param {string} desc - Description of the source of `s` for possible logging.
+ * @returns {string[]}
+ */
+function getInstrumentationNamesFromStr(s, desc) {
+    const instrNames = [];
+    // Parsing of `s` mimics `getStringListFromEnv`.
+    const names = s
+        .split(',')
+        .map((v) => v.trim())
+        .filter((v) => v !== '');
+    for (const name of names) {
+        if (otelInstrShortNames.has(name)) {
+            instrNames.push(`${otelInstrPrefix}${name}`);
+        } else if (nonOtelInstrNames.has(name)) {
+            instrNames.push(name);
+        } else {
+            log.warn(`Unknown instrumentation "${name}" specified in ${desc}`);
+        }
+    }
+    return instrNames;
 }
 
 /**
@@ -245,10 +262,10 @@ function getInstrumentationsFromEnv(envvar) {
 function getInstrumentations(opts = {}) {
     /** @type {Array<Instrumentation>} */
     const instrumentations = [];
-    const enabledFromEnv = getInstrumentationsFromEnv(
+    const enabledFromEnv = getInstrumentationNamesFromEnv(
         'OTEL_NODE_ENABLED_INSTRUMENTATIONS'
     );
-    const disabledFromEnv = getInstrumentationsFromEnv(
+    const disabledFromEnv = getInstrumentationNamesFromEnv(
         'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
     );
 
@@ -344,4 +361,5 @@ function getInstrumentations(opts = {}) {
 
 module.exports = {
     getInstrumentations,
+    getInstrumentationNamesFromStr,
 };
