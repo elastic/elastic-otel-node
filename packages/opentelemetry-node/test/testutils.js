@@ -7,7 +7,6 @@
 
 // A dumping ground for testing utility functions.
 
-const assert = require('assert');
 const fs = require('fs');
 const {execFile} = require('child_process');
 
@@ -381,26 +380,48 @@ class TestCollector {
             });
         });
 
-        return spans.sort((a, b) => {
-            assert(typeof a.startTimeUnixNano === 'string');
-            assert(typeof b.startTimeUnixNano === 'string');
-            let aStartInt = BigInt(a.startTimeUnixNano);
-            let bStartInt = BigInt(b.startTimeUnixNano);
-
-            if (aStartInt === bStartInt) {
-                // Fast-created spans that start in the same millisecond cannot
-                // reliably be sorted, because OTel JS currently doesn't have
-                // sub-ms resolution. Attempt to improve the sorting by using
-                // `spanId` and `parentSpanId`: a span cannot start before its
-                // parent.
-                if (a.parentSpanId && a.parentSpanId === b.spanId) {
-                    aStartInt += 1n;
-                } else if (b.parentSpanId && b.parentSpanId === a.spanId) {
-                    bStartInt += 1n;
+        // Fast-created spans that start in the same millisecond cannot reliably be
+        // sorted, because OTel JS currently doesn't have sub-ms resolution. Attempt
+        // to improve the sorting by using `spanId` and `parentSpanId`: a span
+        // cannot start before its parent.
+        const sortKeyFromSpanId = {};
+        const spanFromSpanId = {};
+        const childIdsFromSpanId = {};
+        for (let s of spans) {
+            sortKeyFromSpanId[s.spanId] = BigInt(s.startTimeUnixNano);
+            spanFromSpanId[s.spanId] = s;
+            childIdsFromSpanId[s.spanId] = [];
+        }
+        for (let s of spans) {
+            if (s.parentSpanId && s.parentSpanId in childIdsFromSpanId) {
+                childIdsFromSpanId[s.parentSpanId].push(s.spanId);
+            }
+        }
+        let needAnotherPass;
+        do {
+            needAnotherPass = false;
+            for (const [spanId, childIds] of Object.entries(
+                childIdsFromSpanId
+            )) {
+                const sSortKey = sortKeyFromSpanId[spanId];
+                for (let childId of childIds) {
+                    while (sortKeyFromSpanId[childId] <= sSortKey) {
+                        sortKeyFromSpanId[childId] += 1n;
+                        // If we bump a span's sortKey, then *its* children's
+                        // sortKeys might need a bump: do another pass.
+                        needAnotherPass = true;
+                    }
                 }
             }
-
-            return aStartInt < bStartInt ? -1 : aStartInt > bStartInt ? 1 : 0;
+        } while (needAnotherPass);
+        // Uncomment this for debugging to show the used sort keys.
+        // for (let s of spans) {
+        //     s.sortKey = sortKeyFromSpanId[s.spanId];
+        // }
+        return spans.sort((a, b) => {
+            const aSortKey = sortKeyFromSpanId[a.spanId];
+            const bSortKey = sortKeyFromSpanId[b.spanId];
+            return aSortKey < bSortKey ? -1 : aSortKey > bSortKey ? 1 : 0;
         });
     }
 
