@@ -19,7 +19,7 @@ node --import @elastic/opentelemetry-node my-app.js
 Some direct links:
 
 * [Get started](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/nodejs/setup/index.html)
-* [Configuration](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/nodejs/configuration.html)
+* [Configuration](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/nodejs/configuration/index.html)
 * [Changelog](https://github.com/elastic/elastic-otel-node/blob/main/packages/opentelemetry-node/CHANGELOG.md)
 * [Elastic Discuss forum](https://discuss.elastic.co/tags/c/observability/apm/58/nodejs) | [GitHub issue tracker](https://github.com/elastic/elastic-otel-node/issues)
 
