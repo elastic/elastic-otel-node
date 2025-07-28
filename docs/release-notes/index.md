@@ -29,7 +29,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## Next [edot-node-1.2.0]
+## 1.2.0 [edot-node-1.2.0]
 
 ### Features and enhancements [edot-node-1.2.0-features-enhancements]
 
