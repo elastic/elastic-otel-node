@@ -29,15 +29,13 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## Next [edot-node-next]
+## Next [edot-node-1.2.0]
 
-### Features and enhancements [edot-node-next-features-enhancements]
+### Features and enhancements [edot-node-1.2.0-features-enhancements]
 
 - Initial support for Central Configuration: the ability to configure some aspects of EDOT Node.js in running instrumented applications from a central Kibana. This feature is in technical preview. [#834](https://github.com/elastic/elastic-otel-node/pull/834)
 
   This release includes support for the following settings: `logging_level`
-
-### Fixes [edot-node-next-fixes]
 
 ## 1.1.1 [edot-node-1.1.1-release-notes]
 
