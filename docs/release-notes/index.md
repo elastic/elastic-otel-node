@@ -37,6 +37,10 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
   This release includes support for the following settings: `logging_level`
 
+### Chores [edot-node-1.2.0-chores]
+
+- Support for instrumenting `redis` version 4 has moved from `@opentelemetry/instrumentation-redis-4` to `@opentelemetry/instrumentation-redis`. If you are using the `OTEL_NODE_ENABLED_INSTRUMENTATIONS` or `OTEL_NODE_DISABLED_INSTRUMENTATIONS` environment variables to control instrumentation of `redis@4` you will need to change from using "redis-4" to "redis".
+
 ## 1.1.1 [edot-node-1.1.1-release-notes]
 
 ### Fixes [edot-node-1.1.1-fixes]
