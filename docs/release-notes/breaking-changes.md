@@ -42,7 +42,7 @@ Breaking changes can impact your Elastic applications, potentially disrupting no
 % 4. You can then call the link from any Kibana code. For example: `href: docLinks.links.upgradeAssistant.id`
 % Check https://docs.elastic.dev/docs/kibana-doc-links (internal) for more details about the Doc links service.
 
-## Next [edot-node-next-breaking-changes]
+## 1.2.0 [edot-node-1.2.0-breaking-changes]
 
 ::::{dropdown} Change usage of "redis-4" to "redis" in `OTEL_NODE_ENABLED_INSTRUMENTATIONS` and `OTEL_NODE_DISABLED_INSTRUMENTATIONS`
 

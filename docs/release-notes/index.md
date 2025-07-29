@@ -29,17 +29,15 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## Next [edot-node-next]
+## 1.2.0 [edot-node-1.2.0]
 
-### Features and enhancements [edot-node-next-features-enhancements]
+### Features and enhancements [edot-node-1.2.0-features-enhancements]
 
-- Initial support for Central Configuration: the ability to configure some aspects of EDOT Node.js in running instrumented applications from a central Kibana. This feature is in technical preview. [#834](https://github.com/elastic/elastic-otel-node/pull/834)
+- Initial support for Central Configuration: the ability to configure some aspects of EDOT Node.js in running instrumented applications from a central Kibana. This feature is in technical preview. [#834](https://github.com/elastic/elastic-otel-node/pull/834) [#886](https://github.com/elastic/elastic-otel-node/pull/886)
 
-  This release includes support for the following settings: `logging_level`
+  This release includes support for the following settings: `logging_level`, `deactivate_all_instrumentations`, `deactivate_instrumentations`
 
-### Fixes [edot-node-next-fixes]
-
-### Chores [edot-node-next-chores]
+### Chores [edot-node-1.2.0-chores]
 
 - Support for instrumenting `redis` version 4 has moved from `@opentelemetry/instrumentation-redis-4` to `@opentelemetry/instrumentation-redis`. If you are using the `OTEL_NODE_ENABLED_INSTRUMENTATIONS` or `OTEL_NODE_DISABLED_INSTRUMENTATIONS` environment variables to control instrumentation of `redis@4` you will need to change from using "redis-4" to "redis".
 
