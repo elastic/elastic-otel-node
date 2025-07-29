@@ -169,28 +169,27 @@ const REMOTE_CONFIG_HANDLERS = [
             // Validate the given config values.
             const rawAll = config['deactivate_all_instrumentations'];
             let valAll;
-            if (rawAll === undefined) {
-                valAll = undefined;
-            } else {
-                switch (typeof rawAll) {
-                    case 'boolean':
-                        // pass
-                        break;
-                    case 'string':
-                        switch (rawAll.trim().toLowerCase()) {
-                            case 'true':
-                                valAll = true;
-                                break;
-                            case 'false':
-                                valAll = false;
-                                break;
-                            default:
-                                return `unknown 'deactivate_all_instrumentations' value: "${rawAll}"`;
-                        }
-                        break;
-                    default:
-                        return `unknown 'deactivate_all_instrumentations' value type: ${typeof rawAll} (${rawAll})`;
-                }
+            switch (typeof rawAll) {
+                case 'undefined':
+                    valAll = undefined;
+                    break;
+                case 'boolean':
+                    // pass
+                    break;
+                case 'string':
+                    switch (rawAll.trim().toLowerCase()) {
+                        case 'true':
+                            valAll = true;
+                            break;
+                        case 'false':
+                            valAll = false;
+                            break;
+                        default:
+                            return `unknown 'deactivate_all_instrumentations' value: "${rawAll}"`;
+                    }
+                    break;
+                default:
+                    return `unknown 'deactivate_all_instrumentations' value type: ${typeof rawAll} (${rawAll})`;
             }
 
             const rawSome = config['deactivate_instrumentations'];
