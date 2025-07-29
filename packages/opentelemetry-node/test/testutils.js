@@ -332,7 +332,7 @@ function quoteEnv(env) {
  *
  * @typedef {Object} CollectorStore
  * @property {CollectedSpan[]} sortedSpans
- * @property {CollectedMetric[]} metrics
+ * @property {(any) => CollectedMetric[]} metrics
  * @property {import('@opentelemetry/api-logs').LogRecord[]} logs
  */
 
@@ -348,11 +348,11 @@ class TestCollector {
     onTrace(trace) {
         this.rawTraces.push(trace);
     }
-    onMetrics(trace) {
-        this.rawMetrics.push(trace);
+    onMetrics(metrics) {
+        this.rawMetrics.push(metrics);
     }
-    onLogs(trace) {
-        this.rawLogs.push(trace);
+    onLogs(logs) {
+        this.rawLogs.push(logs);
     }
 
     /**
@@ -425,10 +425,25 @@ class TestCollector {
         });
     }
 
-    get metrics() {
+    /**
+     * Return an array of received metrics, normalized for convenience.
+     *
+     * @param {object} [opts]
+     * @property {boolean} opts.lastBatch Set to true to filter the returned
+     *      metrics to just those received in the last intake request.
+     * @property {BigInt} opts.afterUnixNano If given, only metrics with
+     *      data points with `startTimeUnixNano >= afterUnixNano` will be
+     *      included.
+     */
+    metrics(opts) {
+        opts = opts || {};
         const metrics = [];
 
-        this.rawMetrics.forEach((rawMetric) => {
+        let rawMetrics = this.rawMetrics;
+        if (opts.lastBatch) {
+            rawMetrics = rawMetrics.slice(-1);
+        }
+        rawMetrics.forEach((rawMetric) => {
             const normMetric = normalizeMetrics(rawMetric);
             normMetric.resourceMetrics.forEach((resourceMetrics) => {
                 // The `?.` usages are guards against empty array values (e.g. a
@@ -437,6 +452,31 @@ class TestCollector {
                 // that normalization isn't a bug itself.
                 resourceMetrics.scopeMetrics?.forEach((scopeMetrics) => {
                     scopeMetrics.metrics?.forEach((metric) => {
+                        if (opts.afterUnixNano) {
+                            const dataPoints =
+                                metric.gauge?.dataPoints ||
+                                metric.sum?.dataPoints ||
+                                metric.histogram?.dataPoints ||
+                                metric.exponentialHistogram?.dataPoints ||
+                                metric.summary?.dataPoints ||
+                                [];
+                            let include = false;
+                            for (let dp of dataPoints) {
+                                if (
+                                    dp.startTimeUnixNano &&
+                                    BigInt(dp.startTimeUnixNano) >=
+                                        opts.afterUnixNano
+                                ) {
+                                    include = true;
+                                    break;
+                                }
+                            }
+                            if (!include) {
+                                return;
+                            }
+                            // Note that we have not stripped possible earlier
+                            // dataPoints.
+                        }
                         metric.resource = resourceMetrics.resource;
                         metric.scope = scopeMetrics.scope;
                         metrics.push(metric);
@@ -448,6 +488,10 @@ class TestCollector {
         return metrics;
     }
 
+    /*
+     * TODO: actual type (see TestSpan type from otel-js-contrib)
+     * @return {Array<object>}
+     */
     get logs() {
         const logs = [];
         this.rawLogs.forEach((logsServiceRequest) => {
@@ -478,6 +522,7 @@ class TestCollector {
  * @callback CheckTelemetryCallback
  * @param {import('tape').Test} t
  * @param {CollectorStore} collector
+ * @param {string} stdout
  */
 
 /**
@@ -497,9 +542,9 @@ class TestCollector {
  *      {
  *        args: ['-r', '@elastic/opentelemetry-node', 'fixtures/hello.js'],
  *        cwd: __dirname,
- *        verbose: true, // use to get debug output for the script's run
- *        checkTelemetry: (t, tel) => {
- *          const spans = tel.sortedSpans;
+ *        verbose: true, // use to print output for the script's run
+ *        checkTelemetry: (t, col) => {
+ *          const spans = col.sortedSpans;
  *          t.equal(spans.length, 1)
  *          t.ok(spans[0].name, 'GET')
  *        }
@@ -520,6 +565,8 @@ class TestCollector {
  *
  * @typedef {Object} TestFixture
  * @property {string} [name] The name of the test.
+ * @property {() => string | undefined} [skip] A function that determines if
+ *    this fixture should be skipped.
  * @property {Array<string>} args The args to `node`.
  * @property {string} [cwd] Typically this is `__dirname`, then the `args` can
  *    be relative to the test file.
@@ -529,6 +576,9 @@ class TestCollector {
  * @property {NodeJS.ProcessEnv | (() => NodeJS.ProcessEnv)} [env]
  *    Any custom envvars, e.g. `{NODE_OPTIONS:...}`, or a function that
  *    returns custom envvars (which allows lazy calculation).
+ * @property {() => void} [before] A function to run before spawning the script.
+ *    This can be used to setup whatever may be needed for the script.
+ * @property {() => void} [after] A function to run after executing the script.
  * @property {boolean} [verbose] Set to `true` to include `t.comment()`s showing
  *    the command run and its output. This can be helpful to run the script
  *    manually for dev/debugging.
@@ -546,7 +596,7 @@ class TestCollector {
  *    script: `checkResult(t, err, stdout, stderr)`. If not provided, by
  *    default it will be asserted that the script exited successfully.
  * @property {CheckTelemetryCallback} [checkTelemetry] Check the results received by the mock
- *    OTLP server. `checkTelemetry(t, collector)`. The second arg is a
+ *    OTLP server. `checkTelemetry(t, collector, stdout)`. The second arg is a
  *    `TestCollector` object that has some convenience methods to use the
  *    collected data.
  *
@@ -571,6 +621,16 @@ function runTestFixtures(suite, testFixtures) {
             const testName = tf.name ?? quoteArgv(tf.args);
             const testOpts = Object.assign({}, tf.testOpts);
             suite.test(testName, testOpts, async (t) => {
+                if (tf.skip) {
+                    const skipReason = tf.skip();
+                    if (skipReason) {
+                        t.comment(`SKIP "${testName}" fixture: ${skipReason}`);
+                        t.end();
+                        outerResolve();
+                        return;
+                    }
+                }
+
                 // Handle "tf.versionRanges"-based skips here, because `tape` doesn't
                 // print any message for `testOpts.skip`.
                 if (tf.versionRanges) {
@@ -608,6 +668,8 @@ function runTestFixtures(suite, testFixtures) {
                     onLogs: collector.onLogs.bind(collector),
                 });
                 await otlpServer.start();
+
+                await tf.before?.();
 
                 const cwd = tf.cwd || process.cwd();
                 const env = typeof tf.env === 'function' ? tf.env() : tf.env;
@@ -689,9 +751,14 @@ function runTestFixtures(suite, testFixtures) {
                                         'skip checkTelemetry because process errored out'
                                     );
                                 } else {
-                                    await tf.checkTelemetry(t, collector);
+                                    await tf.checkTelemetry(
+                                        t,
+                                        collector,
+                                        stdout
+                                    );
                                 }
                             }
+                            await tf.after?.();
                             await otlpServer.close();
                             t.end();
                             resolve();

@@ -82,3 +82,15 @@ export type InstrumentaionsMap = {
  * @returns {Array<Instrumentation>}
  */
 export function getInstrumentations(opts?: Partial<InstrumentaionsMap>): Array<Instrumentation>;
+/**
+ * Get an array of full instrumentation names from the given string.
+ *
+ * Here "full" means that `express` is expanded to the
+ * `@opentelemtry/instrumentation-express`. This applies to the set of
+ * well-known upstream OTel JS instrumentations.
+ *
+ * @param {string} s - Comma-separated string to parse.
+ * @param {string} desc - Description of the source of `s` for possible logging.
+ * @returns {string[]}
+ */
+export function getInstrumentationNamesFromStr(s: string, desc: string): string[];

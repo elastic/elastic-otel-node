@@ -142,21 +142,21 @@ const testFixtures = [
 
             // Test that metrics are basically working when bootstrapping in code.
             const httpDur = findObjInArray(
-                col.metrics,
+                col.metrics(),
                 'name',
                 'http.client.request.duration'
             );
             t.ok(httpDur);
             t.ok(httpDur.histogram);
             const nodejsUtil = findObjInArray(
-                col.metrics,
+                col.metrics(),
                 'name',
                 'nodejs.eventloop.utilization'
             );
             t.ok(nodejsUtil);
             t.ok(nodejsUtil.gauge);
             const cpuUtil = findObjInArray(
-                col.metrics,
+                col.metrics(),
                 'name',
                 'process.cpu.utilization'
             );

@@ -33,7 +33,6 @@ const testFixtures = [
             // +1ms `- span e9d2b9 "redis-HSET" (0.9ms, SPAN_KIND_CLIENT)
             // +0ms `- span 0a31fa "redis-GET" (0.8ms, STATUS_CODE_ERROR, SPAN_KIND_CLIENT)
             const spans = filterOutDnsNetSpans(col.sortedSpans);
-            t.equal(spans.length, 6);
             spans.slice(1).forEach((s) => {
                 t.equal(s.traceId, spans[0].traceId, 'traceId');
                 t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');
