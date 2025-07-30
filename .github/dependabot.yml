@@ -36,6 +36,26 @@ updates:
         - "*"
 
   - package-ecosystem: "npm"
+    directory: "/packages/mockopampserver"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      mockopampserver:
+        patterns:
+        - "*"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/opamp-client-node"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      opamp-client-node:
+        patterns:
+        - "*"
+
+  - package-ecosystem: "npm"
     directory: "/packages/instrumentation-openai"
     schedule:
       interval: "weekly"
