@@ -50,6 +50,11 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      # Packages whose major versions have dropped support for Node.js versions
+      # that this package needs.
+      - dependency-name: "undici" # undici@7 dropped 18
+        versions: [ ">=7" ]
     groups:
       opamp-client-node:
         patterns:
