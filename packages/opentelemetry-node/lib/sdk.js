@@ -250,7 +250,7 @@ function startNodeSDK(cfg = {}) {
         sdk,
         // TODO: Get some structure here. Perhaps our own SdkAdmin or SdkInfo class or whatever.
         noopTracerProvider,
-        // @ts-ignore: Ignore access of private _resource for now. (TODO)
+        // @ts-ignore: Ignore access of private _tracerProvider for now. (TODO)
         sdkTracerProvider: sdk._tracerProvider,
     });
 
