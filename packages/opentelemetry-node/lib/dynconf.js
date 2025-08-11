@@ -14,15 +14,21 @@ const {log} = require('./logging');
 /**
  * @typedef {Object} DynConfSpanExportersEvent
  * @property {boolean} enabled
+ *
+ * @typedef {Object} DynConfMetricExportersEvent
+ * @property {boolean} enabled
  */
 
 /**
  * Diagnostics channels used to communicate changes to some config vars.
  */
 const CH_SPAN_EXPORTERS = 'elastic-opentelemetry-node.dynconf.span-exporters';
+const CH_METRIC_EXPORTERS =
+    'elastic-opentelemetry-node.dynconf.metric-exporters';
 
 const chs = {
     [CH_SPAN_EXPORTERS]: channel(CH_SPAN_EXPORTERS),
+    [CH_METRIC_EXPORTERS]: channel(CH_METRIC_EXPORTERS),
 };
 
 /**
@@ -143,6 +149,98 @@ function _dynConfWrapSpanProcessors(sp) {
 }
 
 /**
+ * A PushMetricExporter that is dynamically configurable:
+ * - It can be enabled/disabled dynamically. When enabled it proxies to a
+ *   delegate PushMetricExporter.
+ *
+ * @interface {PushMetricExporter}
+ */
+class DynConfMetricExporter {
+    constructor(delegate) {
+        this._delegate = delegate;
+        this._enabled = true;
+        this._boundSub = this._onChange.bind(this); // save for unsubscribe()
+        subscribe(CH_METRIC_EXPORTERS, this._boundSub);
+    }
+    /**
+     * @param {DynConfSpanExportersEvent} chEvent
+     */
+    _onChange(chEvent) {
+        if (typeof chEvent.enabled !== 'boolean') {
+            log.warn(
+                `unexpected "${CH_METRIC_EXPORTERS}" channel event: ${chEvent}`
+            );
+        } else {
+            this._enabled = chEvent.enabled;
+        }
+    }
+
+    // interface PushMetricExporter
+    export(metrics, resultCallback) {
+        if (this._enabled) {
+            return this._delegate.export(metrics, resultCallback);
+        } else {
+            resultCallback({code: ExportResultCode.SUCCESS});
+        }
+    }
+    shutdown() {
+        unsubscribe(CH_METRIC_EXPORTERS, this._boundSub);
+        if (this._enabled) {
+            return this._delegate.shutdown();
+        } else {
+            return Promise.resolve();
+        }
+    }
+    forceFlush() {
+        if (this._enabled) {
+            return this._delegate.forceFlush();
+        } else {
+            return Promise.resolve();
+        }
+    }
+    selectAggregationTemporality(instrumentType) {
+        return this._delegate.selectAggregationTemporality(instrumentType);
+    }
+    selectAggregation(instrumentType) {
+        return this._delegate.selectAggregation(instrumentType);
+    }
+}
+
+/**
+ * @typedef {import('@opentelemetry/sdk-metrics').PushMetricExporter} PushMetricExporter
+ */
+
+/**
+ * @param {PushMetricExporter} exporter
+ * @returns {PushMetricExporter}
+ */
+function createDynConfMetricExporter(exporter) {
+    return new DynConfMetricExporter(exporter);
+}
+
+function _dynConfWrapMetricReader(mr) {
+    if (!mr) {
+        log.warn('could not setup MetricReader for dynamic config');
+        return;
+    }
+    const className = mr.constructor?.name;
+    switch (className) {
+        case 'PeriodicExportingMetricReader':
+            if (mr._exporter.constructor !== DynConfMetricExporter) {
+                const wrapped = createDynConfMetricExporter(mr._exporter);
+                mr._exporter = wrapped;
+            }
+            break;
+
+        default:
+            log.warn(
+                `could not setup "${className}" metric reader for dynamic config: use \`createDynConfMetricExporter(exporter)\` to enable dynamic configuration of your exporter`
+            );
+            break;
+    }
+}
+
+/**
  * We want exporters (SpanExporter, LogRecordExporter, et al) to be
  * dynamically configurable for some central-config settings.
  *
@@ -155,7 +253,7 @@ function _dynConfWrapSpanProcessors(sp) {
  * 1. We automatically *reach into the internal structure* of OTel JS SDK
  *    components to find the exporter instances, and monkey-patch them. This
  *    works (a) for known SDK exporter classes and (b) for now. Yes this is a
- *    maintenance burden.
+ *    maintenance burden: upstream non-breaking releases could break this.
  * 2. For custom SDK bootstrap code, we export `createDynConf*` utilities that
  *    can be used to wrap particular SDK components for dynamic configuration.
  *
@@ -167,6 +265,15 @@ function _dynConfWrapSpanProcessors(sp) {
 function setupDynConfExporters(sdk) {
     // Span exporters.
     _dynConfWrapSpanProcessors(sdk._tracerProvider?._activeSpanProcessor);
+
+    // Metric exporters.
+    for (let mc of sdk._meterProvider?._sharedState?.metricCollectors || []) {
+        if (mc._metricReader) {
+            _dynConfWrapMetricReader(mc._metricReader);
+        }
+    }
+
+    // XXX logs
 
     // TODO: For dev. Remove this later.
     console.log(
@@ -192,9 +299,20 @@ function dynConfSpanExporters(config) {
     chs[CH_SPAN_EXPORTERS].publish(config);
 }
 
+/**
+ * Dynamically configure the SDK's metric exporters.
+ *
+ * @param {DynConfMetricExportersEvent} config
+ */
+function dynConfMetricExporters(config) {
+    chs[CH_METRIC_EXPORTERS].publish(config);
+}
+
 module.exports = {
     setupDynConfExporters,
+    dynConfMetricExporters,
     dynConfSpanExporters,
 
+    createDynConfMetricExporter,
     createDynConfSpanExporter,
 };

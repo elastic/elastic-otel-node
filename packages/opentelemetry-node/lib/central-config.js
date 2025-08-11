@@ -19,7 +19,11 @@ const {
 const {log, DEFAULT_LOG_LEVEL} = require('./logging');
 const luggite = require('./luggite');
 const {getInstrumentationNamesFromStr} = require('./instrumentations');
-const {dynConfSpanExporters, setupDynConfExporters} = require('./dynconf');
+const {
+    dynConfMetricExporters,
+    dynConfSpanExporters,
+    setupDynConfExporters,
+} = require('./dynconf');
 
 // The key used in the AgentConfigMap.configMap for the Elastic central config
 // AgentConfigFile.
@@ -125,6 +129,49 @@ const REMOTE_CONFIG_HANDLERS = [
 
             dynConfSpanExporters({enabled: val});
             log.info(`central-config: ${verb} "send_traces" to "${val}"`);
+            return null;
+        },
+    },
+
+    /**
+     * To dynamically control whether metrics are sent, we disable/enable
+     * the `PushMetricExporter` used by any `MetricReader`s configured on the
+     * SDK `MeterProvider`.
+     */
+    {
+        keys: ['send_metrics'],
+        setter: (config, _sdkInfo) => {
+            const VAL_DEFAULT = true;
+            let valRaw = config['send_metrics'];
+            let val;
+            let verb = 'set';
+            switch (typeof valRaw) {
+                case 'undefined':
+                    val = VAL_DEFAULT; // reset to default state
+                    verb = 'reset';
+                    break;
+                case 'boolean':
+                    val = valRaw;
+                    // pass
+                    break;
+                case 'string':
+                    switch (valRaw.trim().toLowerCase()) {
+                        case 'true':
+                            val = true;
+                            break;
+                        case 'false':
+                            val = false;
+                            break;
+                        default:
+                            return `unknown 'send_metrics' value: "${valRaw}"`;
+                    }
+                    break;
+                default:
+                    return `unknown 'send_metrics' value type: ${typeof valRaw} (${valRaw})`;
+            }
+
+            dynConfMetricExporters({enabled: val});
+            log.info(`central-config: ${verb} "send_metric" to "${val}"`);
             return null;
         },
     },
