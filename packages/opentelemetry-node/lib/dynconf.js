@@ -75,6 +75,27 @@ class DynConfSpanExporter {
     }
 }
 
+/**
+ * @typedef {import('@opentelemetry/sdk-trace-base').SpanExporter} SpanExporter
+ */
+
+/**
+ * @param {SpanExporter} exporter
+ * @returns {SpanExporter}
+ */
+function createDynConfSpanExporter(exporter) {
+    return new DynConfSpanExporter(exporter);
+}
+
+/**
+ * Do a *best effort* to wrap the SpanExporter of the given SpanProcessor
+ * with `createDynConfSpanExporter()`. This handles sub-SpanProcessors of a
+ * MultiSpanProcessor.
+ *
+ * This is *best effort* because we are accessing semi-private properties of
+ * well-known OTel JS SDK classes. This `log.warn`'s if it could not wrap
+ * an exporter as expected.
+ */
 function _dynConfWrapSpanProcessors(sp) {
     if (!sp) {
         log.warn('could not setup SpanProcessors for dynamic config');
@@ -89,8 +110,12 @@ function _dynConfWrapSpanProcessors(sp) {
         case 'BatchSpanProcessor':
         case 'SimpleSpanProcessor':
             if (sp._exporter) {
-                const wrapped = new DynConfSpanExporter(sp._exporter);
-                sp._exporter = wrapped;
+                // Avoid double-wrapping, in case the bootstrap code already
+                // explicitly used `createDynConfSpanExporter()`.
+                if (sp._exporter.constructor !== DynConfSpanExporter) {
+                    const wrapped = createDynConfSpanExporter(sp._exporter);
+                    sp._exporter = wrapped;
+                }
             } else {
                 log.warn(
                     `could not setup exporter on "${className}" span processor for dynamic config`
@@ -103,9 +128,16 @@ function _dynConfWrapSpanProcessors(sp) {
             break;
 
         default:
-            log.warn(
-                `could not setup "${className}" span processor for dynamic config`
-            );
+            // Avoid warning if the bootstrap code already used the suggested `createDynConfSpanExporter()`
+            // to wrap this SpanProcessor's exporter (*guessed* to be at the `_exporter` property).
+            if (
+                !sp._exporter ||
+                sp._exporter.constructor !== DynConfSpanExporter
+            ) {
+                log.warn(
+                    `could not setup "${className}" span processor for dynamic config: use \`createDynConfSpanExporter(exporter)\` to enable dynamic configuration of your exporter`
+                );
+            }
             break;
     }
 }
@@ -163,4 +195,6 @@ function dynConfSpanExporters(config) {
 module.exports = {
     setupDynConfExporters,
     dynConfSpanExporters,
+
+    createDynConfSpanExporter,
 };
