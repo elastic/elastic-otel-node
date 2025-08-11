@@ -1,9 +1,13 @@
 export type SpanExporter = import('@opentelemetry/sdk-trace-base').SpanExporter;
 export type PushMetricExporter = import('@opentelemetry/sdk-metrics').PushMetricExporter;
+export type LogRecordExporter = import('@opentelemetry/sdk-logs').LogRecordExporter;
 export type DynConfSpanExportersEvent = {
     enabled: boolean;
 };
 export type DynConfMetricExportersEvent = {
+    enabled: boolean;
+};
+export type DynConfLogRecordExportersEvent = {
     enabled: boolean;
 };
 /**
@@ -30,30 +34,35 @@ export type DynConfMetricExportersEvent = {
  */
 export function setupDynConfExporters(sdk: any): void;
 /**
- * Dynamically configure the SDK's metric exporters.
- *
- * @param {DynConfMetricExportersEvent} config
- */
-export function dynConfMetricExporters(config: DynConfMetricExportersEvent): void;
-/**
  * Dynamically configure the SDK's SpanExporters.
  *
  * @param {DynConfSpanExportersEvent} config
  */
 export function dynConfSpanExporters(config: DynConfSpanExportersEvent): void;
 /**
- * @typedef {import('@opentelemetry/sdk-metrics').PushMetricExporter} PushMetricExporter
+ * Dynamically configure the SDK's metric exporters.
+ *
+ * @param {DynConfMetricExportersEvent} config
  */
+export function dynConfMetricExporters(config: DynConfMetricExportersEvent): void;
+/**
+ * Dynamically configure the SDK's metric exporters.
+ *
+ * @param {DynConfLogRecordExportersEvent} config
+ */
+export function dynConfLogRecordExporters(config: DynConfLogRecordExportersEvent): void;
+/**
+ * @param {SpanExporter} exporter
+ * @returns {SpanExporter}
+ */
+export function createDynConfSpanExporter(exporter: SpanExporter): SpanExporter;
 /**
  * @param {PushMetricExporter} exporter
  * @returns {PushMetricExporter}
  */
 export function createDynConfMetricExporter(exporter: PushMetricExporter): PushMetricExporter;
 /**
- * @typedef {import('@opentelemetry/sdk-trace-base').SpanExporter} SpanExporter
+ * @param {LogRecordExporter} exporter
+ * @returns {LogRecordExporter}
  */
-/**
- * @param {SpanExporter} exporter
- * @returns {SpanExporter}
- */
-export function createDynConfSpanExporter(exporter: SpanExporter): SpanExporter;
+export function createDynConfLogRecordExporter(exporter: LogRecordExporter): LogRecordExporter;
