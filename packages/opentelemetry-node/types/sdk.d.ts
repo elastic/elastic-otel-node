@@ -23,6 +23,8 @@ import { getInstrumentations } from "./instrumentations";
 export function startNodeSDK(cfg?: Partial<NodeSDKConfiguration & ElasticNodeSDKOptions>): {
     shutdown(): Promise<void>;
 };
+import { createDynConfMetricExporter } from "./dynconf";
+import { createDynConfSpanExporter } from "./dynconf";
 import { createAddHookMessageChannel } from "import-in-the-middle";
 import { api } from "@opentelemetry/sdk-node";
 import { core } from "@opentelemetry/sdk-node";
@@ -31,4 +33,4 @@ import { metrics } from "@opentelemetry/sdk-node";
 import { node } from "@opentelemetry/sdk-node";
 import { resources } from "@opentelemetry/sdk-node";
 import { tracing } from "@opentelemetry/sdk-node";
-export { getInstrumentations, createAddHookMessageChannel, api, core, logs, metrics, node, resources, tracing };
+export { getInstrumentations, createDynConfMetricExporter, createDynConfSpanExporter, createAddHookMessageChannel, api, core, logs, metrics, node, resources, tracing };
