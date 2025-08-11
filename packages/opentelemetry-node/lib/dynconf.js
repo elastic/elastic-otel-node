@@ -12,10 +12,17 @@ const {ExportResultCode} = require('@opentelemetry/core');
 const {log} = require('./logging');
 
 /**
+ * @typedef {import('@opentelemetry/sdk-trace-base').SpanExporter} SpanExporter
+ * @typedef {import('@opentelemetry/sdk-metrics').PushMetricExporter} PushMetricExporter
+ * @typedef {import('@opentelemetry/sdk-logs').LogRecordExporter} LogRecordExporter
+ *
  * @typedef {Object} DynConfSpanExportersEvent
  * @property {boolean} enabled
  *
  * @typedef {Object} DynConfMetricExportersEvent
+ * @property {boolean} enabled
+ *
+ * @typedef {Object} DynConfLogRecordExportersEvent
  * @property {boolean} enabled
  */
 
@@ -25,10 +32,13 @@ const {log} = require('./logging');
 const CH_SPAN_EXPORTERS = 'elastic-opentelemetry-node.dynconf.span-exporters';
 const CH_METRIC_EXPORTERS =
     'elastic-opentelemetry-node.dynconf.metric-exporters';
+const CH_LOG_RECORD_EXPORTERS =
+    'elastic-opentelemetry-node.dynconf.log-record-exporters';
 
 const chs = {
     [CH_SPAN_EXPORTERS]: channel(CH_SPAN_EXPORTERS),
     [CH_METRIC_EXPORTERS]: channel(CH_METRIC_EXPORTERS),
+    [CH_LOG_RECORD_EXPORTERS]: channel(CH_LOG_RECORD_EXPORTERS),
 };
 
 /**
@@ -80,10 +90,6 @@ class DynConfSpanExporter {
         }
     }
 }
-
-/**
- * @typedef {import('@opentelemetry/sdk-trace-base').SpanExporter} SpanExporter
- */
 
 /**
  * @param {SpanExporter} exporter
@@ -149,6 +155,15 @@ function _dynConfWrapSpanProcessors(sp) {
 }
 
 /**
+ * Dynamically configure the SDK's SpanExporters.
+ *
+ * @param {DynConfSpanExportersEvent} config
+ */
+function dynConfSpanExporters(config) {
+    chs[CH_SPAN_EXPORTERS].publish(config);
+}
+
+/**
  * A PushMetricExporter that is dynamically configurable:
  * - It can be enabled/disabled dynamically. When enabled it proxies to a
  *   delegate PushMetricExporter.
@@ -163,7 +178,7 @@ class DynConfMetricExporter {
         subscribe(CH_METRIC_EXPORTERS, this._boundSub);
     }
     /**
-     * @param {DynConfSpanExportersEvent} chEvent
+     * @param {DynConfMetricExportersEvent} chEvent
      */
     _onChange(chEvent) {
         if (typeof chEvent.enabled !== 'boolean') {
@@ -207,10 +222,6 @@ class DynConfMetricExporter {
 }
 
 /**
- * @typedef {import('@opentelemetry/sdk-metrics').PushMetricExporter} PushMetricExporter
- */
-
-/**
  * @param {PushMetricExporter} exporter
  * @returns {PushMetricExporter}
  */
@@ -238,6 +249,134 @@ function _dynConfWrapMetricReader(mr) {
             );
             break;
     }
+}
+
+/**
+ * Dynamically configure the SDK's metric exporters.
+ *
+ * @param {DynConfMetricExportersEvent} config
+ */
+function dynConfMetricExporters(config) {
+    chs[CH_METRIC_EXPORTERS].publish(config);
+}
+
+/**
+ * A LogRecordExporter that is dynamically configurable:
+ * - It can be enabled/disabled dynamically. When enabled it proxies to a
+ *   delegate LogRecordExporter.
+ */
+class DynConfLogRecordExporter {
+    constructor(delegate) {
+        this._delegate = delegate;
+        this._enabled = true;
+        this._boundSub = this._onChange.bind(this); // save for unsubscribe()
+        subscribe(CH_LOG_RECORD_EXPORTERS, this._boundSub);
+    }
+    /**
+     * @param {DynConfLogRecordExportersEvent} chEvent
+     */
+    _onChange(chEvent) {
+        if (typeof chEvent.enabled !== 'boolean') {
+            log.warn(
+                `unexpected "${CH_LOG_RECORD_EXPORTERS}" channel event: ${chEvent}`
+            );
+        } else {
+            this._enabled = chEvent.enabled;
+        }
+    }
+
+    // interface LogRecordExporter
+    export(logRecords, resultCallback) {
+        if (this._enabled) {
+            return this._delegate.export(logRecords, resultCallback);
+        } else {
+            resultCallback({code: ExportResultCode.SUCCESS});
+        }
+    }
+    shutdown() {
+        unsubscribe(CH_LOG_RECORD_EXPORTERS, this._boundSub);
+        if (this._enabled) {
+            return this._delegate.shutdown();
+        } else {
+            return Promise.resolve();
+        }
+    }
+}
+
+/**
+ * @param {LogRecordExporter} exporter
+ * @returns {LogRecordExporter}
+ */
+function createDynConfLogRecordExporter(exporter) {
+    return new DynConfLogRecordExporter(exporter);
+}
+
+/**
+ * Do a *best effort* to wrap the LogRecordExporter of the given processor
+ * with `createDynConfLogRecordExporter()`.
+ *
+ * This is *best effort* because we are accessing semi-private properties of
+ * well-known OTel JS SDK classes. This `log.warn`'s if it could not wrap
+ * an exporter as expected.
+ */
+function _dynConfWrapLogRecordProcessors(lp) {
+    if (!lp) {
+        log.warn('could not setup LogRecordProcessors for dynamic config');
+        return;
+    }
+    const className = lp.constructor?.name;
+    switch (className) {
+        case 'MultiLogRecordProcessor':
+            lp.processors?.forEach((p) => _dynConfWrapLogRecordProcessors(p));
+            break;
+
+        case 'BatchLogRecordProcessor':
+        case 'SimpleLogRecordProcessor':
+            if (lp._exporter) {
+                // Avoid double-wrapping, in case the bootstrap code already
+                // explicitly used `createDynConfLogRecordExporter()`.
+                if (lp._exporter.constructor !== DynConfLogRecordExporter) {
+                    const wrapped = createDynConfLogRecordExporter(
+                        lp._exporter
+                    );
+                    lp._exporter = wrapped;
+                }
+            } else {
+                log.warn(
+                    `could not setup exporter on "${className}" log record processor for dynamic config`
+                );
+            }
+            break;
+
+        case 'NoopLogRecordProcessor':
+            console.log('XXX NoopLogRecordProcessor: hi, all good');
+            // pass
+            break;
+
+        default:
+            // Avoid warning if the bootstrap code already used the suggested
+            // `createDynConfLogRecordExporter()` to wrap this
+            // LogRecordProcessor's exporter (*guessed* to be at the `_exporter`
+            // property).
+            if (
+                !lp._exporter ||
+                lp._exporter.constructor !== DynConfLogRecordExporter
+            ) {
+                log.warn(
+                    `could not setup "${className}" log record processor for dynamic config: use \`createDynConfLogRecordExporter(exporter)\` to enable dynamic configuration of your exporter`
+                );
+            }
+            break;
+    }
+}
+
+/**
+ * Dynamically configure the SDK's metric exporters.
+ *
+ * @param {DynConfLogRecordExportersEvent} config
+ */
+function dynConfLogRecordExporters(config) {
+    chs[CH_LOG_RECORD_EXPORTERS].publish(config);
 }
 
 /**
@@ -273,46 +412,20 @@ function setupDynConfExporters(sdk) {
         }
     }
 
-    // XXX logs
-
-    // TODO: For dev. Remove this later.
-    console.log(
-        'XXX SDK exporters: ',
-        sdk._tracerProvider._activeSpanProcessor._spanProcessors.map(
-            (p) => p._exporter
-        ),
-        sdk._meterProvider._sharedState.metricCollectors.map(
-            (c) => c._metricReader._exporter
-        ),
-        sdk._loggerProvider._sharedState.activeProcessor.processors.map(
-            (p) => p._exporter
-        )
+    // Log record exporters.
+    _dynConfWrapLogRecordProcessors(
+        sdk._loggerProvider?._sharedState?.activeProcessor
     );
-}
-
-/**
- * Dynamically configure the SDK's SpanExporters.
- *
- * @param {DynConfSpanExportersEvent} config
- */
-function dynConfSpanExporters(config) {
-    chs[CH_SPAN_EXPORTERS].publish(config);
-}
-
-/**
- * Dynamically configure the SDK's metric exporters.
- *
- * @param {DynConfMetricExportersEvent} config
- */
-function dynConfMetricExporters(config) {
-    chs[CH_METRIC_EXPORTERS].publish(config);
 }
 
 module.exports = {
     setupDynConfExporters,
-    dynConfMetricExporters,
     dynConfSpanExporters,
+    dynConfMetricExporters,
+    dynConfLogRecordExporters,
 
-    createDynConfMetricExporter,
+    // API to be exported for the SDK API.
     createDynConfSpanExporter,
+    createDynConfMetricExporter,
+    createDynConfLogRecordExporter,
 };

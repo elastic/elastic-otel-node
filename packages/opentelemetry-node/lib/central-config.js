@@ -20,8 +20,9 @@ const {log, DEFAULT_LOG_LEVEL} = require('./logging');
 const luggite = require('./luggite');
 const {getInstrumentationNamesFromStr} = require('./instrumentations');
 const {
-    dynConfMetricExporters,
     dynConfSpanExporters,
+    dynConfMetricExporters,
+    dynConfLogRecordExporters,
     setupDynConfExporters,
 } = require('./dynconf');
 
@@ -172,6 +173,49 @@ const REMOTE_CONFIG_HANDLERS = [
 
             dynConfMetricExporters({enabled: val});
             log.info(`central-config: ${verb} "send_metric" to "${val}"`);
+            return null;
+        },
+    },
+
+    /**
+     * To dynamically control whether logs are sent, we disable/enable the
+     * `LogRecordExporter` used by any `LogRecordProcessor`s configured on the
+     * SDK `LoggerProvider`.
+     */
+    {
+        keys: ['send_logs'],
+        setter: (config, _sdkInfo) => {
+            const VAL_DEFAULT = true;
+            let valRaw = config['send_logs'];
+            let val;
+            let verb = 'set';
+            switch (typeof valRaw) {
+                case 'undefined':
+                    val = VAL_DEFAULT; // reset to default state
+                    verb = 'reset';
+                    break;
+                case 'boolean':
+                    val = valRaw;
+                    // pass
+                    break;
+                case 'string':
+                    switch (valRaw.trim().toLowerCase()) {
+                        case 'true':
+                            val = true;
+                            break;
+                        case 'false':
+                            val = false;
+                            break;
+                        default:
+                            return `unknown 'send_logs' value: "${valRaw}"`;
+                    }
+                    break;
+                default:
+                    return `unknown 'send_logs' value type: ${typeof valRaw} (${valRaw})`;
+            }
+
+            dynConfLogRecordExporters({enabled: val});
+            log.info(`central-config: ${verb} "send_logs" to "${val}"`);
             return null;
         },
     },
