@@ -119,6 +119,7 @@ class MockOtlpServer {
                     // Handles `OTEL_EXPORTER_OTLP_PROTOCOL=grpc`.
                     // NOTE: to debug read this: https://github.com/grpc/grpc-node/blob/master/TROUBLESHOOTING.md
                     this._grpcService = new GrpcService({
+                        log: this._log,
                         hostname: this._grpcHostname,
                         port: this._grpcPort,
                     });

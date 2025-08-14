@@ -4,6 +4,8 @@
 
 - chore: Excluding devDeps from Docker images should make them smaller.
 
+- feat: Adds a log.debug() for every incoming HTTP and gRPC request.
+
 ## v0.8.0
 
 - feat: 'summary' rendering of Sum and Gauge metric types
