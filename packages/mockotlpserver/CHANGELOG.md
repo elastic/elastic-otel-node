@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- feat: Add a 'spacer' printer, and add it to the default set.
+  This will print a blank line if it has been a "while" (currently 1s) since
+  the last printed output. This helps in viewing the printed output.
+  E.g. `node lib/cli.js -o summary,spacer`.
+
 - chore: Excluding devDeps from Docker images should make them smaller.
 
 ## v0.8.0
