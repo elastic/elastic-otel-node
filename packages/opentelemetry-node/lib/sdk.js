@@ -35,8 +35,9 @@ const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {setupCentralConfig} = require('./central-config');
 const {
-    createDynConfMetricExporter,
     createDynConfSpanExporter,
+    createDynConfMetricExporter,
+    createDynConfLogRecordExporter,
 } = require('./dynconf');
 const DISTRO_VERSION = require('../package.json').version;
 
@@ -280,8 +281,9 @@ function startNodeSDK(cfg = {}) {
 module.exports = {
     getInstrumentations,
     startNodeSDK,
-    createDynConfMetricExporter, // TODO: doc this in API user guide
     createDynConfSpanExporter, // TODO: doc this in API user guide
+    createDynConfMetricExporter, // TODO: doc this in API user guide
+    createDynConfLogRecordExporter, // TODO: doc this in API user guide
 
     createAddHookMessageChannel, // re-export from import-in-the-middle
 
