@@ -34,6 +34,11 @@ const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {setupCentralConfig} = require('./central-config');
+const {
+    createDynConfSpanExporter,
+    createDynConfMetricExporter,
+    createDynConfLogRecordExporter,
+} = require('./dynconf');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
@@ -250,7 +255,7 @@ function startNodeSDK(cfg = {}) {
         sdk,
         // TODO: Get some structure here. Perhaps our own SdkAdmin or SdkInfo class or whatever.
         noopTracerProvider,
-        // @ts-ignore: Ignore access of private _resource for now. (TODO)
+        // @ts-ignore: Ignore access of private _tracerProvider for now. (TODO)
         sdkTracerProvider: sdk._tracerProvider,
     });
 
@@ -276,6 +281,9 @@ function startNodeSDK(cfg = {}) {
 module.exports = {
     getInstrumentations,
     startNodeSDK,
+    createDynConfSpanExporter, // TODO: doc this in API user guide
+    createDynConfMetricExporter, // TODO: doc this in API user guide
+    createDynConfLogRecordExporter, // TODO: doc this in API user guide
 
     createAddHookMessageChannel, // re-export from import-in-the-middle
 
