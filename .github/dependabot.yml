@@ -12,6 +12,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      # Do not yet support openai@5.
+      - dependency-name: "openai"
+        versions: [ ">=5" ]
     groups:
       opentelemetry:
         patterns:
@@ -74,6 +78,7 @@ updates:
       - dependency-name: "typescript"
       # Do not yet support openai@5.
       - dependency-name: "openai"
+        versions: [ ">=5" ]
     groups:
       instrumentation-openai:
         patterns:
