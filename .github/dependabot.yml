@@ -72,6 +72,8 @@ updates:
       - dependency-name: "@typescript-eslint/*"
       # Locked to the same version being used by opentelemetry-js-contrib.
       - dependency-name: "typescript"
+      # Do not yet support openai@5.
+      - dependency-name: "openai"
     groups:
       instrumentation-openai:
         patterns:
@@ -108,6 +110,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      opentelemetry:
+        patterns:
+        - "@opentelemetry/*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
