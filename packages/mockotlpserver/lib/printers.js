@@ -196,9 +196,39 @@ class FilePrinter extends Printer {
     }
 }
 
+/**
+ * If there has been a `_timeGap` since the last printable-event, then print
+ * a blank line in the console output to provide some visual spacing. This
+ * makes the printed output easier to reason about.
+ */
+class SpacerPrinter extends Printer {
+    constructor(log) {
+        super(log);
+        this._lastPrintTime = Date.now();
+        this._timeGap = 1000;
+    }
+    _handleGap() {
+        const now = Date.now();
+        if (now - this._lastPrintTime > this._timeGap) {
+            console.log(); // blank line spacing between earlier group
+        }
+        this._lastPrintTime = now;
+    }
+    printTrace(_) {
+        this._handleGap();
+    }
+    printMetrics(_) {
+        this._handleGap();
+    }
+    printLogs(_) {
+        this._handleGap();
+    }
+}
+
 module.exports = {
     Printer,
     JSONPrinter,
     InspectPrinter,
     FilePrinter,
+    SpacerPrinter,
 };
