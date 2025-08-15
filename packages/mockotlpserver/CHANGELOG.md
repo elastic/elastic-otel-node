@@ -1,6 +1,6 @@
 # @elastic/mockotlpserver Changelog
 
-## Unreleased
+## v0.9.0
 
 - feat: Add a 'spacer' printer, and add it to the default set.
   This will print a blank line if it has been a "while" (currently 1s) since
