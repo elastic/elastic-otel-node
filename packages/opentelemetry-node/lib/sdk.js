@@ -38,6 +38,8 @@ const {
     createDynConfSpanExporter,
     createDynConfMetricExporter,
     createDynConfLogRecordExporter,
+    setupDynConfExporters,
+    dynConfSpanExporters,
 } = require('./dynconf');
 const DISTRO_VERSION = require('../package.json').version;
 
@@ -246,6 +248,18 @@ function startNodeSDK(cfg = {}) {
         hostMetricsInstance.start();
     }
 
+    // Setup for dynamic configuration of some SDK components.
+    setupDynConfExporters(sdk);
+
+    // `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` is effectively the static-config
+    // equivalent of `send_traces=false`.
+    const contextPropagationOnly = getBooleanFromEnv(
+        'ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY'
+    );
+    if (contextPropagationOnly) {
+        dynConfSpanExporters({enabled: false});
+    }
+
     // OpAMP for central config.
     // TODO: handle resource in this SDK, so don't have use private `_resource`
     const opampClient = setupCentralConfig({
@@ -257,6 +271,7 @@ function startNodeSDK(cfg = {}) {
         noopTracerProvider,
         // @ts-ignore: Ignore access of private _tracerProvider for now. (TODO)
         sdkTracerProvider: sdk._tracerProvider,
+        contextPropagationOnly,
     });
 
     // Shutdown handling.

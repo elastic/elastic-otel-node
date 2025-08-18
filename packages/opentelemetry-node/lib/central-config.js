@@ -23,7 +23,6 @@ const {
     dynConfSpanExporters,
     dynConfMetricExporters,
     dynConfLogRecordExporters,
-    setupDynConfExporters,
 } = require('./dynconf');
 
 // The key used in the AgentConfigMap.configMap for the Elastic central config
@@ -99,7 +98,7 @@ const REMOTE_CONFIG_HANDLERS = [
     {
         keys: ['send_traces'],
         setter: (config, _sdkInfo) => {
-            const VAL_DEFAULT = true;
+            const VAL_DEFAULT = initialConfig.send_traces;
             let valRaw = config['send_traces'];
             let val;
             let verb = 'set';
@@ -608,14 +607,12 @@ function setupCentralConfig(sdkInfo) {
         'ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED'
     );
 
-    // Setup for dynamic configuration of some SDK components.
-    setupDynConfExporters(sdkInfo.sdk);
-
     // Gather initial effective config.
     initialConfig.logging_level =
         CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL[
             luggite.nameFromLevel[log.level()] ?? DEFAULT_LOG_LEVEL
         ];
+    initialConfig.send_traces = !sdkInfo.contextPropagationOnly;
     log.debug({initialConfig}, 'initial central config values');
 
     const client = createOpAMPClient({
