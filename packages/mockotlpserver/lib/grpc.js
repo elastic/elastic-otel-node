@@ -47,6 +47,29 @@ for (const [name, path] of Object.entries(packages)) {
 
 // helper functions
 
+/**
+ * Creates a gRPC server interceptor to log incoming requests.
+ *
+ * @returns {grpc.ServerInterceptor}
+ */
+function createLoggingInterceptor(log) {
+    return (methDesc, call) => {
+        return new grpc.ServerInterceptingCall(call, {
+            start: (next) => {
+                next({
+                    onReceiveMetadata: (metadata, mdNext) => {
+                        log.debug(
+                            {metadata},
+                            `incoming gRPC req: ${methDesc.path}`
+                        );
+                        mdNext(metadata);
+                    },
+                });
+            },
+        });
+    };
+}
+
 function intakeTraces(call, callback) {
     callback(null, {
         partial_success: {
@@ -80,13 +103,10 @@ function intakeLogs(call, callback) {
     diagchGet(CH_OTLP_V1_LOGS).publish(call.request);
 }
 
-// function intakeLogs(call, callback) {
-//   // TODO: check proto
-// }
-
 class GrpcService extends Service {
     /**
      * @param {Object} opts
+     * @param {import('./luggite').Logger} opts.log
      * @param {string} opts.hostname
      * @param {number} opts.port
      */
@@ -98,9 +118,11 @@ class GrpcService extends Service {
     }
 
     async start() {
-        const {hostname, port} = this._opts;
+        const {log, hostname, port} = this._opts;
 
-        this._grpcServer = new grpc.Server();
+        this._grpcServer = new grpc.Server({
+            interceptors: [createLoggingInterceptor(log)],
+        });
         this._grpcServer.addService(packages.trace.TraceService.service, {
             Export: intakeTraces,
         });

@@ -12,10 +12,10 @@
   "dependencies": {
     "@elastic/opentelemetry-node": "*",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.62.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.62.1",
     "@opentelemetry/sdk-node": "^0.202.0",
     "bunyan": "^1.8.15",
     "express": "^4.19.2",
-    "pino-pretty": "^13.0.0"
+    "pino-pretty": "^13.1.1"
   }
 }

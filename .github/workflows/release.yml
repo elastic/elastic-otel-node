@@ -28,7 +28,7 @@ jobs:
     env:
       DOCKER_IMAGE_NAME: docker.elastic.co/observability/elastic-otel-node
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 

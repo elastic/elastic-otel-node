@@ -155,6 +155,10 @@ class HttpService extends Service {
         const httpTunnel = tunnel && createHttpTunnel(log, tunnel);
 
         this._server = http.createServer((req, res) => {
+            log.debug(
+                {headers: req.headers},
+                `incoming HTTP req: ${req.method} ${req.url}`
+            );
             const isBrowserReq = isBrowserUserAgent(req.headers['user-agent']);
 
             // Accept CORS requests from browsers

@@ -12,6 +12,14 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      # Do not yet support openai@5.
+      - dependency-name: "openai"
+        versions: [ ">=5" ]
+      # Packages whose major versions have dropped support for Node.js versions
+      # that this package needs.
+      - dependency-name: "undici" # undici@7 dropped 18
+        versions: [ ">=7" ]
     groups:
       opentelemetry:
         patterns:
@@ -72,6 +80,9 @@ updates:
       - dependency-name: "@typescript-eslint/*"
       # Locked to the same version being used by opentelemetry-js-contrib.
       - dependency-name: "typescript"
+      # Do not yet support openai@5.
+      - dependency-name: "openai"
+        versions: [ ">=5" ]
     groups:
       instrumentation-openai:
         patterns:
@@ -108,6 +119,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      opentelemetry:
+        patterns:
+        - "@opentelemetry/*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
