@@ -349,7 +349,6 @@ function _dynConfWrapLogRecordProcessors(lp) {
             break;
 
         case 'NoopLogRecordProcessor':
-            console.log('XXX NoopLogRecordProcessor: hi, all good');
             // pass
             break;
 
