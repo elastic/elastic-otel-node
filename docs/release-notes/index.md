@@ -29,6 +29,29 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## Unreleased [edot-node-next-release-notes]
+
+### Features and enhancements [edot-node-next-features-enhancements]
+
+* New Central Configuration settings. Typically these settings are only useful
+  for temporary debugging of telemetry.
+
+    * `send_traces`: A boolean to disable/enable sending of trace telemetry (i.e. spans).
+    * `send_metrics`: The same, for the metrics signal.
+    * `send_logs`: The same, for the logs signal.
+
+  While these are supported in EDOT Node.js, they will only be present in
+  "Agent Configuration" UI of Kibana version 9.2 and later.
+
+* New `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` configuration environment variable.
+  Set this to `true` to disable sending of spans, but otherwise continue to
+  do context propagation. This can be useful in limited conditions to support
+  propagating trace-context through a service to downstream services for distributed tracing, but not collect spans from the service. (Note that this typically results in
+  incomplete or broken traces in Kibana trace viewer.)
+
+### Fixes [edot-node-next-fixes]
+
+
 ## 1.2.0 [edot-node-1.2.0]
 
 ### Features and enhancements [edot-node-1.2.0-features-enhancements]
