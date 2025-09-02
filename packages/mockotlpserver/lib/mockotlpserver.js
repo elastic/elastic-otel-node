@@ -41,6 +41,11 @@ class CallbackPrinter extends Printer {
             this._callbacks.onLogs(logs);
         }
     }
+    printRequest(req) {
+        if (this._callbacks.onRequest) {
+            this._callbacks.onRequest(req);
+        }
+    }
 }
 
 class MockOtlpServer {
@@ -60,9 +65,10 @@ class MockOtlpServer {
      * @param {string} [opts.tunnel] Default undefined.
      * @param {string} [opts.uiHostname] Default 'localhost'.
      * @param {number} [opts.uiPort] Default 8080. Use 0 to select a free port.
-     * @param {Function} [opts.onTrace] Called for each received trace service request.
-     * @param {Function} [opts.onMetrics] Called for each received metrics service request.
-     * @param {Function} [opts.onLogs] Called for each received logs service request.
+     * @param {Function} [opts.onTrace] Called for each completed trace service request.
+     * @param {Function} [opts.onMetrics] Called for each completed metrics service request.
+     * @param {Function} [opts.onLogs] Called for each completed logs service request.
+     * @param {Function} [opts.onRequest] Called for each received HTTP or gRPC request.
      */
     constructor(opts) {
         opts = opts ?? {};
@@ -83,6 +89,7 @@ class MockOtlpServer {
             onTrace: opts.onTrace,
             onMetrics: opts.onMetrics,
             onLogs: opts.onLogs,
+            onRequest: opts.onRequest,
         });
         this._printer.subscribe();
 

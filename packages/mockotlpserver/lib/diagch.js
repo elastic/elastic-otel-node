@@ -49,6 +49,8 @@ const CH_OTLP_V1_TRACE = 'otlp.v1.trace';
 const CH_OTLP_V1_METRICS = 'otlp.v1.metrics';
 const CH_OTLP_V1_LOGS = 'otlp.v1.logs';
 
+const CH_OTLP_V1_REQUEST = 'otlp.v1.request';
+
 module.exports = {
     diagchGet,
     diagchSub,
@@ -56,4 +58,5 @@ module.exports = {
     CH_OTLP_V1_TRACE,
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_LOGS,
+    CH_OTLP_V1_REQUEST,
 };

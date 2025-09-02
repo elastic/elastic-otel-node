@@ -13,8 +13,11 @@ const {
     CH_OTLP_V1_TRACE,
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_LOGS,
+    CH_OTLP_V1_REQUEST,
 } = require('./diagch');
 const {Service} = require('./service');
+
+const diagChReq = diagchGet(CH_OTLP_V1_REQUEST);
 
 // TODO: for now `proto` files are copied from
 // https://github.com/open-telemetry/opentelemetry-proto
@@ -62,6 +65,11 @@ function createLoggingInterceptor(log) {
                             {metadata},
                             `incoming gRPC req: ${methDesc.path}`
                         );
+                        diagChReq.publish({
+                            transport: 'grpc',
+                            path: methDesc.path,
+                            metadata: metadata,
+                        });
                         mdNext(metadata);
                     },
                 });
