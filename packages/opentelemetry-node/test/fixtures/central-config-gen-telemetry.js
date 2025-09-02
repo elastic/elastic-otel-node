@@ -54,13 +54,16 @@ async function main() {
         // 1. initial heartbeat which receives `remoteConfig`, and
         // 2. client message with `remoteConfigStatus`
         await barrierOpAMPClientDiagEvents(2, [DIAG_CH_SEND_SUCCESS]);
-        // Wait for a couple metric intervals before proceeding, so that
-        // already recording metrics can be excluded in tests.
+        // Note the current time, so the test driver code can exclude metrics
+        // recorded before this time in its assertions.
+        console.log('CENTRAL_CONFIG_APPLIED:', Date.now());
+        // Wait for a couple metric intervals before proceeding, so there is
+        // a chance for periodically gather metrics to be recorded after
+        // config changes.
         const metricInterval = Number(
             process.env.OTEL_METRIC_EXPORT_INTERVAL || 30000
         );
         await setTimeout(metricInterval * 2);
-        console.log('CENTRAL_CONFIG_APPLIED:', Date.now()); // used by test driver
     }
 
     await tracer.startActiveSpan('manual-span', async (span) => {
