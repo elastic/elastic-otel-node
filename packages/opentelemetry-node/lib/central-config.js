@@ -57,6 +57,49 @@ Object.keys(LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL).forEach(function (name) {
 });
 
 /**
+ * Parse a raw config string value into a boolean.
+ *
+ * @param {string} key - the name of the config setting, to be used in error
+ *      messages, if any.
+ * @param {string} valRaw
+ * @param {boolean} valDefault
+ * @returns {[string | null, boolean | null, string | null]}
+ *      A 3-tuple [<error message>, <value>, <verb>].
+ */
+function _parseBoolConfigRawVal(key, valRaw, valDefault) {
+    let val;
+    let verb = 'set';
+    switch (typeof valRaw) {
+        case 'undefined':
+            val = valDefault; // reset to default state
+            verb = 'reset';
+            break;
+        case 'boolean':
+            val = valRaw;
+            break;
+        case 'string':
+            switch (valRaw.trim().toLowerCase()) {
+                case 'true':
+                    val = true;
+                    break;
+                case 'false':
+                    val = false;
+                    break;
+                default:
+                    return [`unknown "${key}" value: "${valRaw}"`, null, null];
+            }
+            break;
+        default:
+            return [
+                `unknown "${key}" value type: ${typeof valRaw} (${valRaw})`,
+                null,
+                null,
+            ];
+    }
+    return [null, val, verb];
+}
+
+/**
  * A "setter" is a function that applies one or more config keys.
  *
  * - A config value of `undefined` means that the setting should be reset to its default value.
@@ -99,32 +142,13 @@ const REMOTE_CONFIG_HANDLERS = [
         keys: ['send_traces'],
         setter: (config, _sdkInfo) => {
             const VAL_DEFAULT = initialConfig.send_traces;
-            let valRaw = config['send_traces'];
-            let val;
-            let verb = 'set';
-            switch (typeof valRaw) {
-                case 'undefined':
-                    val = VAL_DEFAULT; // reset to default state
-                    verb = 'reset';
-                    break;
-                case 'boolean':
-                    val = valRaw;
-                    // pass
-                    break;
-                case 'string':
-                    switch (valRaw.trim().toLowerCase()) {
-                        case 'true':
-                            val = true;
-                            break;
-                        case 'false':
-                            val = false;
-                            break;
-                        default:
-                            return `unknown 'send_traces' value: "${valRaw}"`;
-                    }
-                    break;
-                default:
-                    return `unknown 'send_traces' value type: ${typeof valRaw} (${valRaw})`;
+            const [errmsg, val, verb] = _parseBoolConfigRawVal(
+                'send_traces',
+                config['send_traces'],
+                VAL_DEFAULT
+            );
+            if (errmsg) {
+                return errmsg;
             }
 
             dynConfSpanExporters({enabled: val});
@@ -142,32 +166,13 @@ const REMOTE_CONFIG_HANDLERS = [
         keys: ['send_metrics'],
         setter: (config, _sdkInfo) => {
             const VAL_DEFAULT = true;
-            let valRaw = config['send_metrics'];
-            let val;
-            let verb = 'set';
-            switch (typeof valRaw) {
-                case 'undefined':
-                    val = VAL_DEFAULT; // reset to default state
-                    verb = 'reset';
-                    break;
-                case 'boolean':
-                    val = valRaw;
-                    // pass
-                    break;
-                case 'string':
-                    switch (valRaw.trim().toLowerCase()) {
-                        case 'true':
-                            val = true;
-                            break;
-                        case 'false':
-                            val = false;
-                            break;
-                        default:
-                            return `unknown 'send_metrics' value: "${valRaw}"`;
-                    }
-                    break;
-                default:
-                    return `unknown 'send_metrics' value type: ${typeof valRaw} (${valRaw})`;
+            const [errmsg, val, verb] = _parseBoolConfigRawVal(
+                'send_metrics',
+                config['send_metrics'],
+                VAL_DEFAULT
+            );
+            if (errmsg) {
+                return errmsg;
             }
 
             dynConfMetricExporters({enabled: val});
@@ -185,32 +190,13 @@ const REMOTE_CONFIG_HANDLERS = [
         keys: ['send_logs'],
         setter: (config, _sdkInfo) => {
             const VAL_DEFAULT = true;
-            let valRaw = config['send_logs'];
-            let val;
-            let verb = 'set';
-            switch (typeof valRaw) {
-                case 'undefined':
-                    val = VAL_DEFAULT; // reset to default state
-                    verb = 'reset';
-                    break;
-                case 'boolean':
-                    val = valRaw;
-                    // pass
-                    break;
-                case 'string':
-                    switch (valRaw.trim().toLowerCase()) {
-                        case 'true':
-                            val = true;
-                            break;
-                        case 'false':
-                            val = false;
-                            break;
-                        default:
-                            return `unknown 'send_logs' value: "${valRaw}"`;
-                    }
-                    break;
-                default:
-                    return `unknown 'send_logs' value type: ${typeof valRaw} (${valRaw})`;
+            const [errmsg, val, verb] = _parseBoolConfigRawVal(
+                'send_logs',
+                config['send_logs'],
+                VAL_DEFAULT
+            );
+            if (errmsg) {
+                return errmsg;
             }
 
             dynConfLogRecordExporters({enabled: val});
