@@ -343,6 +343,7 @@ class TestCollector {
         this.rawTraces = [];
         this.rawMetrics = [];
         this.rawLogs = [];
+        this.rawRequests = [];
     }
 
     onTrace(trace) {
@@ -353,6 +354,9 @@ class TestCollector {
     }
     onLogs(logs) {
         this.rawLogs.push(logs);
+    }
+    onRequest(req) {
+        this.rawRequests.push(req);
     }
 
     /**
@@ -576,6 +580,10 @@ class TestCollector {
  * @property {NodeJS.ProcessEnv | (() => NodeJS.ProcessEnv)} [env]
  *    Any custom envvars, e.g. `{NODE_OPTIONS:...}`, or a function that
  *    returns custom envvars (which allows lazy calculation).
+ * @property {string} [otlpProtocol] One of 'http/protobuf' (the default),
+ *    'http/json', or 'grpc'. This determines what OTLP protocol the
+ *    MockOTLPServer will expect, and the OTEL_EXPORTER_OTLP_PROTOCOL and
+ *    OTEL_EXPORTER_OTLP_ENDPOINT envvars will be set appropriately.
  * @property {() => void} [before] A function to run before spawning the script.
  *    This can be used to setup whatever may be needed for the script.
  * @property {() => void} [after] A function to run after executing the script.
@@ -657,15 +665,21 @@ function runTestFixtures(suite, testFixtures) {
                     }
                 }
 
+                const otlpProtocol = tf.otlpProtocol ?? 'http/protobuf';
                 const collector = new TestCollector();
                 const otlpServer = new MockOtlpServer({
                     logLevel: 'warn',
-                    services: ['http'],
+                    services: otlpProtocol.startsWith('http')
+                        ? ['http']
+                        : ['grpc'],
                     httpHostname: '127.0.0.1', // avoid default 'localhost' because possible IPv6
                     httpPort: 0,
+                    grpcHostname: '127.0.0.1', // avoid default 'localhost' because possible IPv6
+                    grpcPort: 0,
                     onTrace: collector.onTrace.bind(collector),
                     onMetrics: collector.onMetrics.bind(collector),
                     onLogs: collector.onLogs.bind(collector),
+                    onRequest: collector.onRequest.bind(collector),
                 });
                 await otlpServer.start();
 
@@ -694,8 +708,10 @@ function runTestFixtures(suite, testFixtures) {
                                 process.env,
                                 {
                                     OTEL_EXPORTER_OTLP_ENDPOINT:
-                                        otlpServer.httpUrl.href,
-                                    OTEL_EXPORTER_OTLP_PROTOCOL: 'http/json',
+                                        otlpProtocol.startsWith('http')
+                                            ? otlpServer.httpUrl.href
+                                            : otlpServer.grpcUrl.href,
+                                    OTEL_EXPORTER_OTLP_PROTOCOL: otlpProtocol,
                                 },
                                 env
                             ),
