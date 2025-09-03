@@ -9,7 +9,7 @@ const otel = require('@opentelemetry/api');
 const {Kafka} = require('kafkajs');
 
 const host = process.env.KAFKA_HOST;
-const port = process.env.KAFKA_PORT || '9092';
+const port = process.env.KAFKA_PORT || '9094';
 const broker = `${host}:${port}`;
 const clientId = process.env.TEST_KAFKAJS_CLIENT_ID || 'test-kafkajs-client';
 const topic =
