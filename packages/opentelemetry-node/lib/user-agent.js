@@ -11,6 +11,7 @@
 
 const {log} = require('./logging');
 
+// @ts-ignore - compiler options do not allow lookup outside `lib` folder
 const VERSION = require('../package.json').version;
 const EDOT_USER_AGENT_HTTP = `elastic-otlp-http-javascript/${VERSION}`;
 // const EDOT_USER_AGENT_GRPC = `elastic-otlp-grpc-javascript/${VERSION}`;
