@@ -53,7 +53,15 @@ class DynConfSpanExporter {
         this._enabled = true;
         this._boundSub = this._onChange.bind(this); // save for unsubscribe()
         subscribe(CH_SPAN_EXPORTERS, this._boundSub);
-        setUserAgentOnOTLPTransport(this._delegate?._delegate?._transport);
+
+        const transport = this._delegate?._delegate?._transport;
+        if (!transport) {
+            log.debug(
+                `cannot set an Elastic User-Agent on "${this._delegate.constructor.name}" span exporter`
+            );
+        } else {
+            setUserAgentOnOTLPTransport(transport);
+        }
     }
     /**
      * @param {DynConfSpanExportersEvent} chEvent
@@ -178,7 +186,15 @@ class DynConfMetricExporter {
         this._enabled = true;
         this._boundSub = this._onChange.bind(this); // save for unsubscribe()
         subscribe(CH_METRIC_EXPORTERS, this._boundSub);
-        setUserAgentOnOTLPTransport(this._delegate?._delegate?._transport);
+
+        const transport = this._delegate?._delegate?._transport;
+        if (!transport) {
+            log.debug(
+                `cannot set an Elastic User-Agent on "${this._delegate.constructor.name}" metric exporter`
+            );
+        } else {
+            setUserAgentOnOTLPTransport(transport);
+        }
     }
     /**
      * @param {DynConfMetricExportersEvent} chEvent
@@ -274,7 +290,15 @@ class DynConfLogRecordExporter {
         this._enabled = true;
         this._boundSub = this._onChange.bind(this); // save for unsubscribe()
         subscribe(CH_LOG_RECORD_EXPORTERS, this._boundSub);
-        setUserAgentOnOTLPTransport(this._delegate?._delegate?._transport);
+
+        const transport = this._delegate?._delegate?._transport;
+        if (!transport) {
+            log.debug(
+                `cannot set an Elastic User-Agent on "${this._delegate.constructor.name}" log record exporter`
+            );
+        } else {
+            setUserAgentOnOTLPTransport(transport);
+        }
     }
     /**
      * @param {DynConfLogRecordExportersEvent} chEvent

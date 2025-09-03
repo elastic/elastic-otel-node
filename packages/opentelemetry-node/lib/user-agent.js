@@ -17,12 +17,6 @@ const EDOT_USER_AGENT_HTTP = `elastic-otlp-http-javascript/${VERSION}`;
 // const EDOT_USER_AGENT_GRPC = `elastic-otlp-grpc-javascript/${VERSION}`;
 
 function setUserAgentOnOTLPTransport(transport) {
-    if (!transport) {
-        log.debug(
-            `cannot set an Elastic User-Agent on "${this._delegate.constructor.name}" span exporter`
-        );
-        return;
-    }
     switch (transport.constructor.name) {
         case 'RetryingTransport': {
             // HTTP:
