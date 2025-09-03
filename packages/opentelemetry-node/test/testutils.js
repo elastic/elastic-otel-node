@@ -580,9 +580,9 @@ class TestCollector {
  * @property {NodeJS.ProcessEnv | (() => NodeJS.ProcessEnv)} [env]
  *    Any custom envvars, e.g. `{NODE_OPTIONS:...}`, or a function that
  *    returns custom envvars (which allows lazy calculation).
- * @property {string} [otlpProtocol] One of 'http/protobuf' (the default),
- *    'http/json', or 'grpc'. This determines what OTLP protocol the
- *    MockOTLPServer will expect, and the OTEL_EXPORTER_OTLP_PROTOCOL and
+ * @property {string} [otlpProtocol] One of 'http/protobuf', 'http/json' (the
+ *    default), or 'grpc'. This determines what OTLP protocol the MockOTLPServer
+ *    will expect, and the OTEL_EXPORTER_OTLP_PROTOCOL and
  *    OTEL_EXPORTER_OTLP_ENDPOINT envvars will be set appropriately.
  * @property {() => void} [before] A function to run before spawning the script.
  *    This can be used to setup whatever may be needed for the script.
@@ -665,7 +665,7 @@ function runTestFixtures(suite, testFixtures) {
                     }
                 }
 
-                const otlpProtocol = tf.otlpProtocol ?? 'http/protobuf';
+                const otlpProtocol = tf.otlpProtocol ?? 'http/json';
                 const collector = new TestCollector();
                 const otlpServer = new MockOtlpServer({
                     logLevel: 'warn',
