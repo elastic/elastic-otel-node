@@ -3,7 +3,7 @@ version: v2
 inputs:
   # TODO: how to get notified of newer tags?
   - git_repo: https://github.com/open-telemetry/opamp-spec.git
-    tag: v0.12.0
+    tag: v0.14.0
     depth: 1
     subdir: proto
 plugins:
