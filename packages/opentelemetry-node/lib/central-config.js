@@ -19,6 +19,11 @@ const {
 const {log, DEFAULT_LOG_LEVEL} = require('./logging');
 const luggite = require('./luggite');
 const {getInstrumentationNamesFromStr} = require('./instrumentations');
+const {
+    dynConfSpanExporters,
+    dynConfMetricExporters,
+    dynConfLogRecordExporters,
+} = require('./dynconf');
 
 // The key used in the AgentConfigMap.configMap for the Elastic central config
 // AgentConfigFile.
@@ -52,6 +57,49 @@ Object.keys(LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL).forEach(function (name) {
 });
 
 /**
+ * Parse a raw config string value into a boolean.
+ *
+ * @param {string} key - the name of the config setting, to be used in error
+ *      messages, if any.
+ * @param {string} valRaw
+ * @param {boolean} valDefault
+ * @returns {[string | null, boolean | null, string | null]}
+ *      A 3-tuple [<error message>, <value>, <verb>].
+ */
+function _parseBoolConfigRawVal(key, valRaw, valDefault) {
+    let val;
+    let verb = 'set';
+    switch (typeof valRaw) {
+        case 'undefined':
+            val = valDefault; // reset to default state
+            verb = 'reset';
+            break;
+        case 'boolean':
+            val = valRaw;
+            break;
+        case 'string':
+            switch (valRaw.trim().toLowerCase()) {
+                case 'true':
+                    val = true;
+                    break;
+                case 'false':
+                    val = false;
+                    break;
+                default:
+                    return [`unknown "${key}" value: "${valRaw}"`, null, null];
+            }
+            break;
+        default:
+            return [
+                `unknown "${key}" value type: ${typeof valRaw} (${valRaw})`,
+                null,
+                null,
+            ];
+    }
+    return [null, val, verb];
+}
+
+/**
  * A "setter" is a function that applies one or more config keys.
  *
  * - A config value of `undefined` means that the setting should be reset to its default value.
@@ -60,7 +108,7 @@ Object.keys(LUGGITE_LEVEL_FROM_CC_LOGGING_LEVEL).forEach(function (name) {
  *
  * @typedef {object} RemoteConfigHandler
  * @property {string[]} keys
- * @property {(config: any, _sdkInfo: any) => string | null} setter
+ * @property {(config: any, sdkInfo: any) => string | null} setter
  *
  */
 /** @type {RemoteConfigHandler[]} */
@@ -81,6 +129,78 @@ const REMOTE_CONFIG_HANDLERS = [
             } else {
                 return `unknown 'logging_level' value: ${JSON.stringify(val)}`;
             }
+            return null;
+        },
+    },
+
+    /**
+     * To dynamically control whether traces are sent, we disable/enable
+     * the `SpanExporter` used by any `SpanProcessor`s configured on the
+     * SDK `TracerProvider`.
+     */
+    {
+        keys: ['send_traces'],
+        setter: (config, _sdkInfo) => {
+            const VAL_DEFAULT = initialConfig.send_traces;
+            const [errmsg, val, verb] = _parseBoolConfigRawVal(
+                'send_traces',
+                config['send_traces'],
+                VAL_DEFAULT
+            );
+            if (errmsg) {
+                return errmsg;
+            }
+
+            dynConfSpanExporters({enabled: val});
+            log.info(`central-config: ${verb} "send_traces" to "${val}"`);
+            return null;
+        },
+    },
+
+    /**
+     * To dynamically control whether metrics are sent, we disable/enable
+     * the `PushMetricExporter` used by any `MetricReader`s configured on the
+     * SDK `MeterProvider`.
+     */
+    {
+        keys: ['send_metrics'],
+        setter: (config, _sdkInfo) => {
+            const VAL_DEFAULT = true;
+            const [errmsg, val, verb] = _parseBoolConfigRawVal(
+                'send_metrics',
+                config['send_metrics'],
+                VAL_DEFAULT
+            );
+            if (errmsg) {
+                return errmsg;
+            }
+
+            dynConfMetricExporters({enabled: val});
+            log.info(`central-config: ${verb} "send_metric" to "${val}"`);
+            return null;
+        },
+    },
+
+    /**
+     * To dynamically control whether logs are sent, we disable/enable the
+     * `LogRecordExporter` used by any `LogRecordProcessor`s configured on the
+     * SDK `LoggerProvider`.
+     */
+    {
+        keys: ['send_logs'],
+        setter: (config, _sdkInfo) => {
+            const VAL_DEFAULT = true;
+            const [errmsg, val, verb] = _parseBoolConfigRawVal(
+                'send_logs',
+                config['send_logs'],
+                VAL_DEFAULT
+            );
+            if (errmsg) {
+                return errmsg;
+            }
+
+            dynConfLogRecordExporters({enabled: val});
+            log.info(`central-config: ${verb} "send_logs" to "${val}"`);
             return null;
         },
     },
@@ -478,6 +598,7 @@ function setupCentralConfig(sdkInfo) {
         CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL[
             luggite.nameFromLevel[log.level()] ?? DEFAULT_LOG_LEVEL
         ];
+    initialConfig.send_traces = !sdkInfo.contextPropagationOnly;
     log.debug({initialConfig}, 'initial central config values');
 
     const client = createOpAMPClient({
