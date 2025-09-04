@@ -20,6 +20,7 @@ const {
     CH_OTLP_V1_LOGS,
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
+    CH_OTLP_V1_REQUEST,
 } = require('./diagch');
 const {
     jsonStringifyLogs,
@@ -72,6 +73,18 @@ class Printer {
                     this._log.error(
                         {err},
                         `${inst.constructor.name}.printLogs() threw`
+                    );
+                }
+            });
+        }
+        if (typeof inst.printRequest === 'function') {
+            diagchSub(CH_OTLP_V1_REQUEST, (...args) => {
+                try {
+                    inst.printRequest(...args);
+                } catch (err) {
+                    this._log.error(
+                        {err},
+                        `${inst.constructor.name}.printRequest() threw`
                     );
                 }
             });

@@ -1,5 +1,19 @@
 # @elastic/mockotlpserver Changelog
 
+## v0.10.0
+
+- feat: Add a new `onRequest` callback option to `MockOTLPServer` that allows
+  capturing some info for each incoming request. The callback will be called
+  for each incoming OTLP request. The callback data will include:
+
+        {
+            transport: <string>,    // 'http' or 'grpc'
+            method?: <string>,      // HTTP method if transport is 'http'
+            path: <string>,         // HTTP or gRPC request path
+            headers: <map>,         // HTTP headers if transport is 'http'
+            metadata: <Metadata>,   // gRPC headers if transport is 'grpc'
+        }
+
 ## v0.9.0
 
 - feat: Add a 'spacer' printer, and add it to the default set.
