@@ -10,6 +10,7 @@ const {
     CH_OTLP_V1_LOGS,
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
+    CH_OTLP_V1_REQUEST,
 } = require('./diagch');
 const {getProtoRoot} = require('./proto');
 const {Service} = require('./service');
@@ -27,6 +28,8 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': '*',
     'Access-Control-Allow-Method': 'POST, OPTIONS',
 };
+
+const diagChReq = diagchGet(CH_OTLP_V1_REQUEST);
 
 function diagChFromReqUrl(reqUrl) {
     switch (reqUrl) {
@@ -180,6 +183,13 @@ class HttpService extends Service {
                     `unexpected request Content-Type: "${contentType}"`
                 );
             }
+
+            diagChReq.publish({
+                transport: 'http',
+                method: req.method,
+                path: req.url,
+                headers: req.headers,
+            });
 
             const chunks = [];
             req.on('data', (chunk) => chunks.push(chunk));
