@@ -21,9 +21,6 @@ async function main() {
         connectString,
     });
 
-    // await connection.execute('CREATE TABLE edot_test (id NUMBER, data VARCHAR2(20))');
-    // await connection.execute('SELECT * FROM edot_test');
-    // await connection.execute('DROP TABLE edot_test');
     await connection.execute('SELECT 1+1 as solution');
     await connection.close();
 }
