@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Test that 'oracle' instrumentation generates the telemetry we expect.
+// Test that 'oracledb' instrumentation generates the telemetry we expect.
 
 const test = require('tape');
 const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
