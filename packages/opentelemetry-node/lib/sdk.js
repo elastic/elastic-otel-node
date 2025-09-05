@@ -22,7 +22,10 @@ const {
     tracing,
     NodeSDK,
 } = require('@opentelemetry/sdk-node');
-const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
+const {
+    BatchLogRecordProcessor,
+    ConsoleLogRecordExporter,
+} = require('@opentelemetry/sdk-logs');
 const {AggregationType} = require('@opentelemetry/sdk-metrics');
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
@@ -143,24 +146,40 @@ function startNodeSDK(cfg = {}) {
     };
 
     // Logs config.
-    const logsExportProtocol =
-        getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
-        getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
-        'http/protobuf';
-    let logExporterType = exporterPkgNameFromEnvVar[logsExportProtocol];
-    if (!logExporterType) {
-        log.warn(
-            `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+    let logsExporter;
+    const logsExporterOption = getStringFromEnv('OTEL_LOGS_EXPORTER') || 'oltp';
+
+    if (logsExporterOption === 'console' || logsExporterOption === 'logging') {
+        logsExporter = new ConsoleLogRecordExporter();
+    } else if (logsExporterOption !== 'none') {
+        if (logsExporterOption !== 'otlp') {
+            log.warn(
+                `Logs exporter "${logsExporterOption}" unknown. Using default "otlp" exporter`
+            );
+        }
+        const logsExportProtocol =
+            getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
+            getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
+            'http/protobuf';
+        let logsExporterType = exporterPkgNameFromEnvVar[logsExportProtocol];
+        if (!logsExporterType) {
+            log.warn(
+                `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+            );
+            logsExporterType = 'proto';
+        }
+        log.trace(`Logs exporter protocol set to ${logsExportProtocol}`);
+        const {OTLPLogExporter} = require(
+            `@opentelemetry/exporter-logs-otlp-${logsExporterType}`
         );
-        logExporterType = 'proto';
+        logsExporter = new OTLPLogExporter();
     }
-    log.trace(`Logs exporter protocol set to ${logsExportProtocol}`);
-    const {OTLPLogExporter} = require(
-        `@opentelemetry/exporter-logs-otlp-${logExporterType}`
-    );
-    defaultConfig.logRecordProcessors = [
-        new BatchLogRecordProcessor(new OTLPLogExporter()),
-    ];
+
+    if (logsExporter) {
+        defaultConfig.logRecordProcessors = [
+            new BatchLogRecordProcessor(logsExporter),
+        ];
+    }
 
     // Metrics config.
 
