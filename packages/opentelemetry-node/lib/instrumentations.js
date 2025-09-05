@@ -42,6 +42,7 @@ const {log} = require('./logging');
  *  "@opentelemetry/instrumentation-mysql2": import('@opentelemetry/instrumentation-mysql2').MySQL2Instrumentation,
  *  "@opentelemetry/instrumentation-nestjs-core": import('@opentelemetry/instrumentation').InstrumentationConfig,
  *  "@opentelemetry/instrumentation-net": import('@opentelemetry/instrumentation').InstrumentationConfig,
+ *  "@opentelemetry/instrumentation-oracledb": import('@opentelemetry/instrumentation-oracledb').OracleInstrumentationConfig,
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentationConfig
  *  "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentationConfig
  *  "@opentelemetry/instrumentation-redis": import('@opentelemetry/instrumentation-redis').RedisInstrumentationConfig,
@@ -85,6 +86,7 @@ const {MySQLInstrumentation} = require('@opentelemetry/instrumentation-mysql');
 const {MySQL2Instrumentation} = require('@opentelemetry/instrumentation-mysql2');
 const {NestInstrumentation} = require('@opentelemetry/instrumentation-nestjs-core');
 const {NetInstrumentation} = require('@opentelemetry/instrumentation-net');
+const {OracleInstrumentation} = require('@opentelemetry/instrumentation-oracledb');
 const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
 const {PinoInstrumentation} = require('@opentelemetry/instrumentation-pino');
 const {RedisInstrumentation} = require('@opentelemetry/instrumentation-redis');
@@ -134,6 +136,7 @@ const instrumentationsMap = {
     '@opentelemetry/instrumentation-mysql2': (cfg) => new MySQL2Instrumentation(cfg),
     '@opentelemetry/instrumentation-nestjs-core': (cfg) => new NestInstrumentation(cfg),
     '@opentelemetry/instrumentation-net': (cfg) => new NetInstrumentation(cfg),
+    '@opentelemetry/instrumentation-oracledb': (cfg) => new OracleInstrumentation(cfg),
     '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
     '@opentelemetry/instrumentation-pino': (cfg) => new PinoInstrumentation(cfg),
     '@opentelemetry/instrumentation-redis': (cfg) => new RedisInstrumentation(cfg),
