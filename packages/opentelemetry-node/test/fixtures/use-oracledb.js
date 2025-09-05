@@ -8,11 +8,11 @@
 const otel = require('@opentelemetry/api');
 var oracledb = require('oracledb');
 
-const host = process.env.ORACLE_HOST;
-const user = process.env.ORACLE_USER || 'otel';
-const password = process.env.ORACLE_PASSWORD || 'secret';
+const host = process.env.ORACLEDB_HOST;
+const user = process.env.ORACLEDB_USER || 'otel';
+const password = process.env.ORACLEDB_PASSWORD || 'secret';
 const connectString =
-    process.env.ORACLE_CONNECTSTRING || 'localhost:1521/freepdb1';
+    process.env.ORACLEDB_CONNECTSTRING || `${host}:1521/freepdb1`;
 
 async function main() {
     const connection = await oracledb.getConnection({
