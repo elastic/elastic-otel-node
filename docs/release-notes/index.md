@@ -29,9 +29,9 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## Unreleased [edot-node-next-release-notes]
+## Unreleased [edot-node-1.3.0-release-notes]
 
-### Features and enhancements [edot-node-next-features-enhancements]
+### Features and enhancements [edot-node-1.3.0-features-enhancements]
 
 * New Central Configuration settings. Typically these settings are only useful
   for temporary debugging of telemetry.
@@ -42,16 +42,19 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
   While these are supported in EDOT Node.js, they will only be present in
   "Agent Configuration" UI of Kibana version 9.2 and later.
+  [#928](https://github.com/elastic/elastic-otel-node/pull/928)
 
 * New `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` configuration environment variable.
   Set this to `true` to disable sending of spans, but otherwise continue to
   do context propagation. This can be useful in limited conditions to support
-  propagating trace-context through a service to downstream services for distributed tracing, but not collect spans from the service. (Note that this typically results in
-  incomplete or broken traces in Kibana trace viewer.)
+  propagating trace-context through a service to downstream services for
+  distributed tracing, but not collect spans from the service. (Note that this
+  typically results in incomplete or broken traces in Kibana trace viewer.)
+  [#928](https://github.com/elastic/elastic-otel-node/pull/928)
 
-### Fixes [edot-node-next-fixes]
+### Fixes [edot-node-1.3.0-fixes]
 
-### Chores [edot-node-next-chores]
+### Chores [edot-node-1.3.0-chores]
 
 * OTLP export requests (HTTP flavors only) will include an identifier for EDOT Node.js in the User-Agent header.
   [#982](https://github.com/elastic/elastic-otel-node/pull/982)
