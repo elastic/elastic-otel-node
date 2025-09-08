@@ -52,7 +52,7 @@
     "@isaacs/ttlcache": "^1.4.1",
     "bunyan": "^1.8.15",
     "dashdash": "^2.0.0",
-    "uuid": "^11.1.0"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@bufbuild/buf": "^1.52.1",
