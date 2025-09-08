@@ -128,7 +128,6 @@ const testFixtures = [
                 'rpc.method': 'ListQueues',
                 'rpc.service': 'SQS',
                 'messaging.system': 'aws.sqs',
-                'messaging.destination_kind': 'queue',
                 'cloud.region': 'us-east-2',
                 'http.status_code': 200,
             });
