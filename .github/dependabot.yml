@@ -85,6 +85,9 @@ updates:
       # Do not yet support openai@5.
       - dependency-name: "openai"
         versions: [ ">=5" ]
+      # @types/glob@9 is empty, assumes using glob@9, but we aren't
+      - dependency-name: "@types/glob"
+        versions: [ ">=9" ]
     groups:
       instrumentation-openai:
         patterns:
