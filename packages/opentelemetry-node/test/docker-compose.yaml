@@ -128,8 +128,8 @@ services:
       - 1521:1521
     healthcheck:
       test: ["CMD", "sqlplus" ,"system/oracle@//localhost/FREEPDB1"]
-      interval: 10s
-      timeout: 5s
+      interval: 1s
+      timeout: 10s
       retries: 30
 
   postgres:
