@@ -33,7 +33,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Features and enhancements [edot-node-next-features-enhancements]
 
-* Added `@eopentelemetry/instrumentation-oracledb` to the default set of instrumentations.
+* Added `@opentelemetry/instrumentation-oracledb` to the default set of instrumentations.
 
 * New Central Configuration settings. Typically these settings are only useful
   for temporary debugging of telemetry.
