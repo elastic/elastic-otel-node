@@ -9,53 +9,22 @@ const {runTestFixtures} = require('./testutils');
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'scenario with OTEL_LOGS_EXPORTER set to "none"',
+        name: 'scenario with OTEL_LOGS_EXPORTER containing "none" value. No logs are sent.',
         args: ['./fixtures/use-winston.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
-            OTEL_LOGS_EXPORTER: 'none',
+            OTEL_LOGS_EXPORTER: 'none,oltp',
             // Need to enable log sending to test properly
             ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
         },
         // verbose: true,
-        checkResult: (t, err, stdout) => {
-            t.error(err);
-            const lines = stdout.split('\n');
-            const hasLog = (text) => lines.some((l) => l.includes(text));
-
-            // Message from upstream SDK
-            t.ok(hasLog('Logger provider will not be initialized.'));
-        },
         checkTelemetry: (t, col) => {
             t.equal(col.logs.length, 0);
         },
     },
     {
-        name: 'scenario with OTEL_LOGS_EXPORTER set to "console"',
-        args: ['./fixtures/use-winston.js'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
-            OTEL_LOGS_EXPORTER: 'console',
-            // Need to enable log sending to test properly
-            ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
-        },
-        // verbose: true,
-        checkResult: (t, err, stdout) => {
-            t.error(err);
-            const lines = stdout.split('\n');
-            const log = lines.find((l) => l.includes('trace_id'));
-
-            t.ok(log);
-            t.equal(JSON.parse(log).message, 'with span info');
-        },
-        checkTelemetry: (t, col) => {
-            t.equal(col.logs.length, 0);
-        },
-    },
-    {
-        name: 'scenario with OTEL_LOGS_EXPORTER set to bogus value default to "otlp"',
+        name: 'scenario with OTEL_LOGS_EXPORTER set to "bogus". No logs are sent.',
         args: ['./fixtures/use-winston.js'],
         cwd: __dirname,
         env: {
@@ -70,11 +39,34 @@ const testFixtures = [
             const lines = stdout.split('\n');
             const hasLog = (text) => lines.some((l) => l.includes(text));
 
-            t.ok(
-                hasLog(
-                    `Logs exporter \\"bogus\\" unknown. Using default \\"otlp\\" exporter`
-                )
-            );
+            t.ok(hasLog(`Logs exporter \\"bogus\\" unknown.`));
+        },
+        checkTelemetry: (t, col) => {
+            t.equal(col.logs.length, 0);
+        },
+    },
+    {
+        name: 'scenario with OTEL_LOGS_EXPORTER with multiple values',
+        args: ['./fixtures/use-winston.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
+            OTEL_LOGS_EXPORTER: 'bogus,console,oltp',
+            // Need to enable log sending to test properly
+            ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
+        },
+        // verbose: true,
+        checkResult: (t, err, stdout) => {
+            t.error(err);
+            const lines = stdout.split('\n');
+            const hasLog = (text) => lines.some((l) => l.includes(text));
+            const recordScope = "name: '@opentelemetry/winston-transport'";
+            const recordCount = lines.reduce((sum, l) => {
+                return l.includes(recordScope) ? sum + 1 : sum;
+            }, 0);
+
+            t.ok(hasLog(`Logs exporter \\"bogus\\" unknown.`));
+            t.equal(recordCount, 2);
         },
         checkTelemetry: (t, col) => {
             t.equal(col.logs.length, 2);
