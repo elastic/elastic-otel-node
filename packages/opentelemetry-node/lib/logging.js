@@ -43,6 +43,11 @@ const FILTER_OUT_DIAG_WARN_MESSAGES = [
     // https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2767
     'No meter provider, using default',
 ];
+const FILTER_OUT_DIAG_INFO_MESSAGES = [
+    // TODO: remove this log message from upstream
+    // ref: https://github.com/open-telemetry/opentelemetry-js/blob/4f0b6285af24b71a9fa022755aaa3b6a63ae5033/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L461
+    'OTEL_LOGS_EXPORTER contains "none". Logger provider will not be initialized.',
+];
 
 /**
  * Return an OTel log level to use, based on the OTEL_LOG_LEVEL envvar.
@@ -91,7 +96,12 @@ function registerOTelDiagLogger(api) {
                 }
                 log.warn(msg, ...args);
             },
-            info: log.info.bind(log),
+            info: (msg, ...args) => {
+                if (FILTER_OUT_DIAG_INFO_MESSAGES.includes(msg)) {
+                    return;
+                }
+                log.info(msg, ...args);
+            },
             debug: log.debug.bind(log),
             verbose: log.trace.bind(log),
         },

@@ -22,7 +22,11 @@ const {
     tracing,
     NodeSDK,
 } = require('@opentelemetry/sdk-node');
-const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
+const {
+    BatchLogRecordProcessor,
+    ConsoleLogRecordExporter,
+    SimpleLogRecordProcessor,
+} = require('@opentelemetry/sdk-logs');
 const {AggregationType} = require('@opentelemetry/sdk-metrics');
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
@@ -143,24 +147,51 @@ function startNodeSDK(cfg = {}) {
     };
 
     // Logs config.
-    const logsExportProtocol =
-        getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
-        getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
-        'http/protobuf';
-    let logExporterType = exporterPkgNameFromEnvVar[logsExportProtocol];
-    if (!logExporterType) {
-        log.warn(
-            `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
-        );
-        logExporterType = 'proto';
+    let logsExporterList = getStringListFromEnv('OTEL_LOGS_EXPORTER') ?? [];
+    if (logsExporterList.length === 0) {
+        logsExporterList.push('otlp');
     }
-    log.trace(`Logs exporter protocol set to ${logsExportProtocol}`);
-    const {OTLPLogExporter} = require(
-        `@opentelemetry/exporter-logs-otlp-${logExporterType}`
-    );
-    defaultConfig.logRecordProcessors = [
-        new BatchLogRecordProcessor(new OTLPLogExporter()),
-    ];
+    const logsExporterNames = new Set(logsExporterList);
+    const logProcessors = [];
+
+    // Like for other signals the "none" value wins over the rest
+    if (!logsExporterNames.has('none')) {
+        for (const exporterName of logsExporterNames) {
+            if (exporterName === 'console') {
+                logProcessors.push(
+                    new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
+                );
+            } else if (exporterName === 'otlp') {
+                const logsExportProtocol =
+                    getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
+                    getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
+                    'http/protobuf';
+                let logsExporterType =
+                    exporterPkgNameFromEnvVar[logsExportProtocol];
+                if (!logsExporterType) {
+                    log.warn(
+                        `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+                    );
+                    logsExporterType = 'proto';
+                }
+                log.trace(
+                    `Logs exporter protocol set to ${logsExportProtocol}`
+                );
+                const {OTLPLogExporter} = require(
+                    `@opentelemetry/exporter-logs-otlp-${logsExporterType}`
+                );
+                logProcessors.push(
+                    new BatchLogRecordProcessor(new OTLPLogExporter())
+                );
+            } else {
+                log.warn(`Logs exporter "${exporterName}" unknown.`);
+            }
+        }
+    }
+
+    if (logProcessors.length > 0) {
+        defaultConfig.logRecordProcessors = logProcessors;
+    }
 
     // Metrics config.
 
