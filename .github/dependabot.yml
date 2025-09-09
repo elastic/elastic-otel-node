@@ -13,11 +13,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     ignore:
-      # Do not yet support openai@5.
-      - dependency-name: "openai"
-        versions: [ ">=5" ]
-      # Packages whose major versions have dropped support for Node.js versions
-      # that this package needs.
+      # undici@7 dropped Node.js 18 support
       - dependency-name: "undici" # undici@7 dropped 18
         versions: [ ">=7" ]
       - dependency-name: "@types/glob" # @types/glob@9 is empty, assumes using glob@9, but we aren't

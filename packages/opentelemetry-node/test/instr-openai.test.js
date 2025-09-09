@@ -30,8 +30,6 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
-        // XXX
-        verbose: true,
         checkTelemetry: (t, col) => {
             // Expected a trace like this:
             //        span 7e8ca8 "embeddings all-minilm:22m" (26.4ms, SPAN_KIND_CLIENT, GenAI openai)
@@ -62,7 +60,7 @@ const testFixtures = [
                             'url.full': 'http://127.0.0.1:11434/v1/embeddings',
                         },
                         scope: {
-                            name: '@opentelemetry/instrumentation-http',
+                            name: '@opentelemetry/instrumentation-undici',
                         },
                     },
                 ],
