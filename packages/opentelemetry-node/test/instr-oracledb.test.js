@@ -37,18 +37,18 @@ const testFixtures = [
             //   +3ms `- span 6d3e53 "oracledb.Connection.close" (1.1ms, SPAN_KIND_CLIENT, service.name=unknown_service:node, scope=oracledb)
             //   +0ms   `- span 43dd41 "oracledb.LogOffMessage" (0.8ms, SPAN_KIND_CLIENT, service.name=unknown_service:node, scope=oracledb)
             const spans = filterOutDnsNetSpans(col.sortedSpans);
-            const fistSpan = spans.shift();
+            const firstSpan = spans.shift();
 
             t.equal(spans.length, 7);
-            t.equal(fistSpan.name, 'manual-parent-span');
-            t.equal(fistSpan.kind, 'SPAN_KIND_INTERNAL');
+            t.equal(firstSpan.name, 'manual-parent-span');
+            t.equal(firstSpan.kind, 'SPAN_KIND_INTERNAL');
             t.ok(
                 spans.every((s) => {
                     return (
                         s.scope.name ===
                             '@opentelemetry/instrumentation-oracledb' &&
                         s.kind === 'SPAN_KIND_CLIENT' &&
-                        s.traceId === fistSpan.traceId
+                        s.traceId === firstSpan.traceId
                     );
                 })
             );
