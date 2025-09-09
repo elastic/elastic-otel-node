@@ -117,6 +117,21 @@ services:
       timeout: 10s
       retries: 30
 
+  oracledb:
+    # https://github.com/open-telemetry/opentelemetry-js-contrib/blob/2fec990bff9b314687d9771b4668865c20210941/test/docker-compose.yaml#L75
+    image: gvenzl/oracle-free:slim
+    environment:
+      APP_USER: "otel"
+      APP_USER_PASSWORD: "secret"
+      ORACLE_PASSWORD: "oracle"
+    ports:
+      - 1521:1521
+    healthcheck:
+      test: ["CMD", "sqlplus" ,"system/oracle@//localhost/FREEPDB1"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
   postgres:
     # https://github.com/docker-library/docs/blob/master/postgres/README.md#how-to-extend-this-image
     image: postgres:16

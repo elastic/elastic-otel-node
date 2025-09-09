@@ -50,6 +50,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      # uuid@12 dropped CommonJS support (https://github.com/uuidjs/uuid/issues/881)
+      - dependency-name: "uuid"
+        versions: [ ">=12" ]
     groups:
       mockopampserver:
         patterns:
@@ -61,10 +65,12 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     ignore:
-      # Packages whose major versions have dropped support for Node.js versions
-      # that this package needs.
-      - dependency-name: "undici" # undici@7 dropped 18
+      # undici@7 dropped Node.js 18 support
+      - dependency-name: "undici"
         versions: [ ">=7" ]
+      # uuid@12 dropped CommonJS support (https://github.com/uuidjs/uuid/issues/881)
+      - dependency-name: "uuid"
+        versions: [ ">=12" ]
     groups:
       opamp-client-node:
         patterns:
@@ -85,6 +91,9 @@ updates:
       # Do not yet support openai@5.
       - dependency-name: "openai"
         versions: [ ">=5" ]
+      # @types/glob@9 is empty, assumes using glob@9, but we aren't
+      - dependency-name: "@types/glob"
+        versions: [ ">=9" ]
     groups:
       instrumentation-openai:
         patterns:
