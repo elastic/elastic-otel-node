@@ -160,7 +160,9 @@ function startNodeSDK(cfg = {}) {
             for (const exporterName of logsExporterNames) {
                 if (exporterName === 'console') {
                     logProcessors.push(
-                        new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
+                        new SimpleLogRecordProcessor(
+                            new ConsoleLogRecordExporter()
+                        )
                     );
                 } else if (exporterName === 'otlp') {
                     const logsExportProtocol =
