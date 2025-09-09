@@ -14,7 +14,7 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
-            OTEL_LOGS_EXPORTER: 'none,oltp',
+            OTEL_LOGS_EXPORTER: 'none,otlp',
             // Need to enable log sending to test properly
             ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
         },
