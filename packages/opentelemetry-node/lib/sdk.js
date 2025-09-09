@@ -149,7 +149,6 @@ function startNodeSDK(cfg = {}) {
     // Logs config.
     let logsExporterList = getStringListFromEnv('OTEL_LOGS_EXPORTER') ?? [];
     if (logsExporterList.length === 0) {
-        log.debug('OTEL_LOGS_EXPORTER is empty. Using default otlp exporter.');
         logsExporterList.push('otlp');
     }
     const logsExporterNames = new Set(logsExporterList);
