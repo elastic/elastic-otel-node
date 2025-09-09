@@ -156,7 +156,7 @@ function startNodeSDK(cfg = {}) {
         for (const exporterName of logsExporterNames) {
             if (exporterName === 'console') {
                 logsExporters.push(new ConsoleLogRecordExporter());
-            } else if (exporterName === 'oltp') {
+            } else if (exporterName === 'otlp') {
                 const logsExportProtocol =
                     getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
                     getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
