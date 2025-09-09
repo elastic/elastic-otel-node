@@ -1,5 +1,10 @@
 # @elastic/mockopampserver Changelog
 
+## Unreleased
+
+- Bump the OpAMP protobuf definitions to v0.14.0 (from v0.12.0).
+  https://github.com/open-telemetry/opamp-spec/blob/main/CHANGELOG.md#v0140
+
 ## v0.4.0
 
 - Expose `MockOpAMPServer#setAgentConfigMap(...)` method, for use in testing.

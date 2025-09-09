@@ -29,6 +29,7 @@ export type InstrumentaionsMap = {
     "@opentelemetry/instrumentation-mysql2": import('@opentelemetry/instrumentation-mysql2').MySQL2Instrumentation;
     "@opentelemetry/instrumentation-nestjs-core": import('@opentelemetry/instrumentation').InstrumentationConfig;
     "@opentelemetry/instrumentation-net": import('@opentelemetry/instrumentation').InstrumentationConfig;
+    "@opentelemetry/instrumentation-oracledb": import('@opentelemetry/instrumentation-oracledb').OracleInstrumentationConfig;
     "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentationConfig;
     "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentationConfig;
     "@opentelemetry/instrumentation-redis": import('@opentelemetry/instrumentation-redis').RedisInstrumentationConfig;

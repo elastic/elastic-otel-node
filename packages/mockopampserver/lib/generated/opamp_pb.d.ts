@@ -159,6 +159,16 @@ export declare type AgentToServer = Message<"opamp.proto.AgentToServer"> & {
    * @generated from field: opamp.proto.AvailableComponents available_components = 14;
    */
   availableComponents?: AvailableComponents;
+
+  /**
+   * The status of the OfferedConnectionSettings that was previously received
+   * from the Server. This field SHOULD be unset if the offered connection
+   * settings status is unchanged since the last AgentToServer message.
+   * Status: [Development]
+   *
+   * @generated from field: opamp.proto.ConnectionSettingsStatus connection_settings_status = 15;
+   */
+  connectionSettingsStatus?: ConnectionSettingsStatus;
 };
 
 /**
@@ -491,6 +501,22 @@ export declare type OpAMPConnectionSettings = Message<"opamp.proto.OpAMPConnecti
    * @generated from field: uint64 heartbeat_interval_seconds = 4;
    */
   heartbeatIntervalSeconds: bigint;
+
+  /**
+   * Optional connection specific TLS settings.
+   * Status: [Development]
+   *
+   * @generated from field: opamp.proto.TLSConnectionSettings tls = 5;
+   */
+  tls?: TLSConnectionSettings;
+
+  /**
+   * Optional connection specific proxy settings.
+   * Status: [Development]
+   *
+   * @generated from field: opamp.proto.ProxyConnectionSettings proxy = 6;
+   */
+  proxy?: ProxyConnectionSettings;
 };
 
 /**
@@ -539,6 +565,22 @@ export declare type TelemetryConnectionSettings = Message<"opamp.proto.Telemetry
    * @generated from field: opamp.proto.TLSCertificate certificate = 3;
    */
   certificate?: TLSCertificate;
+
+  /**
+   * Optional connection specific TLS settings.
+   * Status: [Development]
+   *
+   * @generated from field: opamp.proto.TLSConnectionSettings tls = 4;
+   */
+  tls?: TLSConnectionSettings;
+
+  /**
+   * Optional connection specific proxy settings.
+   * Status: [Development]
+   *
+   * @generated from field: opamp.proto.ProxyConnectionSettings proxy = 5;
+   */
+  proxy?: ProxyConnectionSettings;
 };
 
 /**
@@ -610,6 +652,22 @@ export declare type OtherConnectionSettings = Message<"opamp.proto.OtherConnecti
    * @generated from field: map<string, string> other_settings = 4;
    */
   otherSettings: { [key: string]: string };
+
+  /**
+   * Optional connection specific TLS settings.
+   * Status: [Development]
+   *
+   * @generated from field: opamp.proto.TLSConnectionSettings tls = 5;
+   */
+  tls?: TLSConnectionSettings;
+
+  /**
+   * Optional connection specific proxy settings.
+   * Status: [Development]
+   *
+   * @generated from field: opamp.proto.ProxyConnectionSettings proxy = 6;
+   */
+  proxy?: ProxyConnectionSettings;
 };
 
 /**
@@ -617,6 +675,93 @@ export declare type OtherConnectionSettings = Message<"opamp.proto.OtherConnecti
  * Use `create(OtherConnectionSettingsSchema)` to create a new message.
  */
 export declare const OtherConnectionSettingsSchema: GenMessage<OtherConnectionSettings>;
+
+/**
+ * TLSConnectionSettings are optional connection settings that can be passed to
+ * the client in order to specify TLS configuration.
+ * Status: [Development]
+ *
+ * @generated from message opamp.proto.TLSConnectionSettings
+ */
+export declare type TLSConnectionSettings = Message<"opamp.proto.TLSConnectionSettings"> & {
+  /**
+   * Provides CA cert contents as a string.
+   *
+   * @generated from field: string ca_pem_contents = 1;
+   */
+  caPemContents: string;
+
+  /**
+   * Load system CA pool alongside any passed CAs.
+   *
+   * @generated from field: bool include_system_ca_certs_pool = 2;
+   */
+  includeSystemCaCertsPool: boolean;
+
+  /**
+   * skip certificate verification.
+   *
+   * @generated from field: bool insecure_skip_verify = 3;
+   */
+  insecureSkipVerify: boolean;
+
+  /**
+   * Miniumum accepted TLS version; default "1.2".
+   *
+   * @generated from field: string min_version = 4;
+   */
+  minVersion: string;
+
+  /**
+   * Maxiumum accepted TLS version; default "".
+   *
+   * @generated from field: string max_version = 5;
+   */
+  maxVersion: string;
+
+  /**
+   * Explicit list of cipher suites.
+   *
+   * @generated from field: repeated string cipher_suites = 6;
+   */
+  cipherSuites: string[];
+};
+
+/**
+ * Describes the message opamp.proto.TLSConnectionSettings.
+ * Use `create(TLSConnectionSettingsSchema)` to create a new message.
+ */
+export declare const TLSConnectionSettingsSchema: GenMessage<TLSConnectionSettings>;
+
+/**
+ * Status: [Development]
+ *
+ * @generated from message opamp.proto.ProxyConnectionSettings
+ */
+export declare type ProxyConnectionSettings = Message<"opamp.proto.ProxyConnectionSettings"> & {
+  /**
+   * A URL, host:port or some other destination specifier.
+   *
+   * @generated from field: string url = 1;
+   */
+  url: string;
+
+  /**
+   * Optional headers to send to proxies during CONNECT requests.
+   * These headers can be ignored for non-HTTP based proxies.
+   * For example:
+   * key="Authorization", Value="Basic YWxhZGRpbjpvcGVuc2VzYW1l".
+   *
+   * @generated from field: opamp.proto.Headers connect_headers = 2;
+   */
+  connectHeaders?: Headers;
+};
+
+/**
+ * Describes the message opamp.proto.ProxyConnectionSettings.
+ * Use `create(ProxyConnectionSettingsSchema)` to create a new message.
+ */
+export declare const ProxyConnectionSettingsSchema: GenMessage<ProxyConnectionSettings>;
 
 /**
  * Status: [Beta]
@@ -1179,6 +1324,42 @@ export declare type RemoteConfigStatus = Message<"opamp.proto.RemoteConfigStatus
  * Use `create(RemoteConfigStatusSchema)` to create a new message.
  */
 export declare const RemoteConfigStatusSchema: GenMessage<RemoteConfigStatus>;
+
+/**
+ * Status: [Development]
+ *
+ * @generated from message opamp.proto.ConnectionSettingsStatus
+ */
+export declare type ConnectionSettingsStatus = Message<"opamp.proto.ConnectionSettingsStatus"> & {
+  /**
+   * The hash of the connection settings that was last recieved by this Agent
+   * in the connection_settings.hash field. The Server SHOULD compare this
+   * hash with the OfferedConnectionSettings hash it has for the Agent and if
+   * the hashes are different the Server MUST include the connection_settings
+   * field in the response in the ServerToAgent message.
+   *
+   * @generated from field: bytes last_connection_settings_hash = 1;
+   */
+  lastConnectionSettingsHash: Uint8Array;
+
+  /**
+   * @generated from field: opamp.proto.ConnectionSettingsStatuses status = 2;
+   */
+  status: ConnectionSettingsStatuses;
+
+  /**
+   * Optional error message if status==FAILED.
+   *
+   * @generated from field: string error_message = 3;
+   */
+  errorMessage: string;
+};
+
+/**
+ * Describes the message opamp.proto.ConnectionSettingsStatus.
+ * Use `create(ConnectionSettingsStatusSchema)` to create a new message.
+ */
+export declare const ConnectionSettingsStatusSchema: GenMessage<ConnectionSettingsStatus>;
 
 /**
  * The PackageStatuses message describes the status of all packages that the Agent
@@ -1863,17 +2044,66 @@ export enum AgentCapabilities {
    * The agent will report AvailableComponents via the AgentToServer.available_components field.
    * Status: [Development]
    *
-   * Add new capabilities here, continuing with the least significant unused bit.
-   *
    * @generated from enum value: AgentCapabilities_ReportsAvailableComponents = 16384;
    */
   AgentCapabilities_ReportsAvailableComponents = 16384,
+
+  /**
+   * The agent will report ConnectionSettingsOffers status via AgentToServer.connection_settings_status field.
+   * Status: [Development]
+   *
+   * Add new capabilities here, continuing with the least significant unused bit.
+   *
+   * @generated from enum value: AgentCapabilities_ReportsConnectionSettingsStatus = 32768;
+   */
+  AgentCapabilities_ReportsConnectionSettingsStatus = 32768,
 }
 
 /**
  * Describes the enum opamp.proto.AgentCapabilities.
  */
 export declare const AgentCapabilitiesSchema: GenEnum<AgentCapabilities>;
+
+/**
+ * Status: [Development]
+ *
+ * @generated from enum opamp.proto.ConnectionSettingsStatuses
+ */
+export enum ConnectionSettingsStatuses {
+  /**
+   * The value of status field is not set.
+   *
+   * @generated from enum value: ConnectionSettingsStatuses_UNSET = 0;
+   */
+  ConnectionSettingsStatuses_UNSET = 0,
+
+  /**
+   * ConnectionSettings were successfully applied by the Agent.
+   *
+   * @generated from enum value: ConnectionSettingsStatuses_APPLIED = 1;
+   */
+  ConnectionSettingsStatuses_APPLIED = 1,
+
+  /**
+   * Agent is currently applying the ConnectionSettings that it received.
+   *
+   * @generated from enum value: ConnectionSettingsStatuses_APPLYING = 2;
+   */
+  ConnectionSettingsStatuses_APPLYING = 2,
+
+  /**
+   * Agent tried to apply the ConnectionSettings it received earlier, but failed.
+   * See error_message for more details.
+   *
+   * @generated from enum value: ConnectionSettingsStatuses_FAILED = 3;
+   */
+  ConnectionSettingsStatuses_FAILED = 3,
+}
+
+/**
+ * Describes the enum opamp.proto.ConnectionSettingsStatuses.
+ */
+export declare const ConnectionSettingsStatusesSchema: GenEnum<ConnectionSettingsStatuses>;
 
 /**
  * @generated from enum opamp.proto.RemoteConfigStatuses

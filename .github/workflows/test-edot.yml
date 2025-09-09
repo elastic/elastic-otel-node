@@ -106,6 +106,20 @@ jobs:
         ports:
           - 11434:11434
 
+      oracledb:
+        image: gvenzl/oracle-free:slim
+        env:
+          APP_USER: otel
+          APP_USER_PASSWORD: secret
+          ORACLE_PASSWORD: oracle
+        ports:
+          - 1521:1521
+        options: >-
+          --health-cmd "sqlplus system/oracle@//localhost/FREEPDB1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
       postgres:
         image: postgres:16
         ports:
@@ -129,7 +143,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node }}
     - name: Update npm to a version that supports package-lock lockfileVersion=2.

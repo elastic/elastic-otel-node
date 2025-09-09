@@ -33,6 +33,8 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Features and enhancements [edot-node-next-features-enhancements]
 
+* Added `@opentelemetry/instrumentation-oracledb` to the default set of instrumentations.
+
 * New Central Configuration settings. Typically these settings are only useful
   for temporary debugging of telemetry.
 
@@ -51,6 +53,10 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Fixes [edot-node-next-fixes]
 
+### Chores [edot-node-next-chores]
+
+* OTLP export requests (HTTP flavors only) will include an identifier for EDOT Node.js in the User-Agent header.
+  [#982](https://github.com/elastic/elastic-otel-node/pull/982)
 
 ## 1.2.0 [edot-node-1.2.0]
 
