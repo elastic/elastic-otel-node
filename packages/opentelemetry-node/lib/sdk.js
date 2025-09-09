@@ -147,50 +147,52 @@ function startNodeSDK(cfg = {}) {
     };
 
     // Logs config.
-    let logsExporterList = getStringListFromEnv('OTEL_LOGS_EXPORTER') ?? [];
-    if (logsExporterList.length === 0) {
-        logsExporterList.push('otlp');
-    }
-    const logsExporterNames = new Set(logsExporterList);
-    const logProcessors = [];
+    if (!('logRecordProcessors' in cfg)) {
+        let logsExporterList = getStringListFromEnv('OTEL_LOGS_EXPORTER') ?? [];
+        if (logsExporterList.length === 0) {
+            logsExporterList.push('otlp');
+        }
+        const logsExporterNames = new Set(logsExporterList);
+        const logProcessors = [];
 
-    // Like for other signals the "none" value wins over the rest
-    if (!logsExporterNames.has('none')) {
-        for (const exporterName of logsExporterNames) {
-            if (exporterName === 'console') {
-                logProcessors.push(
-                    new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
-                );
-            } else if (exporterName === 'otlp') {
-                const logsExportProtocol =
-                    getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
-                    getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
-                    'http/protobuf';
-                let logsExporterType =
-                    exporterPkgNameFromEnvVar[logsExportProtocol];
-                if (!logsExporterType) {
-                    log.warn(
-                        `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+        // Like for other signals the "none" value wins over the rest
+        if (!logsExporterNames.has('none')) {
+            for (const exporterName of logsExporterNames) {
+                if (exporterName === 'console') {
+                    logProcessors.push(
+                        new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
                     );
-                    logsExporterType = 'proto';
+                } else if (exporterName === 'otlp') {
+                    const logsExportProtocol =
+                        getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
+                        getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
+                        'http/protobuf';
+                    let logsExporterType =
+                        exporterPkgNameFromEnvVar[logsExportProtocol];
+                    if (!logsExporterType) {
+                        log.warn(
+                            `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+                        );
+                        logsExporterType = 'proto';
+                    }
+                    log.trace(
+                        `Logs exporter protocol set to ${logsExportProtocol}`
+                    );
+                    const {OTLPLogExporter} = require(
+                        `@opentelemetry/exporter-logs-otlp-${logsExporterType}`
+                    );
+                    logProcessors.push(
+                        new BatchLogRecordProcessor(new OTLPLogExporter())
+                    );
+                } else {
+                    log.warn(`Logs exporter "${exporterName}" unknown.`);
                 }
-                log.trace(
-                    `Logs exporter protocol set to ${logsExportProtocol}`
-                );
-                const {OTLPLogExporter} = require(
-                    `@opentelemetry/exporter-logs-otlp-${logsExporterType}`
-                );
-                logProcessors.push(
-                    new BatchLogRecordProcessor(new OTLPLogExporter())
-                );
-            } else {
-                log.warn(`Logs exporter "${exporterName}" unknown.`);
             }
         }
-    }
 
-    if (logProcessors.length > 0) {
-        defaultConfig.logRecordProcessors = logProcessors;
+        if (logProcessors.length > 0) {
+            defaultConfig.logRecordProcessors = logProcessors;
+        }
     }
 
     // Metrics config.
@@ -235,7 +237,7 @@ function startNodeSDK(cfg = {}) {
         ];
     }
 
-    const config = Object.assign(defaultConfig, cfg);
+    const config = {...defaultConfig, ...cfg};
 
     // Some tricks to get a handle on noop signal providers, to be used for
     // dynamic configuration.
