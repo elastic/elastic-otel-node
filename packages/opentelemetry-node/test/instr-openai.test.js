@@ -12,25 +12,26 @@ const {runTestFixtures, assertDeepMatch} = require('./testutils');
 let skip = process.env.TEST_GENAI_MODEL === undefined;
 if (skip) {
     console.log(
-        '# SKIP elastic openai tests: TEST_GENAI_MODEL is not set (load env from test/test-services.env)'
+        '# SKIP openai tests: TEST_GENAI_MODEL is not set (load env from test/test-services.env)'
     );
 } else {
     skip = !semver.satisfies(process.version, '>=18');
     if (skip) {
-        console.log('# SKIP elastic openai requires node >=18');
+        console.log('# SKIP openai requires node >=18');
     }
 }
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'use-elastic-openai.js (CommonJS)',
-        args: ['./fixtures/use-elastic-openai.js'],
+        name: 'use-openai.js (CommonJS)',
+        args: ['./fixtures/use-openai.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
-        // verbose: true,
+        // XXX
+        verbose: true,
         checkTelemetry: (t, col) => {
             // Expected a trace like this:
             //        span 7e8ca8 "embeddings all-minilm:22m" (26.4ms, SPAN_KIND_CLIENT, GenAI openai)
@@ -51,7 +52,7 @@ const testFixtures = [
                         },
                         events: [],
                         scope: {
-                            name: '@elastic/opentelemetry-instrumentation-openai',
+                            name: '@opentelemetry/instrumentation-openai',
                         },
                     },
                     {

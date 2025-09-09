@@ -3,8 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Usage:
-//      node --env-file ./test-services.env -r @elastic/opentelemetry-node fixtures/use-elastic-openai.js
+/**
+ * Usage with ollama local server:
+ *      npm run test-services:start ollama
+ *      docker exec -ti edot-nodejs-test-services-ollama-1 ollama pull all-minilm:22m
+ *      node --env-file ./test/test-services.env -r @elastic/opentelemetry-node test/fixtures/use-openai.js
+ *      npm run test-services:stop
+ */
 
 const {OpenAI} = require('openai');
 
