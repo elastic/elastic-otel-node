@@ -20,6 +20,8 @@ updates:
       # that this package needs.
       - dependency-name: "undici" # undici@7 dropped 18
         versions: [ ">=7" ]
+      - dependency-name: "@types/glob" # @types/glob@9 is empty, assumes using glob@9, but we aren't
+        versions: [ ">=9" ]
     groups:
       opentelemetry:
         patterns:

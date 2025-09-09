@@ -3,9 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Test that `User-Agent` is properly set into `OTEL_EXPORTER_OTLP_*_HEADERS`
-// environment vars if not defined.
-
 const {test} = require('tape');
 const {runTestFixtures} = require('./testutils');
 
