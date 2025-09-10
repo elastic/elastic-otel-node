@@ -1,0 +1,19 @@
+project: 'EDOT Node.js release notes'
+cross_links:
+  - docs-content
+  - opentelemetry
+toc:
+  - toc: release-notes
+subs:
+  edot:    "Elastic Distribution of OpenTelemetry"
+  ecloud:   "Elastic Cloud"
+  ech:   "Elastic Cloud Hosted"
+  ess:   "Elasticsearch Service"
+  ece:   "Elastic Cloud Enterprise"
+  serverless-full:   "Elastic Cloud Serverless"
+  agent:   "Elastic Agent"
+  agents:   "Elastic Agents"
+  stack:   "Elastic Stack"
+  es:   "Elasticsearch"
+  kib:   "Kibana"
+  ls:   "Logstash"

@@ -12,8 +12,16 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
+    ignore:
+      # Do not yet support openai@5.
+      - dependency-name: "openai"
+        versions: [ ">=5" ]
+      # Packages whose major versions have dropped support for Node.js versions
+      # that this package needs.
+      - dependency-name: "undici" # undici@7 dropped 18
+        versions: [ ">=7" ]
+      - dependency-name: "@types/glob" # @types/glob@9 is empty, assumes using glob@9, but we aren't
+        versions: [ ">=9" ]
     groups:
       opentelemetry:
         patterns:
@@ -32,10 +40,39 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
     groups:
       mockotlpserver:
+        patterns:
+        - "*"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/mockopampserver"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    ignore:
+      # uuid@12 dropped CommonJS support (https://github.com/uuidjs/uuid/issues/881)
+      - dependency-name: "uuid"
+        versions: [ ">=12" ]
+    groups:
+      mockopampserver:
+        patterns:
+        - "*"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/opamp-client-node"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    ignore:
+      # undici@7 dropped Node.js 18 support
+      - dependency-name: "undici"
+        versions: [ ">=7" ]
+      # uuid@12 dropped CommonJS support (https://github.com/uuidjs/uuid/issues/881)
+      - dependency-name: "uuid"
+        versions: [ ">=12" ]
+    groups:
+      opamp-client-node:
         patterns:
         - "*"
 
@@ -44,8 +81,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
     ignore:
       # Locked to the same version being used by opentelemetry-js-contrib.
       - dependency-name: "@types/node"
@@ -53,6 +88,12 @@ updates:
       - dependency-name: "@typescript-eslint/*"
       # Locked to the same version being used by opentelemetry-js-contrib.
       - dependency-name: "typescript"
+      # Do not yet support openai@5.
+      - dependency-name: "openai"
+        versions: [ ">=5" ]
+      # @types/glob@9 is empty, assumes using glob@9, but we aren't
+      - dependency-name: "@types/glob"
+        versions: [ ">=9" ]
     groups:
       instrumentation-openai:
         patterns:
@@ -63,8 +104,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
     ignore:
       # eslint-related deps are skipped until we have upgraded to eslint@9
       # https://github.com/elastic/elastic-otel-node/pull/155
@@ -91,14 +130,13 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    reviewers:
-      - "elastic/apm-agent-node-js"
+    groups:
+      opentelemetry:
+        patterns:
+        - "@opentelemetry/*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
-    reviewers:
-      - "elastic/observablt-ci"
-      - "elastic/apm-agent-node-js"
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -109,9 +147,12 @@ updates:
           - "*"
 
   - package-ecosystem: "docker"
-    directory: "/"
+    directories:
+      - "/examples/otel-operator"
+      - "/packages/mockopampserver"
+      - "/packages/mockotlpserver"
+      - "/packages/mockotlpserver/share/k8s/example-app-manual"
+      - "/packages/opentelemetry-node"
     registries: "*"
-    reviewers:
-      - "elastic/apm-agent-node-js"
     schedule:
       interval: "weekly"

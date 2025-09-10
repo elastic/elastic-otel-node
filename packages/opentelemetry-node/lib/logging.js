@@ -28,6 +28,8 @@ const LUGGITE_LEVEL_FROM_OTEL_LOG_LEVEL = {
     VERBOSE: 'trace',
     ALL: 'trace',
 };
+const DEFAULT_LOG_LEVEL =
+    LUGGITE_LEVEL_FROM_OTEL_LOG_LEVEL[DEFAULT_OTEL_LOG_LEVEL];
 
 // As a hack for occasional unergonomic diag logging from upstream OTel JS, we
 // sometimes filter out specific log messages. This should be used sparingly,
@@ -40,6 +42,11 @@ const FILTER_OUT_DIAG_ERROR_MESSAGES = [
 const FILTER_OUT_DIAG_WARN_MESSAGES = [
     // https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2767
     'No meter provider, using default',
+];
+const FILTER_OUT_DIAG_INFO_MESSAGES = [
+    // TODO: remove this log message from upstream
+    // ref: https://github.com/open-telemetry/opentelemetry-js/blob/4f0b6285af24b71a9fa022755aaa3b6a63ae5033/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L461
+    'OTEL_LOGS_EXPORTER contains "none". Logger provider will not be initialized.',
 ];
 
 /**
@@ -75,7 +82,6 @@ function createLogger() {
  */
 function registerOTelDiagLogger(api) {
     // TODO: when luggite supports .child, add a module/component attr for diag log output
-    const diagLevel = otelLogLevelFromEnv();
     api.diag.setLogger(
         {
             error: (msg, ...args) => {
@@ -90,11 +96,20 @@ function registerOTelDiagLogger(api) {
                 }
                 log.warn(msg, ...args);
             },
-            info: log.info.bind(log),
+            info: (msg, ...args) => {
+                if (FILTER_OUT_DIAG_INFO_MESSAGES.includes(msg)) {
+                    return;
+                }
+                log.info(msg, ...args);
+            },
             debug: log.debug.bind(log),
             verbose: log.trace.bind(log),
         },
-        api.DiagLogLevel[diagLevel]
+        {
+            // Set the diag log level to pass through *all* records. The
+            // luggite logger (`log`) will handle filtering based on level.
+            logLevel: api.DiagLogLevel['ALL'],
+        }
     );
 }
 
@@ -112,4 +127,5 @@ const log = _globalThis[_symLog];
 module.exports = {
     log,
     registerOTelDiagLogger,
+    DEFAULT_LOG_LEVEL, // this is a *luggite* log level
 };

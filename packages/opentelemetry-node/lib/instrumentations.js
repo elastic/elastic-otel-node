@@ -42,10 +42,10 @@ const {log} = require('./logging');
  *  "@opentelemetry/instrumentation-mysql2": import('@opentelemetry/instrumentation-mysql2').MySQL2Instrumentation,
  *  "@opentelemetry/instrumentation-nestjs-core": import('@opentelemetry/instrumentation').InstrumentationConfig,
  *  "@opentelemetry/instrumentation-net": import('@opentelemetry/instrumentation').InstrumentationConfig,
+ *  "@opentelemetry/instrumentation-oracledb": import('@opentelemetry/instrumentation-oracledb').OracleInstrumentationConfig,
  *  "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentationConfig
  *  "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentationConfig
  *  "@opentelemetry/instrumentation-redis": import('@opentelemetry/instrumentation-redis').RedisInstrumentationConfig,
- *  "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentationConfig,
  *  "@opentelemetry/instrumentation-restify": import('@opentelemetry/instrumentation-restify').RestifyInstrumentationConfig,
  *  "@opentelemetry/instrumentation-router": import('@opentelemetry/instrumentation').InstrumentationConfig,
  *  "@opentelemetry/instrumentation-runtime-node": import('@opentelemetry/instrumentation-runtime-node').RuntimeNodeInstrumentationConfig,
@@ -86,10 +86,10 @@ const {MySQLInstrumentation} = require('@opentelemetry/instrumentation-mysql');
 const {MySQL2Instrumentation} = require('@opentelemetry/instrumentation-mysql2');
 const {NestInstrumentation} = require('@opentelemetry/instrumentation-nestjs-core');
 const {NetInstrumentation} = require('@opentelemetry/instrumentation-net');
+const {OracleInstrumentation} = require('@opentelemetry/instrumentation-oracledb');
 const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
 const {PinoInstrumentation} = require('@opentelemetry/instrumentation-pino');
 const {RedisInstrumentation} = require('@opentelemetry/instrumentation-redis');
-const {RedisInstrumentation: RedisFourInstrumentation} = require('@opentelemetry/instrumentation-redis-4');
 const {RestifyInstrumentation} = require('@opentelemetry/instrumentation-restify');
 const {RouterInstrumentation} = require('@opentelemetry/instrumentation-router');
 const {RuntimeNodeInstrumentation} = require('@opentelemetry/instrumentation-runtime-node');
@@ -136,10 +136,10 @@ const instrumentationsMap = {
     '@opentelemetry/instrumentation-mysql2': (cfg) => new MySQL2Instrumentation(cfg),
     '@opentelemetry/instrumentation-nestjs-core': (cfg) => new NestInstrumentation(cfg),
     '@opentelemetry/instrumentation-net': (cfg) => new NetInstrumentation(cfg),
+    '@opentelemetry/instrumentation-oracledb': (cfg) => new OracleInstrumentation(cfg),
     '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
     '@opentelemetry/instrumentation-pino': (cfg) => new PinoInstrumentation(cfg),
     '@opentelemetry/instrumentation-redis': (cfg) => new RedisInstrumentation(cfg),
-    '@opentelemetry/instrumentation-redis-4': (cfg) => new RedisFourInstrumentation(cfg),
     '@opentelemetry/instrumentation-restify': (cfg) => new RestifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-router': (cfg) => new RouterInstrumentation(cfg),
     '@opentelemetry/instrumentation-runtime-node': (cfg) => new RuntimeNodeInstrumentation(cfg),
@@ -172,33 +172,50 @@ for (const name of Object.keys(instrumentationsMap)) {
  * list for OTEL environment vars. Example:
  * https://opentelemetry.io/docs/languages/sdk-configuration/general/#otel_propagators
  *
- * If the param is not defined or falsy it returns an empty array. The resulting
- * array has only nonempty string.
+ * If the envvar is not defined or an empty string, this returns undefined.
  *
  * @param {string} envvar
- * @returns {Array<string> | undefined}
+ * @returns {string[] | undefined}
  */
-function getInstrumentationsFromEnv(envvar) {
-    const names = getStringListFromEnv(envvar);
-    if (names) {
-        const instrumentations = [];
-
-        for (const name of names) {
-            if (otelInstrShortNames.has(name)) {
-                instrumentations.push(`${otelInstrPrefix}${name}`);
-            } else if (nonOtelInstrNames.has(name)) {
-                instrumentations.push(name);
-            } else {
-                log.warn(
-                    `Unknown instrumentation "${name}" specified in the environment variable ${envvar}`
-                );
-            }
-        }
-
-        return instrumentations;
+function getInstrumentationNamesFromEnv(envvar) {
+    const raw = process.env[envvar];
+    if (raw === undefined || raw.trim() === '') {
+        return undefined;
     }
+    return getInstrumentationNamesFromStr(
+        raw,
+        `environment variable "${envvar}"`
+    );
+}
 
-    return undefined;
+/**
+ * Get an array of full instrumentation names from the given string.
+ *
+ * Here "full" means that `express` is expanded to the
+ * `@opentelemtry/instrumentation-express`. This applies to the set of
+ * well-known upstream OTel JS instrumentations.
+ *
+ * @param {string} s - Comma-separated string to parse.
+ * @param {string} desc - Description of the source of `s` for possible logging.
+ * @returns {string[]}
+ */
+function getInstrumentationNamesFromStr(s, desc) {
+    const instrNames = [];
+    // Parsing of `s` mimics `getStringListFromEnv`.
+    const names = s
+        .split(',')
+        .map((v) => v.trim())
+        .filter((v) => v !== '');
+    for (const name of names) {
+        if (otelInstrShortNames.has(name)) {
+            instrNames.push(`${otelInstrPrefix}${name}`);
+        } else if (nonOtelInstrNames.has(name)) {
+            instrNames.push(name);
+        } else {
+            log.warn(`Unknown instrumentation "${name}" specified in ${desc}`);
+        }
+    }
+    return instrNames;
 }
 
 /**
@@ -245,10 +262,10 @@ function getInstrumentationsFromEnv(envvar) {
 function getInstrumentations(opts = {}) {
     /** @type {Array<Instrumentation>} */
     const instrumentations = [];
-    const enabledFromEnv = getInstrumentationsFromEnv(
+    const enabledFromEnv = getInstrumentationNamesFromEnv(
         'OTEL_NODE_ENABLED_INSTRUMENTATIONS'
     );
-    const disabledFromEnv = getInstrumentationsFromEnv(
+    const disabledFromEnv = getInstrumentationNamesFromEnv(
         'OTEL_NODE_DISABLED_INSTRUMENTATIONS'
     );
 
@@ -298,16 +315,6 @@ function getInstrumentations(opts = {}) {
             return;
         }
 
-        // Skip if metrics are disabled by env var
-        const isMetricsDisabled =
-            getBooleanFromEnv('ELASTIC_OTEL_METRICS_DISABLED') ?? false;
-        if (
-            isMetricsDisabled &&
-            name === '@opentelemetry/instrumentation-runtime-node'
-        ) {
-            return;
-        }
-
         const isObject = typeof opts[name] === 'object';
         if (!(opts[name] == null || isObject)) {
             log.warn(
@@ -354,4 +361,5 @@ function getInstrumentations(opts = {}) {
 
 module.exports = {
     getInstrumentations,
+    getInstrumentationNamesFromStr,
 };

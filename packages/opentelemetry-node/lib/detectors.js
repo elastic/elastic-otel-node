@@ -97,6 +97,14 @@ function resolveDetectors(detectors) {
         return [];
     }
 
+    // NOTE: Kibana is doing a breakdown by service instance when plotting the metrics dashboard. So it needs the instance ID.
+    // Dashboard was added in https://github.com/elastic/kibana/pull/215735
+    if (!detectorKeys.includes('serviceinstance')) {
+        log.info(
+            `The "serviceinstance" resource detector has not been selected. This will result in Kibana's APM Service Metrics dashboard not working. See https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/nodejs/configuration.html#otel_node_resource_detectors-details`
+        );
+    }
+
     /** @type {Array<ResourceDetector | ResourceDetector[]>} */
     const resolvedDetectors = [distroDetector];
     for (const key of detectorKeys) {

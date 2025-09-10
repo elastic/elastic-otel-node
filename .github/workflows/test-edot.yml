@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '23'
+          - '24'
           - '22'
           - '22.0'
           - '20'
@@ -61,22 +61,20 @@ jobs:
           - 9200:9200
 
       kafka:
-        image: bitnami/kafka:3.4
+        image: apache/kafka:4.1.0
         env:
-          KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
-          KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-          KAFKA_CFG_LISTENERS: 'PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094'
-          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
-          KAFKA_CFG_ADVERTISED_LISTENERS: 'PLAINTEXT://127.0.0.1:9092,EXTERNAL://kafka_b:9094'
-          KAFKA_BROKER_ID: '1'
-          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@127.0.0.1:9093'
-          ALLOW_PLAINTEXT_LISTENER: 'yes'
-          KAFKA_CFG_NODE_ID: '1'
-          KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-          BITNAMI_DEBUG: 'yes'
-          KAFKA_CFG_NUM_PARTITIONS: '2'
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: broker,controller
+          KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,EXTERNAL://localhost:9094
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+          KAFKAJS_NO_PARTITIONER_WARNING: 1
         ports:
-          - "9092:9092"
           - "9094:9094"
 
       mongodb:
@@ -108,6 +106,20 @@ jobs:
         ports:
           - 11434:11434
 
+      oracledb:
+        image: gvenzl/oracle-free:slim
+        env:
+          APP_USER: otel
+          APP_USER_PASSWORD: secret
+          ORACLE_PASSWORD: oracle
+        ports:
+          - 1521:1521
+        options: >-
+          --health-cmd "sqlplus system/oracle@//localhost/FREEPDB1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
       postgres:
         image: postgres:16
         ports:
@@ -130,16 +142,13 @@ jobs:
           - 6379:6379
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v5
+    - uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node }}
     - name: Update npm to a version that supports package-lock lockfileVersion=2.
       if: ${{ startsWith(matrix.node, '14') }}
       run: npm install -g npm@9 # npm@9 supports node >=14.17.0
-    - name: npm ci in mockotlpserver package, used in EDOT tests
-      run: npm ci
-      working-directory: packages/mockotlpserver
     - run: npm ci
       working-directory: packages/opentelemetry-node
     - run: npm test

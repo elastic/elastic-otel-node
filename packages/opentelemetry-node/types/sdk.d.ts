@@ -15,7 +15,7 @@ import { getInstrumentations } from "./instrumentations";
  *
  * While this returns an object with `shutdown()` method, the default behavior
  * is to setup `process.on(...)` handlers to handle shutdown. See the
- * `setupShutdownHandlers` boolean option.
+ * `elasticSetupShutdownHandlers` boolean option.
  *
  * @param {Partial<NodeSDKConfiguration & ElasticNodeSDKOptions>} cfg
  * @returns {{ shutdown(): Promise<void>; }}
@@ -23,6 +23,9 @@ import { getInstrumentations } from "./instrumentations";
 export function startNodeSDK(cfg?: Partial<NodeSDKConfiguration & ElasticNodeSDKOptions>): {
     shutdown(): Promise<void>;
 };
+import { createDynConfSpanExporter } from "./dynconf";
+import { createDynConfMetricExporter } from "./dynconf";
+import { createDynConfLogRecordExporter } from "./dynconf";
 import { createAddHookMessageChannel } from "import-in-the-middle";
 import { api } from "@opentelemetry/sdk-node";
 import { core } from "@opentelemetry/sdk-node";
@@ -31,4 +34,4 @@ import { metrics } from "@opentelemetry/sdk-node";
 import { node } from "@opentelemetry/sdk-node";
 import { resources } from "@opentelemetry/sdk-node";
 import { tracing } from "@opentelemetry/sdk-node";
-export { getInstrumentations, createAddHookMessageChannel, api, core, logs, metrics, node, resources, tracing };
+export { getInstrumentations, createDynConfSpanExporter, createDynConfMetricExporter, createDynConfLogRecordExporter, createAddHookMessageChannel, api, core, logs, metrics, node, resources, tracing };

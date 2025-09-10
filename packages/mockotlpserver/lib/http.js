@@ -10,6 +10,7 @@ const {
     CH_OTLP_V1_LOGS,
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
+    CH_OTLP_V1_REQUEST,
 } = require('./diagch');
 const {getProtoRoot} = require('./proto');
 const {Service} = require('./service');
@@ -21,6 +22,14 @@ const parsersMap = {
     'application/json': jsonParser,
     'application/x-protobuf': protoParser,
 };
+
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Method': 'POST, OPTIONS',
+};
+
+const diagChReq = diagchGet(CH_OTLP_V1_REQUEST);
 
 function diagChFromReqUrl(reqUrl) {
     switch (reqUrl) {
@@ -36,12 +45,36 @@ function diagChFromReqUrl(reqUrl) {
 }
 
 // helper functions
+/**
+ * @param {string|undefined} ua
+ * @returns {boolean}
+ */
+function isBrowserUserAgent(ua) {
+    if (typeof ua === 'string') {
+        return ['Mozilla/', 'AppleWebKit/', 'Chrome/', 'Safari/'].some((str) =>
+            ua.includes(str)
+        );
+    }
+
+    return false;
+}
+
+/**
+ * @param {http.IncomingMessage} req
+ * @param {http.ServerResponse} res
+ * @param {string} [errMsg]
+ * @param {number} [errCode]
+ */
 function badRequest(
+    req,
     res,
     errMsg = 'Invalid or no data received',
     errCode = 400
 ) {
-    res.writeHead(400);
+    const ua = req.headers['user-agent'];
+    /** @type {http.OutgoingHttpHeaders} */
+    const headers = isBrowserUserAgent(ua) ? corsHeaders : {};
+    res.writeHead(400, 'Bad Request', headers);
     res.end(
         JSON.stringify({
             error: {
@@ -125,6 +158,19 @@ class HttpService extends Service {
         const httpTunnel = tunnel && createHttpTunnel(log, tunnel);
 
         this._server = http.createServer((req, res) => {
+            log.debug(
+                {headers: req.headers},
+                `incoming HTTP req: ${req.method} ${req.url}`
+            );
+            const isBrowserReq = isBrowserUserAgent(req.headers['user-agent']);
+
+            // Accept CORS requests from browsers
+            if (isBrowserReq && req.method.toUpperCase() === 'OPTIONS') {
+                res.writeHead(204, 'OK', corsHeaders);
+                res.end();
+                return;
+            }
+
             const contentType = req.headers['content-type'];
 
             // Tunnel requests if defined or validate otherwise
@@ -132,10 +178,18 @@ class HttpService extends Service {
                 httpTunnel(req, res);
             } else if (!parsersMap[contentType]) {
                 return badRequest(
+                    req,
                     res,
                     `unexpected request Content-Type: "${contentType}"`
                 );
             }
+
+            diagChReq.publish({
+                transport: 'http',
+                method: req.method,
+                path: req.url,
+                headers: req.headers,
+            });
 
             const chunks = [];
             req.on('data', (chunk) => chunks.push(chunk));
@@ -144,7 +198,7 @@ class HttpService extends Service {
                 if (!httpTunnel) {
                     // TODO: send back the proper error
                     if (chunks.length === 0) {
-                        return badRequest(res);
+                        return badRequest(req, res);
                     }
 
                     // TODO: in future response may add some header to communicate back
@@ -154,13 +208,15 @@ class HttpService extends Service {
                     // - something else
                     // PS: maybe collector could be able to tell the sdk/distro to stop sending
                     // because of: high load, sample rate changed, et al??
+                    /** @type {http.OutgoingHttpHeaders} */
+                    const resHeaders = isBrowserReq ? corsHeaders : {};
                     let resBody = null;
                     if (contentType === 'application/json') {
                         resBody = JSON.stringify({
                             ok: 1,
                         });
                     }
-                    res.writeHead(200);
+                    res.writeHead(200, 'OK', resHeaders);
                     res.end(resBody);
                 }
 

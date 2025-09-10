@@ -33,9 +33,10 @@ const testFixtures = [
             t.ok(hasLog(`name: 'nodejs.eventloop.utilization'`));
             t.ok(hasLog(`name: 'nodejs.eventloop.delay.min'`));
             t.ok(hasLog(`name: 'nodejs.eventloop.delay.max'`));
+            t.ok(hasLog(`name: 'process.cpu.utilization'`));
         },
         checkTelemetry: (t, col) => {
-            t.ok(col.metrics.length > 0);
+            t.ok(col.metrics().length > 0);
         },
     },
 ];

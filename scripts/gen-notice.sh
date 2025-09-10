@@ -75,6 +75,7 @@ npm ls --omit=dev --all --parseable \
             "MIT": true,
             "BSD-2-Clause": true,
             "BSD-3-Clause": true,
+            "(Apache-2.0 AND BSD-3-Clause)": true,
         }
         // We handle getting the license text for a few specific deps that
         // do not include one in their install.
@@ -84,6 +85,8 @@ npm ls --omit=dev --all --parseable \
             "pg-types": "license.pg-types.txt",
             "undici-types": "license.undici.txt",
             "tr46": "license.MIT.txt",
+            "@bufbuild/protobuf": "license.apache2.txt",
+            "safe-json-stringify": "license.MIT.txt",
         }
         const allowNoLicFile = [
             "binary-search" // CC is a public domain dedication, no need for license text.
@@ -105,7 +108,7 @@ npm ls --omit=dev --all --parseable \
                 if (!licType) {
                     throw new Error(`cannot determine license for ${pj.name}@${pj.version} in ${depDir}`)
                 } else if (!knownLicTypes[licType]) {
-                    throw new Error(`license for ${pj.name}@${pj.version} in ${depDir} is not known: ${licType}`)
+                    throw new Error(`license for ${pj.name}@${pj.version} in ${depDir} is not known: "${licType}"`)
                 }
                 console.log(`\n## ${pj.name}@${pj.version} (${licType})`)
 

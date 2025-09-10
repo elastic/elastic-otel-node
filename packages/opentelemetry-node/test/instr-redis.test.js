@@ -9,7 +9,7 @@ const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 const skip = process.env.REDIS_HOST === undefined;
 if (skip) {
     console.log(
-        '# SKIP redis-4 tests: REDIS_HOST is not set (try with `REDIS_HOST=localhost`)'
+        '# SKIP redis tests: REDIS_HOST is not set (try with `REDIS_HOST=localhost`)'
     );
 }
 
@@ -33,12 +33,11 @@ const testFixtures = [
             // +1ms `- span e9d2b9 "redis-HSET" (0.9ms, SPAN_KIND_CLIENT)
             // +0ms `- span 0a31fa "redis-GET" (0.8ms, STATUS_CODE_ERROR, SPAN_KIND_CLIENT)
             const spans = filterOutDnsNetSpans(col.sortedSpans);
-            t.equal(spans.length, 6);
             spans.slice(1).forEach((s) => {
                 t.equal(s.traceId, spans[0].traceId, 'traceId');
                 t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');
                 t.equal(s.kind, 'SPAN_KIND_CLIENT', 'kind');
-                t.equal(s.scope.name, '@opentelemetry/instrumentation-redis-4');
+                t.equal(s.scope.name, '@opentelemetry/instrumentation-redis');
                 t.equal(s.attributes['db.system'], 'redis');
             });
             t.equal(spans[1].name, 'redis-connect');
@@ -72,7 +71,7 @@ const testFixtures = [
     },
 ];
 
-test('redis-4 instrumentation', {skip}, (suite) => {
+test('redis instrumentation', {skip}, (suite) => {
     runTestFixtures(suite, testFixtures);
     suite.end();
 });

@@ -30,13 +30,13 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '23'
+          - '24'
           - '22'
           - '20'
           - '18'
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v5
+    - uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node }}
     - run: npm ci
@@ -51,8 +51,8 @@ jobs:
   test-all-versions:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v5
+    - uses: actions/setup-node@v5
       with:
         node-version: 18
     - run: npm install
@@ -72,8 +72,8 @@ jobs:
         ports:
           - 11434:11434
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v5
+    - uses: actions/setup-node@v5
       with:
         node-version: 18
     - name: Pull Ollama models

@@ -9,10 +9,16 @@
  * mockotlpserver CLI. Try `mockotlpserver --htlp`.
  */
 
+const os = require('os');
 const dashdash = require('dashdash');
 
 const luggite = require('./luggite');
-const {JSONPrinter, InspectPrinter, FilePrinter} = require('./printers');
+const {
+    JSONPrinter,
+    InspectPrinter,
+    FilePrinter,
+    SpacerPrinter,
+} = require('./printers');
 const {TraceWaterfallPrinter} = require('./waterfall');
 const {MetricsSummaryPrinter} = require('./metrics-summary');
 const {LogsSummaryPrinter} = require('./logs-summary');
@@ -39,6 +45,7 @@ const PRINTER_NAMES = [
     'logs-summary',
     'summary',
 
+    'spacer', // print a blank line between printed outputs separated by a time gap
     'trace-file', // saving into fs for UI and other processing
 ];
 
@@ -90,9 +97,9 @@ const OPTIONS = [
     {
         names: ['o'],
         type: 'arrayOfPrinters',
-        help: `Output formats for printing OTLP data. Comma-separated, one or more of "${PRINTER_NAMES.join(
-            '", "'
-        )}". Default: "inspect,summary"`,
+        help: `Output formats for printing OTLP data. Comma-separated, one or more of: ${PRINTER_NAMES.join(
+            ', '
+        )}. Default: "inspect,summary,spacer".`,
     },
     {
         names: ['hostname'],
@@ -138,7 +145,7 @@ async function main() {
         // The way dashdash `--help` output prints the default of an array is
         // misleading, so we'll apply the default here and manually document
         // the default in the "help:" string above.
-        opts.o = ['inspect', 'summary'];
+        opts.o = ['inspect', 'summary', 'spacer'];
     }
 
     /** @type {Array<'http'|'grpc'|'ui'>} */
@@ -221,6 +228,9 @@ async function main() {
                 printers.push(new LogsSummaryPrinter(log));
                 break;
 
+            case 'spacer':
+                printers.push(new SpacerPrinter(log));
+                break;
             case 'trace-file':
                 printers.push(new FilePrinter(log));
                 break;
@@ -230,5 +240,11 @@ async function main() {
 
     log.trace({cliOpts: opts}, 'started');
 }
+
+// If running as PID 1, e.g. as the top-level process in Docker, then an
+// unhandled SIGINT will not exit this process.
+process.on('SIGINT', () => {
+    process.exit(128 + os.constants.signals.SIGINT);
+});
 
 main();
