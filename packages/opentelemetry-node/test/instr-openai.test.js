@@ -70,6 +70,46 @@ const testFixtures = [
     },
 
     // TODO: ESM test, requires `createAddHookMessageChannel` IITM work
+
+    // Test alias of `@elastic/opentelemetry-instrumentation-openai` to `openai`.
+    {
+        name: 'alias @elastic/opentelemetry-instrumentation-openai to openai in OTEL_NODE_DISABLED_INSTRUMENTATIONS',
+        args: ['./fixtures/use-openai.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            OTEL_LOG_LEVEL: 'debug',
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS:
+                '@elastic/opentelemetry-instrumentation-openai,bunyan',
+        },
+        // verbose: true,
+        checkTelemetry: (t, col, stdout) => {
+            const spans = col.sortedSpans;
+            t.equal(spans.length, 1, 'just the one instr-undici span');
+            t.equal(
+                spans[0].scope.name,
+                '@opentelemetry/instrumentation-undici'
+            );
+            t.equal(col.logs.length, 0, 'no OTLP-sent logs');
+
+            const sdkLogRecs = stdout
+                .split('\n')
+                .filter((ln) => ln.startsWith('{') && ln.endsWith('}'))
+                .map((ln) => JSON.parse(ln));
+            const recFromMsg = (msg) =>
+                sdkLogRecs.find((rec) => rec.msg === msg);
+            t.notOk(
+                recFromMsg(
+                    'Enabling instrumentation "@opentelemetry/instrumentation-openai"'
+                ),
+                'SDK logs should not diag.debug that instr-openai was enabled'
+            );
+            const warningRec = recFromMsg(
+                'using "@elastic/opentelemetry-instrumentation-openai" in environment variable "OTEL_NODE_DISABLED_INSTRUMENTATIONS" is deprecated, use "openai"'
+            );
+            t.ok(warningRec);
+        },
+    },
 ];
 
 // Basically do this:

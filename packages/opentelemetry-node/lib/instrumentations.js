@@ -165,6 +165,10 @@ for (const name of Object.keys(instrumentationsMap)) {
         nonOtelInstrNames.add(name);
     }
 }
+const deprecatedInstrNameAliases = {
+    // TODO: remove instr-openai alias for 2.x major rev
+    '@elastic/opentelemetry-instrumentation-openai': 'openai',
+};
 
 /**
  * Reads a string in the format `value1,value2` and parses
@@ -211,6 +215,12 @@ function getInstrumentationNamesFromStr(s, desc) {
             instrNames.push(`${otelInstrPrefix}${name}`);
         } else if (nonOtelInstrNames.has(name)) {
             instrNames.push(name);
+        } else if (name in deprecatedInstrNameAliases) {
+            const realName = deprecatedInstrNameAliases[name];
+            log.warn(
+                `using "${name}" in ${desc} is deprecated, use "${realName}"`
+            );
+            instrNames.push(`${otelInstrPrefix}${realName}`);
         } else {
             log.warn(`Unknown instrumentation "${name}" specified in ${desc}`);
         }
