@@ -9,7 +9,7 @@ const {runTestFixtures} = require('./testutils');
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'basic scenario without values in OTEL_(EN|DIS)ABLED_INSTRUMENTATIONS',
+        name: 'baseline scenario without values in OTEL_(EN|DIS)ABLED_INSTRUMENTATIONS',
         args: ['./fixtures/use-env.js'],
         cwd: __dirname,
         env: {
@@ -37,7 +37,7 @@ const testFixtures = [
         },
     },
     {
-        name: 'basic scenario with values only in OTEL_ENABLED_INSTRUMENTATIONS',
+        name: 'using OTEL_NODE_ENABLED_INSTRUMENTATIONS',
         args: ['./fixtures/use-env.js'],
         cwd: __dirname,
         env: {
@@ -76,7 +76,7 @@ const testFixtures = [
         },
     },
     {
-        name: 'basic scenario with values only in OTEL_DISABLED_INSTRUMENTATIONS',
+        name: 'using OTEL_NODE_DISABLED_INSTRUMENTATIONS',
         args: ['./fixtures/use-env.js'],
         cwd: __dirname,
         env: {
@@ -115,7 +115,7 @@ const testFixtures = [
         },
     },
     {
-        name: 'scenario with values in both env vars',
+        name: 'using both OTEL_NODE_ENABLED_INSTRUMENTATIONS and OTEL_NODE_DISABLED_INSTRUMENTATIONS',
         args: ['./fixtures/use-env.js'],
         cwd: __dirname,
         env: {
