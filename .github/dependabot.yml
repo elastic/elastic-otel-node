@@ -14,9 +14,10 @@ updates:
     open-pull-requests-limit: 10
     ignore:
       # undici@7 dropped Node.js 18 support
-      - dependency-name: "undici" # undici@7 dropped 18
+      - dependency-name: "undici"
         versions: [ ">=7" ]
-      - dependency-name: "@types/glob" # @types/glob@9 is empty, assumes using glob@9, but we aren't
+      # @types/glob@9 is empty, assuming one is using glob@9, but we aren't
+      - dependency-name: "@types/glob"
         versions: [ ">=9" ]
     groups:
       opentelemetry:
