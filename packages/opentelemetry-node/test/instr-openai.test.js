@@ -12,25 +12,24 @@ const {runTestFixtures, assertDeepMatch} = require('./testutils');
 let skip = process.env.TEST_GENAI_MODEL === undefined;
 if (skip) {
     console.log(
-        '# SKIP elastic openai tests: TEST_GENAI_MODEL is not set (load env from test/test-services.env)'
+        '# SKIP openai tests: TEST_GENAI_MODEL is not set (load env from test/test-services.env)'
     );
 } else {
     skip = !semver.satisfies(process.version, '>=18');
     if (skip) {
-        console.log('# SKIP elastic openai requires node >=18');
+        console.log('# SKIP openai requires node >=18');
     }
 }
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'use-elastic-openai.js (CommonJS)',
-        args: ['./fixtures/use-elastic-openai.js'],
+        name: 'use-openai.js (CommonJS)',
+        args: ['./fixtures/use-openai.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
-        // verbose: true,
         checkTelemetry: (t, col) => {
             // Expected a trace like this:
             //        span 7e8ca8 "embeddings all-minilm:22m" (26.4ms, SPAN_KIND_CLIENT, GenAI openai)
@@ -51,7 +50,7 @@ const testFixtures = [
                         },
                         events: [],
                         scope: {
-                            name: '@elastic/opentelemetry-instrumentation-openai',
+                            name: '@opentelemetry/instrumentation-openai',
                         },
                     },
                     {
@@ -61,7 +60,7 @@ const testFixtures = [
                             'url.full': 'http://127.0.0.1:11434/v1/embeddings',
                         },
                         scope: {
-                            name: '@opentelemetry/instrumentation-http',
+                            name: '@opentelemetry/instrumentation-undici',
                         },
                     },
                 ],
@@ -71,6 +70,46 @@ const testFixtures = [
     },
 
     // TODO: ESM test, requires `createAddHookMessageChannel` IITM work
+
+    // Test alias of `@elastic/opentelemetry-instrumentation-openai` to `openai`.
+    {
+        name: 'alias @elastic/opentelemetry-instrumentation-openai to openai in OTEL_NODE_DISABLED_INSTRUMENTATIONS',
+        args: ['./fixtures/use-openai.js'],
+        cwd: __dirname,
+        env: {
+            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            OTEL_LOG_LEVEL: 'debug',
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS:
+                '@elastic/opentelemetry-instrumentation-openai,bunyan',
+        },
+        // verbose: true,
+        checkTelemetry: (t, col, stdout) => {
+            const spans = col.sortedSpans;
+            t.equal(spans.length, 1, 'just the one instr-undici span');
+            t.equal(
+                spans[0].scope.name,
+                '@opentelemetry/instrumentation-undici'
+            );
+            t.equal(col.logs.length, 0, 'no OTLP-sent logs');
+
+            const sdkLogRecs = stdout
+                .split('\n')
+                .filter((ln) => ln.startsWith('{') && ln.endsWith('}'))
+                .map((ln) => JSON.parse(ln));
+            const recFromMsg = (msg) =>
+                sdkLogRecs.find((rec) => rec.msg === msg);
+            t.notOk(
+                recFromMsg(
+                    'Enabling instrumentation "@opentelemetry/instrumentation-openai"'
+                ),
+                'SDK logs should not diag.debug that instr-openai was enabled'
+            );
+            const warningRec = recFromMsg(
+                'using "@elastic/opentelemetry-instrumentation-openai" in environment variable "OTEL_NODE_DISABLED_INSTRUMENTATIONS" is deprecated, use "openai"'
+            );
+            t.ok(warningRec);
+        },
+    },
 ];
 
 // Basically do this:

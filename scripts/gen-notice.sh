@@ -88,6 +88,10 @@ npm ls --omit=dev --all --parseable \
             "@bufbuild/protobuf": "license.apache2.txt",
             "safe-json-stringify": "license.MIT.txt",
         }
+        const licTypeFromPkgName = {
+            // instr-openai will get the license field in https://github.com/elastic/elastic-otel-node/pull/1015
+            "@opentelemetry/instrumentation-openai": "Apache-2.0",
+        }
         const allowNoLicFile = [
             "binary-search" // CC is a public domain dedication, no need for license text.
         ]
@@ -104,6 +108,9 @@ npm ls --omit=dev --all --parseable \
                     licType = pj.licenses
                         .map(licObj => licObj.type)
                         .filter(licType => knownLicTypes[licType])[0]
+                }
+                if (!licType && licTypeFromPkgName[pj.name]) {
+                    licType = licTypeFromPkgName[pj.name]
                 }
                 if (!licType) {
                     throw new Error(`cannot determine license for ${pj.name}@${pj.version} in ${depDir}`)

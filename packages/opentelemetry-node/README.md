@@ -28,7 +28,6 @@ Some direct links:
 
 EDOT Node.js is very similar to the `@opentelemetry/auto-instrumentations-node` package from OpenTelemetry in its usage goal: a single-dependency that provides a simple path to zero-code instrumentation of Node.js applications. In general, Elastic's goal is to contribute all SDK improvements upstream. That said, there are sometimes differences that are specific to Elastic (e.g. talking to an Elastic service for central configuration, Elastic-authored additional instrumentations). Here is a concise list of differences:
 
-- EDOT Node.js includes the additional, Elastic-authored [`@elastic/opentelemetry-instrumentation-openai`](../instrumentation-openai) instrumentation for the OpenAI Node.js client library.
 - EDOT Node.js supports dynamic [central configuration](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/nodejs/configuration#central-configuration) of some settings of the running SDK.
 - EDOT Node.js, being a [distribution](https://opentelemetry.io/docs/concepts/distributions/) of the OpenTelemetry JS SDK, always adds the [`telemetry.distro.*`](https://opentelemetry.io/docs/specs/semconv/attributes-registry/telemetry/) resource attributes to identify itself.
 - EDOT Node.js [enables some metrics by default](https://github.com/elastic/elastic-otel-node/blob/main/packages/opentelemetry-node/docs/metrics.md) that are not included by `@opentelemetry/auto-instrumentations-node`: a subset of metrics from `@opentelemetry/host-metrics`.

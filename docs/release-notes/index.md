@@ -20,14 +20,33 @@ To check for breaking changes, see [EDOT Node.js Breaking Changes](./breaking-ch
 To check for security updates, go to [Security announcements for the Elastic stack](https://discuss.elastic.co/c/announcements/security-announcements/31).
 
 % Release notes include only features, enhancements, and fixes. Add breaking changes, deprecations, and known issues to the applicable release notes sections.
-
+%
 % ## version.next [edot-node-X.X.X-release-notes]
-
+%
 % ### Features and enhancements [edot-node-X.X.X-features-enhancements]
 % *
-
+%
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
+
+
+## next [edot-node-next-release-notes]
+
+### Features and enhancements [edot-node-next-features-enhancements]
+
+* This Elastic-authored `@elastic/opentelemetry-instrumentation-openai`
+  instrumentation has been [upstreamed to OpenTelemetry](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-openai/).
+  EDOT Node.js now uses the `@opentelemetry/instrumentation-openai` package
+  to instrument `openai`. The newer package supports instrumenting openai@5 --
+  the current major version.
+  [#1015](https://github.com/elastic/elastic-otel-node/pull/1015)
+
+    * If you were using `@elastic/opentelemetry-instrumentation-openai` with the
+      `OTEL_NODE_ENABLED_INSTRUMENTATIONS` or `OTEL_NODE_ENABLED_INSTRUMENTATIONS`
+      environment variables, you should switch to using `openai`. The old value
+      will still work until the next major release.
+
+### Fixes [edot-node-next-fixes]
 
 ## 1.3.0 [edot-node-1.3.0-release-notes]
 

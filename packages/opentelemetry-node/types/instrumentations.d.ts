@@ -1,6 +1,5 @@
 export type Instrumentation = import('@opentelemetry/instrumentation').Instrumentation;
 export type InstrumentaionsMap = {
-    "@elastic/opentelemetry-instrumentation-openai": import('@elastic/opentelemetry-instrumentation-openai').OpenAIInstrumentationConfig;
     "@opentelemetry/instrumentation-amqplib": import('@opentelemetry/instrumentation-amqplib').AmqplibInstrumentation;
     "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsSdkInstrumentationConfig;
     "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig;
@@ -29,6 +28,7 @@ export type InstrumentaionsMap = {
     "@opentelemetry/instrumentation-mysql2": import('@opentelemetry/instrumentation-mysql2').MySQL2Instrumentation;
     "@opentelemetry/instrumentation-nestjs-core": import('@opentelemetry/instrumentation').InstrumentationConfig;
     "@opentelemetry/instrumentation-net": import('@opentelemetry/instrumentation').InstrumentationConfig;
+    "@opentelemetry/instrumentation-openai": import('@opentelemetry/instrumentation-openai').OpenAIInstrumentationConfig;
     "@opentelemetry/instrumentation-oracledb": import('@opentelemetry/instrumentation-oracledb').OracleInstrumentationConfig;
     "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentationConfig;
     "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentationConfig;
