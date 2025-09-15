@@ -41,6 +41,10 @@ const testFixtures = [
             //   +1ms `- span 13d56b "mongodb.endSessions" (0.3ms, SPAN_KIND_CLIENT)
             //  -20ms `- span c4e688 "mongoose.User.save" (18.9ms, SPAN_KIND_CLIENT)
             const spans = filterOutDnsNetSpans(col.sortedSpans);
+            console.log(
+                'Dump spans to help with flaky test (https://github.com/elastic/elastic-otel-node/issues/721):'
+            );
+            console.dir(spans, {depth: 50});
             t.equal(spans.length, 7);
 
             t.equal(spans[0].name, 'manual-parent-span');
