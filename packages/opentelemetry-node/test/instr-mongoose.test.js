@@ -35,17 +35,16 @@ const testFixtures = [
             // ------ trace 5527d1 (13 spans) ------
             //         span 58cce4 "manual-parent-span" (39.0ms, SPAN_KIND_INTERNAL)
             //   +2ms `- span 82ec54 "mongodb.create" (7.6ms, SPAN_KIND_CLIENT)
-            //   +9ms `- span bda449 "mongodb.createIndexes" (3.9ms, SPAN_KIND_CLIENT)
             //   -8ms `- span a92f92 "mongodb.insert" (12.1ms, SPAN_KIND_CLIENT)
             //  +13ms `- span 5be842 "mongodb.drop" (0.8ms, SPAN_KIND_CLIENT)
             //   +1ms `- span 13d56b "mongodb.endSessions" (0.3ms, SPAN_KIND_CLIENT)
             //  -20ms `- span c4e688 "mongoose.User.save" (18.9ms, SPAN_KIND_CLIENT)
-            const spans = filterOutDnsNetSpans(col.sortedSpans);
-            console.log(
-                'Dump spans to help with flaky test (https://github.com/elastic/elastic-otel-node/issues/721):'
-            );
-            console.dir(spans, {depth: 50});
-            t.equal(spans.length, 7);
+            let spans = filterOutDnsNetSpans(col.sortedSpans);
+            // Note: This *sometimes* gets a span named "mongodb.createIndexes"
+            // and sometimes not. To avoid flaky test failures we remove it
+            // for testing.
+            spans = spans.filter((s) => s.name !== 'mongodb.createIndexes');
+            t.equal(spans.length, 6);
 
             t.equal(spans[0].name, 'manual-parent-span');
             t.equal(spans[0].kind, 'SPAN_KIND_INTERNAL');
