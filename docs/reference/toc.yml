@@ -1,0 +1,10 @@
+toc:
+      - file: index.md
+        children:
+          - file: setup/index.md
+            children:
+              - file: setup/k8s.md
+          - file: configuration.md
+          - file: supported-technologies.md
+          - file: metrics.md
+          - file: migration.md
