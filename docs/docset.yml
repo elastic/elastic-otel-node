@@ -4,6 +4,7 @@ cross_links:
   - opentelemetry
   - elastic-agent
   - apm-agent-nodejs
+  - elastic-otel-node
 toc:
   - toc: release-notes
   - toc: reference/edot-node
