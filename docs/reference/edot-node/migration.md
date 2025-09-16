@@ -131,7 +131,7 @@ For example: `OTEL_NODE_DISABLED_INSTRUMENTATIONS=express,mysql`.
 
 ### `disableMetrics`
 
-The Elastic APM Node.js agent [`disableMetrics`](apm-agent-nodejs://reference/configuration.md#disable-metrics) option does not correspond to any Opentelemetry option.
+The Elastic APM Node.js agent [`disableMetrics`](apm-agent-nodejs://reference/configuration.md#disable-metrics) option does not correspond to any OpenTelemetry option.
 However if you want to disable all metrics (equivalent to `disableMetrics='*'`) you can use [`OTEL_METRICS_EXPORTER`](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection) option. Set it to `none` to disable the collection of all metrics.
 
 For example: `OTEL_METRICS_EXPORTER=none`.
@@ -171,7 +171,7 @@ The Elastic APM Node.js agent [`instrument`](apm-agent-nodejs://reference/config
 For example: `OTEL_NODE_ENABLED_INSTRUMENTATIONS=none` will make EDOT Node.js instrument no packages. It is equivalent to `instrument=false`.
 
 :::{info}
-Because "none" is not an instrumentation name EDOT Node.js will log a message saying so. The message will heve the following format.
+Because "none" is not an instrumentation name EDOT Node.js will log a message saying so. The message will have the following format.
 `{"name":"elastic-otel-node","level":40,"msg":"Unknown instrumentation \"none\" specified in environment variable \"OTEL_NODE_ENABLED_INSTRUMENTATIONS\"","time":"2025-09-01T11:12:30.949Z"}`
 :::
 
