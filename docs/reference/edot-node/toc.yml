@@ -1,0 +1,11 @@
+toc:
+      - file: index.md
+      - file: setup/index.md
+        children:
+          - file: setup/k8s.md
+      - file: configuration.md
+      - file: supported-technologies.md
+      - file: metrics.md
+      - file: migration.md
+      - title: Troubleshooting
+        crosslink: docs-content://troubleshoot/ingest/opentelemetry/edot-sdks/nodejs/index.md

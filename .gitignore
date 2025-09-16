@@ -6,3 +6,4 @@ build
 tmp
 /packages/mockotlpserver/db
 docs/.artifacts
+.artifacts
