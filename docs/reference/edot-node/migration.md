@@ -54,7 +54,7 @@ If you're using the [Elastic APM Node.js Agent API](apm-agent-nodejs://reference
 ::::
 
 ::::{step} Replace configuration options
-Refer to the [Configuration mapping](#configuration-mapping). Refer to [Configuration](/reference/configuration.md) for details on EDOT Node.js configuration.
+Refer to the [Configuration mapping](#configuration-mapping). Refer to [Configuration](/reference/edot-node/configuration.md) for details on EDOT Node.js configuration.
 ::::
 
 ::::{step} Add EDOT Node.js start method
@@ -90,13 +90,13 @@ For example: `OTEL_EXPORTER_OTLP_HEADERS=foo=bar,baz=quux`.
 
 ### `cloudProvider`
 
-The Elastic APM Node.js agent [`cloudProvider`](apm-agent-nodejs://reference/configuration.md#cloud-provider) option does not corresponds directly to an OpenTelemetry option but you can get similar behavior by properly setting [`OTEL_NODE_RESOURCE_DETECTORS`](https://opentelemetry.io/docs/zero-code/js/configuration/#sdk-resource-detector-configuration) option. If you set this option make sure you add along with the cloud detector the non-cloud detectors that apply to your service. For a full list of detectors check [OTEL_NODE_RESOURCE_DETECTORS details](/reference/configuration.md#otel_node_resource_detectors-details). Not setting this option is the equivalent of `auto`.
+The Elastic APM Node.js agent [`cloudProvider`](apm-agent-nodejs://reference/configuration.md#cloud-provider) option does not corresponds directly to an OpenTelemetry option but you can get similar behavior by properly setting [`OTEL_NODE_RESOURCE_DETECTORS`](https://opentelemetry.io/docs/zero-code/js/configuration/#sdk-resource-detector-configuration) option. If you set this option make sure you add along with the cloud detector the non-cloud detectors that apply to your service. For a full list of detectors check [OTEL_NODE_RESOURCE_DETECTORS details](/reference/edot-node/configuration.md#otel_node_resource_detectors-details). Not setting this option is the equivalent of `auto`.
 
 For example: `OTEL_NODE_RESOURCE_DETECTORS=os,env,host,serviceinstance,process,aws` will make the agent query for AWS metadata only and use other non-cloud detectors to enrich that metadata.
 
 ### `disableInstrumentations`
 
-The Elastic APM Node.js agent [`disableInstrumentations`](apm-agent-nodejs://reference/configuration.md#disable-instrumentations) option corresponds to the EDOT Node.js [`OTEL_NODE_DISABLED_INSTRUMENTATIONS`](/reference/configuration.md#otel_node_disabledenabled_instrumentations-details) option.
+The Elastic APM Node.js agent [`disableInstrumentations`](apm-agent-nodejs://reference/configuration.md#disable-instrumentations) option corresponds to the EDOT Node.js [`OTEL_NODE_DISABLED_INSTRUMENTATIONS`](/reference/edot-node/configuration.md#otel_node_disabledenabled_instrumentations-details) option.
 
 For example: `OTEL_NODE_DISABLED_INSTRUMENTATIONS=express,mysql`.
 
@@ -132,11 +132,11 @@ The following table shows the equivalent values of log levels between `elastic-a
 
 The equivalent of the Elastic APM Node.js agent [`contextPropagationOnly`](apm-agent-nodejs://reference/configuration.md#context-propagation-only) option can be accomplished with the following EDOT Node.js settings:
 
-- [`ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY=true`](/reference/configuration.md#elastic_otel_context_propagation_only-details) to configure trace-context propagation. This turns off sending spans and the overhead from doing so. Note that using `OTEL_TRACES_EXPORTER=none` turns off context-propagation. The `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` EDOT Node.js setting only impacts tracing, as opposed to the APM agent `contextPropagationOnly` which impacts both tracing and metric collection.
+- [`ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY=true`](/reference/edot-node/configuration.md#elastic_otel_context_propagation_only-details) to configure trace-context propagation. This turns off sending spans and the overhead from doing so. Note that using `OTEL_TRACES_EXPORTER=none` turns off context-propagation. The `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` EDOT Node.js setting only impacts tracing, as opposed to the APM agent `contextPropagationOnly` which impacts both tracing and metric collection.
 - To turn off metrics sending and collection overhead, use the following settings:
     - [`OTEL_METRICS_EXPORTER=none`](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection) to turn off the sending of any metrics.
-    - [`ELASTIC_OTEL_HOST_METRICS_DISABLED=true`](/reference/configuration.md#elastic_otel_host_metrics_disabled-details) to remove the overhead from metrics collection by the `@opentelemetry/host-metrics` package.
-    - [`OTEL_NODE_DISABLED_INSTRUMENTATIONS=runtime-node`](/reference/configuration.md#otel_node_disabledenabled_instrumentations-details) to remove metrics collection overhead from the `@opentelemetry/instrumentation-runtime-node` instrumentation
+    - [`ELASTIC_OTEL_HOST_METRICS_DISABLED=true`](/reference/edot-node/configuration.md#elastic_otel_host_metrics_disabled-details) to remove the overhead from metrics collection by the `@opentelemetry/host-metrics` package.
+    - [`OTEL_NODE_DISABLED_INSTRUMENTATIONS=runtime-node`](/reference/edot-node/configuration.md#otel_node_disabledenabled_instrumentations-details) to remove metrics collection overhead from the `@opentelemetry/instrumentation-runtime-node` instrumentation
 
 For example:
 

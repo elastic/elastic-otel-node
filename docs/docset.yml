@@ -6,7 +6,7 @@ cross_links:
   - apm-agent-nodejs
 toc:
   - toc: release-notes
-  - toc: reference
+  - toc: reference/edot-node
 subs:
   motlp: Elastic Cloud Managed OTLP Endpoint
   edot:    "Elastic Distribution of OpenTelemetry"

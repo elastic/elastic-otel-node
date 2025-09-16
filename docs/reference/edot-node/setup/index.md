@@ -35,7 +35,7 @@ node --import @elastic/opentelemetry-node my-app.js
 Avoid using the Node.js SDK alongside any other APM agent, including Elastic APM agents. Running multiple agents in the same application process may lead to conflicting instrumentation, duplicate telemetry, or other unexpected behavior.
 :::
 
-If you are deploying in Kubernetes, see the [Kubernetes setup guide](/reference/setup/k8s.md).
+If you are deploying in Kubernetes, see the [Kubernetes setup guide](/reference/edot-node/setup/k8s.md).
 
 ## Prerequisites
 
@@ -80,7 +80,7 @@ Additional other common configuration settings that might be useful include:
 * `OTEL_LOG_LEVEL=verbose`: This can be used to get more internal logging data from EDOT Node.js when investigating issues with telemetry.
 * `OTEL_SDK_DISABLED=true`: This can be used to fully disable EDOT Node.js, perhaps when troubleshooting.
 
-For more information on all the available configuration options, refer to [Configuration](/reference/configuration.md).
+For more information on all the available configuration options, refer to [Configuration](/reference/edot-node/configuration.md).
 
 ## Start EDOT Node.js
 
@@ -99,7 +99,7 @@ export NODE_OPTIONS="--import @elastic/opentelemetry-node"
 node my-app.js
 ```
 
-EDOT Node.js automatically instruments popular modules, listed in [Supported technologies](/reference/supported-technologies.md), used by your service, and send traces, metrics, and logs telemetry data (using OTLP) to your configured observability backend.
+EDOT Node.js automatically instruments popular modules, listed in [Supported technologies](/reference/edot-node/supported-technologies.md), used by your service, and send traces, metrics, and logs telemetry data (using OTLP) to your configured observability backend.
 
 ## Confirm instrumentation is working
 

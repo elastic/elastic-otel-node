@@ -104,7 +104,7 @@ The following instrumentations are included in EDOT Node.js, but deactivated by 
 - `@opentelemetry/instrumentation-fs` (Deactivated upstream in [open-telemetry/opentelemetry-js-contrib#2467](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467).)
 - `@opentelemetry/instrumentation-fastify` (Deprecated upstream and slated for removal. Refer to [open-telemetry/opentelemetry-js-contrib#2652](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2652))
 
-To turn on these instrumentations, use the [`OTEL_NODE_ENABLED_INSTRUMENTATIONS` environment variable](/reference/configuration.md#otel_node_disabledenabled_instrumentations-details). Make sure you list all the instrumentations you need for your service since only the ones in that list will be activated. For example:
+To turn on these instrumentations, use the [`OTEL_NODE_ENABLED_INSTRUMENTATIONS` environment variable](/reference/edot-node/configuration.md#otel_node_disabledenabled_instrumentations-details). Make sure you list all the instrumentations you need for your service since only the ones in that list will be activated. For example:
 
 ```bash
 export OTEL_EXPORTER_OTLP_ENDPOINT="https://my-deployment-abc123.ingest.us-west-2.aws.elastic.cloud"

@@ -33,9 +33,9 @@ In addition to all the features of OpenTelemetry Node.js, with EDOT Node.js you 
 * Pre-configured collection of tracing and metrics signals, applying some opinionated defaults, such as which sources are collected by default. Additional metrics are collected by default: `process.cpu.*` and `process.memory.*` metrics from the [host-metrics package](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/host-metrics/).
 * Compatibility with APM Agent Central Configuration to modify the settings of the EDOT Node.js agent without having to restart the application.
 
-Use EDOT Node.js with your Node.js application to automatically capture distributed tracing data, performance metrics, and logs. EDOT Node.js automatically instruments [popular modules](/reference/supported-technologies.md#instrumentations) used by your service.
+Use EDOT Node.js with your Node.js application to automatically capture distributed tracing data, performance metrics, and logs. EDOT Node.js automatically instruments [popular modules](/reference/edot-node/supported-technologies.md#instrumentations) used by your service.
 
-Follow the step-by-step instructions in [Setup](/reference/setup/index.md) to get started.
+Follow the step-by-step instructions in [Setup](/reference/edot-node/setup/index.md) to get started.
 
 ## Release notes
 

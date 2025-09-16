@@ -17,7 +17,7 @@ products:
 
 Learn how to instrument Node.js applications on Kubernetes, using the OpenTelemetry Operator, the {{edot}} (EDOT) Collectors, and the EDOT Node.js SDK.
 
-- For general knowledge about the EDOT Node.js SDK, refer to the [EDOT Node.js Intro page](/reference/index.md) and [Configuration](/reference/configuration.md).
+- For general knowledge about the EDOT Node.js SDK, refer to the [EDOT Node.js Intro page](/reference/edot-node/index.md) and [Configuration](/reference/edot-node/configuration.md).
 - For Node.js auto-instrumentation specifics, refer to [OpenTelemetry Operator Node.js auto-instrumentation](https://opentelemetry.io/docs/kubernetes/operator/automatic/#nodejs).
 - For general information about instrumenting applications on Kubernetes, refer to [instrumenting applications on Kubernetes](docs-content://solutions/observability/get-started/opentelemetry/use-cases/kubernetes/instrumenting-applications.md).
 
