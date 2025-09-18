@@ -12,7 +12,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
       # undici@7 dropped Node.js 18 support
@@ -39,7 +39,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 10
     groups:
       mockotlpserver:
@@ -51,7 +51,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
       # uuid@12 dropped CommonJS support (https://github.com/uuidjs/uuid/issues/881)
@@ -67,7 +67,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
       # undici@7 dropped Node.js 18 support
@@ -86,7 +86,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
       # Locked to the same version being used by opentelemetry-js-contrib.
@@ -111,7 +111,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
       # eslint-related deps are skipped until we have upgraded to eslint@9
@@ -139,7 +139,7 @@ updates:
     schedule:
       interval: "weekly"
     cooldown:
-      days: 14
+      default-days: 14
     open-pull-requests-limit: 10
 
   - package-ecosystem: "github-actions"
