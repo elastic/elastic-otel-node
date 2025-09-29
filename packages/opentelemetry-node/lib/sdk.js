@@ -37,6 +37,7 @@ const luggite = require('./luggite');
 const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
+const {getSpanProcessorsFromEnv} = require('./span-processors');
 const {setupCentralConfig} = require('./central-config');
 const {
     createDynConfSpanExporter,
@@ -145,6 +146,37 @@ function startNodeSDK(cfg = {}) {
         'http/json': 'http',
         'http/protobuf': 'proto', // default
     };
+
+    // Traces config
+    // TODO: OPTION 2 this option is using a processor.
+    if (cfg.spanProcessor || cfg.spanProcessors) {
+        // NOTE: in upstream SDK the new option wins over the deprecated
+        defaultConfig.spanProcessors = cfg.spanProcessors ?? [cfg.spanProcessor];
+    } else {
+        // TODO: here we are replicationg the logic from NodeSDK
+        defaultConfig.spanProcessors = getSpanProcessorsFromEnv();
+    }
+    defaultConfig.spanProcessors.push({
+        onStart: (span, ctx) => {
+            const {instrumentationScope, attributes} = span;
+            const isHttpSpan = instrumentationScope.name === '@opentelemetry/instrumentation-http';
+            if (!isHttpSpan) {
+                return;
+            }
+            const urlAttr = (attributes['http.url'] ?? attributes['url.full']) + '';
+            const isGcpSan = urlAttr.endsWith('/computeMetadata/v1/instance');
+            if (isGcpSan) {
+                const spanCtx = span.spanContext();
+                // from @openteleetry/api TraceFlags.NONE = 0x0
+                console.log('onStart::: span.scope', spanCtx.traceFlags)
+                spanCtx.traceFlags = 0x0;
+            }
+        },
+        onEnd: (span) => {},
+        forceFlush: () => Promise.resolve(),
+        shutdown: () => Promise.resolve(),
+    });
+
 
     // Logs config.
     if (!('logRecordProcessors' in cfg)) {

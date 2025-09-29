@@ -27,6 +27,10 @@ const {
     containerDetector,
 } = require('@opentelemetry/resource-detector-container');
 const {
+    gcpDetector,
+} = require('@opentelemetry/resource-detector-gcp');
+
+const {
     envDetector,
     hostDetector,
     osDetector,
@@ -35,7 +39,6 @@ const {
 } = require('@opentelemetry/resources');
 
 const {log} = require('./logging');
-const {gcpDetector} = require('./detector-gcp');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
@@ -72,9 +75,20 @@ const defaultDetectors = {
         awsEksDetector,
         awsLambdaDetector,
     ],
-    // TODO: Switch back to `@opentelemetry/resource-detector-gcp` when
-    // https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is complete
+    // This detector does not suppress intetnal tracing. But 
+    // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320
     gcp: gcpDetector,
+    // TODO: OPTION 1 we load the detector asyncronously, hence all its deps (gaxios, node-fetch)
+    // this way context and IITM, RITM are in place to do the patching
+    // gcp: {
+    //     // @ts-ignore
+    //     detect: async function () {
+    //         const {
+    //             gcpDetector,
+    //         } = await import('@opentelemetry/resource-detector-gcp');
+    //         return gcpDetector.detect();
+    //     }
+    // },
     azure: [azureAppServiceDetector, azureFunctionsDetector, azureVmDetector],
 };
 
