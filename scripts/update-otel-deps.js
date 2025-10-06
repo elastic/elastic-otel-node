@@ -22,7 +22,6 @@ const fs = require('fs');
 const path = require('path');
 const {spawnSync} = require('child_process');
 
-const globSync = require('glob').sync;
 const {minimatch} = require('minimatch');
 const semver = require('semver');
 
@@ -137,16 +136,14 @@ function updateNpmDeps({patterns, allowRangeBumpFor0x, dryRun}) {
             continue;
         }
         const anOutdatedEntry = Array.isArray(outdated[depName])
-              ? outdated[depName][0]
-              : outdated[depName];
+            ? outdated[depName][0]
+            : outdated[depName];
         const currVer = anOutdatedEntry.current;
         const latestVer = anOutdatedEntry.latest;
         if (semver.satisfies(latestVer, pkgInfo.deps[depName])) {
             // `npm update` should suffice.
             npmUpdatePkgNames.add(depName);
-            summaryStrs.add(
-                `${currVer} -> ${latestVer} ${depName}`
-            );
+            summaryStrs.add(`${currVer} -> ${latestVer} ${depName}`);
         } else if (semver.lt(currVer, '1.0.0')) {
             if (allowRangeBumpFor0x) {
                 npmInstallArgs.push(`${depName}@${latestVer}`);
