@@ -29,14 +29,13 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## version.next [edot-node-1.5.0-release-notes]
+## 1.5.0 [edot-node-1.5.0-release-notes]
 
 ### Chores [edot-node-1.5.0-chores]
 
 * Update to the latest upstream OpenTelemetry JS dependencies. ([#1062](https://github.com/elastic/elastic-otel-node/pull/1062))
 
 * Switch to trusted publishing (https://docs.npmjs.com/trusted-publishers) as a security precaution against supply-chain attacks.
-
 
 ## 1.4.0 [edot-node-1.4.0-release-notes]
 
