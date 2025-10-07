@@ -1,6 +1,6 @@
 {
   "name": "@elastic/opentelemetry-node",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "type": "commonjs",
   "description": "Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js)",
   "publishConfig": {
