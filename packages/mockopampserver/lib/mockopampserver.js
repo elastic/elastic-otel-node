@@ -596,7 +596,18 @@ class MockOpAMPServer {
                 };
                 s2a = create(ServerToAgentSchema, resData);
             } else {
-                s2a = this._processAgentToServer(a2s);
+                try {
+                    s2a = this._processAgentToServer(a2s);
+                } catch (err) {
+                    log.debug({err, req, res}, '_processAgentToServer threw');
+                    respondHttpErr(
+                        res,
+                        `could not process AgentToServer: ${err.message}`,
+                        500
+                    );
+                    this._testNoteRequest({req, res, a2s});
+                    return;
+                }
             }
 
             // TODO: compress if `Accept-Encoding: gzip`
@@ -619,7 +630,16 @@ class MockOpAMPServer {
      * @returns {ServerToAgent}
      */
     _processAgentToServer(a2s) {
-        const instanceUidStr = uuidStringify(a2s.instanceUid);
+        let instanceUidStr;
+        try {
+            instanceUidStr = uuidStringify(a2s.instanceUid);
+        } catch (err) {
+            throw new Error(
+                `could not stringify 'instanceUid' to a UUID: err="${
+                    err.message
+                }", a2s.instanceUid=${inspect(Buffer.from(a2s.instanceUid))}`
+            );
+        }
         const reportedFullState = Boolean(
             a2s.agentDescription &&
                 (!(
