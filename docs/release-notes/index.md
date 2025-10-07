@@ -29,12 +29,19 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## 1.5.0 [edot-node-1.5.0-release-notes]
 
-## next [edot-node-next-release-notes]
+### Chores [edot-node-1.5.0-chores]
 
-### Features and enhancements [edot-node-next-features-enhancements]
+* Update to the latest upstream OpenTelemetry JS dependencies. ([#1062](https://github.com/elastic/elastic-otel-node/pull/1062))
 
-* This Elastic-authored `@elastic/opentelemetry-instrumentation-openai`
+* Switch to trusted publishing (https://docs.npmjs.com/trusted-publishers) as a security precaution against supply-chain attacks.
+
+## 1.4.0 [edot-node-1.4.0-release-notes]
+
+### Features and enhancements [edot-node-1.4.0-features-enhancements]
+
+* The Elastic-authored `@elastic/opentelemetry-instrumentation-openai`
   instrumentation has been [upstreamed to OpenTelemetry](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-openai/).
   EDOT Node.js now uses the `@opentelemetry/instrumentation-openai` package
   to instrument `openai`. The newer package supports instrumenting openai@5 --
@@ -46,7 +53,9 @@ To check for security updates, go to [Security announcements for the Elastic sta
       environment variables, you should switch to using `openai`. The old value
       will still work until the next major release.
 
-### Fixes [edot-node-next-fixes]
+### Fixes [edot-node-1.4.0-fixes]
+
+* Update to latest `@opentelemetry/*` dependencies ([#1027](https://github.com/elastic/elastic-otel-node/pull/1027)), which includes a [fix](https://github.com/open-telemetry/opentelemetry-js/pull/5917) for a bug in `@opentelemetry/otlp-exporter-base@0.204.0` that could break bundling.
 
 ## 1.3.0 [edot-node-1.3.0-release-notes]
 
