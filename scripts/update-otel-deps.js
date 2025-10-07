@@ -74,9 +74,6 @@ function updateNpmDeps({patterns, allowRangeBumpFor0x, dryRun}) {
     console.log(`Updating deps${matchStr}`);
 
     const depPatternFilter = (name) => {
-        if (!patterns) {
-            return true;
-        }
         for (let pat of patterns) {
             if (minimatch(name, pat)) {
                 return true;
@@ -221,10 +218,7 @@ function updateNpmDeps({patterns, allowRangeBumpFor0x, dryRun}) {
     if (dryRun) {
         console.log('  (Skipping sanity check for dry-run.)');
     } else {
-        const allDeps = new Set();
-        Object.keys(pkgInfo.deps).forEach((dep) => {
-            allDeps.add(dep);
-        });
+        const allDeps = new Set(Object.keys(pkgInfo.deps));
         console.log(` $ npm outdated ${Array.from(allDeps).join(' ')}`);
         const p = spawnSync('npm', ['outdated'].concat(Array.from(allDeps)), {
             cwd: TOP,
