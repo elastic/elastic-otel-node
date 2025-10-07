@@ -34,6 +34,7 @@ jobs:
         with:
           # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
           node-version: 'v24.8.0'
+          registry-url: 'https://registry.npmjs.org'
 
       # Setup a Docker "buildx" builder container, used by "build-push-action"
       # below for multi-platform image builds. Notes on multi-platform images:
@@ -91,7 +92,7 @@ jobs:
       - name: GitHub release (only for tag releases)
         if: startsWith(github.ref, 'refs/tags')
         run: |
-          npm ci  # need top-level devDeps for github-release.sh script
+          npm ci --ignore-scripts  # need top-level devDeps for github-release.sh script
           ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
