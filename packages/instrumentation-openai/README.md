@@ -1,5 +1,8 @@
 # Elastic's OpenTelemetry instrumentation for `openai`
 
+> [!IMPORTANT]
+> This package (`@elastic/opentelemetry-instrumentation-openai`) has been [upstreamed](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2941) to OpenTelemetry JS, and is now **deprecated** in favor of [the OpenTelemetry package (`@opentelemetry/instrumentation-openai`)](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-openai).
+
 This module, `@elastic/opentelemetry-instrumentation-openai`, provides automatic
 instrumentation of [`openai`](https://www.npmjs.com/package/openai), the OpenAI
 Node.js client library.
