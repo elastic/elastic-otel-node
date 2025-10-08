@@ -7,6 +7,7 @@
 
 const os = require('os');
 
+const { AsyncLocalStorageContextManager } = require('@opentelemetry/context-async-hooks');
 const {
     getBooleanFromEnv,
     getStringFromEnv,
@@ -93,6 +94,13 @@ function setupShutdownHandlers(shutdownFn) {
  */
 function startNodeSDK(cfg = {}) {
     log.trace('startNodeSDK cfg:', cfg);
+
+    // This is a temporary fix for traces being sent for GCP resource detector
+    // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320
+    // which hopefully will be fixed in https://github.com/open-telemetry/opentelemetry-js/pull/5930
+    // TL;DR: context manager is Noop hen calling `detect`, hence the suppress tracing key
+    // in the context is not propagated to other functions
+    api.context.setGlobalContextManager(new AsyncLocalStorageContextManager());
 
     // TODO: test behaviour with OTEL_SDK_DISABLED.
     //      Do we still log preamble? See NodeSDK _disabled handling.

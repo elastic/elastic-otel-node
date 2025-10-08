@@ -75,20 +75,7 @@ const defaultDetectors = {
         awsEksDetector,
         awsLambdaDetector,
     ],
-    // This detector does not suppress intetnal tracing. But 
-    // ref: https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320
     gcp: gcpDetector,
-    // TODO: OPTION 1 we load the detector asyncronously, hence all its deps (gaxios, node-fetch)
-    // this way context and IITM, RITM are in place to do the patching
-    // gcp: {
-    //     // @ts-ignore
-    //     detect: async function () {
-    //         const {
-    //             gcpDetector,
-    //         } = await import('@opentelemetry/resource-detector-gcp');
-    //         return gcpDetector.detect();
-    //     }
-    // },
     azure: [azureAppServiceDetector, azureFunctionsDetector, azureVmDetector],
 };
 
