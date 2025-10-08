@@ -26,9 +26,7 @@ const {
 const {
     containerDetector,
 } = require('@opentelemetry/resource-detector-container');
-const {
-    gcpDetector,
-} = require('@opentelemetry/resource-detector-gcp');
+const {gcpDetector} = require('@opentelemetry/resource-detector-gcp');
 
 const {
     envDetector,

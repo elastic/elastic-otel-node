@@ -7,7 +7,9 @@
 
 const os = require('os');
 
-const { AsyncLocalStorageContextManager } = require('@opentelemetry/context-async-hooks');
+const {
+    AsyncLocalStorageContextManager,
+} = require('@opentelemetry/context-async-hooks');
 const {
     getBooleanFromEnv,
     getStringFromEnv,
