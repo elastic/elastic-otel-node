@@ -29,6 +29,15 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## version.next [edot-node-X.X.X-release-notes]
+
+### Features and enhancements [edot-node-X.X.X-features-enhancements]
+*
+
+### Fixes [edot-node-X.X.X-fixes]
+
+* Restore upstream Google Cloud Platorm resource detector. ([#1042](https://github.com/elastic/elastic-otel-node/pull/1042))
+
 ## 1.5.0 [edot-node-1.5.0-release-notes]
 
 ### Chores [edot-node-1.5.0-chores]
