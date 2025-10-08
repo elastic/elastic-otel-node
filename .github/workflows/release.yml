@@ -14,13 +14,11 @@ on:
       - 'packages/opentelemetry-node/**'
       - '.github/workflows/release.yml'
 
-# 'id-token' perm needed for npm publishing with provenance (see
-# https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
 permissions:
   attestations: write
   contents: write
   pull-requests: read
-  id-token: write
+  id-token: write # Required for OIDC and provenance (npm publish)
 
 jobs:
   release:
@@ -34,8 +32,8 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 'v18.20.2'
-          registry-url: 'https://registry.npmjs.org'
+          # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
+          node-version: 'v24.8.0'
 
       # Setup a Docker "buildx" builder container, used by "build-push-action"
       # below for multi-platform image builds. Notes on multi-platform images:
@@ -87,10 +85,8 @@ jobs:
       - name: npm publish (only for tag releases)
         if: startsWith(github.ref, 'refs/tags')
         working-directory: ./packages/opentelemetry-node
+        # https://docs.npmjs.com/trusted-publishers
         run: npm publish
-        env:
-          # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: GitHub release (only for tag releases)
         if: startsWith(github.ref, 'refs/tags')
