@@ -194,11 +194,8 @@ In addition, EDOT Node.js always includes the [`telemetry.distro.*` resource att
 
 The default set of enabled instrumentations is [the set of included instrumentations](/reference/edot-node/supported-technologies.md#instrumentations), minus any that are noted as ["disabled by default"](/reference/edot-node/supported-technologies.md#disabled-instrumentations).
 
-EDOT Node.js handles these settings the same as the [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/auto-instrumentations-node/README.md#usage-auto-instrumentation), with one addition. In `@opentelemetry/auto-instrumentations-node`, the name of an instrumentation is the name of the package with the `@opentelemetry/instrumentation-` prefix removed -- `cassandra-driver` refers to the instrumentation provided by `@opentelemetry/instrumentation-cassandra`. EDOT Node.js can include instrumentations that do not have this prefix, for example `@elastic/opentelemetry-instrumentation-openai`. In these cases, the "name" for the instrumentation is the full package name. For example, to enable only instrumentation for openai, http, fastify, and pino one could use:
+EDOT Node.js handles these settings the same as the [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/auto-instrumentations-node/README.md#usage-auto-instrumentation), with one addition. In `@opentelemetry/auto-instrumentations-node`, the name of an instrumentation is the name of the package with the `@opentelemetry/instrumentation-` prefix removed -- `cassandra-driver` refers to the instrumentation provided by `@opentelemetry/instrumentation-cassandra`. EDOT Node.js can include instrumentations that do not have this prefix, for example `@elastic/opentelemetry-instrumentation-SOMETHING`, if/when Elastic includes additional instrumentations that do not match `@opentelemetry/instrumentation-*`. In these cases, the "name" for the instrumentation is the full package name.
 
-```bash
-export OTEL_NODE_ENABLED_INSTRUMENTATIONS=http,fastify,pino,@elastic/opentelemetry-instrumentation-openai
-```
 
 ### `ELASTIC_OTEL_METRICS_DISABLED` details [deprecated-elastic_otel_metrics_disabled-details]
 
