@@ -7,17 +7,13 @@ on:
       - opamp-client-node-v*.*.*
 
 permissions:
-  contents: read
+  pull-requests: read
+  contents: write # Required for "GitHub release" step
+  id-token: write # Required for OIDC and provenance (npm publish)
 
 jobs:
   release:
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-      pull-requests: read
-      # 'id-token' perm needed for npm publishing with provenance (see
-      # https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
-      id-token: write
     env:
       PKGDIR: packages/opamp-client-node
       PKGNAME: "@elastic/opamp-client-node"
@@ -28,21 +24,16 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 'v18.20.4'
+          # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
+          node-version: 'v24.8.0'
           registry-url: 'https://registry.npmjs.org'
-
-      - run: npm ci
-        working-directory: ${{ env.PKGDIR }}
 
       - run: npm publish
         working-directory: ${{ env.PKGDIR }}
-        env:
-          # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: GitHub release
         run: |
-          npm ci  # need top-level devDeps for github-release.sh script
+          npm ci --ignore-scripts  # need top-level devDeps for github-release.sh script
           ./scripts/github-release.sh "$PKGDIR" "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
