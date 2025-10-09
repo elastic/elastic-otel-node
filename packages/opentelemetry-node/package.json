@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "@elastic/opamp-client-node": "^0.2.0",
+    "@opentelemetry/context-async-hooks": "^2.1.0",
     "@opentelemetry/core": "^2.0.0",
     "@opentelemetry/exporter-logs-otlp-grpc": "^0.206.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.206.0",
@@ -125,6 +126,7 @@
     "@opentelemetry/resource-detector-aws": "^2.0.0",
     "@opentelemetry/resource-detector-azure": "^0.14.0",
     "@opentelemetry/resource-detector-container": "^0.7.0",
+    "@opentelemetry/resource-detector-gcp": "^0.40.0",
     "@opentelemetry/resources": "^2.0.0",
     "@opentelemetry/sdk-logs": "^0.206.0",
     "@opentelemetry/sdk-metrics": "^2.0.0",
@@ -132,7 +134,6 @@
     "@opentelemetry/semantic-conventions": "^1.30.0",
     "@opentelemetry/winston-transport": "^0.17.0",
     "import-in-the-middle": "^1.12.0",
-    "json-bigint": "^1.0.0",
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
@@ -162,7 +163,6 @@
     "mongoose": "^8.9.4",
     "mysql": "^2.18.1",
     "mysql2": "^3.11.5",
-    "nock": "^14.0.2",
     "openai": "^5.20.0",
     "oracledb": "^6.9.0",
     "pg": "^8.13.0",
