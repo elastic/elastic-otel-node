@@ -45,6 +45,9 @@ const {
     setupDynConfExporters,
     dynConfSpanExporters,
 } = require('./dynconf');
+const {
+    createDynamicCompositeParentThresholdTraceIdRatioBasedSampler,
+} = require('./sampler');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
@@ -131,11 +134,15 @@ function startNodeSDK(cfg = {}) {
         }
     }
 
+    const sampler =
+        createDynamicCompositeParentThresholdTraceIdRatioBasedSampler();
+
     const instrs = cfg.instrumentations || getInstrumentations();
     /** @type {Partial<NodeSDKConfiguration>} */
     const defaultConfig = {
         resourceDetectors: resolveDetectors(cfg.resourceDetectors),
         instrumentations: instrs,
+        sampler,
         // Avoid setting `spanProcessor` or `traceExporter` to have NodeSDK
         // use its `TracerProviderWithEnvExporters` for tracing setup.
     };
@@ -306,6 +313,7 @@ function startNodeSDK(cfg = {}) {
         noopTracerProvider,
         // @ts-ignore: Ignore access of private _tracerProvider for now. (TODO)
         sdkTracerProvider: sdk._tracerProvider,
+        sampler,
         contextPropagationOnly,
     });
 

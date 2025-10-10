@@ -420,6 +420,35 @@ const REMOTE_CONFIG_HANDLERS = [
             return null;
         },
     },
+
+    {
+        keys: ['sampling_rate'],
+        setter: (config, sdkInfo) => {
+            const rawRate = config['sampling_rate'];
+            let valRate;
+            switch (typeof rawRate) {
+                case 'undefined':
+                    valRate = 1.0;
+                    break;
+                case 'number':
+                    valRate = rawRate;
+                    break;
+                case 'string':
+                    valRate = Number(rawRate);
+                    if (isNaN(valRate)) {
+                        return `unknown 'sampling_rate' value: "${rawRate}"`;
+                    }
+                    break;
+                default:
+                    return `unknown 'sampling_rate' value type: ${typeof rawRate} (${rawRate})`;
+            }
+
+            sdkInfo.sampler.setRatio(valRate);
+            log.info(`central-config: set "sampling_rate" to "${valRate}"`);
+
+            return null;
+        },
+    },
 ];
 
 /**
