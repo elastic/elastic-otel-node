@@ -246,11 +246,21 @@ function startNodeSDK(cfg = {}) {
 
     /** @type {Sampler} */
     let sampler = undefined;
+    let samplingRate = 1.0;
     if (!config.sampler && !getStringFromEnv('OTEL_TRACES_SAMPLER')) {
         // If the user has not set a sampler via config or env var, use our default sampler.
-        sampler = createDefaultSampler(
-            getNumberFromEnv('OTEL_TRACES_SAMPLER_ARG') ?? 1.0
-        );
+        // First get as string to differentiate between missing and invalid.
+        if (getStringFromEnv('OTEL_TRACES_SAMPLER_ARG')) {
+            const samplingRateArg = getNumberFromEnv('OTEL_TRACES_SAMPLER_ARG');
+            if (samplingRateArg === undefined) {
+                log.warn(
+                    `Invalid OTEL_TRACES_SAMPLER_ARG value: ${process.env.OTEL_TRACES_SAMPLER_ARG}. Using default sampling rate of ${samplingRate}`
+                );
+            } else {
+                samplingRate = samplingRateArg;
+            }
+        }
+        sampler = createDefaultSampler(samplingRate);
         config.sampler = sampler;
     }
 
@@ -320,6 +330,7 @@ function startNodeSDK(cfg = {}) {
         // @ts-ignore: Ignore access of private _tracerProvider for now. (TODO)
         sdkTracerProvider: sdk._tracerProvider,
         sampler,
+        samplingRate,
         contextPropagationOnly,
     });
 

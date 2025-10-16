@@ -435,7 +435,7 @@ const REMOTE_CONFIG_HANDLERS = [
             let valRate;
             switch (typeof rawRate) {
                 case 'undefined':
-                    valRate = 1.0;
+                    valRate = initialConfig.sampling_rate;
                     break;
                 case 'number':
                     valRate = rawRate;
@@ -448,6 +448,10 @@ const REMOTE_CONFIG_HANDLERS = [
                     break;
                 default:
                     return `unknown 'sampling_rate' value type: ${typeof rawRate} (${rawRate})`;
+            }
+
+            if (valRate < 0 || valRate > 1) {
+                return `'sampling_rate' value must be between 0 and 1: ${valRate}`;
             }
 
             sdkInfo.sampler.setRatio(valRate);
@@ -634,8 +638,10 @@ function setupCentralConfig(sdkInfo) {
         CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL[
             luggite.nameFromLevel[log.level()] ?? DEFAULT_LOG_LEVEL
         ];
+    initialConfig.sampling_rate = sdkInfo.samplingRate;
     initialConfig.send_traces = !sdkInfo.contextPropagationOnly;
     log.debug({initialConfig}, 'initial central config values');
+    lastAppliedConfig = {...initialConfig};
 
     const client = createOpAMPClient({
         log,
