@@ -19,11 +19,11 @@ const {
  */
 
 /**
- * A parent-based ratio sampler which can have its ratio updated dynamically.
+ * EDOT default sampler, a parent-based ratio sampler which can have its ratio updated dynamically.
  *
  * @implements {Sampler}
  */
-class DynamicCompositeParentThresholdTraceIdRatioBasedSampler {
+class DefaultSampler {
     #delegate;
 
     constructor(ratio = 1.0) {
@@ -74,15 +74,16 @@ function newSampler(ratio) {
 }
 
 /**
+ * Creates a default EDOT sampler, which is a parent-based ratio sampler that can have
+ * its ratio updated dynamically by central config.
+ *
  * @param {number} ratio
  * @returns {Sampler} A ratio sampler which can have its ratio updated dynamically.
  */
-function createDynamicCompositeParentThresholdTraceIdRatioBasedSampler(
-    ratio = 1.0
-) {
-    return new DynamicCompositeParentThresholdTraceIdRatioBasedSampler(ratio);
+function createDefaultSampler(ratio) {
+    return new DefaultSampler(ratio);
 }
 
 module.exports = {
-    createDynamicCompositeParentThresholdTraceIdRatioBasedSampler,
+    createDefaultSampler,
 };

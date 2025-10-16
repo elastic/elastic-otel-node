@@ -9,6 +9,7 @@ const os = require('os');
 
 const {
     getBooleanFromEnv,
+    getNumberFromEnv,
     getStringFromEnv,
     getStringListFromEnv,
 } = require('@opentelemetry/core');
@@ -45,13 +46,12 @@ const {
     setupDynConfExporters,
     dynConfSpanExporters,
 } = require('./dynconf');
-const {
-    createDynamicCompositeParentThresholdTraceIdRatioBasedSampler,
-} = require('./sampler');
+const {createDefaultSampler} = require('./sampler');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
  * @typedef {import('@opentelemetry/sdk-node').NodeSDKConfiguration} NodeSDKConfiguration
+ * @typedef {import('@opentelemetry/sdk-trace-base').Sampler} Sampler
  */
 
 /**
@@ -134,15 +134,11 @@ function startNodeSDK(cfg = {}) {
         }
     }
 
-    const sampler =
-        createDynamicCompositeParentThresholdTraceIdRatioBasedSampler();
-
     const instrs = cfg.instrumentations || getInstrumentations();
     /** @type {Partial<NodeSDKConfiguration>} */
     const defaultConfig = {
         resourceDetectors: resolveDetectors(cfg.resourceDetectors),
         instrumentations: instrs,
-        sampler,
         // Avoid setting `spanProcessor` or `traceExporter` to have NodeSDK
         // use its `TracerProviderWithEnvExporters` for tracing setup.
     };
@@ -247,6 +243,16 @@ function startNodeSDK(cfg = {}) {
     }
 
     const config = {...defaultConfig, ...cfg};
+
+    /** @type {Sampler} */
+    let sampler = undefined;
+    if (!config.sampler && !getStringFromEnv('OTEL_TRACES_SAMPLER')) {
+        // If the user has not set a sampler via config or env var, use our default sampler.
+        sampler = createDefaultSampler(
+            getNumberFromEnv('OTEL_TRACES_SAMPLER_ARG') ?? 1.0
+        );
+        config.sampler = sampler;
+    }
 
     // Some tricks to get a handle on noop signal providers, to be used for
     // dynamic configuration.
