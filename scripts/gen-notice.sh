@@ -87,10 +87,12 @@ npm ls --omit=dev --all --parseable \
             "tr46": "license.MIT.txt",
             "@bufbuild/protobuf": "license.apache2.txt",
             "safe-json-stringify": "license.MIT.txt",
+            // Releases after https://github.com/open-telemetry/opentelemetry-js/pull/6002
+            // will have a LICENSE file.
+            "@opentelemetry/sampler-composite": "license.apache2.txt",
         }
         const licTypeFromPkgName = {
-            // instr-openai will get the license field in https://github.com/elastic/elastic-otel-node/pull/1015
-            "@opentelemetry/instrumentation-openai": "Apache-2.0",
+            // Packages that have a license, but no "license" entry in package.json.
         }
         const allowNoLicFile = [
             "binary-search" // CC is a public domain dedication, no need for license text.
