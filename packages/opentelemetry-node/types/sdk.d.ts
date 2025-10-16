@@ -1,4 +1,5 @@
 export type NodeSDKConfiguration = import('@opentelemetry/sdk-node').NodeSDKConfiguration;
+export type Sampler = import('@opentelemetry/sdk-trace-base').Sampler;
 export type ElasticNodeSDKOptions = {
     /**
      * - Whether to setup handlers
