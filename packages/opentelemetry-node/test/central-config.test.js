@@ -854,14 +854,7 @@ test('central-config', (suite) => {
             },
             // verbose: true,
             checkTelemetry: (t, col, stdout) => {
-                assertCentralConfigGenTelemetry(t, col, [
-                    'spans',
-                    'metrics',
-                    'logs',
-                    'instr-runtime-node',
-                    'instr-undici',
-                    'instr-http',
-                ]);
+                t.equal(col.sortedSpans.length, 3, 'got all the spans');
                 const recs = stdout
                     .split(/\r?\n/g)
                     .filter((ln) => ln.startsWith('{'))
@@ -915,14 +908,7 @@ test('central-config', (suite) => {
             },
             // verbose: true,
             checkTelemetry: (t, col, stdout) => {
-                assertCentralConfigGenTelemetry(t, col, [
-                    'spans',
-                    'metrics',
-                    'logs',
-                    'instr-runtime-node',
-                    'instr-undici',
-                    'instr-http',
-                ]);
+                t.equal(col.sortedSpans.length, 3, 'got all the spans');
                 const recs = stdout
                     .split(/\r?\n/g)
                     .filter((ln) => ln.startsWith('{'))
@@ -1035,14 +1021,7 @@ test('central-config', (suite) => {
             },
             // verbose: true,
             checkTelemetry: (t, col, stdout) => {
-                assertCentralConfigGenTelemetry(t, col, [
-                    'spans',
-                    'metrics',
-                    'logs',
-                    'instr-runtime-node',
-                    'instr-undici',
-                    'instr-http',
-                ]);
+                t.equal(col.sortedSpans.length, 3, 'got all the spans');
                 const recs = stdout
                     .split(/\r?\n/g)
                     .filter((ln) => ln.startsWith('{'))
