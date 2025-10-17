@@ -425,17 +425,16 @@ const REMOTE_CONFIG_HANDLERS = [
         keys: ['sampling_rate'],
         setter: (config, sdkInfo) => {
             if (!sdkInfo.sampler) {
-                log.info(
-                    `central-config: ignoring "sampling_rate" because non-default sampler in use`
-                );
-                return null;
+                return `central-config: ignoring "sampling_rate" because non-default sampler in use`;
             }
 
             const rawRate = config['sampling_rate'];
             let valRate;
+            let verb = 'set';
             switch (typeof rawRate) {
                 case 'undefined':
                     valRate = initialConfig.sampling_rate;
+                    verb = 'reset';
                     break;
                 case 'number':
                     valRate = rawRate;
@@ -455,7 +454,7 @@ const REMOTE_CONFIG_HANDLERS = [
             }
 
             sdkInfo.sampler.setRatio(valRate);
-            log.info(`central-config: set "sampling_rate" to "${valRate}"`);
+            log.info(`central-config: ${verb} "sampling_rate" to "${valRate}"`);
 
             return null;
         },
@@ -540,7 +539,7 @@ function onRemoteConfig(sdkInfo, opampClient, remoteConfig) {
 
         // Report config status.
         if (applyErrs.length > 0) {
-            log.error(
+            log.warn(
                 {config, applyErrs},
                 'could not apply all remote config settings'
             );
