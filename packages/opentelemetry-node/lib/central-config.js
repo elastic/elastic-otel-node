@@ -641,7 +641,6 @@ function setupCentralConfig(sdkInfo) {
     initialConfig.sampling_rate = sdkInfo.samplingRate;
     initialConfig.send_traces = !sdkInfo.contextPropagationOnly;
     log.debug({initialConfig}, 'initial central config values');
-    lastAppliedConfig = {...initialConfig};
 
     const client = createOpAMPClient({
         log,
