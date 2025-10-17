@@ -859,12 +859,15 @@ test('central-config', (suite) => {
                     .split(/\r?\n/g)
                     .filter((ln) => ln.startsWith('{'))
                     .map((ln) => JSON.parse(ln));
-                t.ok(
-                    findObjInArray(
-                        recs,
-                        'msg',
-                        'central-config: ignoring "sampling_rate" because non-default sampler in use'
-                    )
+                const rec = findObjInArray(
+                    recs,
+                    'msg',
+                    'could not apply all remote config settings'
+                );
+                t.ok(rec);
+                t.equal(
+                    rec.applyErrs[0],
+                    'ignoring "sampling_rate" because non-default sampler in use'
                 );
             },
         },

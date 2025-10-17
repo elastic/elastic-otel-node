@@ -425,7 +425,7 @@ const REMOTE_CONFIG_HANDLERS = [
         keys: ['sampling_rate'],
         setter: (config, sdkInfo) => {
             if (!sdkInfo.sampler) {
-                return `central-config: ignoring "sampling_rate" because non-default sampler in use`;
+                return `ignoring "sampling_rate" because non-default sampler in use`;
             }
 
             const rawRate = config['sampling_rate'];
