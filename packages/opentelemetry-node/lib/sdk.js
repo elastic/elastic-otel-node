@@ -265,6 +265,7 @@ function startNodeSDK(cfg = {}) {
             // The "config" object structure is not stable.
             config: {
                 logLevel: luggite.nameFromLevel[log.level()] ?? log.level(),
+                foo: 'XXX'
             },
         },
         'start EDOT Node.js'
