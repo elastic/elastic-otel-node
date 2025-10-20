@@ -3,7 +3,7 @@
 #   docker run --rm -it -p 4317:4317 -p 4318:4318 --name mockotlpserver mockotlpserver
 #
 # Or see "share/k8s/README.md" for using it with Kubernetes.
-FROM node:24-alpine
+FROM node:25-alpine
 RUN mkdir /app
 WORKDIR /app
 COPY lib ./lib/
