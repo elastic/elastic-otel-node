@@ -36,7 +36,7 @@ jobs:
           - '18'
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-node@v5
+    - uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node }}
     - run: npm ci
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-node@v5
+    - uses: actions/setup-node@v6
       with:
         node-version: 18
     - run: npm install
@@ -73,7 +73,7 @@ jobs:
           - 11434:11434
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-node@v5
+    - uses: actions/setup-node@v6
       with:
         node-version: 18
     - name: Pull Ollama models
