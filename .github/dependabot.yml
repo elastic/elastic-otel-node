@@ -30,6 +30,8 @@ updates:
         patterns:
         - "@aws-sdk/*"
         - "@smithy/*"
+        update-types:
+        - "minor"
       patch-level:
         update-types:
         - "patch"
