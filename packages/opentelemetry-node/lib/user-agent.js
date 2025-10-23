@@ -25,7 +25,7 @@ function setUserAgentOnOTLPTransport(transport) {
             //     _transport: RetryingTransport {
             //       _transport: [HttpExporterTransport]
             const httpReqParams = transport._transport?._parameters;
-            
+
             if (httpReqParams) {
                 if (typeof httpReqParams.userAgent === 'string') {
                     httpReqParams.userAgent = `${EDOT_USER_AGENT_HTTP} ${httpReqParams.userAgent}`;
