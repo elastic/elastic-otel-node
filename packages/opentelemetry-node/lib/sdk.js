@@ -252,7 +252,7 @@ function startNodeSDK(cfg = {}) {
         // First get as string to differentiate between missing and invalid.
         if (getStringFromEnv('OTEL_TRACES_SAMPLER_ARG')) {
             const samplingRateArg = getNumberFromEnv('OTEL_TRACES_SAMPLER_ARG');
-            if (samplingRateArg === undefined) {
+            if (samplingRateArg === undefined || samplingRateArg < 0 || samplingRateArg > 1) {
                 log.warn(
                     `Invalid OTEL_TRACES_SAMPLER_ARG value: ${process.env.OTEL_TRACES_SAMPLER_ARG}. Using default sampling rate of ${samplingRate}`
                 );
