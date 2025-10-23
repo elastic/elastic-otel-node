@@ -3,7 +3,7 @@
 # Usage for local development:
 #   docker build -t mockopampserver .
 #   docker run --rm -it -p 4320:4320 --name mockopampserver mockopampserver
-FROM node:25-alpine
+FROM node:24-alpine
 RUN mkdir /app
 WORKDIR /app
 COPY lib ./lib/
