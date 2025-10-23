@@ -97,7 +97,7 @@
     "@opentelemetry/instrumentation-grpc": "^0.207.0",
     "@opentelemetry/instrumentation-hapi": "^0.54.0",
     "@opentelemetry/instrumentation-http": "^0.207.0",
-    "@opentelemetry/instrumentation-ioredis": "^0.55.0",
+    "@opentelemetry/instrumentation-ioredis": "^0.54.0",
     "@opentelemetry/instrumentation-kafkajs": "^0.17.0",
     "@opentelemetry/instrumentation-knex": "^0.52.0",
     "@opentelemetry/instrumentation-koa": "^0.56.0",
