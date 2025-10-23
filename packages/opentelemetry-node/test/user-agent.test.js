@@ -42,7 +42,9 @@ const testFixtures = otlpProtocols.map((otlpProtocol) => {
                         t.ok(
                             req.metadata
                                 .get('user-agent')
-                                .some(ua => ua.includes('elastic-otlp-grpc-javascript/')),
+                                .some((ua) =>
+                                    ua.includes('elastic-otlp-grpc-javascript/')
+                                ),
                             'User-Agent header includes EDOT Node.js string'
                         );
                         break;
