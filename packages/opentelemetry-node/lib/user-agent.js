@@ -5,9 +5,9 @@
 
 // Setting the User-Agent for exporters created by EDOT Node.js.
 //
-// Eventually the upstream exporters will support an option for this
-// (see https://github.com/elastic/elastic-otel-node/issues/431). The
-// monkey-patching done in this file are a temporary measure.
+// Doing the patch of the `userAgent` property allows us to append the
+// EDOT Node.js value to all exporters regardless if they were provided
+// in configuration by the user.
 
 const {log} = require('./logging');
 
