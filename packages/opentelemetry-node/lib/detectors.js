@@ -26,6 +26,7 @@ const {
 const {
     containerDetector,
 } = require('@opentelemetry/resource-detector-container');
+const {gcpDetector} = require('@opentelemetry/resource-detector-gcp');
 const {
     envDetector,
     hostDetector,
@@ -35,7 +36,6 @@ const {
 } = require('@opentelemetry/resources');
 
 const {log} = require('./logging');
-const {gcpDetector} = require('./detector-gcp');
 
 // @ts-ignore - compiler options do not allow lookp outside `lib` folder
 const ELASTIC_SDK_VERSION = require('../package.json').version;
@@ -72,8 +72,6 @@ const defaultDetectors = {
         awsEksDetector,
         awsLambdaDetector,
     ],
-    // TODO: Switch back to `@opentelemetry/resource-detector-gcp` when
-    // https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320 is complete
     gcp: gcpDetector,
     azure: [azureAppServiceDetector, azureFunctionsDetector, azureVmDetector],
 };

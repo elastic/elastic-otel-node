@@ -24,8 +24,10 @@ const testFixtures = otlpProtocols.map((otlpProtocol) => {
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
-            t.ok(col.rawRequests.length > 1);
-            col.rawRequests.forEach((req) => {
+            // @ts-ignore -- TODO: add proper types to `CollectorStore`
+            const {rawRequests} = col;
+            t.ok(rawRequests.length > 1);
+            rawRequests.forEach((req) => {
                 switch (req.transport) {
                     case 'http':
                         t.ok(
@@ -37,11 +39,12 @@ const testFixtures = otlpProtocols.map((otlpProtocol) => {
                         break;
 
                     case 'grpc':
-                        // TODO: assert this when user-agent override for gRPC is implemented
-                        t.skip(
+                        t.ok(
                             req.metadata
                                 .get('user-agent')
-                                .includes('elastic-otlp-grpc-javascript/'),
+                                .some((ua) =>
+                                    ua.includes('elastic-otlp-grpc-javascript/')
+                                ),
                             'User-Agent header includes EDOT Node.js string'
                         );
                         break;
