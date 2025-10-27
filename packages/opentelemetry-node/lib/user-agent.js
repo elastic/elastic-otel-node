@@ -5,7 +5,7 @@
 
 // Setting the User-Agent for exporters created by EDOT Node.js.
 //
-// Doing the patch of the `userAgent` property allows us to append the
+// Doing the patch of the `userAgent` property allows us to prepend the
 // EDOT Node.js value to all exporters regardless if they were provided
 // in configuration by the user.
 
