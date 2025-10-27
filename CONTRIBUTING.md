@@ -49,7 +49,6 @@ This repo holds a number of mostly-independent packages. Please see the
 its test suite. For example:
 
 - [Testing opentelemetry-node](./packages/opentelemetry-node/TESTING.md)
-- [Testing instrumentation-openai](./packages/instrumentation-openai/TESTING.md)
 
 
 
