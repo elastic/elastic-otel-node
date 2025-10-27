@@ -2,7 +2,7 @@
 #    docker build -t example-app-manual .
 #    docker run --rm -it -p 3000:3000 example-app-manual
 #    curl -i http://127.0.0.1:3000/ping
-FROM node:24-alpine
+FROM node:25-alpine
 RUN mkdir /app
 WORKDIR /app
 COPY app.js package.json ./
