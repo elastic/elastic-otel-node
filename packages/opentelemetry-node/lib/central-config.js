@@ -420,6 +420,45 @@ const REMOTE_CONFIG_HANDLERS = [
             return null;
         },
     },
+
+    {
+        keys: ['sampling_rate'],
+        setter: (config, sdkInfo) => {
+            if (!sdkInfo.sampler) {
+                return `ignoring "sampling_rate" because non-default sampler in use`;
+            }
+
+            const rawRate = config['sampling_rate'];
+            let valRate;
+            let verb = 'set';
+            switch (typeof rawRate) {
+                case 'undefined':
+                    valRate = initialConfig.sampling_rate;
+                    verb = 'reset';
+                    break;
+                case 'number':
+                    valRate = rawRate;
+                    break;
+                case 'string':
+                    valRate = Number(rawRate);
+                    if (isNaN(valRate)) {
+                        return `unknown 'sampling_rate' value: "${rawRate}"`;
+                    }
+                    break;
+                default:
+                    return `unknown 'sampling_rate' value type: ${typeof rawRate} (${rawRate})`;
+            }
+
+            if (valRate < 0 || valRate > 1) {
+                return `'sampling_rate' value must be between 0 and 1: ${valRate}`;
+            }
+
+            sdkInfo.sampler.setRatio(valRate);
+            log.info(`central-config: ${verb} "sampling_rate" to "${valRate}"`);
+
+            return null;
+        },
+    },
 ];
 
 /**
@@ -500,7 +539,7 @@ function onRemoteConfig(sdkInfo, opampClient, remoteConfig) {
 
         // Report config status.
         if (applyErrs.length > 0) {
-            log.error(
+            log.warn(
                 {config, applyErrs},
                 'could not apply all remote config settings'
             );
@@ -598,6 +637,7 @@ function setupCentralConfig(sdkInfo) {
         CC_LOGGING_LEVEL_FROM_LUGGITE_LEVEL[
             luggite.nameFromLevel[log.level()] ?? DEFAULT_LOG_LEVEL
         ];
+    initialConfig.sampling_rate = sdkInfo.samplingRate;
     initialConfig.send_traces = !sdkInfo.contextPropagationOnly;
     log.debug({initialConfig}, 'initial central config values');
 

@@ -89,8 +89,7 @@ npm ls --omit=dev --all --parseable \
             "safe-json-stringify": "license.MIT.txt",
         }
         const licTypeFromPkgName = {
-            // instr-openai will get the license field in https://github.com/elastic/elastic-otel-node/pull/1015
-            "@opentelemetry/instrumentation-openai": "Apache-2.0",
+            // Packages that have a license, but no "license" entry in package.json.
         }
         const allowNoLicFile = [
             "binary-search" // CC is a public domain dedication, no need for license text.

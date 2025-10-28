@@ -9,6 +9,7 @@ const os = require('os');
 
 const {
     getBooleanFromEnv,
+    getNumberFromEnv,
     getStringFromEnv,
     getStringListFromEnv,
 } = require('@opentelemetry/core');
@@ -45,10 +46,12 @@ const {
     setupDynConfExporters,
     dynConfSpanExporters,
 } = require('./dynconf');
+const {createDefaultSampler} = require('./sampler');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
  * @typedef {import('@opentelemetry/sdk-node').NodeSDKConfiguration} NodeSDKConfiguration
+ * @typedef {import('@opentelemetry/sdk-trace-base').Sampler} Sampler
  */
 
 /**
@@ -241,6 +244,30 @@ function startNodeSDK(cfg = {}) {
 
     const config = {...defaultConfig, ...cfg};
 
+    /** @type {Sampler} */
+    let sampler = undefined;
+    let samplingRate = 1.0;
+    if (!config.sampler && !getStringFromEnv('OTEL_TRACES_SAMPLER')) {
+        // If the user has not set a sampler via config or env var, use our default sampler.
+        // First get as string to differentiate between missing and invalid.
+        if (getStringFromEnv('OTEL_TRACES_SAMPLER_ARG')) {
+            const samplingRateArg = getNumberFromEnv('OTEL_TRACES_SAMPLER_ARG');
+            if (
+                samplingRateArg === undefined ||
+                samplingRateArg < 0 ||
+                samplingRateArg > 1
+            ) {
+                log.warn(
+                    `Invalid OTEL_TRACES_SAMPLER_ARG value: ${process.env.OTEL_TRACES_SAMPLER_ARG}. Using default sampling rate of ${samplingRate}`
+                );
+            } else {
+                samplingRate = samplingRateArg;
+            }
+        }
+        sampler = createDefaultSampler(samplingRate);
+        config.sampler = sampler;
+    }
+
     // Some tricks to get a handle on noop signal providers, to be used for
     // dynamic configuration.
     const tracerProviderProxy = new api.ProxyTracerProvider();
@@ -306,6 +333,8 @@ function startNodeSDK(cfg = {}) {
         noopTracerProvider,
         // @ts-ignore: Ignore access of private _tracerProvider for now. (TODO)
         sdkTracerProvider: sdk._tracerProvider,
+        sampler,
+        samplingRate,
         contextPropagationOnly,
     });
 
