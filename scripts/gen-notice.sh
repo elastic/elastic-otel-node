@@ -87,9 +87,6 @@ npm ls --omit=dev --all --parseable \
             "tr46": "license.MIT.txt",
             "@bufbuild/protobuf": "license.apache2.txt",
             "safe-json-stringify": "license.MIT.txt",
-            // Releases after https://github.com/open-telemetry/opentelemetry-js/pull/6002
-            // will have a LICENSE file.
-            "@opentelemetry/sampler-composite": "license.apache2.txt",
         }
         const licTypeFromPkgName = {
             // Packages that have a license, but no "license" entry in package.json.
