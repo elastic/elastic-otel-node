@@ -5,16 +5,16 @@
 
 // Setting the User-Agent for exporters created by EDOT Node.js.
 //
-// Eventually the upstream exporters will support an option for this
-// (see https://github.com/elastic/elastic-otel-node/issues/431). The
-// monkey-patching done in this file are a temporary measure.
+// Doing the patch of the `userAgent` property allows us to prepend the
+// EDOT Node.js value to all exporters regardless if they were provided
+// in configuration by the user.
 
 const {log} = require('./logging');
 
 // @ts-ignore - compiler options do not allow lookup outside `lib` folder
 const VERSION = require('../package.json').version;
 const EDOT_USER_AGENT_HTTP = `elastic-otlp-http-javascript/${VERSION}`;
-// const EDOT_USER_AGENT_GRPC = `elastic-otlp-grpc-javascript/${VERSION}`;
+const EDOT_USER_AGENT_GRPC = `elastic-otlp-grpc-javascript/${VERSION}`;
 
 function setUserAgentOnOTLPTransport(transport) {
     switch (transport.constructor.name) {
@@ -25,37 +25,30 @@ function setUserAgentOnOTLPTransport(transport) {
             //     _transport: RetryingTransport {
             //       _transport: [HttpExporterTransport]
             const httpReqParams = transport._transport?._parameters;
-            if (typeof httpReqParams?.headers === 'function') {
-                const headersFn = httpReqParams.headers;
-                httpReqParams.headers = () => {
-                    const hdrs = headersFn();
-                    hdrs['User-Agent'] =
-                        `${EDOT_USER_AGENT_HTTP} ${hdrs['User-Agent']}`.trimEnd();
-                    return hdrs;
-                };
+
+            if (httpReqParams) {
+                if (typeof httpReqParams.userAgent === 'string') {
+                    httpReqParams.userAgent = `${EDOT_USER_AGENT_HTTP} ${httpReqParams.userAgent}`;
+                } else {
+                    httpReqParams.userAgent = EDOT_USER_AGENT_HTTP;
+                }
             }
             break;
         }
 
-        // This overriding metadata is insufficient, because grpc-js
-        // overwrites metadata['User-Agent'] from client options.
-        // TODO: upstream PR for otlp-grpc-exporter-base to allow setting `grpc.primary_user_agent` and/or `grpc.secondary_user_agent` client options.
-        // case 'GrpcExporterTransport': {
-        //     // gRPC:
-        //     // OTLPTraceExporter {
-        //     //   _delegate: OTLPExportDelegate {
-        //     //     _transport: GrpcExporterTransport {
-        //     const metadataFn = transport._parameters?.metadata;
-        //     if (typeof metadataFn === 'function') {
-        //         transport._parameters.metadata = () => {
-        //             /** @type {import('@grpc/grpc-js').Metadata} */
-        //             const md = metadataFn();
-        //             md.set('User-Agent', EDOT_USER_AGENT_GRPC);
-        //             return md;
-        //         };
-        //     }
-        //     break;
-        // }
+        case 'GrpcExporterTransport': {
+            // gRPC:
+            // OTLPTraceExporter {
+            //   _delegate: OTLPExportDelegate {
+            //     _transport: GrpcExporterTransport {
+            const grpcParameters = transport._parameters;
+            if (typeof grpcParameters.userAgent === 'string') {
+                grpcParameters.userAgent = `${EDOT_USER_AGENT_GRPC} ${grpcParameters.userAgent}`;
+            } else {
+                grpcParameters.userAgent = EDOT_USER_AGENT_GRPC;
+            }
+            break;
+        }
 
         default:
             log.debug(
