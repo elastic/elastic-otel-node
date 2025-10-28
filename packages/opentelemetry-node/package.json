@@ -97,7 +97,7 @@
     "@opentelemetry/instrumentation-grpc": "^0.207.0",
     "@opentelemetry/instrumentation-hapi": "^0.54.0",
     "@opentelemetry/instrumentation-http": "^0.207.0",
-    "@opentelemetry/instrumentation-ioredis": "^0.54.0",
+    "@opentelemetry/instrumentation-ioredis": "^0.55.0",
     "@opentelemetry/instrumentation-kafkajs": "^0.17.0",
     "@opentelemetry/instrumentation-knex": "^0.52.0",
     "@opentelemetry/instrumentation-koa": "^0.56.0",
@@ -132,7 +132,7 @@
     "@opentelemetry/sdk-node": "^0.207.0",
     "@opentelemetry/semantic-conventions": "^1.30.0",
     "@opentelemetry/winston-transport": "^0.18.0",
-    "import-in-the-middle": "^1.12.0",
+    "import-in-the-middle": "^2.0.0",
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
