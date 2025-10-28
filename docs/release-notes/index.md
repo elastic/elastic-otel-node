@@ -29,6 +29,15 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## Next [edot-node-next-release-notes]
+
+### Features and enhancements [edot-node-next-features-enhancements]
+
+* Add support for dynamic configuration of the sampling rate of the default logger via the `sampling_rate` variable in Central Configuration. [#1070](https://github.com/elastic/elastic-otel-node/pull/1070)
+
+  While this is supported in the EDOT Node.js SDK, it will only be present in
+  the "Agent Configuration" UI of Kibana version 9.3 and later.
+
 ## 1.5.0 [edot-node-1.5.0-release-notes]
 
 ### Chores [edot-node-1.5.0-chores]
