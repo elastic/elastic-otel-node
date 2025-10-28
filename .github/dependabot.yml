@@ -30,6 +30,8 @@ updates:
         patterns:
         - "@aws-sdk/*"
         - "@smithy/*"
+        update-types:
+        - "minor"
       patch-level:
         update-types:
         - "patch"
@@ -78,31 +80,6 @@ updates:
         versions: [ ">=12" ]
     groups:
       opamp-client-node:
-        patterns:
-        - "*"
-
-  - package-ecosystem: "npm"
-    directory: "/packages/instrumentation-openai"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 14
-    open-pull-requests-limit: 10
-    ignore:
-      # Locked to the same version being used by opentelemetry-js-contrib.
-      - dependency-name: "@types/node"
-      # Locked to the same version being used by opentelemetry-js-contrib.
-      - dependency-name: "@typescript-eslint/*"
-      # Locked to the same version being used by opentelemetry-js-contrib.
-      - dependency-name: "typescript"
-      # Do not yet support openai@5.
-      - dependency-name: "openai"
-        versions: [ ">=5" ]
-      # @types/glob@9 is empty, assumes using glob@9, but we aren't
-      - dependency-name: "@types/glob"
-        versions: [ ">=9" ]
-    groups:
-      instrumentation-openai:
         patterns:
         - "*"
 
