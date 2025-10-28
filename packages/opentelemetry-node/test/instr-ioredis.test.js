@@ -20,10 +20,9 @@ const testFixtures = [
         args: ['./fixtures/use-ioredis.js'],
         cwd: __dirname,
         env: {
-            OTEL_LOG_LEVEL: 'debug',
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
-        verbose: true,
+        // verbose: true,
         checkTelemetry: (t, col) => {
             // Expected a trace like this:
             //     ------ trace 30edbd (6 spans) ------
@@ -62,18 +61,15 @@ const testFixtures = [
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
         env: {
-            OTEL_LOG_LEVEL: 'debug',
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
         },
-        verbose: true,
+        // verbose: true,
         checkTelemetry: assertUseIoredisMjsSpans,
     },
 ];
 
 function assertUseIoredisMjsSpans(t, col) {
     // Assert that we got the two redis spans expected from 'use-ioredis.mjs'.
-    console.log('spans')
-    console.log(col.sortedSpans)
     const spans = filterOutDnsNetSpans(col.sortedSpans);
     t.equal(spans[1].name, 'set');
     t.equal(spans[1].attributes['db.system'], 'redis');
