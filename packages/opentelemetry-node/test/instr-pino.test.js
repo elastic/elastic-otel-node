@@ -19,8 +19,8 @@ const testFixtures = [
             OTEL_LOG_LEVEL: 'none',
         },
         versionRanges: {
-            // pino@9.3.0 breaks 14.17.0 compat.
-            node: '>=14.18.0',
+            // pino@10.0.0 drops support for node 18.
+            node: '>=20',
         },
         // verbose: true,
         checkResult: (t, err, stdout, _stderr) => {
@@ -51,8 +51,8 @@ const testFixtures = [
             ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
         },
         versionRanges: {
-            // pino@9.3.0 breaks 14.17.0 compat.
-            node: '>=14.18.0',
+            // pino@10.0.0 drops support for node 18.
+            node: '>=20',
         },
         // verbose: true,
         checkResult: (t, err, stdout, _stderr) => {
