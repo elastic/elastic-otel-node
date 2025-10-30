@@ -55,7 +55,7 @@ const testFixtures = [
                 'rpc.method': 'ListBuckets',
                 'rpc.service': 'S3',
                 'cloud.region': 'us-east-2',
-                'http.status_code': 200,
+                'http.response.status_code': 200,
             });
         },
     },
@@ -92,7 +92,7 @@ const testFixtures = [
                 'rpc.service': 'SNS',
                 'messaging.system': 'aws.sns',
                 'cloud.region': 'us-east-2',
-                'http.status_code': 200,
+                'http.response.status_code': 200,
             });
         },
     },
@@ -127,10 +127,9 @@ const testFixtures = [
                 'rpc.system': 'aws-api',
                 'rpc.method': 'ListQueues',
                 'rpc.service': 'SQS',
-                'messaging.system': 'aws.sqs',
-                'messaging.destination_kind': 'queue',
+                'messaging.system': 'aws_sqs',
                 'cloud.region': 'us-east-2',
-                'http.status_code': 200,
+                'http.response.status_code': 200,
             });
         },
     },
@@ -168,7 +167,7 @@ const testFixtures = [
                 'db.system': 'dynamodb',
                 'db.operation': 'ListTables',
                 'cloud.region': 'us-east-2',
-                'http.status_code': 200,
+                'http.response.status_code': 200,
                 'aws.dynamodb.table_count': 4,
             });
         },

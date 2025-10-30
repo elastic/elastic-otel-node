@@ -28,8 +28,8 @@ const testFixtures = [
             OTEL_METRIC_EXPORT_TIMEOUT: '900',
         },
         // verbose: true,
-        checkTelemetry: (t, collector) => {
-            const metrics = collector.metrics;
+        checkTelemetry: (t, col) => {
+            const metrics = col.metrics();
             const systemMetrics = metrics.filter((metric) =>
                 metric.name.startsWith('system.')
             );

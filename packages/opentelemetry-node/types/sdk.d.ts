@@ -1,4 +1,5 @@
 export type NodeSDKConfiguration = import('@opentelemetry/sdk-node').NodeSDKConfiguration;
+export type Sampler = import('@opentelemetry/sdk-trace-base').Sampler;
 export type ElasticNodeSDKOptions = {
     /**
      * - Whether to setup handlers
@@ -23,6 +24,9 @@ import { getInstrumentations } from "./instrumentations";
 export function startNodeSDK(cfg?: Partial<NodeSDKConfiguration & ElasticNodeSDKOptions>): {
     shutdown(): Promise<void>;
 };
+import { createDynConfSpanExporter } from "./dynconf";
+import { createDynConfMetricExporter } from "./dynconf";
+import { createDynConfLogRecordExporter } from "./dynconf";
 import { createAddHookMessageChannel } from "import-in-the-middle";
 import { api } from "@opentelemetry/sdk-node";
 import { core } from "@opentelemetry/sdk-node";
@@ -31,4 +35,4 @@ import { metrics } from "@opentelemetry/sdk-node";
 import { node } from "@opentelemetry/sdk-node";
 import { resources } from "@opentelemetry/sdk-node";
 import { tracing } from "@opentelemetry/sdk-node";
-export { getInstrumentations, createAddHookMessageChannel, api, core, logs, metrics, node, resources, tracing };
+export { getInstrumentations, createDynConfSpanExporter, createDynConfMetricExporter, createDynConfLogRecordExporter, createAddHookMessageChannel, api, core, logs, metrics, node, resources, tracing };

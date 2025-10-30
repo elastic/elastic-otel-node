@@ -10,11 +10,11 @@ By far the primary package in this repo is [`@elastic/opentelemetry-node`](./pac
 The tag name for a release of the primary package will not use a prefix; other
 packages will use a prefix (the basename of the npm package name). For example,
 
-| Package                       | Tag Pattern         | Examples |
-| ----------------------------- | ------------------- | -------- |
-| `@elastic/opentelemetry-node` | `v*`                | v1.0.0   |
-| `@elastic/mockotlpserver`     | `mockotlpserver-v*` | mockotlpserver-v0.2.0 |
-| `@elastic/opentelemetry-instrumentation-openai` | `instrumentation-openai-v*` | instrumentation-openai-v0.3.0 |
+| Package                       | Tag Pattern            | Examples |
+| ----------------------------- | ---------------------- | -------- |
+| `@elastic/opentelemetry-node` | `v*`                   | v1.0.0   |
+| `@elastic/mockotlpserver`     | `mockotlpserver-v*`    | mockotlpserver-v0.2.0 |
+| `@elastic/opamp-client-node   | `opamp-client-node-v*` | opamp-client-node-v0.3.0 |
 
 
 ## How to release `@elastic/opentelemetry-node`
@@ -50,7 +50,7 @@ Assuming "x.y.z" is the release verison:
 
 Assuming:
 - **VERSION="x.y.z"** is the release version and
-- **PKGSUBDIR="instrumentation-openai"** is the package being released.
+- **PKGSUBDIR="opamp-client-node"** is the package being released.
   (Note that the PKGSUBDIR, the directory under "packages/" is *not necessarily*
   the basename of the npm package.)
 

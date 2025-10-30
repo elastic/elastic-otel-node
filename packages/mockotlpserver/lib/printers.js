@@ -20,6 +20,7 @@ const {
     CH_OTLP_V1_LOGS,
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
+    CH_OTLP_V1_REQUEST,
 } = require('./diagch');
 const {
     jsonStringifyLogs,
@@ -72,6 +73,18 @@ class Printer {
                     this._log.error(
                         {err},
                         `${inst.constructor.name}.printLogs() threw`
+                    );
+                }
+            });
+        }
+        if (typeof inst.printRequest === 'function') {
+            diagchSub(CH_OTLP_V1_REQUEST, (...args) => {
+                try {
+                    inst.printRequest(...args);
+                } catch (err) {
+                    this._log.error(
+                        {err},
+                        `${inst.constructor.name}.printRequest() threw`
                     );
                 }
             });
@@ -196,9 +209,39 @@ class FilePrinter extends Printer {
     }
 }
 
+/**
+ * If there has been a `_timeGap` since the last printable-event, then print
+ * a blank line in the console output to provide some visual spacing. This
+ * makes the printed output easier to reason about.
+ */
+class SpacerPrinter extends Printer {
+    constructor(log) {
+        super(log);
+        this._lastPrintTime = Date.now();
+        this._timeGap = 1000;
+    }
+    _handleGap() {
+        const now = Date.now();
+        if (now - this._lastPrintTime > this._timeGap) {
+            console.log(); // blank line spacing between earlier group
+        }
+        this._lastPrintTime = now;
+    }
+    printTrace(_) {
+        this._handleGap();
+    }
+    printMetrics(_) {
+        this._handleGap();
+    }
+    printLogs(_) {
+        this._handleGap();
+    }
+}
+
 module.exports = {
     Printer,
     JSONPrinter,
     InspectPrinter,
     FilePrinter,
+    SpacerPrinter,
 };

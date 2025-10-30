@@ -9,6 +9,7 @@ const os = require('os');
 
 const {
     getBooleanFromEnv,
+    getNumberFromEnv,
     getStringFromEnv,
     getStringListFromEnv,
 } = require('@opentelemetry/core');
@@ -22,7 +23,11 @@ const {
     tracing,
     NodeSDK,
 } = require('@opentelemetry/sdk-node');
-const {BatchLogRecordProcessor} = require('@opentelemetry/sdk-logs');
+const {
+    BatchLogRecordProcessor,
+    ConsoleLogRecordExporter,
+    SimpleLogRecordProcessor,
+} = require('@opentelemetry/sdk-logs');
 const {AggregationType} = require('@opentelemetry/sdk-metrics');
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
@@ -34,10 +39,19 @@ const {resolveDetectors} = require('./detectors');
 const {setupEnvironment, restoreEnvironment} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {setupCentralConfig} = require('./central-config');
+const {
+    createDynConfSpanExporter,
+    createDynConfMetricExporter,
+    createDynConfLogRecordExporter,
+    setupDynConfExporters,
+    dynConfSpanExporters,
+} = require('./dynconf');
+const {createDefaultSampler} = require('./sampler');
 const DISTRO_VERSION = require('../package.json').version;
 
 /**
  * @typedef {import('@opentelemetry/sdk-node').NodeSDKConfiguration} NodeSDKConfiguration
+ * @typedef {import('@opentelemetry/sdk-trace-base').Sampler} Sampler
  */
 
 /**
@@ -120,10 +134,11 @@ function startNodeSDK(cfg = {}) {
         }
     }
 
+    const instrs = cfg.instrumentations || getInstrumentations();
     /** @type {Partial<NodeSDKConfiguration>} */
     const defaultConfig = {
         resourceDetectors: resolveDetectors(cfg.resourceDetectors),
-        instrumentations: cfg.instrumentations || getInstrumentations(),
+        instrumentations: instrs,
         // Avoid setting `spanProcessor` or `traceExporter` to have NodeSDK
         // use its `TracerProviderWithEnvExporters` for tracing setup.
     };
@@ -135,24 +150,55 @@ function startNodeSDK(cfg = {}) {
     };
 
     // Logs config.
-    const logsExportProtocol =
-        getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
-        getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
-        'http/protobuf';
-    let logExporterType = exporterPkgNameFromEnvVar[logsExportProtocol];
-    if (!logExporterType) {
-        log.warn(
-            `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
-        );
-        logExporterType = 'proto';
+    if (!('logRecordProcessors' in cfg)) {
+        let logsExporterList = getStringListFromEnv('OTEL_LOGS_EXPORTER') ?? [];
+        if (logsExporterList.length === 0) {
+            logsExporterList.push('otlp');
+        }
+        const logsExporterNames = new Set(logsExporterList);
+        const logProcessors = [];
+
+        // Like for other signals the "none" value wins over the rest
+        if (!logsExporterNames.has('none')) {
+            for (const exporterName of logsExporterNames) {
+                if (exporterName === 'console') {
+                    logProcessors.push(
+                        new SimpleLogRecordProcessor(
+                            new ConsoleLogRecordExporter()
+                        )
+                    );
+                } else if (exporterName === 'otlp') {
+                    const logsExportProtocol =
+                        getStringFromEnv('OTEL_EXPORTER_OTLP_LOGS_PROTOCOL') ||
+                        getStringFromEnv('OTEL_EXPORTER_OTLP_PROTOCOL') ||
+                        'http/protobuf';
+                    let logsExporterType =
+                        exporterPkgNameFromEnvVar[logsExportProtocol];
+                    if (!logsExporterType) {
+                        log.warn(
+                            `Logs exporter protocol "${logsExportProtocol}" unknown. Using default "http/protobuf" protocol`
+                        );
+                        logsExporterType = 'proto';
+                    }
+                    log.trace(
+                        `Logs exporter protocol set to ${logsExportProtocol}`
+                    );
+                    const {OTLPLogExporter} = require(
+                        `@opentelemetry/exporter-logs-otlp-${logsExporterType}`
+                    );
+                    logProcessors.push(
+                        new BatchLogRecordProcessor(new OTLPLogExporter())
+                    );
+                } else {
+                    log.warn(`Logs exporter "${exporterName}" unknown.`);
+                }
+            }
+        }
+
+        if (logProcessors.length > 0) {
+            defaultConfig.logRecordProcessors = logProcessors;
+        }
     }
-    log.trace(`Logs exporter protocol set to ${logsExportProtocol}`);
-    const {OTLPLogExporter} = require(
-        `@opentelemetry/exporter-logs-otlp-${logExporterType}`
-    );
-    defaultConfig.logRecordProcessors = [
-        new BatchLogRecordProcessor(new OTLPLogExporter()),
-    ];
 
     // Metrics config.
 
@@ -196,7 +242,38 @@ function startNodeSDK(cfg = {}) {
         ];
     }
 
-    const config = Object.assign(defaultConfig, cfg);
+    const config = {...defaultConfig, ...cfg};
+
+    /** @type {Sampler} */
+    let sampler = undefined;
+    let samplingRate = 1.0;
+    if (!config.sampler && !getStringFromEnv('OTEL_TRACES_SAMPLER')) {
+        // If the user has not set a sampler via config or env var, use our default sampler.
+        // First get as string to differentiate between missing and invalid.
+        if (getStringFromEnv('OTEL_TRACES_SAMPLER_ARG')) {
+            const samplingRateArg = getNumberFromEnv('OTEL_TRACES_SAMPLER_ARG');
+            if (
+                samplingRateArg === undefined ||
+                samplingRateArg < 0 ||
+                samplingRateArg > 1
+            ) {
+                log.warn(
+                    `Invalid OTEL_TRACES_SAMPLER_ARG value: ${process.env.OTEL_TRACES_SAMPLER_ARG}. Using default sampling rate of ${samplingRate}`
+                );
+            } else {
+                samplingRate = samplingRateArg;
+            }
+        }
+        sampler = createDefaultSampler(samplingRate);
+        config.sampler = sampler;
+    }
+
+    // Some tricks to get a handle on noop signal providers, to be used for
+    // dynamic configuration.
+    const tracerProviderProxy = new api.ProxyTracerProvider();
+    const noopTracerProvider = tracerProviderProxy.getDelegate();
+    // TODO: set our `tracerProviderProxy` as the global for `send_traces` config
+    //      const success = api.trace.setGlobalTracerProvider(tracerProviderProxy);
 
     setupEnvironment();
     const sdk = new NodeSDK(config);
@@ -233,10 +310,33 @@ function startNodeSDK(cfg = {}) {
         hostMetricsInstance.start();
     }
 
+    // Setup for dynamic configuration of some SDK components.
+    setupDynConfExporters(sdk);
+
+    // `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` is effectively the static-config
+    // equivalent of `send_traces=false`.
+    const contextPropagationOnly = getBooleanFromEnv(
+        'ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY'
+    );
+    if (contextPropagationOnly) {
+        dynConfSpanExporters({enabled: false});
+    }
+
     // OpAMP for central config.
     // TODO: handle resource in this SDK, so don't have use private `_resource`
-    // @ts-ignore: Ignore access of private _resource for now.
-    const opampClient = setupCentralConfig(sdk._resource);
+    const opampClient = setupCentralConfig({
+        // @ts-ignore: Ignore access of private _resource for now. (TODO)
+        resource: sdk._resource,
+        instrs,
+        sdk,
+        // TODO: Get some structure here. Perhaps our own SdkAdmin or SdkInfo class or whatever.
+        noopTracerProvider,
+        // @ts-ignore: Ignore access of private _tracerProvider for now. (TODO)
+        sdkTracerProvider: sdk._tracerProvider,
+        sampler,
+        samplingRate,
+        contextPropagationOnly,
+    });
 
     // Shutdown handling.
     const shutdownFn = () => {
@@ -260,6 +360,9 @@ function startNodeSDK(cfg = {}) {
 module.exports = {
     getInstrumentations,
     startNodeSDK,
+    createDynConfSpanExporter, // TODO: doc this in API user guide
+    createDynConfMetricExporter, // TODO: doc this in API user guide
+    createDynConfLogRecordExporter, // TODO: doc this in API user guide
 
     createAddHookMessageChannel, // re-export from import-in-the-middle
 

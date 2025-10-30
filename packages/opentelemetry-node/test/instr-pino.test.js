@@ -19,19 +19,23 @@ const testFixtures = [
             OTEL_LOG_LEVEL: 'none',
         },
         versionRanges: {
-            // pino@9.3.0 breaks 14.17.0 compat.
-            node: '>=14.18.0',
+            // pino@10.0.0 drops support for node 18.
+            node: '>=20',
         },
         // verbose: true,
         checkResult: (t, err, stdout, _stderr) => {
             t.error(err, `exited successfully: err=${err}`);
             // Clumsy pass of stdout info to `checkTelemetry`.
-            t.recs = stdout.trim().split(/\n/g).map(JSON.parse);
+            const recs = stdout
+                .trim()
+                .split(/\n/g)
+                .filter((ln) => ln.startsWith('{'))
+                .map(JSON.parse);
+            t.equal(recs.length, 2);
         },
         checkTelemetry: (t, col) => {
             const spans = col.sortedSpans;
             t.equal(spans.length, 1);
-            t.equal(t.recs.length, 2);
             // We expect telemetry to *not* have logs by default (see
             // ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING).
             t.equal(col.logs.length, 0);
@@ -47,14 +51,18 @@ const testFixtures = [
             ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
         },
         versionRanges: {
-            // pino@9.3.0 breaks 14.17.0 compat.
-            node: '>=14.18.0',
+            // pino@10.0.0 drops support for node 18.
+            node: '>=20',
         },
         // verbose: true,
         checkResult: (t, err, stdout, _stderr) => {
             t.error(err, `exited successfully: err=${err}`);
             // Clumsy pass of stdout info to `checkTelemetry`.
-            t.recs = stdout.trim().split(/\n/g).map(JSON.parse);
+            t.recs = stdout
+                .trim()
+                .split(/\n/g)
+                .filter((ln) => ln.startsWith('{'))
+                .map(JSON.parse);
         },
         checkTelemetry: (t, col) => {
             const recs = t.recs;

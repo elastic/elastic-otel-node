@@ -10,6 +10,7 @@ const {
     CH_OTLP_V1_LOGS,
     CH_OTLP_V1_METRICS,
     CH_OTLP_V1_TRACE,
+    CH_OTLP_V1_REQUEST,
 } = require('./diagch');
 const {getProtoRoot} = require('./proto');
 const {Service} = require('./service');
@@ -27,6 +28,8 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': '*',
     'Access-Control-Allow-Method': 'POST, OPTIONS',
 };
+
+const diagChReq = diagchGet(CH_OTLP_V1_REQUEST);
 
 function diagChFromReqUrl(reqUrl) {
     switch (reqUrl) {
@@ -155,6 +158,10 @@ class HttpService extends Service {
         const httpTunnel = tunnel && createHttpTunnel(log, tunnel);
 
         this._server = http.createServer((req, res) => {
+            log.debug(
+                {headers: req.headers},
+                `incoming HTTP req: ${req.method} ${req.url}`
+            );
             const isBrowserReq = isBrowserUserAgent(req.headers['user-agent']);
 
             // Accept CORS requests from browsers
@@ -176,6 +183,13 @@ class HttpService extends Service {
                     `unexpected request Content-Type: "${contentType}"`
                 );
             }
+
+            diagChReq.publish({
+                transport: 'http',
+                method: req.method,
+                path: req.url,
+                headers: req.headers,
+            });
 
             const chunks = [];
             req.on('data', (chunk) => chunks.push(chunk));

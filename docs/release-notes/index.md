@@ -20,24 +20,95 @@ To check for breaking changes, see [EDOT Node.js Breaking Changes](./breaking-ch
 To check for security updates, go to [Security announcements for the Elastic stack](https://discuss.elastic.co/c/announcements/security-announcements/31).
 
 % Release notes include only features, enhancements, and fixes. Add breaking changes, deprecations, and known issues to the applicable release notes sections.
-
+%
 % ## version.next [edot-node-X.X.X-release-notes]
-
+%
 % ### Features and enhancements [edot-node-X.X.X-features-enhancements]
 % *
-
+%
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## Next [edot-node-next]
+## Next [edot-node-next-release-notes]
 
 ### Features and enhancements [edot-node-next-features-enhancements]
 
-- Initial support for Central Configuration: the ability to configure some aspects of EDOT Node.js in running instrumented applications from a central Kibana. This feature is in technical preview. [#834](https://github.com/elastic/elastic-otel-node/pull/834)
+* Add support for dynamic configuration of the sampling rate of the default logger via the `sampling_rate` variable in Central Configuration. [#1070](https://github.com/elastic/elastic-otel-node/pull/1070)
 
-  This release includes support for the following settings: `logging_level`
+  While this is supported in the EDOT Node.js SDK, it will only be present in
+  the "Agent Configuration" UI of Kibana version 9.3 and later.
 
-### Fixes [edot-node-next-fixes]
+## 1.5.0 [edot-node-1.5.0-release-notes]
+
+### Chores [edot-node-1.5.0-chores]
+
+* Update to the latest upstream OpenTelemetry JS dependencies. ([#1062](https://github.com/elastic/elastic-otel-node/pull/1062))
+
+* Switch to trusted publishing (https://docs.npmjs.com/trusted-publishers) as a security precaution against supply-chain attacks.
+
+## 1.4.0 [edot-node-1.4.0-release-notes]
+
+### Features and enhancements [edot-node-1.4.0-features-enhancements]
+
+* The Elastic-authored `@elastic/opentelemetry-instrumentation-openai`
+  instrumentation has been [upstreamed to OpenTelemetry](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-openai/).
+  EDOT Node.js now uses the `@opentelemetry/instrumentation-openai` package
+  to instrument `openai`. The newer package supports instrumenting openai@5 --
+  the current major version.
+  [#1015](https://github.com/elastic/elastic-otel-node/pull/1015)
+
+    * If you were using `@elastic/opentelemetry-instrumentation-openai` with the
+      `OTEL_NODE_ENABLED_INSTRUMENTATIONS` or `OTEL_NODE_ENABLED_INSTRUMENTATIONS`
+      environment variables, you should switch to using `openai`. The old value
+      will still work until the next major release.
+
+### Fixes [edot-node-1.4.0-fixes]
+
+* Update to latest `@opentelemetry/*` dependencies ([#1027](https://github.com/elastic/elastic-otel-node/pull/1027)), which includes a [fix](https://github.com/open-telemetry/opentelemetry-js/pull/5917) for a bug in `@opentelemetry/otlp-exporter-base@0.204.0` that could break bundling.
+
+## 1.3.0 [edot-node-1.3.0-release-notes]
+
+### Features and enhancements [edot-node-1.3.0-features-enhancements]
+
+* Added `@opentelemetry/instrumentation-oracledb` to the default set of instrumentations.
+
+* New Central Configuration settings. Typically these settings are only useful
+  for temporary debugging of telemetry.
+
+    * `send_traces`: A boolean to disable/enable sending of trace telemetry (i.e. spans).
+    * `send_metrics`: The same, for the metrics signal.
+    * `send_logs`: The same, for the logs signal.
+
+  While these are supported in EDOT Node.js, they will only be present in
+  "Agent Configuration" UI of Kibana version 9.2 and later.
+  [#928](https://github.com/elastic/elastic-otel-node/pull/928)
+
+* New `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` configuration environment variable.
+  Set this to `true` to disable sending of spans, but otherwise continue to
+  do context propagation. This can be useful in limited conditions to support
+  propagating trace-context through a service to downstream services for
+  distributed tracing, but not collect spans from the service. (Note that this
+  typically results in incomplete or broken traces in Kibana trace viewer.)
+  [#928](https://github.com/elastic/elastic-otel-node/pull/928)
+
+### Fixes [edot-node-1.3.0-fixes]
+
+### Chores [edot-node-1.3.0-chores]
+
+* OTLP export requests (HTTP flavors only) will include an identifier for EDOT Node.js in the User-Agent header.
+  [#982](https://github.com/elastic/elastic-otel-node/pull/982)
+
+## 1.2.0 [edot-node-1.2.0]
+
+### Features and enhancements [edot-node-1.2.0-features-enhancements]
+
+- Initial support for Central Configuration: the ability to configure some aspects of EDOT Node.js in running instrumented applications from a central Kibana. This feature is in technical preview. [#834](https://github.com/elastic/elastic-otel-node/pull/834) [#886](https://github.com/elastic/elastic-otel-node/pull/886)
+
+  This release includes support for the following settings: `logging_level`, `deactivate_all_instrumentations`, `deactivate_instrumentations`
+
+### Chores [edot-node-1.2.0-chores]
+
+- Support for instrumenting `redis` version 4 has moved from `@opentelemetry/instrumentation-redis-4` to `@opentelemetry/instrumentation-redis`. If you are using the `OTEL_NODE_ENABLED_INSTRUMENTATIONS` or `OTEL_NODE_DISABLED_INSTRUMENTATIONS` environment variables to control instrumentation of `redis@4` you will need to change from using "redis-4" to "redis".
 
 ## 1.1.1 [edot-node-1.1.1-release-notes]
 

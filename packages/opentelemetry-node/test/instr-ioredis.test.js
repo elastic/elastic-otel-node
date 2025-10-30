@@ -63,7 +63,7 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
         },
-        verbose: true,
+        // verbose: true,
         checkTelemetry: assertUseIoredisMjsSpans,
     },
 ];

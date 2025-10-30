@@ -2,9 +2,14 @@ project: 'EDOT Node.js release notes'
 cross_links:
   - docs-content
   - opentelemetry
+  - elastic-agent
+  - apm-agent-nodejs
+  - elastic-otel-node
 toc:
   - toc: release-notes
+  - toc: reference/edot-node
 subs:
+  motlp: Elastic Cloud Managed OTLP Endpoint
   edot:    "Elastic Distribution of OpenTelemetry"
   ecloud:   "Elastic Cloud"
   ech:   "Elastic Cloud Hosted"

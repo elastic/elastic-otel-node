@@ -14,13 +14,11 @@ on:
       - 'packages/opentelemetry-node/**'
       - '.github/workflows/release.yml'
 
-# 'id-token' perm needed for npm publishing with provenance (see
-# https://docs.npmjs.com/generating-provenance-statements#example-github-actions-workflow)
 permissions:
   attestations: write
   contents: write
   pull-requests: read
-  id-token: write
+  id-token: write # Required for OIDC and provenance (npm publish)
 
 jobs:
   release:
@@ -28,13 +26,14 @@ jobs:
     env:
       DOCKER_IMAGE_NAME: docker.elastic.co/observability/elastic-otel-node
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 'v18.20.2'
+          # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
+          node-version: 'v24.8.0'
           registry-url: 'https://registry.npmjs.org'
 
       # Setup a Docker "buildx" builder container, used by "build-push-action"
@@ -51,7 +50,7 @@ jobs:
 
       - name: Extract metadata (tags, labels)
         id: docker-meta
-        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804  # v5.7.0
+        uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f  # v5.8.0
         with:
           images: ${{ env.DOCKER_IMAGE_NAME }}
           flavor: |
@@ -78,7 +77,7 @@ jobs:
           labels: ${{ steps.docker-meta.outputs.labels }}
 
       - name: Attest Docker image
-        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be  # v2.4.0
+        uses: actions/attest-build-provenance@0b6e9809265278d02c58acf52849a95818a5a306  # v2.4.0
         with:
           subject-name: "${{ env.DOCKER_IMAGE_NAME }}"
           subject-digest: ${{ steps.docker-push.outputs.digest }}
@@ -87,15 +86,13 @@ jobs:
       - name: npm publish (only for tag releases)
         if: startsWith(github.ref, 'refs/tags')
         working-directory: ./packages/opentelemetry-node
+        # https://docs.npmjs.com/trusted-publishers
         run: npm publish
-        env:
-          # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: GitHub release (only for tag releases)
         if: startsWith(github.ref, 'refs/tags')
         run: |
-          npm ci  # need top-level devDeps for github-release.sh script
+          npm ci --ignore-scripts  # need top-level devDeps for github-release.sh script
           ./scripts/github-release.sh "packages/opentelemetry-node" "${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}

@@ -184,7 +184,7 @@ class MockOpAMPServer {
         this._port = opts.port ?? DEFAULT_PORT;
         this._endpointPath = DEFAULT_ENDPOINT_PATH;
         if (opts.agentConfigMap) {
-            this._setAgentConfigMap(opts.agentConfigMap);
+            this.setAgentConfigMap(opts.agentConfigMap);
         }
         this._server = http.createServer(this._onRequest.bind(this));
         this._started = false;
@@ -210,7 +210,32 @@ class MockOpAMPServer {
         }
     }
 
-    _setAgentConfigMap(agentConfigMap) {
+    /**
+     * Set the data used by the server to provide `remoteConfig` to agents.
+     *
+     * `agentConfigMap` is of the form:
+     *      {
+     *          configMap: {
+     *              // Zero or more entries in `configMap`.
+     *              'some-key': {
+     *                  body: <Uint8Array of config file content>,
+     *                  contentType: <string>
+     *              }
+     *          }
+     *      }
+     *
+     * Example usage:
+     *      const config = { deactivate_all_instrumentations: 'true' };
+     *      opampServer.setAgentConfigMap({
+     *        configMap: {
+     *          elastic: {
+     *            body: Buffer.from(JSON.stringify(config), 'utf8'),
+     *            contentType: 'application/json',
+     *          }
+     *        }
+     *      });
+     */
+    setAgentConfigMap(agentConfigMap) {
         this._agentConfigMap = agentConfigMap;
         this._agentConfigMapHash = hashAgentConfigMap(agentConfigMap);
     }
@@ -362,7 +387,7 @@ class MockOpAMPServer {
         let agentConfigMap = {configMap: {}};
         const finish = () => {
             log.trace({agentConfigMap}, 'SetAgentConfigMap');
-            this._setAgentConfigMap(agentConfigMap);
+            this.setAgentConfigMap(agentConfigMap);
             res.writeHead(204);
             res.end();
             log.debug({req, res}, 'test API request: SetAgentConfigMap');
@@ -571,7 +596,18 @@ class MockOpAMPServer {
                 };
                 s2a = create(ServerToAgentSchema, resData);
             } else {
-                s2a = this._processAgentToServer(a2s);
+                try {
+                    s2a = this._processAgentToServer(a2s);
+                } catch (err) {
+                    log.debug({err, req, res}, '_processAgentToServer threw');
+                    respondHttpErr(
+                        res,
+                        `could not process AgentToServer: ${err.message}`,
+                        500
+                    );
+                    this._testNoteRequest({req, res, a2s});
+                    return;
+                }
             }
 
             // TODO: compress if `Accept-Encoding: gzip`
@@ -594,7 +630,16 @@ class MockOpAMPServer {
      * @returns {ServerToAgent}
      */
     _processAgentToServer(a2s) {
-        const instanceUidStr = uuidStringify(a2s.instanceUid);
+        let instanceUidStr;
+        try {
+            instanceUidStr = uuidStringify(a2s.instanceUid);
+        } catch (err) {
+            throw new Error(
+                `could not stringify 'instanceUid' to a UUID: err="${
+                    err.message
+                }", a2s.instanceUid=${inspect(Buffer.from(a2s.instanceUid))}`
+            );
+        }
         const reportedFullState = Boolean(
             a2s.agentDescription &&
                 (!(

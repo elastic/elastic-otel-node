@@ -1,6 +1,5 @@
 export type Instrumentation = import('@opentelemetry/instrumentation').Instrumentation;
 export type InstrumentaionsMap = {
-    "@elastic/opentelemetry-instrumentation-openai": import('@elastic/opentelemetry-instrumentation-openai').OpenAIInstrumentationConfig;
     "@opentelemetry/instrumentation-amqplib": import('@opentelemetry/instrumentation-amqplib').AmqplibInstrumentation;
     "@opentelemetry/instrumentation-aws-sdk": import('@opentelemetry/instrumentation-aws-sdk').AwsSdkInstrumentationConfig;
     "@opentelemetry/instrumentation-bunyan": import('@opentelemetry/instrumentation-bunyan').BunyanInstrumentationConfig;
@@ -29,10 +28,11 @@ export type InstrumentaionsMap = {
     "@opentelemetry/instrumentation-mysql2": import('@opentelemetry/instrumentation-mysql2').MySQL2Instrumentation;
     "@opentelemetry/instrumentation-nestjs-core": import('@opentelemetry/instrumentation').InstrumentationConfig;
     "@opentelemetry/instrumentation-net": import('@opentelemetry/instrumentation').InstrumentationConfig;
+    "@opentelemetry/instrumentation-openai": import('@opentelemetry/instrumentation-openai').OpenAIInstrumentationConfig;
+    "@opentelemetry/instrumentation-oracledb": import('@opentelemetry/instrumentation-oracledb').OracleInstrumentationConfig;
     "@opentelemetry/instrumentation-pg": import('@opentelemetry/instrumentation-pg').PgInstrumentationConfig;
     "@opentelemetry/instrumentation-pino": import('@opentelemetry/instrumentation-pino').PinoInstrumentationConfig;
     "@opentelemetry/instrumentation-redis": import('@opentelemetry/instrumentation-redis').RedisInstrumentationConfig;
-    "@opentelemetry/instrumentation-redis-4": import('@opentelemetry/instrumentation-redis-4').RedisInstrumentationConfig;
     "@opentelemetry/instrumentation-restify": import('@opentelemetry/instrumentation-restify').RestifyInstrumentationConfig;
     "@opentelemetry/instrumentation-router": import('@opentelemetry/instrumentation').InstrumentationConfig;
     "@opentelemetry/instrumentation-runtime-node": import('@opentelemetry/instrumentation-runtime-node').RuntimeNodeInstrumentationConfig;
@@ -83,3 +83,15 @@ export type InstrumentaionsMap = {
  * @returns {Array<Instrumentation>}
  */
 export function getInstrumentations(opts?: Partial<InstrumentaionsMap>): Array<Instrumentation>;
+/**
+ * Get an array of full instrumentation names from the given string.
+ *
+ * Here "full" means that `express` is expanded to the
+ * `@opentelemtry/instrumentation-express`. This applies to the set of
+ * well-known upstream OTel JS instrumentations.
+ *
+ * @param {string} s - Comma-separated string to parse.
+ * @param {string} desc - Description of the source of `s` for possible logging.
+ * @returns {string[]}
+ */
+export function getInstrumentationNamesFromStr(s: string, desc: string): string[];

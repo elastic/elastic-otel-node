@@ -141,6 +141,25 @@ function renderSpan(span, prefix = '') {
             );
         } catch (_err) {}
     }
+
+    // Resource and Instrumentation scope info.
+    // TODO: not sure if always want this info. Useful in some cases.
+    const serviceName = span.resource?.attributes?.['service.name'];
+    if (serviceName) {
+        extras.push(`service.name=${serviceName}`);
+    }
+    let scopeName = span.scope?.name;
+    if (scopeName) {
+        const commonInstr = /^@opentelemetry\/instrumentation-(.*)$/.exec(
+            scopeName
+        );
+        if (commonInstr) {
+            extras.push(`scope=${commonInstr[1]}`);
+        } else {
+            extras.push(`scope=${scopeName}`);
+        }
+    }
+
     if (extras.length) {
         r += ` (${extras.join(', ')})`;
     }
@@ -179,8 +198,6 @@ class TraceWaterfallPrinter extends Printer {
         const str = jsonStringifyTrace(rawTrace, {
             indent: 2,
             normAttributes: true,
-            stripScope: true,
-            stripResource: true,
         });
         const trace = JSON.parse(str);
 
@@ -193,6 +210,8 @@ class TraceWaterfallPrinter extends Printer {
                 ss.spans.forEach((s) => {
                     traceIds.add(s.traceId);
                     s.children = [];
+                    s.resource = rs.resource;
+                    s.scope = ss.scope;
                     spans.push(s);
                     spanFromId[s.spanId] = s;
                 });

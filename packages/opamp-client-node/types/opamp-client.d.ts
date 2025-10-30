@@ -202,7 +202,7 @@ declare class OpAMPClient {
         identifyingAttributes?: object;
         nonIdentifyingAttributes?: object;
     }): void;
-    _agentDescriptionSer: Uint8Array;
+    _agentDescriptionSer: any;
     /**
      * Dev Note: This client manages the `instanceUid`, so I'm not sure if this
      * API method is useful. The instanceUid *can* be changed by the OpAMP

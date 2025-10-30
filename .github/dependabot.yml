@@ -11,7 +11,16 @@ updates:
     directory: "/packages/opentelemetry-node"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 10
+    ignore:
+      # undici@7 dropped Node.js 18 support
+      - dependency-name: "undici"
+        versions: [ ">=7" ]
+      # @types/glob@9 is empty, assuming one is using glob@9, but we aren't
+      - dependency-name: "@types/glob"
+        versions: [ ">=9" ]
     groups:
       opentelemetry:
         patterns:
@@ -21,6 +30,8 @@ updates:
         patterns:
         - "@aws-sdk/*"
         - "@smithy/*"
+        update-types:
+        - "minor"
       patch-level:
         update-types:
         - "patch"
@@ -29,6 +40,8 @@ updates:
     directory: "/packages/mockotlpserver"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 10
     groups:
       mockotlpserver:
@@ -36,19 +49,37 @@ updates:
         - "*"
 
   - package-ecosystem: "npm"
-    directory: "/packages/instrumentation-openai"
+    directory: "/packages/mockopampserver"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
-      # Locked to the same version being used by opentelemetry-js-contrib.
-      - dependency-name: "@types/node"
-      # Locked to the same version being used by opentelemetry-js-contrib.
-      - dependency-name: "@typescript-eslint/*"
-      # Locked to the same version being used by opentelemetry-js-contrib.
-      - dependency-name: "typescript"
+      # uuid@12 dropped CommonJS support (https://github.com/uuidjs/uuid/issues/881)
+      - dependency-name: "uuid"
+        versions: [ ">=12" ]
     groups:
-      instrumentation-openai:
+      mockopampserver:
+        patterns:
+        - "*"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/opamp-client-node"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 10
+    ignore:
+      # undici@7 dropped Node.js 18 support
+      - dependency-name: "undici"
+        versions: [ ">=7" ]
+      # uuid@12 dropped CommonJS support (https://github.com/uuidjs/uuid/issues/881)
+      - dependency-name: "uuid"
+        versions: [ ">=12" ]
+    groups:
+      opamp-client-node:
         patterns:
         - "*"
 
@@ -56,6 +87,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 10
     ignore:
       # eslint-related deps are skipped until we have upgraded to eslint@9
@@ -82,6 +115,8 @@ updates:
     directory: "/examples"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 14
     open-pull-requests-limit: 10
 
   - package-ecosystem: "github-actions"

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Fix an edge case where the server could crash on receiving a AgentToServer
+  with an `instance_uid` that could not be stringified to a valid UUID.
+
+- Bump the OpAMP protobuf definitions to v0.14.0 (from v0.12.0).
+  https://github.com/open-telemetry/opamp-spec/blob/main/CHANGELOG.md#v0140
+
+## v0.4.0
+
+- Expose `MockOpAMPServer#setAgentConfigMap(...)` method, for use in testing.
 - chore: Excluding devDeps from Docker images should make them smaller.
 - Fix an issue where Ctrl+C would not exit mockopampserver *when running the Docker image*.
 
