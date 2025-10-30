@@ -126,7 +126,7 @@ product:
 
 APM Agent Central Configuration lets you configure EDOT Node.js instances remotely, see [Central configuration docs](opentelemetry://reference/central-configuration.md) for more details.
 
-### Turn on central configuration
+### Configure central configuration
 
 To activate central configuration, set the `ELASTIC_OTEL_OPAMP_ENDPOINT` environment variable to the OpAMP server endpoint.
 
@@ -135,6 +135,10 @@ export ELASTIC_OTEL_OPAMP_ENDPOINT=http://localhost:4320/v1/opamp
 ```
 
 To deactivate central configuration, remove the `ELASTIC_OTEL_OPAMP_ENDPOINT` environment variable and restart the instrumented application.
+
+The following environment variable can be used to configure requests send to the OpAMP endpoint:
+
+- `ELASTIC_OTEL_OPAMP_HEADERS`: This is a comma-separated list of `header=value` strings to include in requests to the OpAMP endpoint. This can be used to set authorization, for example `ELASTIC_OTEL_OPAMP_HEADERS="Authorization=ApiKey sekrit"`.
 
 ### Central configuration settings
 
