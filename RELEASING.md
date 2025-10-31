@@ -14,7 +14,8 @@ packages will use a prefix (the basename of the npm package name). For example,
 | ----------------------------- | ---------------------- | -------- |
 | `@elastic/opentelemetry-node` | `v*`                   | v1.0.0   |
 | `@elastic/mockotlpserver`     | `mockotlpserver-v*`    | mockotlpserver-v0.2.0 |
-| `@elastic/opamp-client-node   | `opamp-client-node-v*` | opamp-client-node-v0.3.0 |
+| `@elastic/mockopampserver`    | `mockopampserver-v*`   | mockopampserver-v0.4.0 |
+| `@elastic/opamp-client-node`  | `opamp-client-node-v*` | opamp-client-node-v0.3.0 |
 
 
 ## How to release `@elastic/opentelemetry-node`
