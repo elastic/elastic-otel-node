@@ -277,7 +277,6 @@ test('central-config', (suite) => {
             env: () => {
                 return {
                     NODE_OPTIONS: '--import @elastic/opentelemetry-node',
-                    ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
                     // Skip cloud resource detectors to avoid delay and noise.
                     OTEL_NODE_RESOURCE_DETECTORS:
                         'env,host,os,process,serviceinstance,container',
@@ -293,6 +292,9 @@ test('central-config', (suite) => {
                     OTEL_METRIC_EXPORT_INTERVAL: '500',
                     OTEL_METRIC_EXPORT_TIMEOUT: '450',
                 };
+            },
+            before: () => {
+                opampServer.testReset();
             },
             checkTelemetry: (t, col) => {
                 const reqress = opampServer.testGetRequests();
