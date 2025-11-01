@@ -270,7 +270,45 @@ test('central-config', (suite) => {
                 ]);
             },
         },
-
+        {
+            name: 'central-config: ELASTIC_OTEL_OPAMP_HEADERS',
+            args: ['./fixtures/central-config-gen-telemetry.js'],
+            cwd: __dirname,
+            env: () => {
+                return {
+                    NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                    // Skip cloud resource detectors to avoid delay and noise.
+                    OTEL_NODE_RESOURCE_DETECTORS:
+                        'env,host,os,process,serviceinstance,container',
+                    // Configure OpAMP usage for testing.
+                    ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
+                    ELASTIC_OTEL_OPAMP_HEADERS:
+                        'Foo=Bar, Authorization=ApiKey sekrit',
+                    ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
+                    ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                    // Set a short metric export interval to allow the
+                    // fixture script to wait for an interval after receiving
+                    // central config before proceeding.
+                    OTEL_METRIC_EXPORT_INTERVAL: '500',
+                    OTEL_METRIC_EXPORT_TIMEOUT: '450',
+                };
+            },
+            before: () => {
+                opampServer.testReset();
+            },
+            checkTelemetry: (t, col) => {
+                const reqress = opampServer.testGetRequests();
+                t.ok(reqress.length > 0);
+                for (let reqres of reqress) {
+                    t.strictEqual(reqres.req.headers['foo'], 'Bar');
+                    t.strictEqual(
+                        reqres.req.headers['authorization'],
+                        'ApiKey sekrit',
+                        'Authorization header'
+                    );
+                }
+            },
+        },
         {
             name: 'central-config: deactivate_all_instrumentations',
             args: ['./fixtures/central-config-gen-telemetry.js'],

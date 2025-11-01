@@ -33,6 +33,8 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Features and enhancements [edot-node-next-features-enhancements]
 
+* Add support for `ELASTIC_OTEL_OPAMP_HEADERS` environment variable for setting headers for OpAMP requests. This typically would be used to specify authorization for a given `ELASTIC_OTEL_OPAMP_ENDPOINT`, e.g.: `export ELASTIC_OTEL_OPAMP_HEADERS="Authorization=ApiKey sekrit"`. [#1069](https://github.com/elastic/elastic-otel-node/issues/1069)
+
 * Add support for dynamic configuration of the sampling rate of the default logger via the `sampling_rate` variable in Central Configuration. [#1070](https://github.com/elastic/elastic-otel-node/pull/1070)
 
   While this is supported in the EDOT Node.js SDK, it will only be present in

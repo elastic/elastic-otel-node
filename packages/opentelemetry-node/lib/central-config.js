@@ -10,7 +10,12 @@ const {
 } = require('@elastic/opamp-client-node');
 const {context} = require('@opentelemetry/api');
 const {ATTR_SERVICE_NAME} = require('@opentelemetry/semantic-conventions');
-const {getBooleanFromEnv, suppressTracing} = require('@opentelemetry/core');
+const {
+    getBooleanFromEnv,
+    parseKeyPairsIntoRecord,
+    suppressTracing,
+    getStringFromEnv,
+} = require('@opentelemetry/core');
 
 const {
     ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
@@ -605,6 +610,11 @@ function setupCentralConfig(sdkInfo) {
         return null;
     }
 
+    // ELASTIC_OTEL_OPAMP_HEADERS
+    const headers = parseKeyPairsIntoRecord(
+        getStringFromEnv('ELASTIC_OTEL_OPAMP_HEADERS')
+    );
+
     // ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL, if given, is in *ms*
     // per https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#duration
     let heartbeatIntervalSeconds = undefined;
@@ -644,6 +654,7 @@ function setupCentralConfig(sdkInfo) {
     const client = createOpAMPClient({
         log,
         endpoint,
+        headers,
         heartbeatIntervalSeconds,
         capabilities: BigInt(
             // The `Number()` are hacks to make TypeScript type checking happy
