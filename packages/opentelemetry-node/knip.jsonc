@@ -1,0 +1,24 @@
+// https://knip.dev/reference/configuration
+{
+  "$schema": "https://unpkg.com/knip@5/schema-jsonc.json",
+  "entry": [
+    "test/**/*.test.js",
+    "test/fixtures/*.js",
+  ],
+  "ignoreDependencies": [
+    "@opentelemetry/exporter-logs-.+",
+    "@opentelemetry/exporter-metrics-.+",
+    "@opentelemetry/winston-transport",
+    // Currently only used for JS doc types in lib/instrumentations.js.
+    "@opentelemetry/instrumentation",
+    // Currently only used for JS doc types in test/testutils.js.
+    "@opentelemetry/api-logs",
+  ],
+  "ignoreBinaries": ["eslint", "diff"],
+  "project": [
+    "lib/**/*.js",
+    "test/**/*.js",
+    "!test/fixtures/a-ts-proj",
+    "!test/fixtures/an-esm-pkg"
+  ]
+}
