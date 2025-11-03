@@ -29,16 +29,28 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## Next [edot-node-next-release-notes]
+## 1.6.0 [edot-node-1.6.0-release-notes]
 
 ### Features and enhancements [edot-node-next-features-enhancements]
 
 * Add support for `ELASTIC_OTEL_OPAMP_HEADERS` environment variable for setting headers for OpAMP requests. This typically would be used to specify authorization for a given `ELASTIC_OTEL_OPAMP_ENDPOINT`, e.g.: `export ELASTIC_OTEL_OPAMP_HEADERS="Authorization=ApiKey sekrit"`. [#1069](https://github.com/elastic/elastic-otel-node/issues/1069)
 
+* HTTP exporters now accept TLS configuration via the env vars `OTEL_EXPORTER_OTLP_CERTIFICATE`, `OTEL_EXPORTER_OTLP_CLIENT_KEY` and `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE`. The signal specific vars (`OTEL_EXPORTER_OTLP_TRACES_CERTIFICATE`, ...) are also taken into account.
+
+* Prepend EDOT Node.js product identifier in the `user-agent` for all HTTP and GRPC exporters. ([#1104](https://github.com/elastic/elastic-otel-node/pull/1104))
+
+* Switch back to the upstream resource detector `@opentelemetry/resource-detector-gcp` which covers more environments thanks to Google's [contribution](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3007).
+
 * Add support for dynamic configuration of the sampling rate of the default logger via the `sampling_rate` variable in Central Configuration. [#1070](https://github.com/elastic/elastic-otel-node/pull/1070)
 
   While this is supported in the EDOT Node.js SDK, it will only be present in
   the "Agent Configuration" UI of Kibana version 9.3 and later.
+
+### Fixes [edot-node-1.6.0-fixes]
+
+* Update to latest `@opentelemetry/*` dependencies ([#1104](https://github.com/elastic/elastic-otel-node/pull/1104)), which includes a couple of fixes:
+    * a bug in `@opentelemetry/otlp-grpc-exporter-base@0.206.0` prevented to set the `user-agent` header in metadata. A [change in the exporter configuration](https://github.com/open-telemetry/opentelemetry-js/pull/5928) fixed it.
+    * the context manager and propagation setup is the first thing at the start of the SDK. This prevents detectors from [leaking telemetry](https://github.com/open-telemetry/opentelemetry-js-contrib/issues/2320) since they get the right context.
 
 ## 1.5.0 [edot-node-1.5.0-release-notes]
 
