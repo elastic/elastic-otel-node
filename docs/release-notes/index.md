@@ -33,6 +33,8 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Features and enhancements [edot-node-next-features-enhancements]
 
+* Add support for `ELASTIC_OTEL_OPAMP_HEADERS` environment variable for setting headers for OpAMP requests. This typically would be used to specify authorization for a given `ELASTIC_OTEL_OPAMP_ENDPOINT`, e.g.: `export ELASTIC_OTEL_OPAMP_HEADERS="Authorization=ApiKey sekrit"`. [#1069](https://github.com/elastic/elastic-otel-node/issues/1069)
+
 * HTTP exporters now accept TLS configuration via the env vars `OTEL_EXPORTER_OTLP_CERTIFICATE`, `OTEL_EXPORTER_OTLP_CLIENT_KEY` and `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE`. The signal specific vars (`OTEL_EXPORTER_OTLP_TRACES_CERTIFICATE`, ...) are also taken into account.
 
 * Prepend EDOT Node.js product identifier in the `user-agent` for all HTTP and GRPC exporters. ([#1104](https://github.com/elastic/elastic-otel-node/pull/1104))

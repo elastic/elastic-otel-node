@@ -72,7 +72,7 @@ This list contains Elastic APM Node.js agent configuration options that can be m
 
 ### `active`
 
-The Elastic APM Node.js agent [`active`](apm-agent-nodejs://reference/configuration.md#active) option corresponds to the OpenTelemetry [OTEL_SDK_DISABLED](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration) option but it has the opposite meaning. 
+The Elastic APM Node.js agent [`active`](apm-agent-nodejs://reference/configuration.md#active) option corresponds to the OpenTelemetry [OTEL_SDK_DISABLED](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration) option but it has the opposite meaning.
 
 Set the `OTEL_SDK_DISABLED` to `true` if you want to deactivate the agent. For example: `OTEL_SDK_DISABLED=true`.
 
@@ -90,7 +90,7 @@ For example: `OTEL_EXPORTER_OTLP_HEADERS=foo=bar,baz=quux`.
 
 ### `centralConfig`
 
-The Elastic APM Node.js agent [`centralConfig`](apm-agent-nodejs://reference/configuration.md#central-config) option corresponds to the EDOT Node.js [`ELASTIC_OTEL_OPAMP_ENDPOINT`](/reference/edot-node/configuration.md#turn-on-central-configuration) option.
+The Elastic APM Node.js agent [`centralConfig`](apm-agent-nodejs://reference/configuration.md#central-config) option corresponds to the EDOT Node.js [`ELASTIC_OTEL_OPAMP_ENDPOINT`](/reference/edot-node/configuration.md#configure-central-configuration) option.
 
 For example: `export ELASTIC_OTEL_OPAMP_ENDPOINT=http://localhost:4320/v1/opamp`.
 
@@ -177,7 +177,7 @@ Because "none" is not an instrumentation name EDOT Node.js will log a message sa
 
 ### `logLevel`
 
-The Elastic APM Node.js agent [`logLevel`](apm-agent-nodejs://reference/configuration.md#log-level) option corresponds to the OpenTelemetry [`OTEL_LOG_LEVEL`](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration) option. 
+The Elastic APM Node.js agent [`logLevel`](apm-agent-nodejs://reference/configuration.md#log-level) option corresponds to the OpenTelemetry [`OTEL_LOG_LEVEL`](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration) option.
 
 The following table shows the equivalent values of log levels between `elastic-apm-node` and EDOT Node.js.
 
@@ -263,7 +263,7 @@ For example: `OTEL_RESOURCE_ATTRIBUTES=service.version=1.2.3`.
 
 ### `transactionSampleRate`
 
-The Elastic APM Node.js agent [`transactionSampleRate`](apm-agent-nodejs://reference/configuration.md#transaction-sample-rate) corresponds to the OpenTelemetry `OTEL_TRACES_SAMPLER` and `OTEL_TRACES_SAMPLER_ARG` options. 
+The Elastic APM Node.js agent [`transactionSampleRate`](apm-agent-nodejs://reference/configuration.md#transaction-sample-rate) corresponds to the OpenTelemetry `OTEL_TRACES_SAMPLER` and `OTEL_TRACES_SAMPLER_ARG` options.
 
 For example, for the equivalent of `transactionSampleRate: '0.25'` use `OTEL_TRACES_SAMPLER=parentbased_traceidratio OTEL_TRACES_SAMPLER_ARG=0.25`.
 

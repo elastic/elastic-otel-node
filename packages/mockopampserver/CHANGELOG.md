@@ -1,6 +1,6 @@
 # @elastic/mockopampserver Changelog
 
-## Unreleased
+## v0.4.1
 
 - Fix an edge case where the server could crash on receiving a AgentToServer
   with an `instance_uid` that could not be stringified to a valid UUID.
