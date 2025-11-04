@@ -83,7 +83,6 @@ test('OpAMPClient', (suite) => {
         const opampServer = new MockOpAMPServer({
             logLevel: 'warn', // use 'debug' for some debugging of the server
             // logLevel: 'debug',
-            hostname: '127.0.0.1',
             port: 0,
             testMode: true,
             // mTLS config:
@@ -94,15 +93,26 @@ test('OpAMPClient', (suite) => {
         });
         await opampServer.start();
 
+        // Unfortunately we cannot use the `opampServer.endpoint` directly.
+        // Currently MockOpAMPServer resolves the default `localhost` hostname
+        // to the IP address. However, we need to access the server using the
+        // "CN" (Common Name) used in the server certificate: "localhost"
+        // (see test/certs/regenerate.sh).
+        const u = new URL(opampServer.endpoint);
+        u.hostname = 'localhost';
+        const endpoint = u.href;
+
         // Minimal usage of the OpAMP client, with mTLS config.
         const client = createOpAMPClient({
             log,
-            endpoint: opampServer.endpoint,
+            endpoint: endpoint,
             diagEnabled: true,
             // mTLS config:
-            ca: fs.readFileSync(path.join(TEST_CERTS_DIR, 'ca.crt')),
-            cert: fs.readFileSync(path.join(TEST_CERTS_DIR, 'client.crt')),
-            key: fs.readFileSync(path.join(TEST_CERTS_DIR, 'client.key')),
+            connect: {
+                ca: fs.readFileSync(path.join(TEST_CERTS_DIR, 'ca.crt')),
+                cert: fs.readFileSync(path.join(TEST_CERTS_DIR, 'client.crt')),
+                key: fs.readFileSync(path.join(TEST_CERTS_DIR, 'client.key')),
+            },
         });
         client.setAgentDescription({identifyingAttributes: {foo: 'bar'}});
         const instanceUid = client.getInstanceUid();
