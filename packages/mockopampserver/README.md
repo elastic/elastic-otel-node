@@ -248,3 +248,121 @@ curl -i http://127.0.0.1:4320/api/agentConfigMap -F 'elastic=@./my-agent-config.
 ```
 
 See `SetAgentConfigMap` in ["lib/mockopampserver.js"](./lib/mockopampserver.js) for more examples.
+
+
+### mTLS example
+
+This section shows how to use the mockopampserver and opamp-client-node for **mTLS**, where both client and server must have valid certs. In these examples we'll be using certificate data generated for the packages/opamp-client-node test suite.
+
+Let's start the mockopampserver using CLI options to set TLS server options:
+- Custom CA certs (`--cacert`), a server certificate (`--cert`) and private key (`--key`). These option names match those from `curl`
+- Configure the TLS server to request client certificates from connecting clients (`--request-client-cert`).
+
+```sh
+cd packages/mockopampserver
+npm ci
+node lib/cli.js --cacert ../opamp-client-node/test/certs/ca.crt --cert ../opamp-client-node/test/certs/server.crt --key ../opamp-client-node/test/certs/server.key --request-client-cert
+```
+
+First, let's use `curl` as the client, as we did in a section above. The only differences are:
+- the server is now using HTTPS, and
+- we need to add the `--cacert`, `--cert`, and `--key` TLS options.
+
+```
+curl -v https://localhost:4320/v1/opamp -X POST \
+    --cacert ../opamp-client-node/test/certs/ca.crt --cert ../opamp-client-node/test/certs/client.crt --key ../opamp-client-node/test/certs/client.key \
+    -H content-type:application/x-protobuf \
+    --data-binary @./test/fixtures/AgentToServer.simple.bin \
+    | ./scripts/ServerToAgent
+```
+
+If that works you should see something like:
+
+<details>
+<summary>long curl output</summary>
+
+```
+% curl -sv https://localhost:4320/v1/opamp -X POST \
+    --cacert ../opamp-client-node/test/certs/ca.crt --cert ../opamp-client-node/test/certs/client.crt --key ../opamp-client-node/test/certs/client.key \
+    -H content-type:application/x-protobuf \
+    --data-binary @./test/fixtures/AgentToServer.simple.bin \
+    | ./scripts/ServerToAgent
+* Host localhost:4320 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+*   Trying [::1]:4320...
+* Connected to localhost (::1) port 4320
+* ALPN: curl offers h2,http/1.1
+* (304) (OUT), TLS handshake, Client hello (1):
+} [314 bytes data]
+*  CAfile: ../opamp-client-node/test/certs/ca.crt
+*  CApath: none
+* (304) (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* (304) (IN), TLS handshake, Unknown (8):
+{ [21 bytes data]
+* (304) (IN), TLS handshake, Request CERT (13):   <-- This is the TLS server requesting the client provide a TLS cert.
+{ [143 bytes data]
+* (304) (IN), TLS handshake, Certificate (11):
+{ [2849 bytes data]
+* (304) (IN), TLS handshake, CERT verify (15):
+{ [520 bytes data]
+* (304) (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* (304) (OUT), TLS handshake, Certificate (11):
+} [1415 bytes data]
+* (304) (OUT), TLS handshake, CERT verify (15):
+} [520 bytes data]
+* (304) (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / AEAD-AES256-GCM-SHA384 / [blank] / UNDEF
+* ALPN: server accepted http/1.1
+* Server certificate:
+*  subject: C=CL; ST=RM; L=EDOTTest; O=Test; OU=Server; CN=localhost
+*  start date: Nov  3 23:18:29 2025 GMT
+*  expire date: Nov  3 23:18:29 2026 GMT
+*  common name: localhost (matched)
+*  issuer: C=CL; ST=RM; L=EDOTTest; O=Root; OU=Test; CN=ca
+*  SSL certificate verify ok.
+* using HTTP/1.x                                <-- The TLS connection has successfully been established.
+> POST /v1/opamp HTTP/1.1
+> Host: localhost:4320
+> User-Agent: curl/8.7.1
+> Accept: */*
+> content-type:application/x-protobuf
+> Content-Length: 18
+>
+} [18 bytes data]
+* upload completely sent off: 18 bytes
+< HTTP/1.1 200 OK
+< Content-Type: application/x-protobuf
+< Content-Length: 22
+< Date: Tue, 04 Nov 2025 00:46:07 GMT
+< Connection: keep-alive
+< Keep-Alive: timeout=5
+<
+{ [22 bytes data]
+* Connection #0 to host localhost left intact
+{                                               <-- The decoded ServerToAgent message starts here.
+  '$typeName': 'opamp.proto.ServerToAgent',
+  instanceUid: Buffer(16) [Uint8Array] [
+     84, 108,  42, 240,  68,
+    144,  68, 201, 175, 144,
+     55, 194,  38,  98, 130,
+    102
+  ],
+  flags: 1n,
+  capabilities: 3n
+}
+```
+
+</details>
+
+Second, we can use `@elastic/opamp-client-node` as the client.
+See [the opamp-client-node example using mTLS](../opamp-client-node/examples/use-opamp-client-mTLS.js).
+
+```sh
+cd packages/opamp-client-node
+npm run examples:mTLS
+```
+

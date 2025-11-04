@@ -1,6 +1,6 @@
 {
   "name": "@elastic/mockopampserver",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "type": "commonjs",
   "description": "A mock OpAMP server, useful for dev and testing",
   "publishConfig": {
@@ -29,6 +29,7 @@
     "example:remote-config": "node lib/cli.js -F '=@test/fixtures/agent-config.json' | bunyan",
     "example:elastic-remote-config": "node lib/cli.js -F 'elastic=@test/fixtures/agent-config.json' | bunyan",
     "example:elastic-empty-remote-config": "node lib/cli.js -F 'elastic=@test/fixtures/empty-config.json' | bunyan",
+    "example:mTLS": "node lib/cli.js --cacert ../opamp-client-node/test/certs/ca.crt --cert ../opamp-client-node/test/certs/server.crt --key ../opamp-client-node/test/certs/server.key --request-client-cert | bunyan",
     "gen:protos": "buf generate",
     "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files",
     "lint:eslint": "eslint --ext=js,mjs,cjs . # requires node >=16.0.0",
