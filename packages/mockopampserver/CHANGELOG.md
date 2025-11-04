@@ -1,5 +1,36 @@
 # @elastic/mockopampserver Changelog
 
+## v0.5.0
+
+- Add TLS and mTLS support. [#1044](https://github.com/elastic/elastic-otel-node/issues/1044)
+
+    The mockopampserver CLI now has these new options for setting TLS data, and
+    for requesting client certs (for mTLS):
+
+    ```
+    --cacert=ARG             Override the built-in-to-Node.js trusted CA
+                             certificates with the content of this file, in PEM
+                             format. Enables HTTPS.
+    --cert=ARG               Path to file with TLS certificate chains, in PEM
+                             format, to use. Enables HTTPS.
+    --key=ARG                Path to server TLS private keys, in PEM format.
+                             Enables HTTPS.
+    --request-client-cert    Tells the server to request TLS certs from
+                             connecting clients. Enables HTTPS.
+    ```
+
+    The code interface also has equivalent new options:
+
+    ```js
+    const opampServer = new MockOpAMPServer({
+        // ...
+        ca: fs.readFileSync("..."),
+        cert: fs.readFileSync("..."),
+        key: fs.readFileSync("..."),
+        requestCert: true
+    });
+    ```
+
 ## v0.4.1
 
 - Fix an edge case where the server could crash on receiving a AgentToServer

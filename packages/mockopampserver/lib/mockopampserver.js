@@ -5,6 +5,7 @@
 
 const assert = require('assert');
 const http = require('http');
+const https = require('https');
 const {inspect} = require('util');
 const zlib = require('zlib');
 const TTLCache = require('@isaacs/ttlcache');
@@ -150,6 +151,23 @@ class MockOpAMPServer {
      *      is "info".
      * @param {string} [opts.hostname]
      * @param {number} [opts.port] An port on which to listen. Default is 4320.
+     * @param {any} [opts.ca] Override the trusted CA certificates.
+     *      See https://nodejs.org/api/all.html#all_tls_tlscreatesecurecontextoptions
+     *      If any of `ca`, `cert`, `key`, or `requestCert` are provided, then
+     *      an *https* server is created.
+     * @param {any} [opts.cert] TLS certificate chains in PEM format.
+     *      See https://nodejs.org/api/all.html#all_tls_tlscreatesecurecontextoptions
+     *      If any of `ca`, `cert`, `key`, or `requestCert` are provided, then
+     *      an *https* server is created.
+     * @param {any} [opts.key] Private keys in PEM format.
+     *      See https://nodejs.org/api/all.html#all_tls_tlscreatesecurecontextoptions
+     *      If any of `ca`, `cert`, `key`, or `requestCert` are provided, then
+     *      an *https* server is created.
+     * @param {boolean} [opts.requestCert] If `true` the server will request a
+     *      certificate from clients. I.e., this enables mTLS.
+     *      See https://nodejs.org/api/all.html#all_tls_tlscreateserveroptions-secureconnectionlistener
+     *      If any of `ca`, `cert`, `key`, or `requestCert` are provided, then
+     *      an *https* server is created.
      * @param {AgentConfigMap} [opts.agentConfigMap] An optional config map
      *      to offer to clients with the `AcceptsRemoteConfig` capability.
      *      For example:
@@ -186,7 +204,19 @@ class MockOpAMPServer {
         if (opts.agentConfigMap) {
             this.setAgentConfigMap(opts.agentConfigMap);
         }
-        this._server = http.createServer(this._onRequest.bind(this));
+        const serverOpts = {};
+        this._protocol = 'http:';
+        for (let tlsOptName of ['ca', 'cert', 'key', 'requestCert']) {
+            if (opts[tlsOptName]) {
+                serverOpts[tlsOptName] = opts[tlsOptName];
+                this._protocol = 'https:';
+            }
+        }
+        const protoMod = this._protocol === 'http:' ? http : https;
+        this._server = protoMod.createServer(
+            serverOpts,
+            this._onRequest.bind(this)
+        );
         this._started = false;
 
         const HEARTBEAT_INTERVAL = 30 * 1000;
@@ -253,9 +283,9 @@ class MockOpAMPServer {
             this._server.listen(this._port, this._hostname, () => {
                 const addr = this._server.address();
                 if (addr.family === 'IPv6') {
-                    this._endpointOrigin = `http://[${addr.address}]:${addr.port}`;
+                    this._endpointOrigin = `${this._protocol}//[${addr.address}]:${addr.port}`;
                 } else {
-                    this._endpointOrigin = `http://${addr.address}:${addr.port}`;
+                    this._endpointOrigin = `${this._protocol}//${addr.address}:${addr.port}`;
                 }
                 this._endpoint = this._endpointOrigin + this._endpointPath;
                 log.info(`OpAMP server listening at ${this._endpoint}`);

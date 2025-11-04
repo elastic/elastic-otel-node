@@ -45,6 +45,28 @@ const OPTIONS = [
         type: 'bool',
         help: 'Enable test mode (see _testMode in the code for what this enables).',
     },
+    // TLS options
+    // The first three use the same option names as `curl`.
+    {
+        names: ['cacert'],
+        type: 'string',
+        help: 'Override the built-in-to-Node.js trusted CA certificates with the content of this file, in PEM format. Enables HTTPS.',
+    },
+    {
+        names: ['cert'],
+        type: 'string',
+        help: 'Path to file with TLS certificate chains, in PEM format, to use. Enables HTTPS.',
+    },
+    {
+        names: ['key'],
+        type: 'string',
+        help: 'Path to server TLS private keys, in PEM format. Enables HTTPS.',
+    },
+    {
+        names: ['request-client-cert'],
+        type: 'bool',
+        help: 'Tells the server to request TLS certs from connecting clients. Enables HTTPS.',
+    },
 ];
 
 async function main() {
@@ -93,6 +115,20 @@ async function main() {
     }
     if (opts.test_mode) {
         serverOpts.testMode = true;
+    }
+
+    // TLS options.
+    if (opts.cacert) {
+        serverOpts.ca = fs.readFileSync(opts.cacert);
+    }
+    if (opts.cert) {
+        serverOpts.cert = fs.readFileSync(opts.cert);
+    }
+    if (opts.key) {
+        serverOpts.key = fs.readFileSync(opts.key);
+    }
+    if (opts.request_client_cert) {
+        serverOpts.requestCert = true;
     }
 
     const opampServer = new MockOpAMPServer(serverOpts);
