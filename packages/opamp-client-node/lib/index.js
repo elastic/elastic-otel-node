@@ -15,6 +15,11 @@ const {
     RemoteConfigStatuses,
 } = require('./generated/opamp_pb');
 
+// Re-export some types.
+/**
+ * @typedef {import('./opamp-client').OpAMPClientOptions} OpAMPClientOptions
+ */
+
 module.exports = {
     DIAG_CH_SEND_SUCCESS,
     DIAG_CH_SEND_FAIL,

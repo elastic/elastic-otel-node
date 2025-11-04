@@ -1,6 +1,6 @@
 {
   "name": "@elastic/opamp-client-node",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "commonjs",
   "description": "an OpAMP client for Node.js",
   "publishConfig": {
@@ -27,6 +27,7 @@
     "clean": "rm -rf node_modules",
     "example": "cd examples && node use-opamp-client.js | pino-pretty",
     "example:instrumented": "cd examples && node --import ../../opentelemetry-node/import.mjs use-opamp-client.js | pino-pretty",
+    "example:mTLS": "cd examples && node use-opamp-client-mTLS.js | pino-pretty",
     "gen:protos": "buf generate",
     "gen:types": "rm -rf types && tsc",
     "lint": "npm run lint:eslint && npm run lint:deps && npm run lint:license-files && npm run lint:types",
@@ -35,7 +36,8 @@
     "lint:fix": "eslint --ext=js,mjs,cjs --fix .",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .",
     "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types && diff -ur types build/lint-types",
-    "test": "tape test/**/*.test.js"
+    "test": "tape test/**/*.test.js",
+    "maint:regenerate-test-certs": "cd test/certs && ./regenerate.sh"
   },
   "files": [
     "CHANGELOG.md",
@@ -52,7 +54,7 @@
   "devDependencies": {
     "@bufbuild/buf": "^1.52.1",
     "@bufbuild/protoc-gen-es": "^2.2.5",
-    "@elastic/mockopampserver": ">=0.2.0 <1",
+    "@elastic/mockopampserver": ">=0.5.0 <1",
     "luggite": "^0.2.1",
     "pino-pretty": "^13.0.0",
     "tape": "^5.9.0"
