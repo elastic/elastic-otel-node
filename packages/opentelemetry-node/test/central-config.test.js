@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+const fs = require('fs');
+const path = require('path');
+
 const test = require('tape');
 const {MockOpAMPServer} = require('@elastic/mockopampserver');
 
@@ -983,6 +986,121 @@ test('central-config', (suite) => {
             `Filtering "testFixtures" with DEV_TEST_FILTER="${process.env.DEV_TEST_FILTER}"`
         );
     }
+
+    runTestFixtures(suite, testFixtures);
+
+    suite.test('teardown: MockOpAMPServer', async (t) => {
+        await opampServer.close();
+    });
+
+    suite.end();
+});
+
+// This reproduces one of the above test cases, but with the OpAMP server and
+// client configured for mTLS.
+test('central-config with mTLS', (suite) => {
+    const TEST_CERTS_DIR = path.resolve(
+        __dirname,
+        '../../opamp-client-node/test/certs' // XXX obvs
+    );
+    const opampServer = new MockOpAMPServer({
+        logLevel: 'warn', // use 'debug' for some debugging of the server
+        port: 0,
+        // Tests below require the OpAMP server to be in test mode.
+        testMode: true,
+        // mTLS config:
+        ca: fs.readFileSync(path.join(TEST_CERTS_DIR, 'ca.crt')),
+        cert: fs.readFileSync(path.join(TEST_CERTS_DIR, 'server.crt')),
+        key: fs.readFileSync(path.join(TEST_CERTS_DIR, 'server.key')),
+        requestCert: true,
+    });
+    let opampEndpoint;
+
+    suite.test('setup: MockOpAMPServer', async (t) => {
+        await opampServer.start();
+        // Unfortunately we cannot use the `opampServer.endpoint` directly.
+        // Currently MockOpAMPServer resolves the default `localhost` hostname
+        // to the IP address. However, we need to access the server using the
+        // "CN" (Common Name) used in the server certificate: "localhost"
+        // (see test/certs/regenerate.sh).
+        const u = new URL(opampServer.endpoint);
+        u.hostname = 'localhost';
+        opampEndpoint = u.href;
+        t.comment(`mTLS opampEndpoint: ${opampEndpoint}`);
+    });
+
+    /** @type {import('./testutils').TestFixture[]} */
+    var testFixtures = [
+        {
+            name: 'central-config: deactivate_instrumentations=undici,runtime-node',
+            args: ['./fixtures/central-config-gen-telemetry.js'],
+            cwd: __dirname,
+            env: () => {
+                return {
+                    NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                    ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
+                    ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
+                    ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                    // Skip cloud resource detectors to avoid delay and noise.
+                    OTEL_NODE_RESOURCE_DETECTORS:
+                        'env,host,os,process,serviceinstance,container',
+                    // Set a short metric export interval to allow the
+                    // fixture script to wait for an interval after receiving
+                    // central config before proceeding.
+                    OTEL_METRIC_EXPORT_INTERVAL: '500',
+                    OTEL_METRIC_EXPORT_TIMEOUT: '450',
+                    // OpAMP mTLS config
+                    ELASTIC_OTEL_OPAMP_ENDPOINT: opampEndpoint,
+                    ELASTIC_OTEL_OPAMP_CERTIFICATE: path.join(
+                        TEST_CERTS_DIR,
+                        'ca.crt'
+                    ),
+                    ELASTIC_OTEL_OPAMP_CLIENT_CERTIFICATE: path.join(
+                        TEST_CERTS_DIR,
+                        'client.crt'
+                    ),
+                    ELASTIC_OTEL_OPAMP_CLIENT_KEY: path.join(
+                        TEST_CERTS_DIR,
+                        'client.key'
+                    ),
+                };
+            },
+            before: () => {
+                const config = {
+                    deactivate_instrumentations: 'undici, runtime-node',
+                };
+                opampServer.setAgentConfigMap({
+                    configMap: {
+                        elastic: {
+                            body: Buffer.from(JSON.stringify(config), 'utf8'),
+                            contentType: 'application/json',
+                        },
+                    },
+                });
+            },
+            after: () => {
+                opampServer.setAgentConfigMap({configMap: {}});
+            },
+            checkTelemetry: (t, col, stdout) => {
+                const ccAppliedRe = /^CENTRAL_CONFIG_APPLIED: (\d+)$/m;
+                const ccAppliedStr = ccAppliedRe.exec(stdout)[1];
+                const ccAppliedNs = BigInt(ccAppliedStr) * 1000000n;
+                assertCentralConfigGenTelemetry(
+                    t,
+                    col,
+                    [
+                        'spans',
+                        'metrics',
+                        'logs',
+                        // 'instr-runtime-node',
+                        // 'instr-undici',
+                        'instr-http',
+                    ],
+                    ccAppliedNs
+                );
+            },
+        },
+    ];
 
     runTestFixtures(suite, testFixtures);
 
