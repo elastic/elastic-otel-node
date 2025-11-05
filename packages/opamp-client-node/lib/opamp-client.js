@@ -146,10 +146,7 @@ function normalizeHeartbeatIntervalSeconds(input) {
  */
 
 /**
- * @typedef {import('tls').ConnectionOptions} TLSConnectionOptions
- */
-/**
- * @typedef {Pick<TLSConnectionOptions, 'ca'>} ConnectOptions
+ * @typedef {Pick<import('tls').ConnectionOptions, 'ca' | 'cert' | 'key'>} ConnectOptions
  */
 
 /**
@@ -184,8 +181,14 @@ function normalizeHeartbeatIntervalSeconds(input) {
  * @property {number} [bodyTimeout] The timeout (in milliseconds) to wait for
  *      the response body on a request to the OpAMP server. Default 10s.
  * @property {ConnectOptions} [connect] A small subset of Undici client connect
- *      options (https://undici.nodejs.org/#/docs/api/Client?id=parameter-connectoptions):
- *          - 'ca'
+ *      options (https://undici.nodejs.org/#/docs/api/Client?id=parameter-connectoptions).
+ *      Primarily this is intended to support mTLS options:
+ *          - [ca] Override the trusted CA certificates.
+ *            See https://nodejs.org/api/all.html#all_tls_tlscreatesecurecontextoptions
+ *          - [cert] TLS certificate chains in PEM format.
+ *            See https://nodejs.org/api/all.html#all_tls_tlscreatesecurecontextoptions
+ *          - [key] Private keys in PEM format.
+ *            See https://nodejs.org/api/all.html#all_tls_tlscreatesecurecontextoptions
  * @property {boolean} [diagEnabled] Diagnostics enabled, typically used for
  *      testing. When enabled, events will be published to the following
  *      diagnostics channels:
@@ -194,7 +197,6 @@ function normalizeHeartbeatIntervalSeconds(input) {
  *      - `opamp-client.send.schedule`: {delayMs, errCount}
  *
  * TODO: enableCompression or similar option
- * TODO: add {ConnectionOptions} [connect] with a subset of https://undici.nodejs.org/#/docs/api/Client?id=parameter-connectoptions e.g. as used in play.mjs for `ca: [cacert]` to conn to opamp-go example server. Or could expose the full ConnectOptions, but that's heavy.
  */
 
 // See opamp-go/client/client.go for some inspiration for this interface.
@@ -255,6 +257,7 @@ class OpAMPClient {
             bodyTimeout: opts.bodyTimeout ?? DEFAULT_BODY_TIMEOUT,
             // A limited subset (because the full set is huge) of undici ConnectionOptions
             // https://undici.nodejs.org/#/docs/api/Client?id=parameter-connectoptions
+            // TODO: actually limit to the documented subset?
             connect: opts.connect,
         });
     }

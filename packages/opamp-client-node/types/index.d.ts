@@ -1,3 +1,4 @@
+export type OpAMPClientOptions = import('./opamp-client').OpAMPClientOptions;
 import { DIAG_CH_SEND_SUCCESS } from "./opamp-client";
 import { DIAG_CH_SEND_FAIL } from "./opamp-client";
 import { DIAG_CH_SEND_SCHEDULE } from "./opamp-client";
