@@ -33,7 +33,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Features and enhancements [edot-node-next-features-enhancements]
 
-* Add support for TLS/mTLS configuration of the OpAMP client (used for [central configuration](elastic-otel-node://reference/edot-node/configuration#central-configuration)). Three new environment variables can be used: `ELASTIC_OTEL_OPAMP_CERTIFICATE`, `ELASTIC_OTEL_OPAMP_CLIENT_CERTIFICATE`, and `ELASTIC_OTEL_OPAMP_CLIENT_KEY`. See [the Configure central configuration doc section](elastic-otel-node://reference/edot-node/configuration#configure-central-configuration) for details. [#1044](https://github.com/elastic/elastic-otel-node/issues/1044)
+* Add support for TLS/mTLS configuration of the OpAMP client (used for [central configuration](elastic-otel-node://reference/edot-node/configuration.md#central-configuration)). Three new environment variables can be used: `ELASTIC_OTEL_OPAMP_CERTIFICATE`, `ELASTIC_OTEL_OPAMP_CLIENT_CERTIFICATE`, and `ELASTIC_OTEL_OPAMP_CLIENT_KEY`. See [the Configure central configuration doc section](elastic-otel-node://reference/edot-node/configuration.md#configure-central-configuration) for details. [#1044](https://github.com/elastic/elastic-otel-node/issues/1044)
 
 ### Fixes [edot-node-next-fixes]
 
