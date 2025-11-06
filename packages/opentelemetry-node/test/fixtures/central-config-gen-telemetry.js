@@ -58,7 +58,7 @@ async function main() {
         // recorded before this time in its assertions.
         console.log('CENTRAL_CONFIG_APPLIED:', Date.now());
         // Wait for a couple metric intervals before proceeding, so there is
-        // a chance for periodically gather metrics to be recorded after
+        // a chance for periodically gathered metrics to be recorded after
         // config changes.
         const metricInterval = Number(
             process.env.OTEL_METRIC_EXPORT_INTERVAL || 30000

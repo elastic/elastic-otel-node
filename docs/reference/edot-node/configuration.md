@@ -139,6 +139,9 @@ To deactivate central configuration, remove the `ELASTIC_OTEL_OPAMP_ENDPOINT` en
 The following environment variable can be used to configure requests send to the OpAMP endpoint:
 
 - `ELASTIC_OTEL_OPAMP_HEADERS`: This is a comma-separated list of `header=value` strings to include in requests to the OpAMP endpoint. This can be used to set authorization, for example `ELASTIC_OTEL_OPAMP_HEADERS="Authorization=ApiKey sekrit"`.
+- `ELASTIC_OTEL_OPAMP_CERTIFICATE`: Path to a file, in PEM format, to override the built-in Node.js trusted CA certificates.
+- `ELASTIC_OTEL_OPAMP_CLIENT_CERTIFICATE`: Path to a file with a client certificate or certificate chain, in PEM format, to use for mTLS.
+- `ELASTIC_OTEL_OPAMP_CLIENT_KEY`: Path to file with the private key used for the Certificate Signing Request (CSR) to create the client certificate. Used for mTLS.
 
 ### Central configuration settings
 

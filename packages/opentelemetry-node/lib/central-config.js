@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+const fs = require('fs');
+
 const {
     createOpAMPClient,
     AgentCapabilities,
@@ -610,6 +612,42 @@ function setupCentralConfig(sdkInfo) {
         return null;
     }
 
+    // TLS connection options, if any.
+    const connect = {};
+    const caPath = getStringFromEnv('ELASTIC_OTEL_OPAMP_CERTIFICATE');
+    if (caPath) {
+        try {
+            connect.ca = fs.readFileSync(caPath);
+        } catch (readErr) {
+            log.warn(
+                readErr,
+                'could not read file from ELASTIC_OTEL_OPAMP_CERTIFICATE, this setting will be ignored'
+            );
+        }
+    }
+    const certPath = getStringFromEnv('ELASTIC_OTEL_OPAMP_CLIENT_CERTIFICATE');
+    if (certPath) {
+        try {
+            connect.cert = fs.readFileSync(certPath);
+        } catch (readErr) {
+            log.warn(
+                readErr,
+                'could not read file from ELASTIC_OTEL_OPAMP_CLIENT_CERTIFICATE, this setting will be ignored'
+            );
+        }
+    }
+    const keyPath = getStringFromEnv('ELASTIC_OTEL_OPAMP_CLIENT_KEY');
+    if (keyPath) {
+        try {
+            connect.key = fs.readFileSync(keyPath);
+        } catch (readErr) {
+            log.warn(
+                readErr,
+                'could not read file from ELASTIC_OTEL_OPAMP_CLIENT_KEY, this setting will be ignored'
+            );
+        }
+    }
+
     // ELASTIC_OTEL_OPAMP_HEADERS
     const headers = parseKeyPairsIntoRecord(
         getStringFromEnv('ELASTIC_OTEL_OPAMP_HEADERS')
@@ -654,6 +692,7 @@ function setupCentralConfig(sdkInfo) {
     const client = createOpAMPClient({
         log,
         endpoint,
+        connect,
         headers,
         heartbeatIntervalSeconds,
         capabilities: BigInt(
