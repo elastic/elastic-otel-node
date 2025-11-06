@@ -714,7 +714,7 @@ class MockOpAMPServer {
                 !reportedFullState
             ) {
                 log.debug(
-                    {instanceUidStr, agentSeqNum: agent.sequenceNum},
+                    {instanceUidStr, sequenceNum: agent.sequenceNum},
                     'request ReportFullState (sequenceNum missed)'
                 );
                 resData.flags |=
