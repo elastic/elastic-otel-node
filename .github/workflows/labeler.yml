@@ -1,4 +1,4 @@
-# Tweak incoming issues/PRs: labeling and/or adding to GH projects.
+# Possibly label some incoming issues/PRs.
 name: "labeler"
 on:
   issues:
@@ -26,6 +26,7 @@ jobs:
         permission-members: read
         permission-organization-projects: write
         permission-pull-requests: write
+
     - id: is_elastic_member
       uses: elastic/oblt-actions/github/is-member-of@v1
       with:
@@ -44,11 +45,4 @@ jobs:
             repo: context.repo.repo,
             labels: ["community", "triage"]
           })
-
-    - name: Assign new internal issues and PRs to project
-      uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e  # v1.0.2
-      if: contains(steps.is_elastic_member.outputs.result, 'true')
-      with:
-        project-url: 'https://github.com/orgs/elastic/projects/1397'
-        github-token: ${{ steps.get_token.outputs.token }}
 
