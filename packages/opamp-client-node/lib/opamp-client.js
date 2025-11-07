@@ -127,7 +127,9 @@ function normalizeHeartbeatIntervalSeconds(input) {
     } else if (typeof input !== 'number' || isNaN(input)) {
         throw new Error(`invalid "heartbeatIntervalSeconds" value: ${input}`);
     } else if (input < MIN_HEARTBEAT_INTERVAL_SECONDS) {
-        return MIN_HEARTBEAT_INTERVAL_SECONDS;
+        throw new Error(
+            `"heartbeatIntervalSeconds" value is too short (<100ms): ${input}`
+        );
     } else if (input > MAX_HEARTBEAT_INTERVAL_SECONDS) {
         return MAX_HEARTBEAT_INTERVAL_SECONDS;
     } else {
@@ -174,8 +176,8 @@ function normalizeHeartbeatIntervalSeconds(input) {
  *      remote config. Receiving remote config requires setting the
  *      `AcceptsRemoteConfig` capability in `capabilities`.
  * @property {Number} [heartbeatIntervalSeconds] The approximate time between
- *      heartbeat messages sent by the client. Default 30.
- *      Clamped to [100ms, 1d].
+ *      heartbeat messages sent by the client. Default 30.  Values less than
+ *      100ms will be ignored. Values greater than 1d will be clamped to 1d.
  * @property {number} [headersTimeout] The timeout (in milliseconds) to wait
  *      for the response headers on a request to the OpAMP server. Default 10s.
  * @property {number} [bodyTimeout] The timeout (in milliseconds) to wait for
@@ -222,11 +224,12 @@ class OpAMPClient {
         } catch (err) {
             this._log.warn(
                 {err, heartbeatIntervalSeconds: opts.heartbeatIntervalSeconds},
-                'invalid heartbeatIntervalSeconds'
+                'invalid heartbeatIntervalSeconds, using default value'
             );
             this._heartbeatIntervalMs =
                 DEFAULT_HEARTBEAT_INTERVAL_SECONDS * 1000;
         }
+        this._initialHeartbeatIntervalMs = this._heartbeatIntervalMs;
         this._onMessage = opts.onMessage;
 
         if (opts.diagEnabled) {
@@ -301,6 +304,31 @@ class OpAMPClient {
             this._queue.push('AgentDescription');
             this._scheduleSendSoon();
         }
+    }
+
+    /**
+     * Dynamically set the heartbeat interval of the client to a new value.
+     *
+     * @param {Number} n - A number of seconds.
+     */
+    setHeartbeatIntervalSeconds(n) {
+        try {
+            this._heartbeatIntervalMs =
+                normalizeHeartbeatIntervalSeconds(n) * 1000;
+        } catch (err) {
+            this._log.warn(
+                {err, heartbeatIntervalSeconds: n},
+                'invalid heartbeatIntervalSeconds, ignoring'
+            );
+        }
+    }
+
+    /**
+     * Reset the heartbeat interval used by the client back to its initial
+     * value set at creation time.
+     */
+    resetHeartbeatIntervalSeconds() {
+        this._heartbeatIntervalMs = this._initialHeartbeatIntervalMs;
     }
 
     /**
