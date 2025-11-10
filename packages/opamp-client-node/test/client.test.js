@@ -232,6 +232,59 @@ test('OpAMPClient', (suite) => {
         t.end();
     });
 
+    suite.test('client.{set,reset}HeartbeatIntervalSeconds', async (t) => {
+        const server = new MockOpAMPServer({
+            logLevel: 'warn', // use 'debug' for some debugging of the server
+            hostname: '127.0.0.1',
+            port: 0,
+            testMode: true,
+        });
+        await server.start();
+
+        const client = createOpAMPClient({
+            log,
+            endpoint: server.endpoint,
+            heartbeatIntervalSeconds: 0.5,
+            diagEnabled: true,
+        });
+        client.setAgentDescription({identifyingAttributes: {foo: 'bar'}});
+        client.start();
+
+        // Cheating a bit by testing a private attribute.
+        t.equal(client._heartbeatIntervalMs, 500, 'initial value');
+
+        client.setHeartbeatIntervalSeconds(1);
+        t.equal(client._heartbeatIntervalMs, 1000, 'valid value works');
+
+        client.setHeartbeatIntervalSeconds(0.01);
+        t.equal(client._heartbeatIntervalMs, 1000, 'too low value ignored');
+
+        client.setHeartbeatIntervalSeconds(0.1);
+        t.equal(client._heartbeatIntervalMs, 100, 'min value works');
+
+        client.setHeartbeatIntervalSeconds('bogus');
+        t.equal(client._heartbeatIntervalMs, 100, 'invalid type is ignored');
+
+        const DAY_IN_S = 86400;
+        client.setHeartbeatIntervalSeconds(DAY_IN_S * 2);
+        t.equal(
+            client._heartbeatIntervalMs,
+            DAY_IN_S * 1000,
+            'too large value is clamped to 1d'
+        );
+
+        client.resetHeartbeatIntervalSeconds();
+        t.equal(
+            client._heartbeatIntervalMs,
+            500, // the initial value
+            'resetHeartbeatIntervalSeconds works'
+        );
+
+        await client.shutdown();
+        await server.close();
+        t.end();
+    });
+
     suite.test('remote config', async (t) => {
         // Setup MockOpAMPServer to provide `config` as remote config.
         const config = {foo: 42};

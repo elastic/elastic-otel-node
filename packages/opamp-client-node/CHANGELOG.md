@@ -1,5 +1,21 @@
 # @elastic/opamp-client-node Changelog
 
+## v0.4.0
+
+- BREAKING CHANGE: The `heartbeatIntervalSeconds` option to `createOpAMPClient`
+  used to *clamp* the given value to `[100ms, 1d]`. Starting in this version,
+  a value less than 100ms will **be ignored**, and the default value will be
+  used. The reason for this is to ignore a possible accidental error case where
+  *zero* or a negative number is provided, resulting in a too-fast 100ms
+  interval. (The 100ms lower bound really only exists for faster testing. It
+  is not a reasonable value for production.)
+
+- Add `opampClient.setHeartbeatIntervalSeconds(num)` and
+  `.resetHeartbeatIntervalSeconds()` methods for dynamically changing the
+  heartbeat interval used by the OpAMP client. Values less than 100ms are
+  ignored (with a log.warn) and values greater than 1d are clamped to 1d.
+  [#1128](https://github.com/elastic/elastic-otel-node/issues/1128)
+
 ## v0.3.0
 
 - Add TLS and mTLS support. [#1044](https://github.com/elastic/elastic-otel-node/issues/1044)

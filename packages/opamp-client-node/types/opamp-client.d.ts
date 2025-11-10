@@ -56,8 +56,8 @@ export type OpAMPClientOptions = {
     onMessage?: OnMessageCallback;
     /**
      * The approximate time between
-     * heartbeat messages sent by the client. Default 30.
-     * Clamped to [100ms, 1d].
+     * heartbeat messages sent by the client. Default 30.  Values less than
+     * 100ms will be ignored. Values greater than 1d will be clamped to 1d.
      */
     heartbeatIntervalSeconds?: number;
     /**
@@ -138,8 +138,8 @@ export function createOpAMPClient(opts: OpAMPClientOptions): OpAMPClient;
  *      remote config. Receiving remote config requires setting the
  *      `AcceptsRemoteConfig` capability in `capabilities`.
  * @property {Number} [heartbeatIntervalSeconds] The approximate time between
- *      heartbeat messages sent by the client. Default 30.
- *      Clamped to [100ms, 1d].
+ *      heartbeat messages sent by the client. Default 30.  Values less than
+ *      100ms will be ignored. Values greater than 1d will be clamped to 1d.
  * @property {number} [headersTimeout] The timeout (in milliseconds) to wait
  *      for the response headers on a request to the OpAMP server. Default 10s.
  * @property {number} [bodyTimeout] The timeout (in milliseconds) to wait for
@@ -175,6 +175,7 @@ declare class OpAMPClient {
     _instanceUidStr: string;
     _capabilities: bigint;
     _heartbeatIntervalMs: number;
+    _initialHeartbeatIntervalMs: number;
     _onMessage: OnMessageCallback;
     _diagChs: {
         "opamp-client.send.success": import("diagnostics_channel").Channel<unknown, unknown>;
@@ -209,6 +210,17 @@ declare class OpAMPClient {
         nonIdentifyingAttributes?: object;
     }): void;
     _agentDescriptionSer: any;
+    /**
+     * Dynamically set the heartbeat interval of the client to a new value.
+     *
+     * @param {Number} n - A number of seconds.
+     */
+    setHeartbeatIntervalSeconds(n: number): void;
+    /**
+     * Reset the heartbeat interval used by the client back to its initial
+     * value set at creation time.
+     */
+    resetHeartbeatIntervalSeconds(): void;
     /**
      * Dev Note: This client manages the `instanceUid`, so I'm not sure if this
      * API method is useful. The instanceUid *can* be changed by the OpAMP
