@@ -49,6 +49,11 @@ function createLogger() {
                 // on.
                 return util.inspect(agent, {depth: 50, colors: true});
             },
+            sequenceNum: function (sequenceNum) {
+                // Workaround Bunyan's geriatric serialization choking on
+                // BigInts. This is, of course, a weak workaround.
+                return util.inspect(sequenceNum);
+            },
         },
         level: 'info',
         stream: process.stdout,
