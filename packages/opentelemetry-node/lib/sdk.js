@@ -36,7 +36,11 @@ const {createAddHookMessageChannel} = require('import-in-the-middle');
 const {log, registerOTelDiagLogger} = require('./logging');
 const luggite = require('./luggite');
 const {resolveDetectors} = require('./detectors');
-const {setupEnvironment, restoreEnvironment} = require('./environment');
+const {
+    setupEnvironment,
+    restoreEnvironment,
+    getSafeEdotEnv,
+} = require('./environment');
 const {getInstrumentations} = require('./instrumentations');
 const {setupCentralConfig} = require('./central-config');
 const {
@@ -96,6 +100,10 @@ function setupShutdownHandlers(shutdownFn) {
  */
 function startNodeSDK(cfg = {}) {
     log.trace('startNodeSDK cfg:', cfg);
+
+    // Gather relevant envvars for the preamble, before this distro possibly
+    // mucks with some.
+    const edotEnv = getSafeEdotEnv();
 
     // TODO: test behaviour with OTEL_SDK_DISABLED.
     //      Do we still log preamble? See NodeSDK _disabled handling.
@@ -277,25 +285,6 @@ function startNodeSDK(cfg = {}) {
 
     setupEnvironment();
     const sdk = new NodeSDK(config);
-
-    // TODO perhaps include some choice resource attrs in this log (sync ones): service.name, deployment.environment.name
-    log.info(
-        {
-            preamble: true,
-            distroVersion: DISTRO_VERSION,
-            env: {
-                // For darwin: https://en.wikipedia.org/wiki/Darwin_%28operating_system%29#Release_history
-                os: `${os.platform()} ${os.release()}`,
-                arch: os.arch(),
-                runtime: `Node.js ${process.version}`,
-            },
-            // The "config" object structure is not stable.
-            config: {
-                logLevel: luggite.nameFromLevel[log.level()] ?? log.level(),
-            },
-        },
-        'start EDOT Node.js'
-    );
     sdk.start(); // .start() *does* use `process.env` though I think it should not.
     restoreEnvironment();
 
@@ -337,6 +326,28 @@ function startNodeSDK(cfg = {}) {
         samplingRate,
         contextPropagationOnly,
     });
+
+    // Log a preamble by default. The primary goal is for getting clarity on
+    // what is running and configure how for *support*.
+    // TODO perhaps include some choice resource attrs in this log (sync ones): service.name, deployment.environment.name
+    log.info(
+        {
+            preamble: true,
+            distroVersion: DISTRO_VERSION,
+            system: {
+                // For darwin: https://en.wikipedia.org/wiki/Darwin_%28operating_system%29#Release_history
+                os: `${os.platform()} ${os.release()}`,
+                arch: os.arch(),
+                runtime: `Node.js ${process.version}`,
+            },
+            edotEnv,
+            // The "configInfo" object structure is not stable.
+            configInfo: {
+                logLevel: luggite.nameFromLevel[log.level()] ?? log.level(),
+            },
+        },
+        'start EDOT Node.js'
+    );
 
     // Shutdown handling.
     const shutdownFn = () => {
