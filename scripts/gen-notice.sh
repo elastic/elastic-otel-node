@@ -76,6 +76,7 @@ npm ls --omit=dev --all --parseable \
             "BSD-2-Clause": true,
             "BSD-3-Clause": true,
             "(Apache-2.0 AND BSD-3-Clause)": true,
+            "BlueOak-1.0.0": true,
         }
         // We handle getting the license text for a few specific deps that
         // do not include one in their install.
