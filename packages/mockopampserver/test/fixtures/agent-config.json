@@ -1,4 +1,4 @@
 {
   "logging_level": "debug",
-  "sample_rate": 0.42
+  "sampling_rate": 0.42
 }
