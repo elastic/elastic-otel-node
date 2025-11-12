@@ -7,7 +7,7 @@
  */
 export type RemoteConfigHandler = {
     keys: string[];
-    setter: (config: any, sdkInfo: any) => string | null;
+    setter: (config: any, sdkInfo: any, opampClient: any) => string | null;
 };
 /**
  * Setup an OpAMP client, if configured to use one.
