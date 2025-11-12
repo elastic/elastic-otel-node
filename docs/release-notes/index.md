@@ -37,6 +37,11 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 * Improve the "preamble" log message at startup to include some details on envvars set that are relevant to the EDOT Node.js config. This uses an allowlist of non-sensitive envvars to avoid logging sensitive details. [#1018](https://github.com/elastic/elastic-otel-node/issues/1018)
 
+* Add support for the `opamp_polling_interval` setting in Central Configuration. [#1128](https://github.com/elastic/elastic-otel-node/issues/1128)
+
+  While this is supported in the EDOT Node.js SDK, it will only be present in
+  the "Agent Configuration" UI of Kibana version 9.3 and later.
+
 ### Fixes [edot-node-next-fixes]
 
 
