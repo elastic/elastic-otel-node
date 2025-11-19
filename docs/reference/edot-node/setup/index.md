@@ -75,7 +75,7 @@ In some environments, for example in some Kubernetes setups, a local OpenTelemet
 
 Additional other common configuration settings that might be useful include:
 
-* `OTEL_RESOURCE_ATTRIBUTES=service.version=<app-version>,deployment.environment=production`: This environment variable can be used to set additional [Resource attributes](https://opentelemetry.io/docs/languages/js/resources/). Setting `service.version` can be useful for correlating issues to different versions of your service. Setting `deployment.environment` can be useful for separating telemetry for development, test, qa, or production deployments of your services.
+* `OTEL_RESOURCE_ATTRIBUTES=service.version=<app-version>,deployment.environment.name=production`: This environment variable can be used to set additional [Resource attributes](https://opentelemetry.io/docs/languages/js/resources/). Setting `service.version` can be useful for correlating issues to different versions of your service. Setting `deployment.environment.name` can be useful for separating telemetry for development, test, qa, or production deployments of your services.
 * `OTEL_NODE_DISABLED_INSTRUMENTATIONS=net,dns,...`: A comma-separated list of instrumentation names to disable. This can be useful if a particular instrumentation is unwanted for some reason.
 * `OTEL_LOG_LEVEL=verbose`: This can be used to get more internal logging data from EDOT Node.js when investigating issues with telemetry.
 * `OTEL_SDK_DISABLED=true`: This can be used to fully disable EDOT Node.js, perhaps when troubleshooting.
