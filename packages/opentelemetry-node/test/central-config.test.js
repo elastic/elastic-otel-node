@@ -242,6 +242,41 @@ test('central-config', (suite) => {
             },
         },
 
+        {
+            name: 'opamp_polling_interval',
+            args: ['./fixtures/central-config-opamp-polling-interval.js'],
+            cwd: __dirname,
+            env: () => {
+                return {
+                    NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                    ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
+                    ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
+                    ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                };
+            },
+            verbose: true,
+            checkTelemetry: (t, col, stdout) => {
+                const recs = stdout
+                    .split(/\r?\n/g)
+                    .filter((ln) => ln.startsWith('{'))
+                    .map((ln) => JSON.parse(ln));
+
+                let rec = findObjInArray(
+                    recs,
+                    'msg',
+                    'central-config: set "opamp_polling_interval" to 0.4 seconds'
+                );
+                t.ok(rec);
+
+                rec = findObjInArray(
+                    recs,
+                    'msg',
+                    'central-config: reset "opamp_polling_interval" to 0.3 seconds'
+                );
+                t.ok(rec);
+            },
+        },
+
         // Use "central-config-gen-telemetry.js" for a few tests. The script
         // will (a) wait for opamp-client events to ensure central config
         // has been received, if any, then (b) execute code that uses http,

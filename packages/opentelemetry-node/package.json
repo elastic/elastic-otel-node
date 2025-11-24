@@ -73,7 +73,7 @@
     "@opentelemetry/api": ">=1.3.0 <1.10.0"
   },
   "dependencies": {
-    "@elastic/opamp-client-node": "^0.3.0",
+    "@elastic/opamp-client-node": "^0.4.0",
     "@opentelemetry/core": "^2.0.0",
     "@opentelemetry/exporter-logs-otlp-grpc": "^0.208.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.208.0",

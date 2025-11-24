@@ -115,14 +115,14 @@ function _parseBoolConfigRawVal(key, valRaw, valDefault) {
  *
  * @typedef {object} RemoteConfigHandler
  * @property {string[]} keys
- * @property {(config: any, sdkInfo: any) => string | null} setter
+ * @property {(config: any, sdkInfo: any, opampClient: any) => string | null} setter
  *
  */
 /** @type {RemoteConfigHandler[]} */
 const REMOTE_CONFIG_HANDLERS = [
     {
         keys: ['logging_level'],
-        setter: (config, _sdkInfo) => {
+        setter: (config, _sdkInfo, _opampClient) => {
             let val = config['logging_level'];
             let verb = 'set';
             if (val === undefined) {
@@ -147,7 +147,7 @@ const REMOTE_CONFIG_HANDLERS = [
      */
     {
         keys: ['send_traces'],
-        setter: (config, _sdkInfo) => {
+        setter: (config, _sdkInfo, _opampClient) => {
             const VAL_DEFAULT = initialConfig.send_traces;
             const [errmsg, val, verb] = _parseBoolConfigRawVal(
                 'send_traces',
@@ -171,7 +171,7 @@ const REMOTE_CONFIG_HANDLERS = [
      */
     {
         keys: ['send_metrics'],
-        setter: (config, _sdkInfo) => {
+        setter: (config, _sdkInfo, _opampClient) => {
             const VAL_DEFAULT = true;
             const [errmsg, val, verb] = _parseBoolConfigRawVal(
                 'send_metrics',
@@ -195,7 +195,7 @@ const REMOTE_CONFIG_HANDLERS = [
      */
     {
         keys: ['send_logs'],
-        setter: (config, _sdkInfo) => {
+        setter: (config, _sdkInfo, _opampClient) => {
             const VAL_DEFAULT = true;
             const [errmsg, val, verb] = _parseBoolConfigRawVal(
                 'send_logs',
@@ -292,7 +292,7 @@ const REMOTE_CONFIG_HANDLERS = [
             'deactivate_all_instrumentations',
             'deactivate_instrumentations',
         ],
-        setter: (config, sdkInfo) => {
+        setter: (config, sdkInfo, _opampClient) => {
             // Validate the given config values.
             const rawAll = config['deactivate_all_instrumentations'];
             let valAll;
@@ -430,7 +430,7 @@ const REMOTE_CONFIG_HANDLERS = [
 
     {
         keys: ['sampling_rate'],
-        setter: (config, sdkInfo) => {
+        setter: (config, sdkInfo, _opampClient) => {
             if (!sdkInfo.sampler) {
                 return `ignoring "sampling_rate" because non-default sampler in use`;
             }
@@ -466,7 +466,83 @@ const REMOTE_CONFIG_HANDLERS = [
             return null;
         },
     },
+
+    /**
+     * The `opamp_polling_interval` value is a Kibana Agent Configuration
+     * "duration" -- a string, e.g. "30s". It is currently configured
+     *      https://github.com/elastic/kibana/blob/v9.2.0/x-pack/solutions/observability/plugins/apm/common/agent_configuration/setting_definitions/edot_sdk_settings.ts#L90-L104
+     * to use the default units ('ms', 's', 'm').
+     */
+    {
+        keys: ['opamp_polling_interval'],
+        setter: (config, _sdkInfo, opampClient) => {
+            const rawInterval = config['opamp_polling_interval'];
+            let valS;
+            let verb = 'set';
+            switch (typeof rawInterval) {
+                case 'undefined':
+                    valS = initialConfig.heartbeatIntervalSeconds;
+                    verb = 'reset';
+                    break;
+                case 'string':
+                    try {
+                        valS = secondsFromDuration(rawInterval);
+                    } catch (convertErr) {
+                        return `could not convert 'opamp_polling_interval' to seconds: "${config['opamp_polling_interval']}", ${convertErr.message}`;
+                    }
+                    break;
+                default:
+                    return `unknown 'opamp_polling_interval' value type: ${typeof rawInterval} (${rawInterval})`;
+            }
+
+            // TODO: Would be nice to have a boolean success from setHeartbeatIntervalSeconds().
+            opampClient.setHeartbeatIntervalSeconds(valS);
+            log.info(
+                `central-config: ${verb} "opamp_polling_interval" to ${valS} seconds`
+            );
+
+            return null;
+        },
+    },
 ];
+
+/**
+ * Return a number of seconds from the given duration string, or throw.
+ *
+ * @param {string} duration - a duration of the form "{num}{unit}", e.g. "20s",
+ *      where the supported units are: 'ms', 's', 'm', 'h'.
+ */
+function secondsFromDuration(duration) {
+    const PATTERN = /^(\d+)(ms|s|m|h)?$/;
+    const match = PATTERN.exec(duration);
+    if (!match) {
+        throw new Error(`does not match ${PATTERN}`);
+    }
+    let val = Number(match[1]);
+    if (isNaN(val) || !Number.isFinite(val)) {
+        throw new Error(`given duration num is invalid: ${val}`);
+    }
+
+    // Scale to seconds.
+    const unit = match[2];
+    switch (unit) {
+        case 'ms':
+            val /= 1e3;
+            break;
+        case 's':
+            break;
+        case 'm':
+            val *= 60;
+            break;
+        case 'h':
+            val *= 60 * 60;
+            break;
+        default:
+            throw new Error(`unknown unit "${unit}" from "${duration}"`);
+    }
+
+    return val;
+}
 
 /**
  * Apply the `remoteConfig` received from the OpAMP server and
@@ -529,7 +605,7 @@ function onRemoteConfig(sdkInfo, opampClient, remoteConfig) {
                 }
             }
             if (valsChanged) {
-                const errMsg = setter(config, sdkInfo);
+                const errMsg = setter(config, sdkInfo, opampClient);
                 if (errMsg) {
                     applyErrs.push(errMsg);
                 } else {
@@ -661,7 +737,7 @@ function setupCentralConfig(sdkInfo) {
             Number(
                 process.env.ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL
             ) / 1000;
-        if (isNaN(heartbeatIntervalSeconds) || heartbeatIntervalSeconds < 0) {
+        if (isNaN(heartbeatIntervalSeconds) || heartbeatIntervalSeconds < 0.1) {
             log.warn(
                 {
                     heartbeatIntervalSeconds:
@@ -672,6 +748,9 @@ function setupCentralConfig(sdkInfo) {
             );
             heartbeatIntervalSeconds = undefined;
         }
+    }
+    if (!heartbeatIntervalSeconds) {
+        heartbeatIntervalSeconds = 30;
     }
 
     // ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED can be used to enable the
@@ -687,6 +766,7 @@ function setupCentralConfig(sdkInfo) {
         ];
     initialConfig.sampling_rate = sdkInfo.samplingRate;
     initialConfig.send_traces = !sdkInfo.contextPropagationOnly;
+    initialConfig.heartbeatIntervalSeconds = heartbeatIntervalSeconds;
     log.debug({initialConfig}, 'initial central config values');
 
     const client = createOpAMPClient({

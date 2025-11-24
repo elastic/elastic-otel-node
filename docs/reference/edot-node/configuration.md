@@ -156,6 +156,7 @@ You can modify the following settings for EDOT Node.js through APM Agent Central
 | Send metrics | `send_metrics` | Dynamic {applies_to}`product: preview 1.3.0` |
 | Send logs | `send_logs` | Dynamic {applies_to}`product: preview 1.3.0` |
 | Sampling rate | `sampling_rate` | Dynamic {applies_to}`product: preview 1.6.0` |
+| Central config polling interval | `opamp_polling_interval` | Dynamic {applies_to}`product: preview 1.7.0` |
 
 Dynamic settings can be changed without having to restart the application.
 
