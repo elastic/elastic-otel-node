@@ -59,10 +59,15 @@ updates:
       # uuid@12 dropped CommonJS support (https://github.com/uuidjs/uuid/issues/881)
       - dependency-name: "uuid"
         versions: [ ">=12" ]
+      # @isaacs/ttlcache@2 dropped Node.js 18 support (https://github.com/isaacs/ttlcache/commit/2f17fb26b)
+      - dependency-name: "@isaacs/ttlcache"
+        versions: [ ">=2" ]
     groups:
-      mockopampserver:
+      minors:
         patterns:
         - "*"
+        update-types:
+        - "minor"
 
   - package-ecosystem: "npm"
     directory: "/packages/opamp-client-node"
