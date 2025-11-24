@@ -29,9 +29,9 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## version.next [edot-node-next-release-notes]
+## 1.7.0 [edot-node-1.7.0-release-notes]
 
-### Features and enhancements [edot-node-next-features-enhancements]
+### Features and enhancements [edot-node-1.7.0-features-enhancements]
 
 * Add support for TLS/mTLS configuration of the OpAMP client (used for [central configuration](elastic-otel-node://reference/edot-node/configuration.md#central-configuration)). Three new environment variables can be used: `ELASTIC_OTEL_OPAMP_CERTIFICATE`, `ELASTIC_OTEL_OPAMP_CLIENT_CERTIFICATE`, and `ELASTIC_OTEL_OPAMP_CLIENT_KEY`. See [the Configure central configuration doc section](elastic-otel-node://reference/edot-node/configuration.md#configure-central-configuration) for details. [#1044](https://github.com/elastic/elastic-otel-node/issues/1044)
 
@@ -42,8 +42,9 @@ To check for security updates, go to [Security announcements for the Elastic sta
   While this is supported in the EDOT Node.js SDK, it will only be present in
   the "Agent Configuration" UI of Kibana version 9.3 and later.
 
-### Fixes [edot-node-next-fixes]
+### Fixes [edot-node-1.7.0-fixes]
 
+* Update `@opentelemetry/instrumentation-openai` dependency to version 0.7.0 to resolve a possible issue with TypeScript compilation. [opentelemetry-js-contrib#3240](https://github.com/open-telemetry/opentelemetry-js-contrib/issues/3240)
 
 ## 1.6.0 [edot-node-1.6.0-release-notes]
 
