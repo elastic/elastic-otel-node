@@ -18,7 +18,7 @@ jobs:
       PKGDIR: packages/opamp-client-node
       PKGNAME: "@elastic/opamp-client-node"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
