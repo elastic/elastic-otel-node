@@ -57,45 +57,99 @@ const {log} = require('./logging');
  */
 
 const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
-const {AmqplibInstrumentation} = require('@opentelemetry/instrumentation-amqplib');
-const {BunyanInstrumentation} = require('@opentelemetry/instrumentation-bunyan');
-const {ConnectInstrumentation} = require('@opentelemetry/instrumentation-connect');
-const {CassandraDriverInstrumentation} = require('@opentelemetry/instrumentation-cassandra-driver');
-const {CucumberInstrumentation} = require('@opentelemetry/instrumentation-cucumber');
-const {DataloaderInstrumentation} = require('@opentelemetry/instrumentation-dataloader');
+const {
+    AmqplibInstrumentation,
+} = require('@opentelemetry/instrumentation-amqplib');
+const {
+    BunyanInstrumentation,
+} = require('@opentelemetry/instrumentation-bunyan');
+const {
+    ConnectInstrumentation,
+} = require('@opentelemetry/instrumentation-connect');
+const {
+    CassandraDriverInstrumentation,
+} = require('@opentelemetry/instrumentation-cassandra-driver');
+const {
+    CucumberInstrumentation,
+} = require('@opentelemetry/instrumentation-cucumber');
+const {
+    DataloaderInstrumentation,
+} = require('@opentelemetry/instrumentation-dataloader');
 const {DnsInstrumentation} = require('@opentelemetry/instrumentation-dns');
-const {ExpressInstrumentation} = require('@opentelemetry/instrumentation-express');
+const {
+    ExpressInstrumentation,
+} = require('@opentelemetry/instrumentation-express');
 const {FsInstrumentation} = require('@opentelemetry/instrumentation-fs');
-const {FastifyInstrumentation} = require('@opentelemetry/instrumentation-fastify');
-const {GenericPoolInstrumentation} = require('@opentelemetry/instrumentation-generic-pool');
-const {GraphQLInstrumentation} = require('@opentelemetry/instrumentation-graphql');
+const {
+    FastifyInstrumentation,
+} = require('@opentelemetry/instrumentation-fastify');
+const {
+    GenericPoolInstrumentation,
+} = require('@opentelemetry/instrumentation-generic-pool');
+const {
+    GraphQLInstrumentation,
+} = require('@opentelemetry/instrumentation-graphql');
 const {GrpcInstrumentation} = require('@opentelemetry/instrumentation-grpc');
 const {HapiInstrumentation} = require('@opentelemetry/instrumentation-hapi');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
-const {IORedisInstrumentation} = require('@opentelemetry/instrumentation-ioredis');
+const {
+    IORedisInstrumentation,
+} = require('@opentelemetry/instrumentation-ioredis');
 const {KnexInstrumentation} = require('@opentelemetry/instrumentation-knex');
-const {KafkaJsInstrumentation} = require('@opentelemetry/instrumentation-kafkajs');
+const {
+    KafkaJsInstrumentation,
+} = require('@opentelemetry/instrumentation-kafkajs');
 const {KoaInstrumentation} = require('@opentelemetry/instrumentation-koa');
-const {LruMemoizerInstrumentation} = require('@opentelemetry/instrumentation-lru-memoizer');
-const {MemcachedInstrumentation} = require('@opentelemetry/instrumentation-memcached');
-const {MongoDBInstrumentation} = require('@opentelemetry/instrumentation-mongodb');
-const {MongooseInstrumentation} = require('@opentelemetry/instrumentation-mongoose');
+const {
+    LruMemoizerInstrumentation,
+} = require('@opentelemetry/instrumentation-lru-memoizer');
+const {
+    MemcachedInstrumentation,
+} = require('@opentelemetry/instrumentation-memcached');
+const {
+    MongoDBInstrumentation,
+} = require('@opentelemetry/instrumentation-mongodb');
+const {
+    MongooseInstrumentation,
+} = require('@opentelemetry/instrumentation-mongoose');
 const {MySQLInstrumentation} = require('@opentelemetry/instrumentation-mysql');
-const {MySQL2Instrumentation} = require('@opentelemetry/instrumentation-mysql2');
-const {NestInstrumentation} = require('@opentelemetry/instrumentation-nestjs-core');
+const {
+    MySQL2Instrumentation,
+} = require('@opentelemetry/instrumentation-mysql2');
+const {
+    NestInstrumentation,
+} = require('@opentelemetry/instrumentation-nestjs-core');
 const {NetInstrumentation} = require('@opentelemetry/instrumentation-net');
-const {OpenAIInstrumentation} = require('@opentelemetry/instrumentation-openai');
-const {OracleInstrumentation} = require('@opentelemetry/instrumentation-oracledb');
+const {
+    OpenAIInstrumentation,
+} = require('@opentelemetry/instrumentation-openai');
+const {
+    OracleInstrumentation,
+} = require('@opentelemetry/instrumentation-oracledb');
 const {PgInstrumentation} = require('@opentelemetry/instrumentation-pg');
 const {PinoInstrumentation} = require('@opentelemetry/instrumentation-pino');
 const {RedisInstrumentation} = require('@opentelemetry/instrumentation-redis');
-const {RestifyInstrumentation} = require('@opentelemetry/instrumentation-restify');
-const {RouterInstrumentation} = require('@opentelemetry/instrumentation-router');
-const {RuntimeNodeInstrumentation} = require('@opentelemetry/instrumentation-runtime-node');
-const {SocketIoInstrumentation} = require('@opentelemetry/instrumentation-socket.io');
-const {TediousInstrumentation} = require('@opentelemetry/instrumentation-tedious');
-const {UndiciInstrumentation} = require('@opentelemetry/instrumentation-undici');
-const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston');
+const {
+    RestifyInstrumentation,
+} = require('@opentelemetry/instrumentation-restify');
+const {
+    RouterInstrumentation,
+} = require('@opentelemetry/instrumentation-router');
+const {
+    RuntimeNodeInstrumentation,
+} = require('@opentelemetry/instrumentation-runtime-node');
+const {
+    SocketIoInstrumentation,
+} = require('@opentelemetry/instrumentation-socket.io');
+const {
+    TediousInstrumentation,
+} = require('@opentelemetry/instrumentation-tedious');
+const {
+    UndiciInstrumentation,
+} = require('@opentelemetry/instrumentation-undici');
+const {
+    WinstonInstrumentation,
+} = require('@opentelemetry/instrumentation-winston');
 
 // Instrumentations attach their Hook (for require-in-the-middle or import-in-the-middle)
 // when the `enable` method is called and this happens inside their constructor
@@ -106,46 +160,81 @@ const {WinstonInstrumentation} = require('@opentelemetry/instrumentation-winston
 // the user's config and can default to something else if needed.
 /** @type {Record<keyof InstrumentaionsMap, (cfg: any) => Instrumentation>} */
 const instrumentationsMap = {
-    '@opentelemetry/instrumentation-amqplib': (cfg) => new AmqplibInstrumentation(cfg),
-    '@opentelemetry/instrumentation-aws-sdk': (cfg) => new AwsInstrumentation(cfg),
-    '@opentelemetry/instrumentation-bunyan': (cfg) => new BunyanInstrumentation(cfg),
-    '@opentelemetry/instrumentation-connect': (cfg) => new ConnectInstrumentation(cfg),
-    '@opentelemetry/instrumentation-cassandra-driver': (cfg) => new CassandraDriverInstrumentation(cfg),
-    '@opentelemetry/instrumentation-cucumber': (cfg) => new CucumberInstrumentation(cfg),
-    '@opentelemetry/instrumentation-dataloader': (cfg) => new DataloaderInstrumentation(cfg),
+    '@opentelemetry/instrumentation-amqplib': (cfg) =>
+        new AmqplibInstrumentation(cfg),
+    '@opentelemetry/instrumentation-aws-sdk': (cfg) =>
+        new AwsInstrumentation(cfg),
+    '@opentelemetry/instrumentation-bunyan': (cfg) =>
+        new BunyanInstrumentation(cfg),
+    '@opentelemetry/instrumentation-connect': (cfg) =>
+        new ConnectInstrumentation(cfg),
+    '@opentelemetry/instrumentation-cassandra-driver': (cfg) =>
+        new CassandraDriverInstrumentation(cfg),
+    '@opentelemetry/instrumentation-cucumber': (cfg) =>
+        new CucumberInstrumentation(cfg),
+    '@opentelemetry/instrumentation-dataloader': (cfg) =>
+        new DataloaderInstrumentation(cfg),
     '@opentelemetry/instrumentation-dns': (cfg) => new DnsInstrumentation(cfg),
-    '@opentelemetry/instrumentation-express': (cfg) => new ExpressInstrumentation(cfg),
-    '@opentelemetry/instrumentation-fastify': (cfg) => new FastifyInstrumentation(cfg),
+    '@opentelemetry/instrumentation-express': (cfg) =>
+        new ExpressInstrumentation(cfg),
+    '@opentelemetry/instrumentation-fastify': (cfg) =>
+        new FastifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-fs': (cfg) => new FsInstrumentation(cfg),
-    '@opentelemetry/instrumentation-generic-pool': (cfg) => new GenericPoolInstrumentation(cfg),
-    '@opentelemetry/instrumentation-graphql': (cfg) => new GraphQLInstrumentation(cfg),
-    '@opentelemetry/instrumentation-grpc': (cfg) => new GrpcInstrumentation(cfg),
-    '@opentelemetry/instrumentation-hapi': (cfg) => new HapiInstrumentation(cfg),
-    '@opentelemetry/instrumentation-http': (cfg) => new HttpInstrumentation(cfg),
-    '@opentelemetry/instrumentation-ioredis': (cfg) => new IORedisInstrumentation(cfg),
-    '@opentelemetry/instrumentation-knex': (cfg) => new KnexInstrumentation(cfg),
-    '@opentelemetry/instrumentation-kafkajs': (cfg) => new KafkaJsInstrumentation(cfg),
+    '@opentelemetry/instrumentation-generic-pool': (cfg) =>
+        new GenericPoolInstrumentation(cfg),
+    '@opentelemetry/instrumentation-graphql': (cfg) =>
+        new GraphQLInstrumentation(cfg),
+    '@opentelemetry/instrumentation-grpc': (cfg) =>
+        new GrpcInstrumentation(cfg),
+    '@opentelemetry/instrumentation-hapi': (cfg) =>
+        new HapiInstrumentation(cfg),
+    '@opentelemetry/instrumentation-http': (cfg) =>
+        new HttpInstrumentation(cfg),
+    '@opentelemetry/instrumentation-ioredis': (cfg) =>
+        new IORedisInstrumentation(cfg),
+    '@opentelemetry/instrumentation-knex': (cfg) =>
+        new KnexInstrumentation(cfg),
+    '@opentelemetry/instrumentation-kafkajs': (cfg) =>
+        new KafkaJsInstrumentation(cfg),
     '@opentelemetry/instrumentation-koa': (cfg) => new KoaInstrumentation(cfg),
-    '@opentelemetry/instrumentation-lru-memoizer': (cfg) => new LruMemoizerInstrumentation(cfg),
-    '@opentelemetry/instrumentation-memcached': (cfg) => new MemcachedInstrumentation(cfg),
-    '@opentelemetry/instrumentation-mongodb': (cfg) => new MongoDBInstrumentation(cfg),
-    '@opentelemetry/instrumentation-mongoose': (cfg) => new MongooseInstrumentation(cfg),
-    '@opentelemetry/instrumentation-mysql': (cfg) => new MySQLInstrumentation(cfg),
-    '@opentelemetry/instrumentation-mysql2': (cfg) => new MySQL2Instrumentation(cfg),
-    '@opentelemetry/instrumentation-nestjs-core': (cfg) => new NestInstrumentation(cfg),
+    '@opentelemetry/instrumentation-lru-memoizer': (cfg) =>
+        new LruMemoizerInstrumentation(cfg),
+    '@opentelemetry/instrumentation-memcached': (cfg) =>
+        new MemcachedInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mongodb': (cfg) =>
+        new MongoDBInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mongoose': (cfg) =>
+        new MongooseInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mysql': (cfg) =>
+        new MySQLInstrumentation(cfg),
+    '@opentelemetry/instrumentation-mysql2': (cfg) =>
+        new MySQL2Instrumentation(cfg),
+    '@opentelemetry/instrumentation-nestjs-core': (cfg) =>
+        new NestInstrumentation(cfg),
     '@opentelemetry/instrumentation-net': (cfg) => new NetInstrumentation(cfg),
-    '@opentelemetry/instrumentation-openai': (cfg) => new OpenAIInstrumentation(cfg),
-    '@opentelemetry/instrumentation-oracledb': (cfg) => new OracleInstrumentation(cfg),
+    '@opentelemetry/instrumentation-openai': (cfg) =>
+        new OpenAIInstrumentation(cfg),
+    '@opentelemetry/instrumentation-oracledb': (cfg) =>
+        new OracleInstrumentation(cfg),
     '@opentelemetry/instrumentation-pg': (cfg) => new PgInstrumentation(cfg),
-    '@opentelemetry/instrumentation-pino': (cfg) => new PinoInstrumentation(cfg),
-    '@opentelemetry/instrumentation-redis': (cfg) => new RedisInstrumentation(cfg),
-    '@opentelemetry/instrumentation-restify': (cfg) => new RestifyInstrumentation(cfg),
-    '@opentelemetry/instrumentation-router': (cfg) => new RouterInstrumentation(cfg),
-    '@opentelemetry/instrumentation-runtime-node': (cfg) => new RuntimeNodeInstrumentation(cfg),
-    '@opentelemetry/instrumentation-socket.io': (cfg) => new SocketIoInstrumentation(cfg),
-    '@opentelemetry/instrumentation-tedious': (cfg) => new TediousInstrumentation(cfg),
-    '@opentelemetry/instrumentation-undici': (cfg) => new UndiciInstrumentation(cfg),
-    '@opentelemetry/instrumentation-winston': (cfg) => new WinstonInstrumentation(cfg),
+    '@opentelemetry/instrumentation-pino': (cfg) =>
+        new PinoInstrumentation(cfg),
+    '@opentelemetry/instrumentation-redis': (cfg) =>
+        new RedisInstrumentation(cfg),
+    '@opentelemetry/instrumentation-restify': (cfg) =>
+        new RestifyInstrumentation(cfg),
+    '@opentelemetry/instrumentation-router': (cfg) =>
+        new RouterInstrumentation(cfg),
+    '@opentelemetry/instrumentation-runtime-node': (cfg) =>
+        new RuntimeNodeInstrumentation(cfg),
+    '@opentelemetry/instrumentation-socket.io': (cfg) =>
+        new SocketIoInstrumentation(cfg),
+    '@opentelemetry/instrumentation-tedious': (cfg) =>
+        new TediousInstrumentation(cfg),
+    '@opentelemetry/instrumentation-undici': (cfg) =>
+        new UndiciInstrumentation(cfg),
+    '@opentelemetry/instrumentation-winston': (cfg) =>
+        new WinstonInstrumentation(cfg),
 };
 
 const excludedInstrumentations = new Set([
