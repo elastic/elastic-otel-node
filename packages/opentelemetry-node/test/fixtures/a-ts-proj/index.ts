@@ -13,4 +13,4 @@ assert.ok(typeof api.trace.getTracer === 'function');
 assert.ok(typeof tracing.ConsoleSpanExporter === 'function');
 assert.ok(typeof core.hrTime === 'function');
 
-console.log('Success.')
+console.log('Success.');

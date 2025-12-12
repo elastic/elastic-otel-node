@@ -672,13 +672,11 @@ class MockOpAMPServer {
         }
         const reportedFullState = Boolean(
             a2s.agentDescription &&
-                (!(
-                    a2s.capabilities &
-                    BigInt(
-                        AgentCapabilities.AgentCapabilities_ReportsRemoteConfig
-                    )
-                ) ||
-                    a2s.remoteConfigStatus)
+            (!(
+                a2s.capabilities &
+                BigInt(AgentCapabilities.AgentCapabilities_ReportsRemoteConfig)
+            ) ||
+                a2s.remoteConfigStatus)
         );
         const resData = {
             instanceUid: a2s.instanceUid,
