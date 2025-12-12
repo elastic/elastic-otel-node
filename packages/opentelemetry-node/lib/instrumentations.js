@@ -56,7 +56,6 @@ const {log} = require('./logging');
  * }} InstrumentaionsMap
  */
 
-/* eslint-disable prettier/prettier */
 const {AwsInstrumentation} = require('@opentelemetry/instrumentation-aws-sdk');
 const {AmqplibInstrumentation} = require('@opentelemetry/instrumentation-amqplib');
 const {BunyanInstrumentation} = require('@opentelemetry/instrumentation-bunyan');
@@ -148,7 +147,6 @@ const instrumentationsMap = {
     '@opentelemetry/instrumentation-undici': (cfg) => new UndiciInstrumentation(cfg),
     '@opentelemetry/instrumentation-winston': (cfg) => new WinstonInstrumentation(cfg),
 };
-/* eslint-enable prettier/prettier */
 
 const excludedInstrumentations = new Set([
     '@opentelemetry/instrumentation-fastify',

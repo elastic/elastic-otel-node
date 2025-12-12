@@ -73,6 +73,7 @@ function setupShutdownHandlers(shutdownFn) {
         try {
             await shutdownFn();
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.warn('warning: error shutting down OTel SDK', err);
         }
         process.exit(128 + os.constants.signals.SIGTERM);
@@ -83,6 +84,7 @@ function setupShutdownHandlers(shutdownFn) {
         try {
             await shutdownFn();
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.warn('warning: error shutting down OTel SDK', err);
         }
     });
