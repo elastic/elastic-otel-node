@@ -5,8 +5,10 @@
   "version": "0.1.0",
   "scripts": {
     "clean": "rm -rf node_modules",
-    "lint": "npm run lint:deps",
-    "TODO:lint:except-eslint-and-prettier": "npm run lint:deps # TODO because need to fix deps issues first",
+    "lint": "npm run lint:eslint && npm run lint:prettier && npm run lint:deps",
+    "lint:except-eslint-and-prettier": "npm run lint:deps",
+    "lint:eslint": "eslint .",
+    "lint:prettier": "(cd ../; prettier --check $npm_config_local_prefix)",
     "lint:deps": "dependency-check '*.js' '*.mjs' -i pino-pretty  -i @elastic/opentelemetry-node -i bunyan  # '-i bunyan' should not be necessary, dep-check cannot handle ESM?",
     "dev:use-local-edot-nodejs": "npm install --no-save ../packages/opentelemetry-node"
   },
