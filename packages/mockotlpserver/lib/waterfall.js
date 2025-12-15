@@ -139,7 +139,9 @@ function renderSpan(span, prefix = '') {
             extras.push(
                 `tokens ${attrs['gen_ai.usage.input_tokens']}in/${attrs['gen_ai.usage.output_tokens']}out`
             );
-        } catch (_err) {}
+        } catch (_err) {
+            /* empty */
+        }
     }
 
     // Resource and Instrumentation scope info.
