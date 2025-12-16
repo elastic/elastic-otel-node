@@ -337,8 +337,8 @@ const REMOTE_CONFIG_HANDLERS = [
             for (let instr of sdkInfo.instrs) {
                 const instrName = instr.instrumentationName;
                 let deactivate;
-                if (valAll !== undefined) {
-                    deactivate = valAll;
+                if (valAll === true) {
+                    deactivate = true;
                 } else if (valSome !== undefined) {
                     deactivate = valSome.includes(instrName);
                 } else {

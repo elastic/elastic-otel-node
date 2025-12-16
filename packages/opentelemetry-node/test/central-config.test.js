@@ -348,7 +348,7 @@ test('central-config', (suite) => {
             },
         },
         {
-            name: 'central-config: deactivate_all_instrumentations',
+            name: 'central-config: deactivate_all_instrumentations=true',
             args: ['./fixtures/central-config-gen-telemetry.js'],
             cwd: __dirname,
             env: () => {
@@ -435,6 +435,65 @@ test('central-config', (suite) => {
             },
             before: () => {
                 const config = {
+                    deactivate_instrumentations: 'undici, runtime-node',
+                };
+                opampServer.setAgentConfigMap({
+                    configMap: {
+                        elastic: {
+                            body: Buffer.from(JSON.stringify(config), 'utf8'),
+                            contentType: 'application/json',
+                        },
+                    },
+                });
+            },
+            after: () => {
+                opampServer.setAgentConfigMap({configMap: {}});
+            },
+            verbose: true,
+            checkTelemetry: (t, col, stdout) => {
+                const ccAppliedRe = /^CENTRAL_CONFIG_APPLIED: (\d+)$/m;
+                const ccAppliedStr = ccAppliedRe.exec(stdout)[1];
+                const ccAppliedNs = BigInt(ccAppliedStr) * 1000000n;
+                assertCentralConfigGenTelemetry(
+                    t,
+                    col,
+                    [
+                        'spans',
+                        'metrics',
+                        'logs',
+                        // 'instr-runtime-node',
+                        // 'instr-undici',
+                        'instr-http',
+                    ],
+                    ccAppliedNs
+                );
+            },
+        },
+
+        {
+            name: 'central-config: deactivate_instrumentations is used if deactivate_all_instrumentations=false',
+            args: ['./fixtures/central-config-gen-telemetry.js'],
+            cwd: __dirname,
+            env: () => {
+                return {
+                    NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                    ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING: 'true',
+                    // Skip cloud resource detectors to avoid delay and noise.
+                    OTEL_NODE_RESOURCE_DETECTORS:
+                        'env,host,os,process,serviceinstance,container',
+                    ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
+                    ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
+                    ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                    // Set a short metric export interval to allow the
+                    // fixture script to wait for an interval after receiving
+                    // central config before proceeding.
+                    OTEL_METRIC_EXPORT_INTERVAL: '500',
+                    OTEL_METRIC_EXPORT_TIMEOUT: '450',
+                };
+            },
+            before: () => {
+                const config = {
+                    deactivate_all_instrumentations: 'false',
                     deactivate_instrumentations: 'undici, runtime-node',
                 };
                 opampServer.setAgentConfigMap({
