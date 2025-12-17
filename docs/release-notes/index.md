@@ -29,6 +29,16 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## version.next [edot-node-next-release-notes]
+
+### Features and enhancements [edot-node-next-features-enhancements]
+
+*
+
+### Fixes [edot-node-next-fixes]
+
+* Fix the handling of the `deactivate_all_instrumentations` [central configuration](elastic-otel-node://reference/edot-node/configuration.md#central-configuration) setting. If the value is `false`, it is now treated the same as if the setting had not been specified in central configuration. This means that `deactivate_all_instrumentations=false` and `deactivate_instrumentations=foo` will result in the "bar" instrumentation *not* being deactivated, which is the intended behavior. Before this change, `deactivate_all_instrumentations=false` would result in the `deactivate_instrumentations` setting being completely ignored. [#1236](https://github.com/elastic/elastic-otel-node/issues/1236)
+
 ## 1.7.0 [edot-node-1.7.0-release-notes]
 
 ### Features and enhancements [edot-node-1.7.0-features-enhancements]
