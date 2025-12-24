@@ -62,7 +62,7 @@ jobs:
           tags: ${{ steps.docker-meta.outputs.tags }}
           labels: ${{ steps.docker-meta.outputs.labels }}
       - name: Attest Docker image
-        uses: actions/attest-build-provenance@v3.0.0
+        uses: actions/attest-build-provenance@v3.1.0
         with:
           subject-name: ${{ env.DOCKER_IMAGE_NAME }}
           subject-digest: ${{ steps.docker-push.outputs.digest }}
