@@ -15,10 +15,11 @@ on:
       - '.github/workflows/release.yml'
 
 permissions:
+  artifact-metadata: write
   attestations: write
   contents: write
-  pull-requests: read
   id-token: write # Required for OIDC and provenance (npm publish)
+  pull-requests: read
 
 jobs:
   release:
