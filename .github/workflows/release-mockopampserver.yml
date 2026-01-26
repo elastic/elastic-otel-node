@@ -7,11 +7,12 @@ on:
       - mockopampserver-v*.*.*
 
 permissions:
-  pull-requests: read
-  contents: write # Required for "GitHub release" step
-  packages: write # Required for ghcr.io publish? https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions
-  id-token: write # Required for OIDC and provenance (npm publish)
+  artifact-metadata: write
   attestations: write # Required for actions/attest-build-provenance
+  contents: write # Required for "GitHub release" step
+  id-token: write # Required for OIDC and provenance (npm publish)
+  packages: write # Required for ghcr.io publish? https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions
+  pull-requests: read
 
 jobs:
   release:
