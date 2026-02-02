@@ -36,6 +36,7 @@ jobs:
           # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
           node-version: 'v24.8.0'
           registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
 
       # Setup a Docker "buildx" builder container, used by "build-push-action"
       # below for multi-platform image builds. Notes on multi-platform images:
