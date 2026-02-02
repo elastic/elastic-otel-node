@@ -31,9 +31,14 @@ jobs:
           # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
           node-version: 'v24.8.0'
           registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
 
       # Push a Docker image.
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+        with:
+          # NOTE: disable the cache poisoning vector attack
+          cache-binary: false
+
       - id: docker-meta
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051  # v5.10.0
         with:
