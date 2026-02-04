@@ -43,6 +43,12 @@ updates:
     cooldown:
       default-days: 14
     open-pull-requests-limit: 10
+    ignore:
+      # Cannot take protobufjs@8 and protobufjs-cli@2 until https://github.com/protobufjs/protobuf.js/pull/2118 is fixed.
+      - dependency-name: "protobufjs"
+        versions: [ ">=8" ]
+      - dependency-name: "protobufjs-cli"
+        versions: [ ">=2" ]
     groups:
       mockotlpserver:
         patterns:
