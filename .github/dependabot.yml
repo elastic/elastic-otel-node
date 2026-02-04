@@ -15,6 +15,8 @@ updates:
       default-days: 14
     open-pull-requests-limit: 10
     ignore:
+      # We should use "./scripts/update-otel-deps.js" for updating '@opentelemetry/*'.
+      - dependency-name: "@opentelemetry/*"
       # undici@7 dropped Node.js 18 support
       - dependency-name: "undici"
         versions: [ ">=7" ]
@@ -22,9 +24,6 @@ updates:
       - dependency-name: "@types/glob"
         versions: [ ">=9" ]
     groups:
-      opentelemetry:
-        patterns:
-        - "@opentelemetry/*"
       aws-sdk:
         dependency-type: "development"
         patterns:
