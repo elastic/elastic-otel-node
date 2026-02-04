@@ -72,7 +72,12 @@ function datestamp() {
  *      accurately represent the commands run, because the final 'npm update'
  *      args can depend on the results of earlier 'npm install' commands.
  */
-function updateNpmDeps({patterns, allowRangeBumpFor0x, allowRangeBumpForStable, dryRun}) {
+function updateNpmDeps({
+    patterns,
+    allowRangeBumpFor0x,
+    allowRangeBumpForStable,
+    dryRun,
+}) {
     assert(
         patterns && patterns.length > 0,
         'must provide one or more patterns'
@@ -193,7 +198,9 @@ function updateNpmDeps({patterns, allowRangeBumpFor0x, allowRangeBumpForStable, 
     if (npmInstallExactArgs.length > 0) {
         npmInstallTasks.push({
             cwd: pkgDir,
-            argv: ['npm', 'install', '--save-exact'].concat(npmInstallExactArgs),
+            argv: ['npm', 'install', '--save-exact'].concat(
+                npmInstallExactArgs
+            ),
         });
     }
 
