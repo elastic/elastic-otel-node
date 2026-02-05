@@ -93,7 +93,7 @@
     "@opentelemetry/instrumentation-dataloader": "^0.26.0",
     "@opentelemetry/instrumentation-dns": "^0.52.0",
     "@opentelemetry/instrumentation-express": "^0.57.0",
-    "@opentelemetry/instrumentation-fastify": "^0.53.0",
+    "@opentelemetry/instrumentation-fastify": "^0.54.0",
     "@opentelemetry/instrumentation-fs": "^0.28.0",
     "@opentelemetry/instrumentation-generic-pool": "^0.52.0",
     "@opentelemetry/instrumentation-graphql": "^0.56.0",
