@@ -108,7 +108,7 @@
     "@opentelemetry/instrumentation-memcached": "^0.52.0",
     "@opentelemetry/instrumentation-mongodb": "^0.61.0",
     "@opentelemetry/instrumentation-mongoose": "^0.55.0",
-    "@opentelemetry/instrumentation-mysql": "^0.54.0",
+    "@opentelemetry/instrumentation-mysql": "^0.56.0",
     "@opentelemetry/instrumentation-mysql2": "^0.55.0",
     "@opentelemetry/instrumentation-nestjs-core": "^0.55.0",
     "@opentelemetry/instrumentation-net": "^0.52.0",
