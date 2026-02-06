@@ -62,26 +62,28 @@ function getSafeEdotEnv() {
 
 /**
  * A set of EDOT/OTel-related envvar names whose value is not considered
- * sensitive information. For example the `*_HEADERS` envvars should NOT be
- * included in this set.
+ * sensitive information. For example the `OTEL_EXPORTER_OTLP*_HEADERS` envvars
+ * should NOT be included in this set.
  *
- * Command to grep a repo for candidates:
- *      rg '\b((ELASTIC_)?OTEL_\w+)\b' -g '!test' -oIN | sort | uniq | rg -v HEADERS
- * Or in the relevant repo clones:
-            -g '!test' -g '!semantic-conventions' -g '!CHANGELOG.md' -g '!contrib-test-utils' \
-
+ * Command to grep the current repo (assumed to be elastic-otel-node.git)
+ * and upstream OTel JS repos for candidates:
+ *
         rg '\b((ELASTIC_)?OTEL_\w+)\b' -oIN \
             -g '*.{ts,js,mjs,cjs}' -g '!test' -g '!semantic-conventions' -g '!contrib-test-utils' \
-            elastic-otel-node opentelemetry-js opentelemetry-js-contrib \
-            | rg -v '(HEADERS|PASSWORD)' \
+            . ~/src/opentelemetry-js ~/src/opentelemetry-js-contrib \
+            | rg -v '(^OTEL_EXPORTER_OTLP.*_HEADERS$|ELASTIC_OTEL_OPAMP_HEADERS|PASSWORD)' \
             | rg -v '(_SYMBOL|OTEL_SEV_NUM_FROM_|OTEL_FOO|OTEL_PATCHED_SYMBOL|OTEL_OPEN_SPANS|_$)' \
             | sort | uniq
  */
-const NON_SENSTITIVE_EDOT_ENV_NAMES = new Set(
-    `
+const NON_SENSTITIVE_EDOT_ENV_NAMES = new Set(`
+
     ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY
     ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL
     ELASTIC_OTEL_HOST_METRICS_DISABLED
+    ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS
+    ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS
+    ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS
+    ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS
     ELASTIC_OTEL_METRICS_DISABLED
     ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING
     ELASTIC_OTEL_OPAMP_CERTIFICATE
@@ -167,6 +169,7 @@ const NON_SENSTITIVE_EDOT_ENV_NAMES = new Set(
     OTEL_TRACES_EXPORTER
     OTEL_TRACES_SAMPLER
     OTEL_TRACES_SAMPLER_ARG
+
 `
         .trim()
         .split(/\s+/)
