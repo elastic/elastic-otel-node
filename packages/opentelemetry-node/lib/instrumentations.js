@@ -405,29 +405,41 @@ function getInstrumentations(opts = {}) {
     // to configure `headersToSpanAttributes` for instr-http and instr-undici.
     let headersToSpanAttributes;
     const cfgPathFromEnvvar = {
-        'ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS': ['client', 'requestHeaders'],
-        'ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS': ['client', 'responseHeaders'],
-        'ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS': ['server', 'requestHeaders'],
-        'ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS': ['server', 'responseHeaders'],
+        ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS: [
+            'client',
+            'requestHeaders',
+        ],
+        ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS: [
+            'client',
+            'responseHeaders',
+        ],
+        ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS: [
+            'server',
+            'requestHeaders',
+        ],
+        ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS: [
+            'server',
+            'responseHeaders',
+        ],
     };
     for (const [envvar, [p0, p1]] of Object.entries(cfgPathFromEnvvar)) {
         const vals = getStringListFromEnv(envvar);
         if (vals && vals.length > 0) {
-            if (!headersToSpanAttributes)
-                headersToSpanAttributes = {}
-            if (!headersToSpanAttributes[p0])
-                headersToSpanAttributes[p0] = {}
+            if (!headersToSpanAttributes) headersToSpanAttributes = {};
+            if (!headersToSpanAttributes[p0]) headersToSpanAttributes[p0] = {};
             if (!headersToSpanAttributes[p0][p1])
-                headersToSpanAttributes[p0][p1] = vals
+                headersToSpanAttributes[p0][p1] = vals;
         }
     }
     if (headersToSpanAttributes) {
         defaultInstrConfigFromName['@opentelemetry/instrumentation-http'] = {
-            headersToSpanAttributes
+            headersToSpanAttributes,
         };
         if (headersToSpanAttributes.client) {
-            defaultInstrConfigFromName['@opentelemetry/instrumentation-undici'] = {
-                headersToSpanAttributes: headersToSpanAttributes.client
+            defaultInstrConfigFromName[
+                '@opentelemetry/instrumentation-undici'
+            ] = {
+                headersToSpanAttributes: headersToSpanAttributes.client,
             };
         }
     }

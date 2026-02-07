@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 const http = require('http');
 
 const server = http.createServer(function onRequest(req, res) {
@@ -32,8 +31,8 @@ server.listen(0, '127.0.0.1', async function () {
             `http://127.0.0.1:${port}/`,
             {
                 headers: {
-                    Foo: 'Bar'
-                }
+                    Foo: 'Bar',
+                },
             },
             function (cres) {
                 console.log(
@@ -56,7 +55,7 @@ server.listen(0, '127.0.0.1', async function () {
             ['Spam', 'Eggs'],
             ['Twice', 'A'],
             ['Twice', 'B'],
-        ]
+        ],
     });
     console.log(
         'fetch response: %s %o',
