@@ -403,6 +403,7 @@ function getInstrumentations(opts = {}) {
     // Handle envvars for HTTP header capture:
     // `ELASTIC_OTEL_INSTRUMENTATION_HTTP_{CLIENT,SERVER}_CAPTURE_{REQUEST,RESPONSE}_HEADERS`
     // to configure `headersToSpanAttributes` for instr-http and instr-undici.
+    /** @type {import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig['headersToSpanAttributes']} */
     let headersToSpanAttributes;
     const cfgPathFromEnvvar = {
         ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS: [
@@ -427,8 +428,9 @@ function getInstrumentations(opts = {}) {
         if (vals && vals.length > 0) {
             if (!headersToSpanAttributes) headersToSpanAttributes = {};
             if (!headersToSpanAttributes[p0]) headersToSpanAttributes[p0] = {};
-            if (!headersToSpanAttributes[p0][p1])
+            if (!headersToSpanAttributes[p0][p1]) {
                 headersToSpanAttributes[p0][p1] = vals;
+            }
         }
     }
     if (headersToSpanAttributes) {
