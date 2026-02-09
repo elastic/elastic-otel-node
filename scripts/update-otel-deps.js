@@ -59,11 +59,25 @@ function datestamp() {
  *      satisfy the current range. E.g. `^0.41.0` will be bumped to `0.42.0` or
  *      `1.2.3` or `2.3.4` if that is the latest published version. This means
  *      using `npm install ...` and changing the range in "package.json".
+ *      WARNING: This can mean breaking changes.
+ * @param {boolean} [opts.allowRangeBumpForStable] - By default this update only
+ *      targets the latest available version that matches the current
+ *      package.json range. Setting this to true allows any deps currently at
+ *      1.x or later to be bumped to the latest, even if the latest doesn't
+ *      satisfy the current range. E.g. `^1.2.3` will be bumped to `^1.3.0`
+ *      or `^2.0.1` or whatever is the latest published version. This means
+ *      using `npm install ...` and changing the range in "package.json".'
+ *      WARNING: This can mean breaking changes.
  * @param {boolean} [opts.dryRun] - Note that a dry-run might not fully
  *      accurately represent the commands run, because the final 'npm update'
  *      args can depend on the results of earlier 'npm install' commands.
  */
-function updateNpmDeps({patterns, allowRangeBumpFor0x, dryRun}) {
+function updateNpmDeps({
+    patterns,
+    allowRangeBumpFor0x,
+    allowRangeBumpForStable,
+    dryRun,
+}) {
     assert(
         patterns && patterns.length > 0,
         'must provide one or more patterns'
@@ -128,6 +142,7 @@ function updateNpmDeps({patterns, allowRangeBumpFor0x, dryRun}) {
         return;
     }
     const npmInstallArgs = [];
+    const npmInstallExactArgs = [];
     for (let depName of depNames) {
         if (!(depName in outdated)) {
             continue;
@@ -153,16 +168,39 @@ function updateNpmDeps({patterns, allowRangeBumpFor0x, dryRun}) {
                 );
             }
         } else {
-            // TODO: Add support for finding a release other than latest that satisfies the package.json range.
-            console.warn(
-                `WARN: dep "${depName}" in "${pkgDir}" cannot be updated to latest: currVer=${currVer}, latestVer=${latestVer}, package.json dep range="${pkgInfo.deps[depName]}" (this script does not yet support finding a possible published ver to update to that does satisfy the package.json range)`
-            );
+            if (allowRangeBumpForStable) {
+                if (/^\d/.test(pkgInfo.deps[depName])) {
+                    // Current deps entry is an *exact* version. Let's install
+                    // it with `--save-exact`.
+                    npmInstallExactArgs.push(`${depName}@${latestVer}`);
+                    summaryStrs.add(
+                        `${currVer} -> ${latestVer} ${depName} (exact-ver-bump)`
+                    );
+                } else {
+                    npmInstallArgs.push(`${depName}@${latestVer}`);
+                    summaryStrs.add(
+                        `${currVer} -> ${latestVer} ${depName} (range-bump)`
+                    );
+                }
+            } else {
+                console.warn(
+                    `WARN: not updating dep "${depName}" in "${pkgDir}" to latest: currVer=${currVer}, latestVer=${latestVer}, package.json dep range="${pkgInfo.deps[depName]}" (use allowRangeBumpForStable=true to supporting bumping deps out of package.json range)`
+                );
+            }
         }
     }
     if (npmInstallArgs.length > 0) {
         npmInstallTasks.push({
             cwd: pkgDir,
             argv: ['npm', 'install'].concat(npmInstallArgs),
+        });
+    }
+    if (npmInstallExactArgs.length > 0) {
+        npmInstallTasks.push({
+            cwd: pkgDir,
+            argv: ['npm', 'install', '--save-exact'].concat(
+                npmInstallExactArgs
+            ),
         });
     }
 
@@ -264,6 +302,7 @@ async function main() {
     updateNpmDeps({
         patterns: ['@opentelemetry/*'],
         allowRangeBumpFor0x: true,
+        allowRangeBumpForStable: true,
         dryRun: false,
     });
 }
