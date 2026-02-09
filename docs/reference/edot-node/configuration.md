@@ -214,15 +214,15 @@ EDOT Node.js handles these settings the same as the [`@opentelemetry/auto-instru
 
 ```{applies_to}
 product:
-  edot_node: 1.8.0
+  edot_node: 1.9.0
 ```
 
 The following four environment variables support capturing HTTP request or response headers as attributes on client or server spans. Provide a comma-separate list of header names (case-insensitive) to capture. The environment variable names were chosen to match the existing `OTEL_INSTRUMENTATION_HTTP_{CLIENT,SERVER}_CAPTURE_{REQUEST,RESPONSE}_HEADERS` names supported by OpenTelemetry Java and OpenTelemetry Python. The capturing of headers is done by the relevant HTTP-related instrumentation; currently `@opentelemetry/instrumentation-http` and `@opentelemetry/instrumentation-undici`. These instrumentations must be active for header capture.
 
-- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS` - Comma-separated list of HTTP *request* headers to capture on *client* spans. |
-- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS` - Comma-separated list of HTTP *response* headers to capture on *client* spans. |
-- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS` - Comma-separated list of HTTP *request* headers to capture on *server* spans. |
-- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS` - Comma-separated list of HTTP *response* headers to capture on *server* spans. |
+- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS` - Comma-separated list of HTTP *request* headers to capture on *client* spans.
+- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS` - Comma-separated list of HTTP *response* headers to capture on *client* spans.
+- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS` - Comma-separated list of HTTP *request* headers to capture on *server* spans.
+- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS` - Comma-separated list of HTTP *response* headers to capture on *server* spans.
 
 ### `ELASTIC_OTEL_METRICS_DISABLED` details [deprecated-elastic_otel_metrics_disabled-details]
 
