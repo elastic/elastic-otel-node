@@ -214,7 +214,7 @@ EDOT Node.js handles these settings the same as the [`@opentelemetry/auto-instru
 
 ```{applies_to}
 product:
-  edot_node: 1.9.0
+  edot_node: ga 1.9.0
 ```
 
 The following four environment variables support capturing HTTP request or response headers as attributes on client or server spans. Provide a comma-separate list of header names (case-insensitive) to capture. The environment variable names were chosen to match the existing `OTEL_INSTRUMENTATION_HTTP_{CLIENT,SERVER}_CAPTURE_{REQUEST,RESPONSE}_HEADERS` names supported by OpenTelemetry Java and OpenTelemetry Python. The capturing of headers is done by the relevant HTTP-related instrumentation; currently `@opentelemetry/instrumentation-http` and `@opentelemetry/instrumentation-undici`. These instrumentations must be active for header capture.
