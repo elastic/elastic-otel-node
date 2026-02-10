@@ -368,8 +368,8 @@ function getInstrumentations(opts = {}) {
 
     // `@opentelemetry/instrumentation-http` defaults to emit old semconv attributes.
     // Set the default to stable HTTP semconv if not defined by the user (http, http/dup)
-    // TODO: remove this once https://github.com/open-telemetry/opentelemetry-js/pull/5552
-    // is merged and published.
+    // TODO: remove this once the upstream migration is complete:
+    // https://github.com/open-telemetry/opentelemetry-js/blob/main/doc/semconv-stable-http-and-database.md
     const semconvOptIn =
         getStringListFromEnv('OTEL_SEMCONV_STABILITY_OPT_IN') || [];
     if (!semconvOptIn.includes('http') && !semconvOptIn.includes('http/dup')) {
@@ -398,6 +398,52 @@ function getInstrumentations(opts = {}) {
                 `@opentelemetry/instrumentation-${name}`
             ] = {disableLogSending: true};
         });
+    }
+
+    // Handle envvars for HTTP header capture:
+    // `ELASTIC_OTEL_INSTRUMENTATION_HTTP_{CLIENT,SERVER}_CAPTURE_{REQUEST,RESPONSE}_HEADERS`
+    // to configure `headersToSpanAttributes` for instr-http and instr-undici.
+    /** @type {import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig['headersToSpanAttributes']} */
+    let headersToSpanAttributes;
+    const cfgPathFromEnvvar = {
+        ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS: [
+            'client',
+            'requestHeaders',
+        ],
+        ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS: [
+            'client',
+            'responseHeaders',
+        ],
+        ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS: [
+            'server',
+            'requestHeaders',
+        ],
+        ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS: [
+            'server',
+            'responseHeaders',
+        ],
+    };
+    for (const [envvar, [p0, p1]] of Object.entries(cfgPathFromEnvvar)) {
+        const vals = getStringListFromEnv(envvar);
+        if (vals && vals.length > 0) {
+            if (!headersToSpanAttributes) headersToSpanAttributes = {};
+            if (!headersToSpanAttributes[p0]) headersToSpanAttributes[p0] = {};
+            if (!headersToSpanAttributes[p0][p1]) {
+                headersToSpanAttributes[p0][p1] = vals;
+            }
+        }
+    }
+    if (headersToSpanAttributes) {
+        defaultInstrConfigFromName['@opentelemetry/instrumentation-http'] = {
+            headersToSpanAttributes,
+        };
+        if (headersToSpanAttributes.client) {
+            defaultInstrConfigFromName[
+                '@opentelemetry/instrumentation-undici'
+            ] = {
+                headersToSpanAttributes: headersToSpanAttributes.client,
+            };
+        }
     }
 
     // TODO: check `opts` and warn if it includes entries for unknown instrumentations (this is what `checkManuallyProvidedInstrumentationNames` does in auto-instrumentations-node).
