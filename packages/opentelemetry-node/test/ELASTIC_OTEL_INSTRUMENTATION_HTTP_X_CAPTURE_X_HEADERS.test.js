@@ -16,6 +16,9 @@ const {runTestFixtures} = require('./testutils');
 const testFixtures = [
     {
         name: 'headers are captured',
+        versionRanges: {
+            node: '>=22.3.0', // when `Response.bytes()` was added to bundled undici
+        },
         args: ['./fixtures/use-capture-headers.js'],
         cwd: __dirname,
         env: {
