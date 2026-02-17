@@ -211,16 +211,18 @@ test('central-config', (suite) => {
             checkTelemetry: (t, col) => {
                 // Drop the expected `http://127.0.0.1:$port/api/agentConfigMap`
                 // API calls made to the OpAMP server by the script.
-                let spans = col.sortedSpans.filter((s) => {
-                    if (
-                        s.attributes['url.full']?.endsWith(
-                            '/api/agentConfigMap'
-                        )
-                    ) {
-                        return false;
+                let spans = filterOutDnsNetSpans(col.sortedSpans).filter(
+                    (s) => {
+                        if (
+                            s.attributes['url.full']?.endsWith(
+                                '/api/agentConfigMap'
+                            )
+                        ) {
+                            return false;
+                        }
+                        return true;
                     }
-                    return true;
-                });
+                );
                 // Should not be any other spans, e.g. for the OpAMP client
                 // communication.
                 const unexpectedSpans = spans.map((s) => {
