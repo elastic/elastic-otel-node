@@ -10,8 +10,8 @@
 # dependencies**; as opposed to what is published to npm.
 #
 # Usage:
-#   ./dev-utils/gen-notice.sh DIST_DIR
-#   ./dev-utils/gen-notice.sh --lint DIST_DIR   # lint mode
+#   ./scripts/gen-notice.sh DIST_DIR
+#   ./scripts/gen-notice.sh --lint DIST_DIR   # lint mode
 #
 # where DIST_DIR is the distribution directory (the dir that holds the
 # "package.json" and "node_modules/" dir).
@@ -76,6 +76,7 @@ npm ls --omit=dev --all --parseable \
             "BSD-2-Clause": true,
             "BSD-3-Clause": true,
             "(Apache-2.0 AND BSD-3-Clause)": true,
+            "BlueOak-1.0.0": true,
         }
         // We handle getting the license text for a few specific deps that
         // do not include one in their install.
@@ -87,6 +88,8 @@ npm ls --omit=dev --all --parseable \
             "tr46": "license.MIT.txt",
             "@bufbuild/protobuf": "license.apache2.txt",
             "safe-json-stringify": "license.MIT.txt",
+            "data-uri-to-buffer": "license.MIT.txt",
+            "eastasianwidth": "license.MIT.txt",
         }
         const licTypeFromPkgName = {
             // Packages that have a license, but no "license" entry in package.json.
