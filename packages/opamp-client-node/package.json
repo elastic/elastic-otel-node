@@ -37,7 +37,7 @@
     "lint:types": "rm -rf build/lint-types && tsc --outDir build/lint-types && diff -ur types build/lint-types",
     "lint:deps": "dependency-check '{examples,lib,test}/**/*.js' -i @bufbuild/buf -i @bufbuild/protoc-gen-es -i pino-pretty",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .",
-    "lint:fix": "eslint --fix . && prettier --write .",
+    "lint:fix": "eslint --fix . && (cd ../../; prettier --list-different --write $npm_config_local_prefix)",
     "test": "tape test/**/*.test.js",
     "maint:regenerate-test-certs": "cd test/certs && ./regenerate.sh"
   },
