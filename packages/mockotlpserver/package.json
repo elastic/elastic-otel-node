@@ -33,7 +33,7 @@
     "lint:types": "tsc",
     "lint:deps": "dependency-check 'lib/**/*.js' -i protobufjs-cli",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
-    "lint:fix": "eslint --fix . && prettier --write .",
+    "lint:fix": "eslint --fix . && (cd ../../; prettier --list-different --write $npm_config_local_prefix)",
     "start": "node lib/cli.js",
     "watch": "node --watch lib/cli.js",
     "example": "cd ../../examples && pwd && node -r @elastic/opentelemetry-node simple-http-request.js",
