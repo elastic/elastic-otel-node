@@ -28,7 +28,7 @@ server.listen(0, '127.0.0.1', async function () {
     // Make one request the `http`.
     await new Promise((resolve) => {
         const clientReq = http.request(
-            `http://127.0.0.1:${port}/`,
+            `http://127.0.0.1:${port}/via-http`,
             {
                 headers: {
                     Foo: 'Bar',
@@ -48,9 +48,7 @@ server.listen(0, '127.0.0.1', async function () {
     });
 
     // Make second request with undici.
-    const res = await fetch(`http://127.0.0.1:${port}/`, {
-        // XXX
-        // headers: { Spam: 'Eggs' }
+    const res = await fetch(`http://127.0.0.1:${port}/via-fetch`, {
         headers: [
             ['Spam', 'Eggs'],
             ['Twice', 'A'],
