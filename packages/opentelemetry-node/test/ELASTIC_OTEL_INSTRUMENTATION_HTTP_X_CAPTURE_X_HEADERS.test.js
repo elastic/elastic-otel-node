@@ -46,7 +46,7 @@ const testFixtures = [
         checkTelemetry: (t, col) => {
             const spans = col.sortedSpans;
 
-            t.comment('span 1: client HTTP span from http.request()')
+            t.comment('span 1: client HTTP span from http.request()');
             let span = spans[0];
             t.deepEqual(span.scope.name, '@opentelemetry/instrumentation-http');
             t.strictEqual(span.kind, 'SPAN_KIND_CLIENT');
@@ -61,7 +61,7 @@ const testFixtures = [
                 'text/plain',
             ]);
 
-            t.comment('span 2: server HTTP span')
+            t.comment('span 2: server HTTP span');
             span = spans[1];
             t.deepEqual(span.scope.name, '@opentelemetry/instrumentation-http');
             t.strictEqual(span.kind, 'SPAN_KIND_SERVER');
@@ -79,25 +79,34 @@ const testFixtures = [
                 'text/plain',
             ]);
 
-            t.comment('span 3: client HTTP span from fetch()')
+            t.comment('span 3: client HTTP span from fetch()');
             span = spans[2];
             t.deepEqual(
                 span.scope.name,
                 '@opentelemetry/instrumentation-undici'
             );
             t.strictEqual(span.kind, 'SPAN_KIND_CLIENT');
-            t.deepEqual(span.attributes['http.request.header.spam'], [ 'Eggs' ]);
-            t.deepEqual(span.attributes['http.request.header.traceparent'], [ `00-${span.traceId}-${span.spanId}-01` ]);
+            t.deepEqual(span.attributes['http.request.header.spam'], ['Eggs']);
+            t.deepEqual(span.attributes['http.request.header.traceparent'], [
+                `00-${span.traceId}-${span.spanId}-01`,
+            ]);
             // Undici internal representation has joined the two `Twice` header
             // values, so that's what instr-undici returns.
-            t.deepEqual(span.attributes['http.request.header.twice'], [ 'A, B' ]);
-            t.deepEqual(span.attributes['http.response.header.server'], [ 'capture-header-example' ]);
+            t.deepEqual(span.attributes['http.request.header.twice'], ['A, B']);
+            t.deepEqual(span.attributes['http.response.header.server'], [
+                'capture-header-example',
+            ]);
             // Note: The hyphen in the attr name, not underscore. instr-undici
             // is conforming to stable HTTP semconv here.
-            t.deepEqual(span.attributes['http.response.header.content-type'], [ 'text/plain' ]);
-            t.deepEqual(span.attributes['http.response.header.deuxfois'], [ 'C', 'D' ]);
+            t.deepEqual(span.attributes['http.response.header.content-type'], [
+                'text/plain',
+            ]);
+            t.deepEqual(span.attributes['http.response.header.deuxfois'], [
+                'C',
+                'D',
+            ]);
 
-            t.comment('span 4: server HTTP span')
+            t.comment('span 4: server HTTP span');
             span = spans[3];
             t.deepEqual(span.scope.name, '@opentelemetry/instrumentation-http');
             t.strictEqual(span.kind, 'SPAN_KIND_SERVER');
