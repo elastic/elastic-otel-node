@@ -136,7 +136,7 @@
     "@opentelemetry/sdk-node": "^0.212.0",
     "@opentelemetry/semantic-conventions": "^1.30.0",
     "@opentelemetry/winston-transport": "^0.22.0",
-    "import-in-the-middle": "^2.0.0",
+    "import-in-the-middle": "^3.0.0",
     "safe-stable-stringify": "^2.4.3"
   },
   "devDependencies": {
