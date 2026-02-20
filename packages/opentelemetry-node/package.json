@@ -162,7 +162,7 @@
     "ioredis": "^5.4.1",
     "kafkajs": "^2.2.4",
     "module-details-from-path": "^1.0.3",
-    "mongodb": "^6.9.0",
+    "mongodb": "^7.1.0",
     "mongoose": "^8.9.4",
     "mysql": "^2.18.1",
     "mysql2": "^3.11.5",
