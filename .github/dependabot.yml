@@ -126,7 +126,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "22:00"
     groups:
@@ -143,4 +143,4 @@ updates:
       - "/packages/opentelemetry-node"
     registries: "*"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
