@@ -68,6 +68,11 @@ The 🔹 symbol denotes settings with a default value or behavior that differs b
 | `OTEL_NODE_ENABLED_INSTRUMENTATIONS` 🔹 | [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details) Comma-separated list of instrumentations to turn on. |
 | `OTEL_NODE_DISABLED_INSTRUMENTATIONS` 🔹 | [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details) Comma-separated list of instrumentations to turn off. |
 | | |
+| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS` 🔹  | [(EDOT Ref)](#capture_headers-details) Comma-separated list of HTTP request headers to capture on client spans. |
+| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS` 🔹 | [(EDOT Ref)](#capture_headers-details) Comma-separated list of HTTP response headers to capture on client spans. |
+| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS` 🔹  | [(EDOT Ref)](#capture_headers-details) Comma-separated list of HTTP request headers to capture on server spans. |
+| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS` 🔹  | [(EDOT Ref)](#capture_headers-details) Comma-separated list of HTTP response headers to capture on server spans. |
+| | |
 | `ELASTIC_OTEL_HOST_METRICS_DISABLED` 🔹 | [(EDOT Ref)](#elastic_otel_host_metrics_disabled-details) Turn off collection of metrics done by `@opentelemetry/host-metrics` package. |
 | `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` 🔹 | [(EDOT Ref)](#otel_exporter_otlp_metrics_temporality_preference-details) The metrics exporter's default aggregation `temporality`. The default value is `delta`. The OTel default is `cumulative`. |
 | | |
@@ -205,6 +210,19 @@ The default set of enabled instrumentations is [the set of included instrumentat
 
 EDOT Node.js handles these settings the same as the [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/auto-instrumentations-node/README.md#usage-auto-instrumentation), with one addition. In `@opentelemetry/auto-instrumentations-node`, the name of an instrumentation is the name of the package with the `@opentelemetry/instrumentation-` prefix removed -- `cassandra-driver` refers to the instrumentation provided by `@opentelemetry/instrumentation-cassandra`. EDOT Node.js can include instrumentations that do not have this prefix, for example `@elastic/opentelemetry-instrumentation-SOMETHING`, if/when Elastic includes additional instrumentations that do not match `@opentelemetry/instrumentation-*`. In these cases, the "name" for the instrumentation is the full package name.
 
+### `ELASTIC_OTEL_INSTRUMENTATION_HTTP_{CLIENT,SERVER}_CAPTURE_{REQUEST,RESPONSE}_HEADERS` details [capture_headers-details]
+
+```{applies_to}
+product:
+  edot_node: ga 1.9.0
+```
+
+The following four environment variables support capturing HTTP request or response headers as attributes on client or server spans. Provide a comma-separate list of header names (case-insensitive) to capture. The environment variable names were chosen to match the existing `OTEL_INSTRUMENTATION_HTTP_{CLIENT,SERVER}_CAPTURE_{REQUEST,RESPONSE}_HEADERS` names supported by OpenTelemetry Java and OpenTelemetry Python. The capturing of headers is done by the relevant HTTP-related instrumentation; currently `@opentelemetry/instrumentation-http` and `@opentelemetry/instrumentation-undici`. These instrumentations must be active for header capture.
+
+- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS` - Comma-separated list of HTTP *request* headers to capture on *client* spans.
+- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS` - Comma-separated list of HTTP *response* headers to capture on *client* spans.
+- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS` - Comma-separated list of HTTP *request* headers to capture on *server* spans.
+- `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS` - Comma-separated list of HTTP *response* headers to capture on *server* spans.
 
 ### `ELASTIC_OTEL_METRICS_DISABLED` details [deprecated-elastic_otel_metrics_disabled-details]
 
