@@ -105,7 +105,7 @@ function renderSpan(span, prefix = '') {
         1e6;
     extras.push(`${durationMs.toFixed(1)}ms`);
 
-    if (span?.status?.code !== 'STATUS_CODE_UNSET') {
+    if (span?.status && span?.status?.code !== 'STATUS_CODE_UNSET') {
         extras.push(span.status.code);
     }
     extras.push(span.kind); // Perhaps skip of INTERNAL or UNSPECIFIED
