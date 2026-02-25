@@ -1,5 +1,11 @@
 # @elastic/mockotlpserver Changelog
 
+## Unreleased
+
+- fix: Do not throw when summarizing a span with no `span.status`.
+  Per https://opentelemetry.io/docs/specs/otlp/#json-protobuf-encoding and OTLP
+  proto files, the `status` property is fully optional.
+
 ## v0.10.0
 
 - feat: Add a new `onRequest` callback option to `MockOTLPServer` that allows
