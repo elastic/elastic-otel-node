@@ -29,6 +29,21 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## version.next [edot-node-X.X.X-release-notes]
+
+### Features and enhancements [edot-node-X.X.X-features-enhancements]
+
+* Add environment variables for configuring HTTP header capture. [#1349](https://github.com/elastic/elastic-otel-node/pull/1349)
+  * `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS` - Comma-separated list of HTTP *request* headers to capture on *client* spans.
+  * `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS` - Comma-separated list of HTTP *response* headers to capture on *client* spans.
+  * `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS` - Comma-separated list of HTTP *request* headers to capture on *server* spans.
+  * `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS` - Comma-separated list of HTTP *response* headers to capture on *server* spans.
+
+### Fixes [edot-node-X.X.X-fixes]
+
+*
+
+
 ## 1.8.0 [edot-node-1.8.0-release-notes]
 
 ### Fixes [edot-node-1.8.0-fixes]
