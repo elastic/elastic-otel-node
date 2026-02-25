@@ -1,6 +1,6 @@
 # @elastic/mockotlpserver Changelog
 
-## Unreleased
+## v0.11.0
 
 - fix: Do not throw when summarizing a span with no `span.status`.
   Per https://opentelemetry.io/docs/specs/otlp/#json-protobuf-encoding and OTLP
