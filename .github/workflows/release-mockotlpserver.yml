@@ -8,7 +8,7 @@ on:
 
 permissions:
   artifact-metadata: write
-  attestations: write # Required for actions/attest-build-provenance
+  attestations: write # Required for actions/attest
   contents: write # Required for "GitHub release" step
   id-token: write # Required for OIDC and provenance (npm publish)
   packages: write # Required for ghcr.io publish? https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions
@@ -68,7 +68,7 @@ jobs:
           tags: ${{ steps.docker-meta.outputs.tags }}
           labels: ${{ steps.docker-meta.outputs.labels }}
       - name: Attest Docker image
-        uses: actions/attest-build-provenance@c5efebd311e9a809e832398ca2b73bb429ff3508  # v2.4.0
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26  # v4.1.0
         with:
           subject-name: ${{ env.DOCKER_IMAGE_NAME }}
           subject-digest: ${{ steps.docker-push.outputs.digest }}
