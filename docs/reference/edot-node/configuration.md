@@ -280,12 +280,12 @@ product:
 ```
 
 By default EDOT Node.js enables instrumentation for a number of Node.js logging frameworks.
-Those instrumentations support a feature called "log sending", where log records for any created loggers are sent to the configured OTLP endpoint.
+Those instrumentations support a feature called "log sending," where log records for any created loggers are sent to the configured OTLP endpoint.
 EDOT Node.js **disables log sending by default.**
 To enable log sending, set the `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING=true` environment variable.
-(Note that the "log correlation" feature of these instrumentations is enabled by default.)
+(Note: The "log correlation" feature of these instrumentations is still enabled by default.)
 
-See the README for the following instrumentations for details on their "log sending" feature:
+Refer to the README for the following instrumentations for details on their "log sending" feature:
 - [Pino log sending](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-pino#log-sending)
 - [Bunyan log sending](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-bunyan#log-sending)
 - [Winston log sending](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-winston#log-sending)
