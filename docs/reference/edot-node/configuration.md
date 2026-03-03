@@ -78,6 +78,7 @@ The 🔹 symbol denotes settings with a default value or behavior that differs b
 | | |
 | `OTEL_SEMCONV_STABILITY_OPT_IN` 🔹 | [(EDOT Ref)](#otel_semconv_stability_opt_in-details) Control which HTTP semantic conventions are used by `@opentelemetry/instrumentation-http`. The default value is `http`. The OTel default is an empty value. |
 | `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` 🔹 | [(EDOT Ref)](#elastic_otel_context_propagation_only-details) Set to `true` to turn on trace-context propagation in outgoing requests and log correlation. This turns off the sending of spans. |
+| `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING` 🔹 | [(EDOT Ref)](#elastic_otel_node_enable_log_sending-details) Set to `true` to enable "log sending" in instrumentations of Node.js logging frameworks (pino, bunyan, winston). |
 | | |
 | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | [(EDOT Ref)](#otel_instrumentation_genai_capture_message_content-details) A boolean to control whether message content should be included in GenAI-related telemetry. |
 | | |
@@ -270,6 +271,29 @@ product:
 Set the `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` environment variable to `true` to turn on trace-context propagation in outgoing requests and log correlation. This turns off the sending of spans. Setting `OTEL_TRACES_EXPORTER` to `none` overrides this setting, deactivating trace-context propagation.
 
 Refer to the [migration guide](/reference/edot-node/migration.md#contextpropagationonly) for details on how this relates to the similar `contextPropagationOnly` setting from the non-OTel Elastic Node.js APM agent.
+
+### `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING` details [elastic_otel_node_enable_log_sending-details]
+
+```{applies_to}
+product:
+  edot_node: preview 1.0.0
+```
+
+By default EDOT Node.js enables instrumentation for a number of Node.js logging frameworks.
+Those instrumentations support a feature called "log sending," where log records for any created loggers are sent to the configured OTLP endpoint.
+EDOT Node.js **disables log sending by default.**
+To enable log sending, set the `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING=true` environment variable.
+(Note: The "log correlation" feature of these instrumentations is still enabled by default.)
+
+Refer to the README for the following instrumentations for details on their "log sending" feature:
+- [Pino log sending](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-pino#log-sending)
+- [Bunyan log sending](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-bunyan#log-sending)
+- [Winston log sending](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-winston#log-sending)
+
+Disabling log sending by default *differs* from current upstream OpenTelemetry JS behavior.
+Application logging was well established before logs signal support in OpenTelemetry.
+Having auto-instrumentation send all logging via OTLP (in addition to the application's default writing to stdout, file, or other) might have implications: performance/load if logs are abundant, duplication of telemetry if log output is otherwise already collected, security if logs are other locally sanitized.
+Therefore, it is recommended that application owners opt-in to log sending, depending on their needs.
 
 ### `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` details [otel_instrumentation_genai_capture_message_content-details]
 
