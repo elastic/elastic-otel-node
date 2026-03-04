@@ -4,9 +4,5 @@
  */
 
 // TODO: Can/should we use @opentelemetry/instrumentation/hook.mjs instead?
-import {
-    initialize,
-    resolve,
-    load,
-} from 'import-in-the-middle/hook.mjs';
+import {initialize, resolve, load} from 'import-in-the-middle/hook.mjs';
 export {initialize, resolve, load};
