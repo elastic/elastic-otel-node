@@ -57,7 +57,7 @@ const testFixtures = [
             t.deepEqual(span.attributes['http.response.header.server'], [
                 'capture-header-example',
             ]);
-            t.deepEqual(span.attributes['http.response.header.content_type'], [
+            t.deepEqual(span.attributes['http.response.header.content-type'], [
                 'text/plain',
             ]);
 
@@ -75,7 +75,7 @@ const testFixtures = [
             t.deepEqual(span.attributes['http.response.header.server'], [
                 'capture-header-example',
             ]);
-            t.deepEqual(span.attributes['http.response.header.content_type'], [
+            t.deepEqual(span.attributes['http.response.header.content-type'], [
                 'text/plain',
             ]);
 
@@ -96,8 +96,6 @@ const testFixtures = [
             t.deepEqual(span.attributes['http.response.header.server'], [
                 'capture-header-example',
             ]);
-            // Note: The hyphen in the attr name, not underscore. instr-undici
-            // is conforming to stable HTTP semconv here.
             t.deepEqual(span.attributes['http.response.header.content-type'], [
                 'text/plain',
             ]);
@@ -120,7 +118,7 @@ const testFixtures = [
             t.deepEqual(span.attributes['http.response.header.server'], [
                 'capture-header-example',
             ]);
-            t.deepEqual(span.attributes['http.response.header.content_type'], [
+            t.deepEqual(span.attributes['http.response.header.content-type'], [
                 'text/plain',
             ]);
         },
