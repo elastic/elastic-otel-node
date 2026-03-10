@@ -9,9 +9,9 @@
  * 1. First, start a local Elasticsearch instance to query.
  *    (This script adds data to a `sample_data` index.)
  *
- *          docker run -d --name elasticsearch -p 9200:9200 \
- *              -e "discovery.type=single-node" \
- *              -e "xpack.security.enabled=false" --rm elasticsearch:9.3.1
+            docker run -d --name elasticsearch -p 9200:9200 \
+                -e "discovery.type=single-node" \
+                -e "xpack.security.enabled=false" --rm elasticsearch:9.3.1
  *
  *    Wait for Elasticsearch to startup and respond successfully to:
  *
@@ -59,16 +59,16 @@ async function main() {
         ],
     });
 
-    let res = await client.esql.asyncQuery({
+    const res1 = await client.esql.asyncQuery({
         query: 'FROM sample_data | LIMIT 2',
     });
-    console.log('ES|QL:', res);
+    console.log('ES|QL:', res1);
 
-    res = await client.search({
+    const res2 = await client.search({
         index: 'sample_data',
         query: {match: {message: 'error'}},
     });
-    console.log('search', res);
+    console.log('search', res2);
 }
 
 main();
