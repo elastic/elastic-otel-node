@@ -29,6 +29,21 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## version.next [edot-node-X.X.X-release-notes]
+
+### Features and enhancements [edot-node-X.X.X-features-enhancements]
+
+### Fixes [edot-node-X.X.X-fixes]
+
+### Chores [edot-node-X.X.X-chores]
+
+* Update all `@opentelemetry/*` upstream package dependencies to the latest releases:
+    - [`v2.6.1` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.6.1) from opentelemetry-js
+    - [`experimental/v0.214.0` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/experimental%2Fv0.214.0) from opentelemetry-js
+    - [opentelemetry-js-contrib release](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3415)
+      - Notably, [`@opentelemetry/instrumentation-fastify` has been removed](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3409).
+
+
 ## 1.9.0 [edot-node-1.9.0-release-notes]
 
 ### Features and enhancements [edot-node-1.9.0-features-enhancements]
