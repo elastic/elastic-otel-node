@@ -41,7 +41,9 @@ To check for security updates, go to [Security announcements for the Elastic sta
     - [`v2.6.1` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.6.1) from opentelemetry-js
     - [`experimental/v0.214.0` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/experimental%2Fv0.214.0) from opentelemetry-js
     - [opentelemetry-js-contrib release](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3415)
-      - Notably, [`@opentelemetry/instrumentation-fastify` has been removed](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3409).
+      - Notably, [`@opentelemetry/instrumentation-fastify` is no longer being updated](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3409), in favor of `@fastify/otel`.
+
+* Because `@opentelemetry/instrumentation-fastify` is no longer being maintained, it has been removed from EDOT Node.js. This matches the removal from `@opentelemetry/auto-instrumentations-node`. See the [breaking changes note for this release](./breaking-changes.md) for details on how to switch to `@fastify/otel` instrumentation.
 
 
 ## 1.9.0 [edot-node-1.9.0-release-notes]

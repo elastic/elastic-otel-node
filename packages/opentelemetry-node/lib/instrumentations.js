@@ -22,7 +22,6 @@ const {log} = require('./logging');
  *  "@opentelemetry/instrumentation-dataloader": import('@opentelemetry/instrumentation-dataloader').DataloaderInstrumentationConfig,
  *  "@opentelemetry/instrumentation-dns": import('@opentelemetry/instrumentation-dns').DnsInstrumentationConfig,
  *  "@opentelemetry/instrumentation-express": import('@opentelemetry/instrumentation-express').ExpressInstrumentationConfig,
- *  "@opentelemetry/instrumentation-fastify": import('@opentelemetry/instrumentation-fastify').FastifyInstrumentationConfig,
  *  "@opentelemetry/instrumentation-fs": import('@opentelemetry/instrumentation-fs').FsInstrumentationConfig,
  *  "@opentelemetry/instrumentation-generic-pool": import('@opentelemetry/instrumentation').InstrumentationConfig,
  *  "@opentelemetry/instrumentation-graphql": import('@opentelemetry/instrumentation-graphql').GraphQLInstrumentation,
@@ -80,9 +79,6 @@ const {
     ExpressInstrumentation,
 } = require('@opentelemetry/instrumentation-express');
 const {FsInstrumentation} = require('@opentelemetry/instrumentation-fs');
-const {
-    FastifyInstrumentation,
-} = require('@opentelemetry/instrumentation-fastify');
 const {
     GenericPoolInstrumentation,
 } = require('@opentelemetry/instrumentation-generic-pool');
@@ -177,8 +173,6 @@ const instrumentationsMap = {
     '@opentelemetry/instrumentation-dns': (cfg) => new DnsInstrumentation(cfg),
     '@opentelemetry/instrumentation-express': (cfg) =>
         new ExpressInstrumentation(cfg),
-    '@opentelemetry/instrumentation-fastify': (cfg) =>
-        new FastifyInstrumentation(cfg),
     '@opentelemetry/instrumentation-fs': (cfg) => new FsInstrumentation(cfg),
     '@opentelemetry/instrumentation-generic-pool': (cfg) =>
         new GenericPoolInstrumentation(cfg),
@@ -237,10 +231,7 @@ const instrumentationsMap = {
         new WinstonInstrumentation(cfg),
 };
 
-const excludedInstrumentations = new Set([
-    '@opentelemetry/instrumentation-fastify',
-    '@opentelemetry/instrumentation-fs',
-]);
+const excludedInstrumentations = new Set(['@opentelemetry/instrumentation-fs']);
 
 const otelInstrPrefix = '@opentelemetry/instrumentation-';
 const otelInstrShortNames = new Set();

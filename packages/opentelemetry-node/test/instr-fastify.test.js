@@ -15,63 +15,34 @@ const {
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
     {
-        name: 'use-fastify (default disabled)',
+        name: 'use-fastify (with 3rd-party @fastify/otel instrumentation)',
         args: ['./fixtures/use-fastify.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import ./fixtures/telemetry-with-fastify-otel.mjs',
+            // Exclude uninteresting 'dns' and 'net' spans.
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'dns,net',
         },
         versionRanges: {
             // Ref: https://fastify.dev/docs/latest/Guides/Migration-Guide-V5/#long-term-support-cycle
             node: '>=20.0.0',
         },
-        // verbose: true,
-        checkTelemetry: (t, col) => {
-            const spans = filterOutDnsNetSpans(col.sortedSpans);
-
-            t.equal(spans.length, 4);
-            t.ok(
-                spans.every(
-                    (s) =>
-                        s.scope.name === '@opentelemetry/instrumentation-http'
-                )
-            );
-            t.ok(spans.every((s) => s.name === 'GET'));
-            t.equal(
-                spans.filter((s) => s.kind === 'SPAN_KIND_CLIENT').length,
-                2
-            );
-            t.equal(
-                spans.filter((s) => s.kind === 'SPAN_KIND_SERVER').length,
-                2
-            );
-        },
-    },
-    {
-        name: 'use-fastify (enabled via env var)',
-        args: ['./fixtures/use-fastify.js'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
-            OTEL_NODE_ENABLED_INSTRUMENTATIONS: 'http,fastify',
-        },
-        versionRanges: {
-            // Ref: https://fastify.dev/docs/latest/Guides/Migration-Guide-V5/#long-term-support-cycle
-            node: '>=20.0.0',
-        },
-        // verbose: true,
+        verbose: true,
         checkTelemetry: (t, col) => {
             // We expect spans like this
-            // ------ trace 9042af (3 spans) ------
-            //         span 5894e1 "GET" (6.8ms, SPAN_KIND_CLIENT, GET http://localhost:3000/ping -> 200)
-            //     +3ms `- span c793a1 "GET /ping" (2.7ms, SPAN_KIND_SERVER, GET http://localhost:3000/ping -> 200)
-            //     +1ms   `- span f16000 "request handler - fastify" (1.0ms, SPAN_KIND_INTERNAL)
-            // ------ trace 8f3ed8 (3 spans) ------
-            //         span 6e0fc9 "GET" (1.6ms, SPAN_KIND_CLIENT, GET http://localhost:3000/hi/Bob -> 200)
-            //     +1ms `- span 40c4a8 "GET /hi/:name" (0.3ms, SPAN_KIND_SERVER, GET http://localhost:3000/hi/Bob -> 200)
-            //     +0ms   `- span 74a68a "request handler - fastify" (0.1ms, SPAN_KIND_INTERNAL)
+            //
+            // ------ trace b524ea (4 spans) ------
+            //        span eac092 "GET" (9.5ms, SPAN_KIND_CLIENT, GET http://localhost:3000/ping -> 200, scope=http)
+            //   +5ms `- span 289989 "GET /ping" (2.6ms, SPAN_KIND_SERVER, GET -> 200, scope=http)
+            //   +1ms   `- span 0f16e8 "request" (0.5ms, SPAN_KIND_INTERNAL, GET -> 200, scope=@fastify/otel)
+            //   +0ms     `- span 4aec20 "handler - fastify -> @fastify/otel" (0.7ms, SPAN_KIND_INTERNAL, scope=@fastify/otel)
+            // ------ trace a3736c (4 spans) ------
+            //        span 3a1b8c "GET" (1.1ms, SPAN_KIND_CLIENT, GET http://localhost:3000/hi/Bob -> 200, scope=http)
+            //   +1ms `- span 29085f "GET /hi/:name" (0.4ms, SPAN_KIND_SERVER, GET -> 200, scope=http)
+            //   +0ms   `- span a519ca "request" (0.1ms, SPAN_KIND_INTERNAL, GET -> 200, scope=@fastify/otel)
+            //   +0ms     `- span fe9105 "handler - fastify -> @fastify/otel" (0.1ms, SPAN_KIND_INTERNAL, scope=@fastify/otel)
             const spans = filterOutDnsNetSpans(col.sortedSpans);
-            t.equal(spans.length, 6);
+            t.equal(spans.length, 8);
 
             t.equal(spans[0].scope.name, '@opentelemetry/instrumentation-http');
             t.equal(spans[0].name, 'GET');
@@ -82,12 +53,13 @@ const testFixtures = [
             t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
             t.equal(spans[1].parentSpanId, spans[0].spanId);
 
-            t.equal(
-                spans[2].scope.name,
-                '@opentelemetry/instrumentation-fastify'
-            );
-            t.equal(spans[2].name, 'request handler - fastify');
+            t.equal(spans[2].scope.name, '@fastify/otel');
+            t.equal(spans[2].name, 'request');
             t.equal(spans[2].kind, 'SPAN_KIND_INTERNAL');
+
+            t.equal(spans[3].scope.name, '@fastify/otel');
+            t.equal(spans[3].name, 'handler - fastify -> @fastify/otel');
+            t.equal(spans[3].kind, 'SPAN_KIND_INTERNAL');
 
             const span = findObjInArray(spans, 'name', 'GET /hi/:name');
             t.ok(span); // route with param
