@@ -69,7 +69,7 @@ const testFixtures = [
             );
             t.notOk(
                 getLine(
-                    'Enabling instrumentation \\"@opentelemetry/instrumentation-fastify\\"'
+                    'Enabling instrumentation \\"@opentelemetry/instrumentation-fs\\"'
                 ),
                 'should not enable instrumentations not in the list'
             );
@@ -82,7 +82,7 @@ const testFixtures = [
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
             OTEL_LOG_LEVEL: 'debug',
-            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'fastify, express  , bogus',
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'net, express  , bogus',
         },
         // verbose: true,
         checkResult: (t, err, stdout, stderr) => {
@@ -92,7 +92,7 @@ const testFixtures = [
 
             t.notOk(
                 getLine(
-                    'Enabling instrumentation \\"@opentelemetry/instrumentation-fastify\\"'
+                    'Enabling instrumentation \\"@opentelemetry/instrumentation-net\\"'
                 ),
                 'should disable instrumentation passed in env var'
             );
@@ -100,7 +100,7 @@ const testFixtures = [
                 getLine(
                     'Enabling instrumentation \\"@opentelemetry/instrumentation-express\\"'
                 ),
-                'should disable instrumentation passed with surroinding spaces in env var'
+                'should disable instrumentation passed with surrounding spaces in env var'
             );
             t.ok(
                 getLine(

@@ -42,6 +42,15 @@ Breaking changes can impact your Elastic applications, potentially disrupting no
 % 4. You can then call the link from any Kibana code. For example: `href: docLinks.links.upgradeAssistant.id`
 % Check https://docs.elastic.dev/docs/kibana-doc-links (internal) for more details about the Doc links service.
 
+## version.next [edot-node-X.X.X-breaking-changes]
+
+::::{dropdown} `OTEL_NODE_ENABLED_INSTRUMENTATIONS=fastify,...` will no longer enable Fastify instrumentation
+
+OpenTelemetry JS has stopped maintaining `@opentelemetry/instrumentation-fastify`, in favor of the separate `@fastify/otel` instrumentation maintained by the Fastify authors. As a result, `@opentelemetry/instrumentation-fastify` has been removed from EDOT Node.js. There is no change in *default* behavior, because the instrumentation had previously been deprecated and required opting-in to enable it.
+
+If you are using the `OTEL_NODE_ENABLED_INSTRUMENTATIONS=fastify,...` environment variable to enable Fastify instrumentation, this will no longer work. You must manually use the [`@fastify/otel` package](https://github.com/fastify/otel#readme). This [bootstrap script](https://github.com/elastic/elastic-otel-node/blob/main/packages/opentelemetry-node/test/fixtures/telemetry-with-fastify-otel.mjs) shows how EDOT Node.js and `@fastify/otel` can be used together to achieve the similar behavior.
+::::
+
 ## 1.2.0 [edot-node-1.2.0-breaking-changes]
 
 ::::{dropdown} Change usage of "redis-4" to "redis" in `OTEL_NODE_ENABLED_INSTRUMENTATIONS` and `OTEL_NODE_DISABLED_INSTRUMENTATIONS`
