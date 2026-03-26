@@ -12,7 +12,10 @@
  */
 
 import {register} from 'node:module';
-import {startNodeSDK, getInstrumentations} from '@elastic/opentelemetry-node/sdk';
+import {
+    startNodeSDK,
+    getInstrumentations,
+} from '@elastic/opentelemetry-node/sdk';
 import FastifyOtelInstrumentation from '@fastify/otel';
 
 register('@elastic/opentelemetry-node/hook.mjs', import.meta.url);
@@ -20,5 +23,5 @@ startNodeSDK({
     instrumentations: [
         new FastifyOtelInstrumentation({registerOnInitialization: true}),
         ...getInstrumentations(),
-    ]
+    ],
 });

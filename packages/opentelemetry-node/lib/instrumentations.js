@@ -231,9 +231,7 @@ const instrumentationsMap = {
         new WinstonInstrumentation(cfg),
 };
 
-const excludedInstrumentations = new Set([
-    '@opentelemetry/instrumentation-fs',
-]);
+const excludedInstrumentations = new Set(['@opentelemetry/instrumentation-fs']);
 
 const otelInstrPrefix = '@opentelemetry/instrumentation-';
 const otelInstrShortNames = new Set();
