@@ -33,6 +33,8 @@ To check for security updates, go to [Security announcements for the Elastic sta
 
 ### Features and enhancements [edot-node-X.X.X-features-enhancements]
 
+* Change the docker image (`docker.elastic.co/observability/elastic-otel-node`), used primarily for [Kubernetes auto-instrumentation with the OpenTelemetry Operator](/reference/edot-node/setup/k8s.md), to run as the `nonroot` user. This allows using EDOT Node.js in with the OpenTelemetry Operator in Kubernetes clusters configured with a strict pod security policy that disallows running as root (`securityContext.runAsNonRoot`).
+
 ### Fixes [edot-node-X.X.X-fixes]
 
 ### Chores [edot-node-X.X.X-chores]
