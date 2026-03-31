@@ -29,24 +29,20 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
-## version.next [edot-node-X.X.X-release-notes]
+## 1.10.0 [edot-node-1.10.0-release-notes]
 
-### Features and enhancements [edot-node-X.X.X-features-enhancements]
+### Features and enhancements [edot-node-1.10.0-features-enhancements]
 
+* Because `@opentelemetry/instrumentation-fastify` is no longer being maintained, it has been removed from EDOT Node.js. This matches the removal from `@opentelemetry/auto-instrumentations-node`. See the [breaking changes note for this release](./breaking-changes.md#edot-node-1.10.0-breaking-changes) for details on how to switch to `@fastify/otel` instrumentation.
 * Change the docker image (`docker.elastic.co/observability/elastic-otel-node`), used primarily for [Kubernetes auto-instrumentation with the OpenTelemetry Operator](/reference/edot-node/setup/k8s.md), to run as the `nonroot` user. This allows using EDOT Node.js in with the OpenTelemetry Operator in Kubernetes clusters configured with a strict pod security policy that disallows running as root (`securityContext.runAsNonRoot`).
 
-### Fixes [edot-node-X.X.X-fixes]
-
-### Chores [edot-node-X.X.X-chores]
+### Chores [edot-node-1.10.0-chores]
 
 * Update all `@opentelemetry/*` upstream package dependencies to the latest releases:
     - [`v2.6.1` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.6.1) from opentelemetry-js
     - [`experimental/v0.214.0` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/experimental%2Fv0.214.0) from opentelemetry-js
     - [opentelemetry-js-contrib release](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3415)
       - Notably, [`@opentelemetry/instrumentation-fastify` is no longer being updated](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3409), in favor of `@fastify/otel`.
-
-* Because `@opentelemetry/instrumentation-fastify` is no longer being maintained, it has been removed from EDOT Node.js. This matches the removal from `@opentelemetry/auto-instrumentations-node`. See the [breaking changes note for this release](./breaking-changes.md) for details on how to switch to `@fastify/otel` instrumentation.
-
 
 ## 1.9.0 [edot-node-1.9.0-release-notes]
 
