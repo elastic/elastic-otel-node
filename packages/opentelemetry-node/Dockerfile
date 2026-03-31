@@ -42,5 +42,7 @@ RUN cp /build/src/packages/opentelemetry-node/autoinstrumentation.js ./
 #
 # See notes at: https://github.com/open-telemetry/opentelemetry-operator/blob/main/autoinstrumentation/nodejs/Dockerfile
 FROM docker.elastic.co/wolfi/chainguard-base:latest@sha256:844d6d4ac44e829e2fdb12e881d73c910867f932eca6b0892735d43e3d5235f8
-COPY --from=build /build/pack /autoinstrumentation
+COPY --chown=65532:65532 --from=build /build/pack /autoinstrumentation
+# Use wolfi's "nonroot" user/group to satisfy k8s runAsNonRoot security policies.
+USER 65532:65532
 RUN chmod -R go+r /autoinstrumentation

@@ -34,6 +34,7 @@ To check for security updates, go to [Security announcements for the Elastic sta
 ### Features and enhancements [edot-node-1.10.0-features-enhancements]
 
 * Because `@opentelemetry/instrumentation-fastify` is no longer being maintained, it has been removed from EDOT Node.js. This matches the removal from `@opentelemetry/auto-instrumentations-node`. See the [breaking changes note for this release](./breaking-changes.md#edot-node-1.10.0-breaking-changes) for details on how to switch to `@fastify/otel` instrumentation.
+* Change the docker image (`docker.elastic.co/observability/elastic-otel-node`), used primarily for [Kubernetes auto-instrumentation with the OpenTelemetry Operator](/reference/edot-node/setup/k8s.md), to run as the `nonroot` user. This allows using EDOT Node.js in with the OpenTelemetry Operator in Kubernetes clusters configured with a strict pod security policy that disallows running as root (`securityContext.runAsNonRoot`).
 
 ### Chores [edot-node-1.10.0-chores]
 
