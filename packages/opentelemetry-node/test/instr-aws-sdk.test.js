@@ -28,18 +28,19 @@ const testFixtures = [
         args: ['./fixtures/use-aws-client-s3.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
             AWS_ACCESS_KEY_ID: 'fake',
             AWS_SECRET_ACCESS_KEY: 'fake',
             TEST_ENDPOINT: endpoint,
             TEST_REGION,
+            // Spans from instr-net and dns can get in the way.
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'net,dns',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
             // We expect spans like this
-            //          span b592a3 "manual-parent-span" (26.1ms, SPAN_KIND_INTERNAL)
-            //     +4ms `- span bbe07e "S3.ListBuckets" (21.5ms, SPAN_KIND_CLIENT)
-            //    +10ms   `- span b3b885 "GET" (7.0ms, SPAN_KIND_CLIENT, GET http://localhost:4566/?x-id=ListBuckets -> 200)
+            //      span bbe07e "S3.ListBuckets" (21.5ms, SPAN_KIND_CLIENT)
+            //      `- span b3b885 "GET" (7.0ms, SPAN_KIND_CLIENT, GET http://localhost:4566/?x-id=ListBuckets -> 200)
             const spans = col.sortedSpans;
             t.equal(spans.length, 2);
 
@@ -64,11 +65,13 @@ const testFixtures = [
         args: ['./fixtures/use-aws-client-sns.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
             AWS_ACCESS_KEY_ID: 'fake',
             AWS_SECRET_ACCESS_KEY: 'fake',
             TEST_ENDPOINT: endpoint,
             TEST_REGION,
+            // Spans from instr-net and dns can get in the way.
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'net,dns',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -101,11 +104,13 @@ const testFixtures = [
         args: ['./fixtures/use-aws-client-sqs.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
             AWS_ACCESS_KEY_ID: 'fake',
             AWS_SECRET_ACCESS_KEY: 'fake',
             TEST_ENDPOINT: endpoint,
             TEST_REGION,
+            // Spans from instr-net and dns can get in the way.
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'net,dns',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -138,11 +143,13 @@ const testFixtures = [
         args: ['./fixtures/use-aws-client-dynamodb.js'],
         cwd: __dirname,
         env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
+            NODE_OPTIONS: '--import=@elastic/opentelemetry-node',
             AWS_ACCESS_KEY_ID: 'fake',
             AWS_SECRET_ACCESS_KEY: 'fake',
             TEST_ENDPOINT: endpoint,
             TEST_REGION,
+            // Spans from instr-net and dns can get in the way.
+            OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'net,dns',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
