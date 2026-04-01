@@ -17,9 +17,8 @@ const TEST_REGION = 'us-east-2';
 const server = createServer();
 const endpoint = `http://127.0.0.1:${server.address().port}`;
 
-// `@aws-sdk/client-*` >=3.723.0 switched to `@smithy/smithy-client@4`
-// which supports only Node.js v18 and later now.
-const AWS_SDK_SUPPORTED_NODE_RANGE = '>=18.0.0';
+// Keep in sync with "engines.node" in "@aws-sdk/client-*/package.json".
+const AWS_SDK_SUPPORTED_NODE_RANGE = '>=20.0.0';
 
 /** @type {import('./testutils').TestFixture[]} */
 const testFixtures = [
