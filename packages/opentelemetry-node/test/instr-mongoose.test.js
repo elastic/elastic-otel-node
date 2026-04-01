@@ -25,9 +25,7 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         versionRanges: {
-            // Since `mongoose` has a dependency on `mongodb` we will keep the same version ranges for testing
-            // Ref: https://github.com/mongodb/node-mongodb-native/blob/a8370367f7470962a834ddf36f9a6c62621d6345/package.json#L118
-            node: '>=16.20.1',
+            node: '>=20.19.0',
         },
         verbose: true,
         checkTelemetry: (t, col) => {
