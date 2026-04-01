@@ -17,7 +17,7 @@
     "@elastic/opentelemetry-node": "*",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/auto-instrumentations-node": "^0.69.0",
-    "@opentelemetry/sdk-node": "^0.211.0",
+    "@opentelemetry/sdk-node": "^0.213.0",
     "bunyan": "^1.8.15",
     "express": "^5.2.1",
     "pino-pretty": "^13.1.3"
