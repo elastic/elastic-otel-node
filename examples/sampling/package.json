@@ -1,0 +1,15 @@
+{
+  "name": "sampling-example",
+  "version": "1.0.0",
+  "description": "An example using head-based sampling",
+  "private": true,
+  "scripts": {
+    "a": "OTEL_TRACES_SAMPLER_ARG=0.5 OTEL_SERVICE_NAME=a node --env-file=./.env --import @elastic/opentelemetry-node service-a.js",
+    "b": "OTEL_SERVICE_NAME=b node --env-file=./.env --import @elastic/opentelemetry-node service-b.js",
+    "request": "curl http://127.0.0.1:3300/ping"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@elastic/opentelemetry-node": "file:../../packages/opentelemetry-node"
+  }
+}
