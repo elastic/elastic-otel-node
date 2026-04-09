@@ -1,10 +1,21 @@
+/*
+ * Copyright Elasticsearch B.V. and contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 const http = require('http');
 
 const NAME = 'b';
 const PORT = 3301;
 
 const server = http.createServer(function onRequest(req, res) {
-    console.log('[%s] incoming request: %s %s %s', NAME, req.method, req.url, req.headers);
+    console.log(
+        '[%s] incoming request: %s %s %s',
+        NAME,
+        req.method,
+        req.url,
+        req.headers
+    );
     req.resume();
     req.on('end', function () {
         res.writeHead(200);
