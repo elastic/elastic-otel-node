@@ -50,7 +50,7 @@ The 🔹 symbol denotes settings with a default value or behavior that differs b
 | `OTEL_SDK_DISABLED`   | [(Ref)][otel-sdk-envvars] Turn off the SDK. |
 | `OTEL_RESOURCE_ATTRIBUTES`   | [(Ref)][otel-sdk-envvars] Key-value pairs to be used as resource attributes. |
 | `OTEL_SERVICE_NAME`   | [(Ref)][otel-sdk-envvars] Set the `service.name` resource attribute. |
-| `OTEL_LOG_LEVEL`   | [(Ref)][otel-sdk-envvars] Log level used by the SDK internal logger. The default value is `info`. Use `export OTEL_LOG_LEVEL=verbose` for troubleshooting. One of `all`, `verbose`, `debug`, `info`, `warn`, `error`, `none`. |
+| `OTEL_LOG_LEVEL` 🔹   | [(Ref)][otel-sdk-envvars] Log level used by the SDK internal logger. The default value is `info`. The upstream OTel JS default is to not set `OTEL_LOG_LEVEL`, which is equivalent to `none`. Use `export OTEL_LOG_LEVEL=verbose` for troubleshooting. One of `all`, `verbose`, `debug`, `info`, `warn`, `error`, `none`. |
 | `OTEL_PROPAGATORS` | [(Ref)][otel-sdk-envvars] Propagators to use for distributed tracing. The default value is `tracecontent,baggage`. |
 | `OTEL_TRACES_SAMPLER` | [(Ref)][otel-sdk-envvars] Sampler to use for traces. The default value is `parentbased_always_on`. |
 | `OTEL_TRACES_SAMPLER_ARG` | [(Ref)][otel-sdk-envvars] Meaning depends on `OTEL_TRACES_SAMPLER`. |

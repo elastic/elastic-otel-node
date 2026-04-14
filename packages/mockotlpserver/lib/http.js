@@ -93,7 +93,7 @@ function badRequest(
 function jsonParser(_log, buff, _req) {
     const reqText = buff.toString('utf-8');
 
-    // NOTE: check for bignums
+    // NOTE: check for bigints?
     return JSON.parse(reqText);
 }
 
