@@ -329,6 +329,13 @@ class DynConfLogRecordExporter {
             return Promise.resolve();
         }
     }
+    forceFlush() {
+        if (this._enabled) {
+            return this._delegate.forceFlush();
+        } else {
+            return Promise.resolve();
+        }
+    }
 }
 
 /**
