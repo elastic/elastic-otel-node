@@ -6,7 +6,7 @@
 const {
     createCompositeSampler,
     createComposableParentThresholdSampler,
-    createComposableTraceIDRatioBasedSampler,
+    createComposableProbabilitySampler,
 } = require('@opentelemetry/sampler-composite');
 
 /**
@@ -68,7 +68,7 @@ class DefaultSampler {
 function newSampler(ratio) {
     return createCompositeSampler(
         createComposableParentThresholdSampler(
-            createComposableTraceIDRatioBasedSampler(ratio)
+            createComposableProbabilitySampler(ratio)
         )
     );
 }
