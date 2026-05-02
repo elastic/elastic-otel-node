@@ -52,14 +52,14 @@ jobs:
             org.opencontainers.image.vendor=Elastic
             org.opencontainers.image.title=mockotlpserver
             org.opencontainers.image.description=A mock OTLP server, for dev and testing
-      - uses: docker/login-action@v4
+      - uses: docker/login-action@v4.1.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
         id: docker-push
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294  # v7.0.0
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7.1.0
         with:
           context: ${{ env.PKGDIR }}
           platforms: linux/amd64,linux/arm64
