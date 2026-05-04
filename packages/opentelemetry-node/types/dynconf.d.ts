@@ -1,6 +1,6 @@
-export type SpanExporter = import('@opentelemetry/sdk-trace-base').SpanExporter;
-export type PushMetricExporter = import('@opentelemetry/sdk-metrics').PushMetricExporter;
-export type LogRecordExporter = import('@opentelemetry/sdk-logs').LogRecordExporter;
+export type SpanExporter = import("@opentelemetry/sdk-trace-base").SpanExporter;
+export type PushMetricExporter = import("@opentelemetry/sdk-metrics").PushMetricExporter;
+export type LogRecordExporter = import("@opentelemetry/sdk-logs").LogRecordExporter;
 export type DynConfSpanExportersEvent = {
     enabled: boolean;
 };

@@ -1,4 +1,4 @@
-export type ResourceDetector = import('@opentelemetry/resources').ResourceDetector;
+export type ResourceDetector = import("@opentelemetry/resources").ResourceDetector;
 /**
  * @param {Array<ResourceDetector>} [detectors]
  * @returns {Array<ResourceDetector>}
