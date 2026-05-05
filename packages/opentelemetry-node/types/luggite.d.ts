@@ -108,12 +108,12 @@ export class Logger {
      *    arguments that are handled like
      *    [util.format](http://nodejs.org/docs/latest/api/all.html#util.format).
      */
-    trace: (arg0: Record<string, any> | string, ...arg1: any[]) => void;
-    debug: (arg0: Record<string, any> | string, ...arg1: any[]) => void;
-    info: (arg0: Record<string, any> | string, ...arg1: any[]) => void;
-    warn: (arg0: Record<string, any> | string, ...arg1: any[]) => void;
-    error: (arg0: Record<string, any> | string, ...arg1: any[]) => void;
-    fatal: (arg0: Record<string, any> | string, ...arg1: any[]) => void;
+    trace: (arg0: string | Record<string, any>, ...arg1: any[]) => void;
+    debug: (arg0: string | Record<string, any>, ...arg1: any[]) => void;
+    info: (arg0: string | Record<string, any>, ...arg1: any[]) => void;
+    warn: (arg0: string | Record<string, any>, ...arg1: any[]) => void;
+    error: (arg0: string | Record<string, any>, ...arg1: any[]) => void;
+    fatal: (arg0: string | Record<string, any>, ...arg1: any[]) => void;
 }
 import safeStableStringify = require("safe-stable-stringify");
 /**
