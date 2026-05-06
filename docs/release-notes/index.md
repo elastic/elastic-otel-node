@@ -29,6 +29,15 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## 1.13.0 [edot-node-1.13.0-release-notes]
+
+### Chores [edot-node-1.13.0-chores]
+
+* Update all `@opentelemetry/*` upstream package dependencies to the latest releases:
+    - [`experimental/v0.217.0` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/experimental%2Fv0.217.0) from opentelemetry-js
+    - [opentelemetry-js-contrib release](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3498#issuecomment-4389865993)
+    - This includes a security fix for users of the Prometheus Exporter.
+
 ## 1.12.0 [edot-node-1.12.0-release-notes]
 
 ### Chores [edot-node-1.12.0-chores]
