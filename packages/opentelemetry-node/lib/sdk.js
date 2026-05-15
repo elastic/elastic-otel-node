@@ -287,7 +287,7 @@ function startNodeSDK(cfg = {}) {
         // - not displayed by Kibana in metrics dashboard. Ref: https://github.com/elastic/kibana/pull/199353
         // - recommendation is to use OTEL collector to get and export them
         const hostMetricsInstance = new HostMetrics({
-            metricGroups: ['process.cpu', 'process.memory']
+            metricGroups: ['process.cpu', 'process.memory'],
         });
         hostMetricsInstance.start();
     }
