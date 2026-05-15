@@ -28,7 +28,6 @@ const {
     ConsoleLogRecordExporter,
     SimpleLogRecordProcessor,
 } = require('@opentelemetry/sdk-logs');
-const {AggregationType} = require('@opentelemetry/sdk-metrics');
 const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 const {createAddHookMessageChannel} = require('import-in-the-middle');
