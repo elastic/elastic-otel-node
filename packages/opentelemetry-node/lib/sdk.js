@@ -238,20 +238,6 @@ function startNodeSDK(cfg = {}) {
     const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
     const metricsEnabled = metricsExporters.every((e) => e !== 'none');
 
-    if (metricsEnabled) {
-        // Set the views conditionally so the upstream SDK does not create meter provider for nothing
-        defaultConfig.views = [
-            // Dropping system metrics because:
-            // - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
-            // - not displayed by Kibana in metrics dashboard. Ref: https://github.com/elastic/kibana/pull/199353
-            // - recommendation is to use OTEL collector to get and export them
-            {
-                instrumentName: 'system.*',
-                aggregation: {type: AggregationType.DROP},
-            },
-        ];
-    }
-
     const config = {...defaultConfig, ...cfg};
 
     /** @type {Sampler} */
@@ -297,7 +283,13 @@ function startNodeSDK(cfg = {}) {
         'ELASTIC_OTEL_HOST_METRICS_DISABLED'
     );
     if (metricsEnabled && !hostMetricsDisabled) {
-        const hostMetricsInstance = new HostMetrics();
+        // Excluding `system.*` metrics because:
+        // - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
+        // - not displayed by Kibana in metrics dashboard. Ref: https://github.com/elastic/kibana/pull/199353
+        // - recommendation is to use OTEL collector to get and export them
+        const hostMetricsInstance = new HostMetrics({
+            metricGroups: ['process.cpu', 'process.memory']
+        });
         hostMetricsInstance.start();
     }
 
