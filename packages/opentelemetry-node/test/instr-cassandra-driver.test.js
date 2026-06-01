@@ -17,9 +17,7 @@ if (skip) {
 } else {
     skip = !semver.satisfies(process.version, '>=20');
     if (skip) {
-        console.log(
-            '# SKIP cassandra-driver requires node >=20)'
-        );
+        console.log('# SKIP cassandra-driver requires node >=20)');
     }
 }
 
