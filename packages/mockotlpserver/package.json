@@ -1,6 +1,6 @@
 {
   "name": "@elastic/mockotlpserver",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "type": "commonjs",
   "description": "A mock OTLP server, useful for dev and testing",
   "publishConfig": {
@@ -56,10 +56,10 @@
     "@opentelemetry/core": "^2.0.0",
     "dashdash": "^2.0.0",
     "long": "^5.2.3",
-    "protobufjs": "^7.4.0",
+    "protobufjs": "^8.6.4",
     "safe-stable-stringify": "^2.5.0"
   },
   "devDependencies": {
-    "protobufjs-cli": "^1.1.3"
+    "protobufjs-cli": "^2.5.5"
   }
 }
