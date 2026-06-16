@@ -1,5 +1,10 @@
 # @elastic/opamp-client-node Changelog
 
+## v0.5.0
+
+- Bump deps, including bufbuild deps, and regenerate the js files from protos.
+  There should be no functional change.
+
 ## v0.4.0
 
 - BREAKING CHANGE: The `heartbeatIntervalSeconds` option to `createOpAMPClient`
