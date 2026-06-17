@@ -14,6 +14,7 @@ export type InstrumentaionsMap = {
     "@opentelemetry/instrumentation-graphql": import('@opentelemetry/instrumentation-graphql').GraphQLInstrumentation;
     "@opentelemetry/instrumentation-grpc": import('@opentelemetry/instrumentation-grpc').GrpcInstrumentationConfig;
     "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation').InstrumentationConfig;
+    "@opentelemetry/instrumentation-host-metrics": import('@opentelemetry/instrumentation-host-metrics').HostMetricsInstrumentationConfig;
     "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig;
     "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig;
     "@opentelemetry/instrumentation-kafkajs": import('@opentelemetry/instrumentation-kafkajs').KafkaJsInstrumentation;

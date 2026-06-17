@@ -29,6 +29,13 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## version.next [edot-node-X.X.X-release-notes]
+
+### Features and enhancements [edot-node-X.X.X-features-enhancements]
+
+* Migrate from the deprecated `@opentelemetry/host-metrics` pacakge to the new `@opentelemetry/instrumentation-host-metrics`. This matches the addition of the new instrumentation into `@opentelemetry/auto-instrumentations-node` [v0.77.0 release](https://github.com/open-telemetry/opentelemetry-js-contrib/releases/tag/auto-instrumentations-node-v0.77.0).
+
+
 ## 1.15.0 [edot-node-1.15.0-release-notes]
 
 ### Chores [edot-node-1.15.0-chores]
