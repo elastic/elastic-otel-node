@@ -90,7 +90,7 @@ npm ls --omit=dev --all --parseable \
             "safe-json-stringify": "license.MIT.txt",
             "data-uri-to-buffer": "license.MIT.txt",
             "eastasianwidth": "license.MIT.txt",
-            // TODO: remove after merging https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3574
+            // TODO: remove after releasing https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3568
             "@opentelemetry/instrumentation-host-metrics": "license.apache2.txt",
         }
         const licTypeFromPkgName = {
