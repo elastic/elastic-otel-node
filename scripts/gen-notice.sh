@@ -90,6 +90,8 @@ npm ls --omit=dev --all --parseable \
             "safe-json-stringify": "license.MIT.txt",
             "data-uri-to-buffer": "license.MIT.txt",
             "eastasianwidth": "license.MIT.txt",
+            // TODO: add license file upstream
+            "@opentelemetry/instrumentation-host-metrics": "license.apache2.txt",
         }
         const licTypeFromPkgName = {
             // Packages that have a license, but no "license" entry in package.json.
