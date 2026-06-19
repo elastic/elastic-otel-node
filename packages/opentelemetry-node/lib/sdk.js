@@ -154,13 +154,12 @@ function startNodeSDK(cfg = {}) {
 
     // Disable `@opentelemetry/instrumentation-host-metrics` if:
     // - metrics are disabled (resolved above)
-    // - `ELASTIC_OTEL_HOST_METRICS_DISABLED` is set to "true"
+    // - the deprecated `ELASTIC_OTEL_HOST_METRICS_DISABLED` is set to "true"
     const hostMetricsDisabled = getBooleanFromEnv(
         'ELASTIC_OTEL_HOST_METRICS_DISABLED'
     );
 
     if (!metricsEnabled || hostMetricsDisabled) {
-        // XXX: I think we should deprecated this env var. Update docs if agreed after discussion
         if (hostMetricsDisabled) {
             const exporterDocs =
                 'https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection';
