@@ -30,4 +30,20 @@ Review the deprecated functionality for Elastic Distribution of OpenTelemetry No
 % ::::
 % TEMPLATE END
 
-No breaking changes.
+## Next version [edot-node-X.X.X-deprecations]
+
+::::{dropdown} `ELASTIC_OTEL_HOST_METRICS_DISABLED` deprecation
+The `ELASTIC_OTEL_HOST_METRICS_DISABLED` environment variable is now deprecated.
+**Impact**<br> When support is removed EDOT will start sending host metrics if you still use this env var.
+**Action**<br> Use `OTEL_METRICS_EXPORTER=none` to turn off any metrics exported by EDOT Node.js. Use `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics` if you only want to disable host metrics while keep sending other metrics.
+View [PR #1516](https://github.com/elastic/elastic-otel-node/pull/1516).
+::::
+
+## 1.1.0 [edot-node-1.1.0-deprecations]
+
+::::{dropdown} `ELASTIC_OTEL_METRICS_DISABLED` deprecation
+The `ELASTIC_OTEL_METRICS_DISABLED` environment variable is now deprecated.
+**Impact**<br> When support is removed EDOT will start sending host and runtime metrics if you still use this env var.
+**Action**<br> Use `OTEL_METRICS_EXPORTER=none` to turn off any metrics exported by EDOT Node.js.
+View [PR #768](https://github.com/elastic/elastic-otel-node/pull/768).
+::::
