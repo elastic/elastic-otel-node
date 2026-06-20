@@ -247,7 +247,7 @@ product:
 
 EDOT Node.js collects and exports [host metrics](/reference/edot-node/metrics.md#process-and-runtime-metrics) by default, using the `@opentelemetry/host-metrics` package. To turn off host metrics collection, set the `ELASTIC_HOST_OTEL_METRICS_DISABLED` environment variable to `true`.
 
-Since vX.X.X EDOT Node.js uses the `@opentelemetry/instrumentation-host-metrics` package to collect metrics. This configuration setting is deprecated as of in favor of using the following settings for finer control:
+Since vX.X.X EDOT Node.js uses the `@opentelemetry/instrumentation-host-metrics` package to collect metrics. This configuration setting is deprecated in favor of using one of the following:
 - To turn off the export of all metrics, set the `OTEL_METRICS_EXPORTER` environment variable to `none`.
 - To turn off collection by the `@opentelemetry/instrumentation-host-metrics` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics`. [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details)
 
