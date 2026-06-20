@@ -28,7 +28,6 @@ const {
     ConsoleLogRecordExporter,
     SimpleLogRecordProcessor,
 } = require('@opentelemetry/sdk-logs');
-const {HostMetrics} = require('@opentelemetry/host-metrics');
 
 const {createAddHookMessageChannel} = require('import-in-the-middle');
 
@@ -142,6 +141,38 @@ function startNodeSDK(cfg = {}) {
             }
         }
     }
+    // Some instrumentations are enabled/disabled depending of metrics config.
+    // If `OTEL_METRICS_EXPORTER` undefined set the default value according to spec.
+    // ref: https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection
+    // ref: https://github.com/open-telemetry/opentelemetry-js/issues/5612
+    if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
+        process.env.OTEL_METRICS_EXPORTER = 'otlp';
+    }
+
+    const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
+    const metricsEnabled = metricsExporters.every((e) => e !== 'none');
+
+    // Disable `@opentelemetry/instrumentation-host-metrics` if:
+    // - metrics are disabled (resolved above)
+    // - the deprecated `ELASTIC_OTEL_HOST_METRICS_DISABLED` is set to "true"
+    const hostMetricsDisabled = getBooleanFromEnv(
+        'ELASTIC_OTEL_HOST_METRICS_DISABLED'
+    );
+
+    if (!metricsEnabled || hostMetricsDisabled) {
+        if (hostMetricsDisabled) {
+            const exporterDocs =
+                'https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection';
+            log.info(
+                `Environment var "ELASTIC_OTEL_HOST_METRICS_DISABLED" is deprecated. Use "OTEL_METRICS_EXPORTER" env var to disable metrics as described in ${exporterDocs} or disable the host metrics instrumentation using "OTEL_NODE_DISABLED_INSTRUMENTATIONS" env var.`
+            );
+        }
+        if (process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS) {
+            process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS += ',host-metrics';
+        } else {
+            process.env.OTEL_NODE_DISABLED_INSTRUMENTATIONS = 'host-metrics';
+        }
+    }
 
     const instrs = cfg.instrumentations || getInstrumentations();
     /** @type {Partial<NodeSDKConfiguration>} */
@@ -227,16 +258,6 @@ function startNodeSDK(cfg = {}) {
         );
     }
 
-    // If `OTEL_METRICS_EXPORTER` undefined set the default value according to spec.
-    // ref: https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection
-    // ref: https://github.com/open-telemetry/opentelemetry-js/issues/5612
-    if (!process.env.OTEL_METRICS_EXPORTER?.trim()) {
-        process.env.OTEL_METRICS_EXPORTER = 'otlp';
-    }
-
-    const metricsExporters = getStringListFromEnv('OTEL_METRICS_EXPORTER');
-    const metricsEnabled = metricsExporters.every((e) => e !== 'none');
-
     const config = {...defaultConfig, ...cfg};
 
     /** @type {Sampler} */
@@ -274,23 +295,6 @@ function startNodeSDK(cfg = {}) {
     const sdk = new NodeSDK(config);
     sdk.start(); // .start() *does* use `process.env` though I think it should not.
     restoreEnvironment();
-
-    // To enable `@opentelemetry/host-metrics`:
-    // - metrics should be enabled (resolved above)
-    // - `ELASTIC_OTEL_HOST_METRICS_DISABLED` must not be "true"
-    const hostMetricsDisabled = getBooleanFromEnv(
-        'ELASTIC_OTEL_HOST_METRICS_DISABLED'
-    );
-    if (metricsEnabled && !hostMetricsDisabled) {
-        // Excluding `system.*` metrics because:
-        // - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
-        // - not displayed by Kibana in metrics dashboard. Ref: https://github.com/elastic/kibana/pull/199353
-        // - recommendation is to use OTEL collector to get and export them
-        const hostMetricsInstance = new HostMetrics({
-            metricGroups: ['process.cpu', 'process.memory'],
-        });
-        hostMetricsInstance.start();
-    }
 
     // Setup for dynamic configuration of some SDK components.
     setupDynConfExporters(sdk);

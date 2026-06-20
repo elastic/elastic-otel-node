@@ -38,7 +38,7 @@ const testFixtures = [
             t.ok(hasLog(`name: 'nodejs.eventloop.utilization'`));
             t.ok(hasLog(`name: 'nodejs.eventloop.delay.min'`));
             t.ok(hasLog(`name: 'nodejs.eventloop.delay.max'`));
-            // metrics from `@opentelemetry/host-metrics` shouldn't be exported
+            // metrics from `@opentelemetry/instrumentation-host-metrics` shouldn't be exported
             t.ok(!hasLog(`name: 'process.cpu.utilization'`));
         },
         checkTelemetry: (t, col) => {
