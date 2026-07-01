@@ -18,7 +18,7 @@ jobs:
       PKGDIR: packages/opamp-client-node
       PKGNAME: "@elastic/opamp-client-node"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -44,7 +44,7 @@ jobs:
         # Release will result in a notification from the GitHub Slack app
         # (assuming '/github subscribe elastic/elastic-otel-node').
         if: ${{ failure() }}
-        uses: elastic/oblt-actions/slack/notify-result@v1
+        uses: elastic/oblt-actions/slack/notify-result@v1.39.7
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-node"
