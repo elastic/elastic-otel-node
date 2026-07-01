@@ -28,7 +28,7 @@ jobs:
         permission-pull-requests: write
 
     - id: is_elastic_member
-      uses: elastic/oblt-actions/github/is-member-of@v1
+      uses: elastic/oblt-actions/github/is-member-of@v1.39.7
       with:
         github-org: "elastic"
         github-user: ${{ github.actor }}
