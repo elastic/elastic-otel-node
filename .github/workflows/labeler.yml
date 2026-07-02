@@ -1,12 +1,20 @@
-# Possibly label some incoming issues/PRs.
-name: "labeler"
+# Categorize issues and PRs: adding labels, adding to projects.
+name: labeler
+
+# Configuration.
+# The intent is that this workflow file can otherwise be common between Elastic
+# APM repos for different languages.
+env:
+  AGENT_LABEL: "agent-nodejs"
+  PROJECT_ID: 1829
+  PROJECT_AGENT_NAME: "nodejs"
+
 on:
   issues:
-    types: [opened]
+    types: [opened, edited, reopened]
   pull_request_target:
-    types: [opened]
+    types: [opened, synchronize, reopened]
 
-# '*: write' permissions for https://docs.github.com/en/rest/issues/labels?apiVersion=2022-11-28#add-labels-to-an-issue
 permissions:
   contents: read
   issues: write
@@ -14,18 +22,25 @@ permissions:
 
 jobs:
   categorize-issues-and-prs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
+
     - name: Get token
       id: get_token
       uses: actions/create-github-app-token@v3
       with:
-        app-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+        client-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
         private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
-        permission-issues: write
         permission-members: read
         permission-organization-projects: write
+        permission-issues: read
         permission-pull-requests: write
+
+    - name: Add agent-LANG label
+      run: gh issue edit "${NUMBER}" --add-label "${AGENT_LABEL}" --repo "${{ github.repository }}"
+      env:
+        NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - id: is_elastic_member
       uses: elastic/oblt-actions/github/is-member-of@v1.39.7
@@ -34,15 +49,73 @@ jobs:
         github-user: ${{ github.actor }}
         github-token: ${{ steps.get_token.outputs.token }}
 
-    - name: Add community and triage labels
-      if: contains(steps.is_elastic_member.outputs.result, 'false') && github.actor != 'dependabot[bot]' && github.actor != 'elastic-renovate-prod[bot]' && github.actor != 'elastic-observability-automation[bot]'
-      uses: actions/github-script@v9
+    - id: user_type
+      uses: elastic/oblt-actions/github/user-type@v1
       with:
-        script: |
-          github.rest.issues.addLabels({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            labels: ["community", "triage"]
-          })
+        github-user: ${{ github.actor }}
+        github-token: ${{ steps.get_token.outputs.token }}
 
+    - name: debug
+      run: |
+        echo "::notice:: is_elastic_member=${{ steps.is_elastic_member.outputs.result }}"
+        echo "::notice:: user_type=${{ steps.user_type.outputs.result }}"
+        echo "::notice:: github.actor=${{ github.actor }}"
+        echo "::notice:: github.event_name=${{ github.event_name }}"
+
+    - name: Add community and triage labels
+      if: steps.is_elastic_member.outputs.result == 'false' && steps.user_type.outputs.result == 'user'
+      run: gh issue edit "${NUMBER}" --add-label "community,triage" --repo "${{ github.repository }}"
+      env:
+        NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Assign new internal pull requests to author
+      id: assign-to-author
+      if: steps.is_elastic_member.outputs.result == 'true' && github.event_name == 'pull_request_target'
+      run: gh issue edit "${NUMBER}" --add-assignee "${{ github.actor }}" --repo "${{ github.repository }}"
+      env:
+        NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Assign new internal pull requests to project
+      id: add-to-project
+      if: steps.is_elastic_member.outputs.result == 'true' && github.event_name == 'pull_request_target'
+      uses: elastic/oblt-actions/github/project-add@v1
+      with:
+        github-token: ${{ steps.get_token.outputs.token }}
+        project-id: ${{ env.PROJECT_ID }}
+        item-url: ${{ github.event.pull_request.html_url }}
+
+    - name: set status in project
+      id: set-project-status-field
+      if: steps.is_elastic_member.outputs.result == 'true' && github.event_name == 'pull_request_target'
+      uses: elastic/oblt-actions/github/project-field-set@v1
+      with:
+        github-token: ${{ steps.get_token.outputs.token }}
+        project-id: ${{ env.PROJECT_ID }}
+        item-id: ${{ steps.add-to-project.outputs.item-id }}
+        field-name: 'Status'
+        field-value: 'In Progress'
+
+    - name: set agent in project
+      id: set-project-agent-field
+      if: steps.is_elastic_member.outputs.result == 'true' && github.event_name == 'pull_request_target'
+      uses: elastic/oblt-actions/github/project-field-set@v1
+      with:
+        github-token: ${{ steps.get_token.outputs.token }}
+        project-id: ${{ env.PROJECT_ID }}
+        item-id: ${{ steps.add-to-project.outputs.item-id }}
+        field-name: 'Agent'
+        field-value: ${{ env.PROJECT_AGENT_NAME }}
+
+    - name: set iteration in project
+      id: set-project-iteration-field
+      if: steps.is_elastic_member.outputs.result == 'true' && github.event_name == 'pull_request_target'
+      uses: elastic/oblt-actions/github/project-field-set@v1
+      with:
+        github-token: ${{ steps.get_token.outputs.token }}
+        project-id: ${{ env.PROJECT_ID }}
+        item-id: ${{ steps.add-to-project.outputs.item-id }}
+        field-name: 'Iteration'
+        field-value: '@current'
+        field-type: 'iteration'
