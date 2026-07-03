@@ -203,9 +203,9 @@ function startNodeSDK(cfg = {}) {
             for (const exporterName of logsExporterNames) {
                 if (exporterName === 'console') {
                     logProcessors.push(
-                        new SimpleLogRecordProcessor(
-                            new ConsoleLogRecordExporter()
-                        )
+                        new SimpleLogRecordProcessor({
+                            exporter: new ConsoleLogRecordExporter(),
+                        })
                     );
                 } else if (exporterName === 'otlp') {
                     const logsExportProtocol =
@@ -227,7 +227,9 @@ function startNodeSDK(cfg = {}) {
                         `@opentelemetry/exporter-logs-otlp-${logsExporterType}`
                     );
                     logProcessors.push(
-                        new BatchLogRecordProcessor(new OTLPLogExporter())
+                        new BatchLogRecordProcessor({
+                            exporter: new OTLPLogExporter(),
+                        })
                     );
                 } else {
                     log.warn(`Logs exporter "${exporterName}" unknown.`);
