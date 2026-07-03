@@ -1,5 +1,9 @@
 # @elastic/mockotlpserver Changelog
 
+## v0.12.0
+
+- Bump deps: protobufjs@8, protobufjs-cli@2 (devDep).
+
 ## v0.11.0
 
 - fix: Do not throw when summarizing a span with no `span.status`.

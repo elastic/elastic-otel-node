@@ -29,6 +29,24 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## version.next [edot-node-X.X.X-release-notes]
+
+### Features and enhancements [edot-node-X.X.X-features-enhancements]
+
+* Migrate from the deprecated `@opentelemetry/host-metrics` pacakge to the new `@opentelemetry/instrumentation-host-metrics`. This matches the addition of the new instrumentation into `@opentelemetry/auto-instrumentations-node` [v0.77.0 release](https://github.com/open-telemetry/opentelemetry-js-contrib/releases/tag/auto-instrumentations-node-v0.77.0).
+  - The `ELASTIC_OTEL_HOST_METRICS_DISABLED` environment variable is now deprecated. Use `OTEL_METRICS_EXPORTER=none` to turn off any metrics exported by EDOT Node.js. Use `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics` if you only want to disable host metrics while keep sending other metrics.
+
+## 1.15.0 [edot-node-1.15.0-release-notes]
+
+### Chores [edot-node-1.15.0-chores]
+
+* Update all `@opentelemetry/*` upstream package dependencies to the latest releases:
+    - [`v2.8.0` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.8.0) from opentelemetry-js
+    - [`experimental/v0.219.0` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/experimental%2Fv0.219.0) from opentelemetry-js
+    - [opentelemetry-js-contrib release](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3524#issuecomment-4711431551)
+
+* Update other dependencies to resolve security alerts.
+
 ## 1.14.0 [edot-node-1.14.0-release-notes]
 
 ### Chores [edot-node-1.14.0-chores]

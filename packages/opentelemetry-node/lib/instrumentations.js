@@ -27,6 +27,7 @@ const {log} = require('./logging');
  *  "@opentelemetry/instrumentation-graphql": import('@opentelemetry/instrumentation-graphql').GraphQLInstrumentation,
  *  "@opentelemetry/instrumentation-grpc": import('@opentelemetry/instrumentation-grpc').GrpcInstrumentationConfig,
  *  "@opentelemetry/instrumentation-hapi": import('@opentelemetry/instrumentation').InstrumentationConfig,
+ *  "@opentelemetry/instrumentation-host-metrics": import('@opentelemetry/instrumentation-host-metrics').HostMetricsInstrumentationConfig,
  *  "@opentelemetry/instrumentation-http": import('@opentelemetry/instrumentation-http').HttpInstrumentationConfig,
  *  "@opentelemetry/instrumentation-ioredis": import('@opentelemetry/instrumentation-ioredis').IORedisInstrumentationConfig,
  *  "@opentelemetry/instrumentation-kafkajs": import('@opentelemetry/instrumentation-kafkajs').KafkaJsInstrumentation,
@@ -87,6 +88,9 @@ const {
 } = require('@opentelemetry/instrumentation-graphql');
 const {GrpcInstrumentation} = require('@opentelemetry/instrumentation-grpc');
 const {HapiInstrumentation} = require('@opentelemetry/instrumentation-hapi');
+const {
+    HostMetricsInstrumentation,
+} = require('@opentelemetry/instrumentation-host-metrics');
 const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 const {
     IORedisInstrumentation,
@@ -182,6 +186,8 @@ const instrumentationsMap = {
         new GrpcInstrumentation(cfg),
     '@opentelemetry/instrumentation-hapi': (cfg) =>
         new HapiInstrumentation(cfg),
+    '@opentelemetry/instrumentation-host-metrics': (cfg) =>
+        new HostMetricsInstrumentation(cfg),
     '@opentelemetry/instrumentation-http': (cfg) =>
         new HttpInstrumentation(cfg),
     '@opentelemetry/instrumentation-ioredis': (cfg) =>
@@ -369,6 +375,16 @@ function getInstrumentations(opts = {}) {
     }
 
     const defaultInstrConfigFromName = {};
+    // Host metrics defaults
+    // Excluding `system.*` metrics because:
+    // - sends a lot of data. Ref: https://github.com/elastic/elastic-otel-node/issues/51
+    // - not displayed by Kibana in metrics dashboard. Ref: https://github.com/elastic/kibana/pull/199353
+    // - recommendation is to use OTEL collector to get and export them
+    defaultInstrConfigFromName['@opentelemetry/instrumentation-host-metrics'] =
+        {
+            metricGroups: ['process.cpu', 'process.memory'],
+        };
+
     // Handle `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING`. The user must opt-in to
     // the "log sending" feature of the OTel log framework instrumentations
     // (pino, bunyan, winston). This *differs* from OTel JS, but matches

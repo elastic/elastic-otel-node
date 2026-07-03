@@ -22,7 +22,7 @@ In the Elastic Distribution of OpenTelemetry for Node.js (EDOT Node.js) the coll
 EDOT Node.js gathers metrics from the Node.js process your application is
 running using the following packages:
 
-- `@opentelemetry/host-metrics` to gather `process.cpu.*` and `process.memory.*` metrics ([ref](https://github.com/open-telemetry/semantic-conventions/blob/80988c54712ee336cb3a6240b8845e9dfa8c9f49/docs/system/process-metrics.md?plain=1#L22)).
+- `@opentelemetry/instrumentation-host-metrics` to gather `process.cpu.*` and `process.memory.*` metrics ([ref](https://github.com/open-telemetry/semantic-conventions/blob/80988c54712ee336cb3a6240b8845e9dfa8c9f49/docs/system/process-metrics.md?plain=1#L22)).
 - `@opentelemetry/instrumentation-runtime-node` to gather `nodejs.eventloop.*` ([ref](https://github.com/open-telemetry/semantic-conventions/blob/80988c54712ee336cb3a6240b8845e9dfa8c9f49/model/nodejs/metrics.yaml)) and `v8js.*` ([ref](https://github.com/open-telemetry/semantic-conventions/blob/80988c54712ee336cb3a6240b8845e9dfa8c9f49/model/v8js/metrics.yaml)) metrics.
 
 Process and runtime metrics are useful when you're checking the performance of your instrumented service.

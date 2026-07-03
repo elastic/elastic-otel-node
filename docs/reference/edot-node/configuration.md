@@ -232,15 +232,24 @@ product:
  edot_node: deprecated 1.1.0
 ```
 
-Setting `ELASTIC_OTEL_METRICS_DISABLED` to `true` turns off metrics export by the SDK and some metrics collection.  This configuration setting is deprecated as of v1.1.0 in favor of using the following settings for finer control:
+Setting `ELASTIC_OTEL_METRICS_DISABLED` to `true` turns off metrics export by the SDK and some metrics collection. This configuration setting is deprecated as of v1.1.0 in favor of using the following settings for finer control:
 
 - To turn off the export of all metrics, set the `OTEL_METRICS_EXPORTER` environment variable to `none`.
 - To turn off collection by the `@opentelemetry/instrumentation-runtime-node` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=runtime-node`. [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details)
-- To turn off metrics collection by the `@opentelemetry/host-metrics` package, set the `ELASTIC_OTEL_HOST_METRICS_DISABLED` environment variable to `false`.
+- To turn off metrics collection by the `@opentelemetry/instrumentation-host-metrics` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics`. [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details)
 
 ### `ELASTIC_OTEL_HOST_METRICS_DISABLED` details [elastic_otel_host_metrics_disabled-details]
 
+```{applies_to}
+product:
+ edot_node: deprecated X.X.X
+```
+
 EDOT Node.js collects and exports [host metrics](/reference/edot-node/metrics.md#process-and-runtime-metrics) by default, using the `@opentelemetry/host-metrics` package. To turn off host metrics collection, set the `ELASTIC_HOST_OTEL_METRICS_DISABLED` environment variable to `true`.
+
+Since vX.X.X EDOT Node.js uses the `@opentelemetry/instrumentation-host-metrics` package to collect metrics. This configuration setting is deprecated in favor of using one of the following:
+- To turn off the export of all metrics, set the `OTEL_METRICS_EXPORTER` environment variable to `none`.
+- To turn off collection by the `@opentelemetry/instrumentation-host-metrics` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics`. [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details)
 
 ### `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` details [otel_exporter_otlp_metrics_temporality_preference-details]
 
