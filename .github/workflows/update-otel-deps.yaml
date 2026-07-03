@@ -34,6 +34,9 @@ jobs:
           cache-dependency-path: package-lock.json
           node-version: 24
 
+      # Needed for the deps used by scripts/update-otel-deps.js.
+      - run: npm ci --ignore-scripts
+
       - run: npm ci --ignore-scripts
         working-directory: packages/opentelemetry-node
 
