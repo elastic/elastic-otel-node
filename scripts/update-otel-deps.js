@@ -8,11 +8,17 @@
 /**
  * Update '@opentelemetry/*' deps in a package.
  *
- * Usage:
+ * Setup:
  *      nvm use 24  # use a recent npm version
  *      cd packages/FOO
  *      npm ci
+ *
+ * Usage (makes changes without commiting):
  *      node ../../scripts/update-otel-deps.js
+ *
+ * Usage (does a git commit):
+ *      git checkout -b update-otel-deps-$(date +%Y%m%d)
+ *      node ../../scripts/update-otel-deps.js --commit
  *
  * You can set the `DEBUG=1` envvar to get some debug output.
  */
@@ -71,12 +77,15 @@ function datestamp() {
  * @param {boolean} [opts.dryRun] - Note that a dry-run might not fully
  *      accurately represent the commands run, because the final 'npm update'
  *      args can depend on the results of earlier 'npm install' commands.
+ * @param {boolean} [opts.doCommit] - Whether to do a git commit with the
+ *      changes. Ignored if `dryRun: true`.
  */
 function updateNpmDeps({
     patterns,
     allowRangeBumpFor0x,
     allowRangeBumpForStable,
     dryRun,
+    doCommit,
 }) {
     assert(
         patterns && patterns.length > 0,
@@ -286,8 +295,24 @@ function updateNpmDeps({
                 );
             })
             .join('\n    ');
-    console.log(
-        `\nPossible commands to create a PR for these changes:
+    if (!dryRun && doCommit) {
+        const p = spawnSync('git', ['commit', '-a', '-F', '-'], {
+            cwd: TOP,
+            encoding: 'utf8',
+            input: commitMsg
+        });
+        if (p.error) {
+            throw p.error;
+        } else if (p.status !== 0) {
+            const err = Error(`'git commit' failed (status=${p.status})`);
+            err.process = p;
+            throw err;
+        }
+        console.log('Changes commited:\n  %s',
+            p.output.join('\n').trim().split('\n').join('\n  '));
+    } else {
+        console.log(
+            `\nPossible commands to create a PR for these changes:
 \`\`\`
 git checkout -b ${process.env.USER}/update-otel-deps-${datestamp()}
 git commit -am '${commitMsg}
@@ -295,7 +320,8 @@ git commit -am '${commitMsg}
 gh pr create --fill -w
 \`\`\`
 `
-    );
+        );
+    }
 }
 
 async function main() {
@@ -304,6 +330,7 @@ async function main() {
         allowRangeBumpFor0x: true,
         allowRangeBumpForStable: true,
         dryRun: false,
+        doCommit: process.argv.slice(2).includes('--commit'),
     });
 }
 
