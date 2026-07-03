@@ -299,7 +299,7 @@ function updateNpmDeps({
         const p = spawnSync('git', ['commit', '-a', '-F', '-'], {
             cwd: TOP,
             encoding: 'utf8',
-            input: commitMsg
+            input: commitMsg,
         });
         if (p.error) {
             throw p.error;
@@ -308,8 +308,10 @@ function updateNpmDeps({
             err.process = p;
             throw err;
         }
-        console.log('Changes commited:\n  %s',
-            p.output.join('\n').trim().split('\n').join('\n  '));
+        console.log(
+            'Changes commited:\n  %s',
+            p.output.join('\n').trim().split('\n').join('\n  ')
+        );
     } else {
         console.log(
             `\nPossible commands to create a PR for these changes:
