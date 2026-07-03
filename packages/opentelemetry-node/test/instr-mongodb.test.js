@@ -25,8 +25,8 @@ const testFixtures = [
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
         },
         versionRanges: {
-            // Ref: https://github.com/mongodb/node-mongodb-native/blob/a8370367f7470962a834ddf36f9a6c62621d6345/package.json#L118
-            node: '>=16.20.1',
+            // https://github.com/mongodb/node-mongodb-native/blob/v7.3.0/package.json#L119
+            node: '>=20.19.0',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
