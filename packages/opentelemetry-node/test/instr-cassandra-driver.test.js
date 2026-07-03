@@ -4,14 +4,21 @@
  */
 
 const test = require('tape');
+const semver = require('semver');
 const {filterOutDnsNetSpans, runTestFixtures} = require('./testutils');
 
 // TODO: check https://github.com/elastic/apm-agent-nodejs/blob/main/test/_is_cassandra_incompat.js
-const skip = process.env.CASSANDRA_HOST === undefined;
+
+let skip = process.env.CASSANDRA_HOST === undefined;
 if (skip) {
     console.log(
         '# SKIP cassandra-driver tests: CASSANDRA_HOST is not set (try with `CASSANDRA_HOST=localhost`)'
     );
+} else {
+    skip = !semver.satisfies(process.version, '>=20');
+    if (skip) {
+        console.log('# SKIP cassandra-driver requires node >=20)');
+    }
 }
 
 /** @type {import('./testutils').TestFixture[]} */
