@@ -1,0 +1,51 @@
+# Create a PR to update the `@opentelemetry/*` deps in packages/opentelemetry-node.
+name: update-otel-deps (opentelemetry-node)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  create-or-update-deps-pr:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: get_token
+        with:
+          client-id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+          # Perms required by "Create PR" step below.
+          permission-context: write
+          permission-pull-requests: write
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          token: ${{ steps.get_token.outputs.token }}
+          # Credentials are used in "Create PR" git commands below.
+          persist-credentials: true
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+          node-version: 24
+
+      - run: npm ci --ignore-scripts
+        working-directory: packages/opentelemetry-node
+
+      - name: Create PR
+        working-directory: packages/opentelemetry-node
+        run: |
+          git config user.name elastic-observability-automation
+          git config user.email 180520183+elastic-observability-automation@users.noreply.github.com
+          git checkout -b elastic-observability-automation-update-otel-deps
+          DEBUG=1 node ../../scripts/update-otel-deps.js --commit
+          git push --set-upstream origin elastic-observability-automation-update-otel-deps --force
+          gh pr create --fill
+        env:
+          GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
+
