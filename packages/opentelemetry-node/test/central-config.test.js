@@ -787,6 +787,10 @@ test('central-config', (suite) => {
                     return 'missing envvars ' + missingEnvVars.join(', ');
                 }
             },
+            versionRanges: {
+                // https://github.com/mongodb/node-mongodb-native/blob/v7.3.0/package.json#L119
+                node: '>=20.19.0',
+            },
             cwd: __dirname,
             env: () => {
                 return {
