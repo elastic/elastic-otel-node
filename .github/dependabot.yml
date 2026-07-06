@@ -99,6 +99,8 @@ updates:
       # https://github.com/elastic/elastic-otel-node/pull/155
       - dependency-name: "eslint*"
       - dependency-name: "@eslint/*"
+      # TypeScript version is locked to the same used by upstream opentelemetry-js.
+      - dependency-name: "typescript"
       # Packages whose major versions have dropped support for Node.js versions
       # that this package needs.
       - dependency-name: "glob" # glob@11 dropped 14, 16, 18
