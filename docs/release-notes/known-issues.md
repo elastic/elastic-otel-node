@@ -1,6 +1,6 @@
 ---
 navigation_title: Known issues 
-description: Known issues for Elastic Distribution of OpenTelemetry Node.js.
+description: Known issues for Elastic OTel Node.js.
 applies_to:
   stack:
   serverless:
@@ -11,6 +11,6 @@ products:
   - id: edot-sdk
 ---
 
-# Elastic Distribution of OpenTelemetry Node.js known issues
+# Elastic OTel Node.js known issues [elastic-distribution-of-opentelemetry-nodejs-known-issues]
 
 No known issues.

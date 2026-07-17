@@ -1,6 +1,6 @@
 ---
 navigation_title: Deprecations 
-description: Deprecations for Elastic Distribution of OpenTelemetry Node.js.
+description: Deprecations for Elastic OTel Node.js.
 applies_to:
   stack:
   serverless:
@@ -11,11 +11,11 @@ products:
   - id: edot-sdk
 ---
 
-# Elastic Distribution of OpenTelemetry Node.js deprecations [edot-nodejs-deprecations]
+# Elastic OTel Node.js deprecations [edot-nodejs-deprecations]
 
 Over time, certain Elastic functionality becomes outdated and is replaced or removed. To help with the transition, Elastic deprecates functionality for a period before removal, giving you time to update your applications.
 
-Review the deprecated functionality for Elastic Distribution of OpenTelemetry Node.js. While deprecations have no immediate impact, we strongly encourage you update your implementation after you upgrade. To learn how to upgrade, check out [Upgrade](docs-content://deploy-manage/upgrade.md).
+Review the deprecated functionality for Elastic OTel Node.js. While deprecations have no immediate impact, we strongly encourage you update your implementation after you upgrade. To learn how to upgrade, check out [Upgrade](docs-content://deploy-manage/upgrade.md).
 
 % ## Next version [edot-node-X.X.X-deprecations]
 

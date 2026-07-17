@@ -1,6 +1,6 @@
 ---
 navigation_title: Breaking changes
-description: Breaking changes for Elastic Distribution of OpenTelemetry Node.js.
+description: Breaking changes for Elastic OTel Node.js.
 applies_to:
   stack:
   serverless:
@@ -11,9 +11,9 @@ products:
   - id: edot-sdk
 ---
 
-# Elastic Distribution of OpenTelemetry Node.js breaking changes [edot-nodejs-breaking-changes]
+# Elastic OTel Node.js breaking changes [edot-nodejs-breaking-changes]
 
-Breaking changes can impact your Elastic applications, potentially disrupting normal operations. Before you upgrade, carefully review the Elastic Distribution of OpenTelemetry  breaking changes and take the necessary steps to mitigate any issues.
+Breaking changes can impact your Elastic applications, potentially disrupting normal operations. Before you upgrade, carefully review the Elastic OTel Node.js breaking changes and take the necessary steps to mitigate any issues.
 
 % ## Next version [edot-node-X.X.X-breaking-changes]
 

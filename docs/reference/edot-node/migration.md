@@ -1,6 +1,6 @@
 ---
 navigation_title: Migration
-description: Migrate from the Elastic APM Node.js agent to the Elastic Distribution of OpenTelemetry for Node.js (EDOT Node.js).
+description: Migrate from the Elastic APM Node.js agent to Elastic OTel Node.js.
 applies_to:
   stack:
   serverless:
@@ -14,14 +14,14 @@ products:
   - id: apm-agent
 ---
 
-# Migrate to EDOT Node.js from the Elastic {{product.apm}} Node.js agent
+# Migrate to Elastic OTel Node.js from the Elastic {{product.apm}} Node.js agent [migrate-to-edot-nodejs-from-the-elastic-productapm-nodejs-agent]
 
 Compared to the Elastic {{product.apm}} Node.js agent, the {{edot}} Node.js presents a number of advantages:
 
 - Fully automatic instrumentation with zero code changes. No need to modify application code.
-- EDOT Node.js is built on top of OpenTelemetry SDK and conventions, ensuring compatibility with community tools, vendor-neutral backends, and so on.
+- Elastic OTel Node.js is built on top of OpenTelemetry SDK and conventions, ensuring compatibility with community tools, vendor-neutral backends, and so on.
 - Modular, extensible architecture based on the OpenTelemetry SDK. You can add custom exporters, processors, and samplers.
-- You can use EDOT Node.js in environments where both tracing and metrics are collected using OpenTelemetry.
+- You can use Elastic OTel Node.js in environments where both tracing and metrics are collected using OpenTelemetry.
 
 
 ## Migration steps
@@ -32,7 +32,7 @@ Follow these steps to migrate from the legacy Elastic {{product.apm}} PHP agent 
 
 ::::{step} Replace the Node.js package
 
-Remove the Elastic {{product.apm-agent-node}} package and install EDOT Node.js:
+Remove the Elastic {{product.apm-agent-node}} package and install Elastic OTel Node.js:
 
 ```sh
 npm uninstall elastic-apm-node
@@ -54,12 +54,12 @@ If you're using the [Elastic {{product.apm-agent-node}} API](apm-agent-nodejs://
 ::::
 
 ::::{step} Replace configuration options
-Refer to the [Configuration mapping](#configuration-mapping). Refer to [Configuration](/reference/edot-node/configuration.md) for details on EDOT Node.js configuration.
+Refer to the [Configuration mapping](#configuration-mapping). Refer to [Configuration](/reference/edot-node/configuration.md) for details on Elastic OTel Node.js configuration.
 ::::
 
-::::{step} Add EDOT Node.js start method
+::::{step} Add Elastic OTel Node.js start method
 
-Use the [Node.js `--import` option](https://nodejs.org/api/cli.html#--importmodule) to start EDOT Node.js with your service.
+Use the [Node.js `--import` option](https://nodejs.org/api/cli.html#--importmodule) to start Elastic OTel Node.js with your service.
 
 Set it on the command-line using `node --import @elastic/opentelemetry-node service.js` or in the [`NODE_OPTIONS` environment variable](https://nodejs.org/api/cli.html#node_optionsoptions): `NODE_OPTIONS="--import @elastic/opentelemetry-node" node service.js`.
 ::::
@@ -68,13 +68,13 @@ Set it on the command-line using `node --import @elastic/opentelemetry-node serv
 
 ## Configuration mapping
 
-This list contains Elastic {{product.apm}} Node.js agent configuration options that can be migrated to EDOT Node.js SDK configuration because they have an equivalent in OpenTelemetry.
+This list contains Elastic {{product.apm}} Node.js agent configuration options that can be migrated to Elastic OTel Node.js SDK configuration because they have an equivalent in OpenTelemetry.
 
-### Resource attributes when using the EDOT Collector
+### Resource attributes when using the {{agent}} [resource-attributes-when-using-the-edot-collector]
 
-Ingesting OpenTelemetry data directly through {{product.apm-server}} is [no longer supported](opentelemetry://reference/architecture/index.md#limitations). Historically, when ingesting OpenTelemetry data through the Elastic {{product.apm-server}}, unmapped resource attributes were added under `labels.*`. This behavior does not apply when using the EDOT Collector and is not recommended for new deployments. Use the EDOT Collector or Managed OTLP for supported ingestion.
+Ingesting OpenTelemetry data directly through {{product.apm-server}} is [no longer supported](opentelemetry://reference/architecture/index.md#limitations). Historically, when ingesting OpenTelemetry data through the Elastic {{product.apm-server}}, unmapped resource attributes were added under `labels.*`. This behavior does not apply when using the {{agent}} and is not recommended for new deployments. Use the {{agent}} or Managed OTLP for supported ingestion.
 
-If you rely on specific attribute mappings for querying or filtering in {{product.observability}}, configure explicit attribute processors in the EDOT Collector pipeline.
+If you rely on specific attribute mappings for querying or filtering in {{product.observability}}, configure explicit attribute processors in the {{agent}} pipeline.
 
 ### `active`
 
@@ -96,12 +96,12 @@ For example: `OTEL_EXPORTER_OTLP_HEADERS=foo=bar,baz=quux`.
 
 ### `centralConfig`
 
-The Elastic {{product.apm}} Node.js agent [`centralConfig`](apm-agent-nodejs://reference/configuration.md#central-config) option corresponds to the EDOT Node.js [`ELASTIC_OTEL_OPAMP_ENDPOINT`](/reference/edot-node/configuration.md#configure-central-configuration) option.
+The Elastic {{product.apm}} Node.js agent [`centralConfig`](apm-agent-nodejs://reference/configuration.md#central-config) option corresponds to the Elastic OTel Node.js [`ELASTIC_OTEL_OPAMP_ENDPOINT`](/reference/edot-node/configuration.md#configure-central-configuration) option.
 
 For example: `export ELASTIC_OTEL_OPAMP_ENDPOINT=http://localhost:4320/v1/opamp`.
 
 :::{warning}
-To use central configuration for EDOT Node.js it is necessary to enable it by following the [configuration guide](opentelemetry://reference/central-configuration.md). Also there is a difference in which options can be configured. You can find a list in [central configuration settings](/reference/edot-node/configuration.md#central-configuration-settings).
+To use central configuration for Elastic OTel Node.js it is necessary to enable it by following the [configuration guide](opentelemetry://reference/central-configuration.md). Also there is a difference in which options can be configured. You can find a list in [central configuration settings](/reference/edot-node/configuration.md#central-configuration-settings).
 :::
 
 ### `cloudProvider`
@@ -112,9 +112,9 @@ For example: `OTEL_NODE_RESOURCE_DETECTORS=os,env,host,serviceinstance,process,a
 
 ### `contextPropagationOnly`
 
-The equivalent of the Elastic {{product.apm}} Node.js agent [`contextPropagationOnly`](apm-agent-nodejs://reference/configuration.md#context-propagation-only) option can be accomplished with the following EDOT Node.js settings:
+The equivalent of the Elastic {{product.apm}} Node.js agent [`contextPropagationOnly`](apm-agent-nodejs://reference/configuration.md#context-propagation-only) option can be accomplished with the following Elastic OTel Node.js settings:
 
-- [`ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY=true`](/reference/edot-node/configuration.md#elastic_otel_context_propagation_only-details) to configure trace-context propagation. This turns off sending spans and the overhead from doing so. Using `OTEL_TRACES_EXPORTER=none` turns off context-propagation. The `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` EDOT Node.js setting only impacts tracing, as opposed to the {{product.apm}} agent `contextPropagationOnly` which impacts both tracing and metric collection.
+- [`ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY=true`](/reference/edot-node/configuration.md#elastic_otel_context_propagation_only-details) to configure trace-context propagation. This turns off sending spans and the overhead from doing so. Using `OTEL_TRACES_EXPORTER=none` turns off context-propagation. The `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` Elastic OTel Node.js setting only impacts tracing, as opposed to the {{product.apm}} agent `contextPropagationOnly` which impacts both tracing and metric collection.
 - To turn off metrics sending and collection overhead, use the following settings:
     - [`OTEL_METRICS_EXPORTER=none`](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#exporter-selection) to turn off the sending of any metrics.
     - [`OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics`](/reference/edot-node/configuration.md#otel_node_disabledenabled_instrumentations-details) to remove the overhead from metrics collection by the `@opentelemetry/instrumentation-host-metrics` instrumentation.
@@ -130,7 +130,7 @@ OTEL_NODE_DISABLED_INSTRUMENTATIONS=runtime-node,host-metrics
 
 ### `disableInstrumentations`
 
-The Elastic {{product.apm}} Node.js agent [`disableInstrumentations`](apm-agent-nodejs://reference/configuration.md#disable-instrumentations) option corresponds to the EDOT Node.js [`OTEL_NODE_DISABLED_INSTRUMENTATIONS`](/reference/edot-node/configuration.md#otel_node_disabledenabled_instrumentations-details) option.
+The Elastic {{product.apm}} Node.js agent [`disableInstrumentations`](apm-agent-nodejs://reference/configuration.md#disable-instrumentations) option corresponds to the Elastic OTel Node.js [`OTEL_NODE_DISABLED_INSTRUMENTATIONS`](/reference/edot-node/configuration.md#otel_node_disabledenabled_instrumentations-details) option.
 
 For example: `OTEL_NODE_DISABLED_INSTRUMENTATIONS=express,mysql`.
 
@@ -173,10 +173,10 @@ For example: `OTEL_RESOURCE_ATTRIBUTES=host.name=myhost`.
 
 The Elastic {{product.apm}} Node.js agent [`instrument`](apm-agent-nodejs://reference/configuration.md#instrument) option can be achieved with [`OTEL_NODE_ENABLED_INSTRUMENTATIONS`](/reference/edot-node/configuration.md#otel_node_disabledenabled_instrumentations-details) option.
 
-For example: `OTEL_NODE_ENABLED_INSTRUMENTATIONS=none` makes EDOT Node.js instrument no packages. It is equivalent to `instrument=false`.
+For example: `OTEL_NODE_ENABLED_INSTRUMENTATIONS=none` makes Elastic OTel Node.js instrument no packages. It is equivalent to `instrument=false`.
 
 :::{note}
-Because "none" is not an instrumentation name, EDOT Node.js logs a message saying so. The message has the following format:
+Because "none" is not an instrumentation name, Elastic OTel Node.js logs a message saying so. The message has the following format:
 `{"name":"elastic-otel-node","level":40,"msg":"Unknown instrumentation \"none\" specified in environment variable \"OTEL_NODE_ENABLED_INSTRUMENTATIONS\"","time":"2025-09-01T11:12:30.949Z"}`
 :::
 
@@ -184,7 +184,7 @@ Because "none" is not an instrumentation name, EDOT Node.js logs a message sayin
 
 The Elastic {{product.apm}} Node.js agent [`logLevel`](apm-agent-nodejs://reference/configuration.md#log-level) option corresponds to the OpenTelemetry [`OTEL_LOG_LEVEL`](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration) option.
 
-The following table shows the equivalent values of log levels between `elastic-apm-node` and EDOT Node.js.
+The following table shows the equivalent values of log levels between `elastic-apm-node` and Elastic OTel Node.js.
 
 | ELASTIC_APM_LOG_LEVEL | OTEL_LOG_LEVEL |
 | --------------------- | -------------- |
@@ -246,7 +246,7 @@ The Elastic {{product.apm}} Node.js agent [`serverUrl`](apm-agent-nodejs://refer
 
 - If using {{serverless-full}}, set `OTEL_EXPORTER_OTLP_ENDPOINT` to the [{{motlp}}](opentelemetry://reference/motlp.md) URL for your Serverless project. For example, `OTEL_EXPORTER_OTLP_ENDPOINT=https://my-prj-a1b2c3.ingest.eu-west-1.aws.elastic.cloud`. Refer to the [Quickstart for {{serverless-full}}](docs-content://solutions/observability/get-started/opentelemetry/quickstart/serverless/index.md).
 
-- If using {{ech}} or Self-managed, set `OTEL_EXPORTER_OTLP_ENDPOINT` to the endpoint URL of your EDOT Collector. Refer to the [Quickstart for {{ech}}](docs-content://solutions/observability/get-started/opentelemetry/quickstart/ech/hosts_vms.md) or the [Quickstart for Self-managed](docs-content://solutions/observability/get-started/opentelemetry/quickstart/self-managed/hosts_vms.md).
+- If using {{ech}} or Self-managed, set `OTEL_EXPORTER_OTLP_ENDPOINT` to the endpoint URL of your {{agent}}. Refer to the [Quickstart for {{ech}}](docs-content://solutions/observability/get-started/opentelemetry/quickstart/ech/hosts_vms.md) or the [Quickstart for Self-managed](docs-content://solutions/observability/get-started/opentelemetry/quickstart/self-managed/hosts_vms.md).
 
 ### `serviceName`
 
@@ -274,29 +274,29 @@ For example, for the equivalent of `transactionSampleRate: '0.25'` use `OTEL_TRA
 
 ## Limitations
 
-The following limitations apply to EDOT Node.js.
+The following limitations apply to Elastic OTel Node.js.
 
 ### Supported Node.js versions
 
-EDOT Node.js and OpenTelemetry SDK support Node.js versions in the range `^18.19.0 || >=20.6.0`. Elastic {{product.apm}} Node.js works with Node.js versions `>=14.17.0`, though with limited support for Node.js 14 and 16 given that those major versions of Node.js are out of long-term support.
+Elastic OTel Node.js and OpenTelemetry SDK support Node.js versions in the range `^18.19.0 || >=20.6.0`. Elastic {{product.apm}} Node.js works with Node.js versions `>=14.17.0`, though with limited support for Node.js 14 and 16 given that those major versions of Node.js are out of long-term support.
 
 ### Missing instrumentations
 
-EDOT Node.js doesn't currently support instrumentation for AWS Lambda and Azure Functions. However, there are contrib and third-party options based on OpenTelemetry:
+Elastic OTel Node.js doesn't currently support instrumentation for AWS Lambda and Azure Functions. However, there are contrib and third-party options based on OpenTelemetry:
 
 - For AWS Lambda use [OpenTelemetry Lambda layers](https://github.com/open-telemetry/opentelemetry-lambda).
 - For Azure Functions you can [configure OpenTelemetry](https://learn.microsoft.com/en-us/azure/azure-functions/opentelemetry-howto?tabs=app-insights&pivots=programming-language-javascript).
 
 ### Central configuration
 
-You can manage EDOT Node.js configurations through the [central configuration feature](docs-content://solutions/observability/apm/apm-agent-central-configuration.md) in the Applications UI.
+You can manage Elastic OTel Node.js configurations through the [central configuration feature](docs-content://solutions/observability/apm/apm-agent-central-configuration.md) in the Applications UI.
 
 Refer to [Central configuration](opentelemetry://reference/central-configuration.md) for more information.
 
 ### Span compression
 
-EDOT Node.js does not implement [span compression](docs-content://solutions/observability/apm/spans.md#apm-spans-span-compression).
+Elastic OTel Node.js does not implement [span compression](docs-content://solutions/observability/apm/spans.md#apm-spans-span-compression).
 
 ## Troubleshooting
 
-If you're encountering issues during migration, refer to the [EDOT Node.js troubleshooting guide](docs-content://troubleshoot/ingest/opentelemetry/edot-sdks/nodejs/index.md).
+If you're encountering issues during migration, refer to the [Elastic OTel Node.js troubleshooting guide](docs-content://troubleshoot/ingest/opentelemetry/edot-sdks/nodejs/index.md).

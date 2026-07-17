@@ -1,6 +1,6 @@
 ---
 navigation_title: Kubernetes
-description: How to instrument Node.js applications on Kubernetes using the Elastic Distribution of OpenTelemetry (EDOT).
+description: How to instrument Node.js applications on Kubernetes using Elastic OpenTelemetry.
 applies_to:
   stack:
   serverless:
@@ -13,11 +13,11 @@ products:
   - id: edot-sdk
 ---
 
-# Instrumenting Node.js applications with EDOT SDKs on Kubernetes
+# Instrumenting Node.js applications with Elastic OTel SDKs on Kubernetes [instrumenting-nodejs-applications-with-edot-sdks-on-kubernetes]
 
-Learn how to instrument Node.js applications on Kubernetes, using the OpenTelemetry Operator, the {{edot}} (EDOT) Collectors, and the EDOT Node.js SDK.
+Learn how to instrument Node.js applications on Kubernetes, using the OpenTelemetry Operator, the {{edot}} Collectors, and the Elastic OTel Node.js SDK.
 
-- For general knowledge about the EDOT Node.js SDK, refer to the [EDOT Node.js Intro page](/reference/edot-node/index.md) and [Configuration](/reference/edot-node/configuration.md).
+- For general knowledge about the Elastic OTel Node.js SDK, refer to the [Elastic OTel Node.js intro page](/reference/edot-node/index.md) and [Configuration](/reference/edot-node/configuration.md).
 - For Node.js auto-instrumentation specifics, refer to [OpenTelemetry Operator Node.js auto-instrumentation](https://opentelemetry.io/docs/kubernetes/operator/automatic/#nodejs).
 - For general information about instrumenting applications on Kubernetes, refer to [instrumenting applications on Kubernetes](docs-content://solutions/observability/get-started/opentelemetry/use-cases/kubernetes/instrumenting-applications.md).
 

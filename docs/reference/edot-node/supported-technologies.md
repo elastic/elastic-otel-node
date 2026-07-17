@@ -1,6 +1,6 @@
 ---
 navigation_title: Supported Technologies
-description: Supported technologies for the Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js).
+description: Supported technologies for Elastic OTel Node.js.
 applies_to:
   stack:
   serverless:
@@ -13,9 +13,9 @@ products:
   - id: edot-sdk
 ---
 
-# Technologies supported by the EDOT Node.js SDK
+# Technologies supported by the Elastic OTel Node.js SDK [technologies-supported-by-the-edot-nodejs-sdk]
 
-The EDOT Node.js agent is a [distribution](https://opentelemetry.io/docs/concepts/distributions/) of OpenTelemetry Node.js. It inherits all the [supported](opentelemetry://reference/compatibility/nomenclature.md) technologies of the OpenTelemetry Node.js.
+The Elastic OTel Node.js agent is a [distribution](https://opentelemetry.io/docs/concepts/distributions/) of OpenTelemetry Node.js. It inherits all the [supported](opentelemetry://reference/compatibility/nomenclature.md) technologies of the OpenTelemetry Node.js.
 
 :::{note}
 **Understanding auto-instrumentation scope**
@@ -32,19 +32,19 @@ If your application uses technologies not covered by auto-instrumentation, you h
 2. **Manual instrumentation** — Use the [OpenTelemetry API](https://opentelemetry.io/docs/languages/js/instrumentation/) to add custom spans, metrics, and logs for unsupported components.
 :::
 
-## EDOT Collector and Elastic Stack versions
+## {{agent}} and {{stack}} versions [edot-collector-and-elastic-stack-versions]
 
-The {{edot}} Node.js (EDOT Node.js) sends data through the OpenTelemetry protocol (OTLP). While OTLP ingest works with later 8.16+ versions of the EDOT Collector, for full support use either [EDOT Collector](elastic-agent://reference/edot-collector/index.md) versions 9.x or [{{serverless-full}}](docs-content://deploy-manage/deploy/elastic-cloud/serverless.md) for OTLP ingest.
+The {{edot}} Node.js sends data through the OpenTelemetry protocol (OTLP). While OTLP ingest works with later 8.16+ versions of the {{agent}}, for full support use either [{{agent}}](elastic-agent://reference/edot-collector/index.md) versions 9.x or [{{serverless-full}}](docs-content://deploy-manage/deploy/elastic-cloud/serverless.md) for OTLP ingest.
 
 :::{note}
-Ingesting data from EDOT SDKs through EDOT Collector 9.x into Elastic Stack versions 8.18+ is supported.
+Ingesting data from Elastic OTel SDKs through {{agent}} 9.x into {{stack}} versions 8.18+ is supported.
 :::
 
-Refer to [EDOT SDKs compatibility](opentelemetry://reference/compatibility/sdks.md) for support details.
+Refer to [Elastic OTel SDKs compatibility](opentelemetry://reference/compatibility/sdks.md) for support details.
 
 ## Node.js versions
 
-EDOT Node.js supports Node.js 18.19.0, 20.6.0, or later. This follows from the [OpenTelemetry JS supported runtimes](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes).
+Elastic OTel Node.js supports Node.js 18.19.0, 20.6.0, or later. This follows from the [OpenTelemetry JS supported runtimes](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes).
 
 ## TypeScript versions
 
@@ -55,9 +55,9 @@ Usage of `@elastic/opentelemetry-node` in TypeScript code requires:
 
 ## Instrumentations [instrumentations]
 
-The following instrumentations are included in EDOT Node.js. All are turned on by default, except those noted _disabled by default_.
+The following instrumentations are included in Elastic OTel Node.js. All are turned on by default, except those noted _disabled by default_.
 
-The 🔹 symbol marks instrumentations that differ between EDOT Node.js and OTel JS, or that only exist in EDOT Node.js.
+The 🔹 symbol marks instrumentations that differ between Elastic OTel Node.js and OTel JS, or that only exist in Elastic OTel Node.js.
 
 | Name | Packages instrumented | Notes |
 |---|---|---|
@@ -104,7 +104,7 @@ The 🔹 symbol marks instrumentations that differ between EDOT Node.js and OTel
 
 ### LLM instrumentations
 
-EDOT Node.js can instrument the following Large Language Model (LLM) libraries with instrumentations implementing the [OpenTelemetry GenAI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/):
+Elastic OTel Node.js can instrument the following Large Language Model (LLM) libraries with instrumentations implementing the [OpenTelemetry GenAI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/):
 
 | SDK    | Instrumentation | Traces | Metrics | Logs | Notes |
 |--------|-----------------|--------|---------|------|-------|
@@ -114,7 +114,7 @@ EDOT Node.js can instrument the following Large Language Model (LLM) libraries w
 
 ### Deactivated instrumentations [disabled-instrumentations]
 
-The following instrumentations are included in EDOT Node.js, but deactivated by default:
+The following instrumentations are included in Elastic OTel Node.js, but deactivated by default:
 
 - `@opentelemetry/instrumentation-fs` (Deactivated upstream in [open-telemetry/opentelemetry-js-contrib#2467](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467).)
 - `@opentelemetry/instrumentation-fastify` (Deprecated upstream and slated for removal. Refer to [open-telemetry/opentelemetry-js-contrib#2652](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2652))
@@ -129,11 +129,11 @@ export OTEL_NODE_ENABLED_INSTRUMENTATIONS="fs,http,fastify" # only the ones in t
 node --import @elastic/opentelemetry-node my-service.js
 ```
 
-EDOT Node.js uses the [`@opentelemetry/auto-instrumentations-node` package set of instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/metapackages/auto-instrumentations-node/README.md#supported-instrumentations) as a guide for instrumentations to include, exclude, or turn off by default. This is to maximize compatibility between usage of EDOT Node.js and the OpenTelemetry JS SDK.
+Elastic OTel Node.js uses the [`@opentelemetry/auto-instrumentations-node` package set of instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/metapackages/auto-instrumentations-node/README.md#supported-instrumentations) as a guide for instrumentations to include, exclude, or turn off by default. This is to maximize compatibility between usage of Elastic OTel Node.js and the OpenTelemetry JS SDK.
 
 ## Native instrumentations
 
-Native instrumentation refers to OpenTelemetry instrumentation that is built into a library. When a library includes native OTel instrumentation, it provides telemetry data to providers registered by a running OTel SDK. Native instrumentations of note are listed in the following table. To benefit from these instrumentations you only need to use the library and start the EDOT Node.js SDK:
+Native instrumentation refers to OpenTelemetry instrumentation that is built into a library. When a library includes native OTel instrumentation, it provides telemetry data to providers registered by a running OTel SDK. Native instrumentations of note are listed in the following table. To benefit from these instrumentations you only need to use the library and start the Elastic OTel Node.js SDK:
 
 ```bash
 node --import @elastic/opentelemetry-node my-app.js
@@ -145,7 +145,7 @@ node --import @elastic/opentelemetry-node my-app.js
 
 ## ECMAScript Modules (ESM)
 
-EDOT Node.js includes limited and experimental support for instrumenting [ECMAScript module (ESM) imports](https://nodejs.org/api/esm.html#modules-ecmascript-modules). For example modules that are loaded through `import ...` statements and `import('...')` (dynamic import).
+Elastic OTel Node.js includes limited and experimental support for instrumenting [ECMAScript module (ESM) imports](https://nodejs.org/api/esm.html#modules-ecmascript-modules). For example modules that are loaded through `import ...` statements and `import('...')` (dynamic import).
 
 To activate ESM instrumentation, use `node --import @elastic/opentelemetry-node ...` to start the SDK. Using `node --require @elastic/opentelemetry-node ...` does not turn on ESM instrumentation. It is intended to signal that only CommonJS module usage should be instrumented.
 

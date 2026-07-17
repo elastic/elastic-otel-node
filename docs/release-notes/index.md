@@ -1,6 +1,6 @@
 ---
-navigation_title: EDOT Node.js
-description: Release notes for Elastic Distribution of OpenTelemetry Node.js.
+navigation_title: Elastic OTel Node.js
+description: Release notes for Elastic OTel Node.js.
 applies_to:
   stack:
   serverless:
@@ -11,11 +11,11 @@ products:
   - id: edot-sdk
 ---
 
-# Elastic Distribution of OpenTelemetry Node.js release notes [edot-nodejs-release-notes]
+# Elastic OTel Node.js release notes [edot-nodejs-release-notes]
 
-Review the changes, fixes, and more in each version of Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js).
+Review the changes, fixes, and more in each version of Elastic OTel Node.js.
 
-To check for breaking changes, see [EDOT Node.js Breaking Changes](./breaking-changes.md).
+To check for breaking changes, see [Elastic OTel Node.js Breaking Changes](./breaking-changes.md).
 
 To check for security updates, go to [Security announcements for the Elastic stack](https://discuss.elastic.co/c/announcements/security-announcements/31).
 

@@ -1,6 +1,6 @@
 ---
 navigation_title: Configuration
-description: How to configure the Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js) using environment variables.
+description: How to configure the Elastic OTel Node.js using environment variables.
 applies_to:
   stack:
   serverless:
@@ -13,14 +13,14 @@ products:
   - id: edot-sdk
 ---
 
-# Configure the EDOT Node.js SDK
+# Configure the Elastic OTel Node.js SDK [configure-the-edot-nodejs-sdk]
 
-The {{edot}} Node.js (EDOT Node.js) is configured with environment variables beginning with `OTEL_` or `ELASTIC_OTEL_`. Any `OTEL_*` environment variables behave the same as with the OpenTelemetry SDK. For example, all the OpenTelemetry [General SDK Configuration env vars](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration) are supported. If EDOT Node.js provides a configuration setting specific to the Elastic distribution, it will begin with `ELASTIC_OTEL_`.
+The {{edot}} Node.js is configured with environment variables beginning with `OTEL_` or `ELASTIC_OTEL_`. Any `OTEL_*` environment variables behave the same as with the OpenTelemetry SDK. For example, all the OpenTelemetry [General SDK Configuration env vars](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/#general-sdk-configuration) are supported. If Elastic OTel Node.js provides a configuration setting specific to the Elastic distribution, it will begin with `ELASTIC_OTEL_`.
 
 
 ## Basic configuration
 
-If not configured, EDOT Node.js will send telemetry data to `http://localhost:4318` with no authentication information, and identify the running service as `unknown_service:node`. Typically a minimal configuration will include
+If not configured, Elastic OTel Node.js will send telemetry data to `http://localhost:4318` with no authentication information, and identify the running service as `unknown_service:node`. Typically a minimal configuration will include
 
 * `OTEL_EXPORTER_OTLP_ENDPOINT`: The full URL of an OpenTelemetry Collector where data will be sent.
 * `OTEL_EXPORTER_OTLP_HEADERS`: A comma-separated list of HTTP headers used for exporting data, typically used to set the `Authorization` header with auth information.
@@ -37,13 +37,13 @@ export OTEL_SERVICE_NAME=my-app
 
 ## Configuration reference
 
-This section attempts to list all environment variables that can be used to configure EDOT Node.js. Some settings also have a section below discussing behavior that is interesting and/or specific to EDOT Node.js.
+This section attempts to list all environment variables that can be used to configure Elastic OTel Node.js. Some settings also have a section below discussing behavior that is interesting and/or specific to Elastic OTel Node.js.
 
 :::{warning}
-The behavior of `OTEL_` environment variables are typically defined by OpenTelemetry dependencies of EDOT Node.js. In some cases, these dependencies have a "development" status (`0.x` versions). This means that their behavior can be broken in a minor release of EDOT Node.js.
+The behavior of `OTEL_` environment variables are typically defined by OpenTelemetry dependencies of Elastic OTel Node.js. In some cases, these dependencies have a "development" status (`0.x` versions). This means that their behavior can be broken in a minor release of Elastic OTel Node.js.
 :::
 
-The 🔹 symbol denotes settings with a default value or behavior that differs between EDOT Node.js and OTel JS, or that only exists in EDOT Node.js.
+The 🔹 symbol denotes settings with a default value or behavior that differs between Elastic OTel Node.js and OTel JS, or that only exists in Elastic OTel Node.js.
 
 | Name | Notes |
 | :--- | :---- |
@@ -64,23 +64,23 @@ The 🔹 symbol denotes settings with a default value or behavior that differs b
 | `OTEL_EXPORTER_OTLP_CLIENT_KEY` | [(Ref)][otel-exporter-envvars] Client private key for mTLS communication. Also supports signal-specific `OTEL_EXPORTER_OTLP_{signal}_CLIENT_KEY`. |
 | `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE` | [(Ref)][otel-exporter-envvars] The trusted certificate to use when verifying a server's TLS credentials. Also supports signal-specific `OTEL_EXPORTER_OTLP_{signal}_CLIENT_CERTIFICATE`. |
 | | |
-| `OTEL_NODE_RESOURCE_DETECTORS` | [(EDOT Ref)](#otel_node_resource_detectors-details) Comma-separated list of resource detectors to use. |
-| `OTEL_NODE_ENABLED_INSTRUMENTATIONS` 🔹 | [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details) Comma-separated list of instrumentations to turn on. |
-| `OTEL_NODE_DISABLED_INSTRUMENTATIONS` 🔹 | [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details) Comma-separated list of instrumentations to turn off. |
+| `OTEL_NODE_RESOURCE_DETECTORS` | [(Elastic OTel Ref)](#otel_node_resource_detectors-details) Comma-separated list of resource detectors to use. |
+| `OTEL_NODE_ENABLED_INSTRUMENTATIONS` 🔹 | [(Elastic OTel Ref)](#otel_node_disabledenabled_instrumentations-details) Comma-separated list of instrumentations to turn on. |
+| `OTEL_NODE_DISABLED_INSTRUMENTATIONS` 🔹 | [(Elastic OTel Ref)](#otel_node_disabledenabled_instrumentations-details) Comma-separated list of instrumentations to turn off. |
 | | |
-| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS` 🔹  | [(EDOT Ref)](#capture_headers-details) Comma-separated list of HTTP request headers to capture on client spans. |
-| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS` 🔹 | [(EDOT Ref)](#capture_headers-details) Comma-separated list of HTTP response headers to capture on client spans. |
-| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS` 🔹  | [(EDOT Ref)](#capture_headers-details) Comma-separated list of HTTP request headers to capture on server spans. |
-| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS` 🔹  | [(EDOT Ref)](#capture_headers-details) Comma-separated list of HTTP response headers to capture on server spans. |
+| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS` 🔹  | [(Elastic OTel Ref)](#capture_headers-details) Comma-separated list of HTTP request headers to capture on client spans. |
+| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_RESPONSE_HEADERS` 🔹 | [(Elastic OTel Ref)](#capture_headers-details) Comma-separated list of HTTP response headers to capture on client spans. |
+| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS` 🔹  | [(Elastic OTel Ref)](#capture_headers-details) Comma-separated list of HTTP request headers to capture on server spans. |
+| `ELASTIC_OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_RESPONSE_HEADERS` 🔹  | [(Elastic OTel Ref)](#capture_headers-details) Comma-separated list of HTTP response headers to capture on server spans. |
 | | |
-| `ELASTIC_OTEL_HOST_METRICS_DISABLED` 🔹 | [(EDOT Ref)](#elastic_otel_host_metrics_disabled-details) Turn off collection of metrics done by `@opentelemetry/host-metrics` package. |
-| `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` 🔹 | [(EDOT Ref)](#otel_exporter_otlp_metrics_temporality_preference-details) The metrics exporter's default aggregation `temporality`. The default value is `delta`. The OTel default is `cumulative`. |
+| `ELASTIC_OTEL_HOST_METRICS_DISABLED` 🔹 | [(Elastic OTel Ref)](#elastic_otel_host_metrics_disabled-details) Turn off collection of metrics done by `@opentelemetry/host-metrics` package. |
+| `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` 🔹 | [(Elastic OTel Ref)](#otel_exporter_otlp_metrics_temporality_preference-details) The metrics exporter's default aggregation `temporality`. The default value is `delta`. The OTel default is `cumulative`. |
 | | |
-| `OTEL_SEMCONV_STABILITY_OPT_IN` 🔹 | [(EDOT Ref)](#otel_semconv_stability_opt_in-details) Control which HTTP semantic conventions are used by `@opentelemetry/instrumentation-http`. The default value is `http`. The OTel default is an empty value. |
-| `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` 🔹 | [(EDOT Ref)](#elastic_otel_context_propagation_only-details) Set to `true` to turn on trace-context propagation in outgoing requests and log correlation. This turns off the sending of spans. |
-| `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING` 🔹 | [(EDOT Ref)](#elastic_otel_node_enable_log_sending-details) Set to `true` to enable "log sending" in instrumentations of Node.js logging frameworks (pino, bunyan, winston). |
+| `OTEL_SEMCONV_STABILITY_OPT_IN` 🔹 | [(Elastic OTel Ref)](#otel_semconv_stability_opt_in-details) Control which HTTP semantic conventions are used by `@opentelemetry/instrumentation-http`. The default value is `http`. The OTel default is an empty value. |
+| `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` 🔹 | [(Elastic OTel Ref)](#elastic_otel_context_propagation_only-details) Set to `true` to turn on trace-context propagation in outgoing requests and log correlation. This turns off the sending of spans. |
+| `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING` 🔹 | [(Elastic OTel Ref)](#elastic_otel_node_enable_log_sending-details) Set to `true` to enable "log sending" in instrumentations of Node.js logging frameworks (pino, bunyan, winston). |
 | | |
-| `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | [(EDOT Ref)](#otel_instrumentation_genai_capture_message_content-details) A boolean to control whether message content should be included in GenAI-related telemetry. |
+| `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | [(Elastic OTel Ref)](#otel_instrumentation_genai_capture_message_content-details) A boolean to control whether message content should be included in GenAI-related telemetry. |
 | | |
 | `OTEL_BSP_SCHEDULE_DELAY` | [(Ref)][otel-sdk-envvars-bsp] Duration, in milliseconds, between consecutive BatchSpanProcessor exports. The default value is `5000`. |
 | `OTEL_BSP_EXPORT_TIMEOUT` | [(Ref)][otel-sdk-envvars-bsp] Maximum allowed time, in milliseconds, for BatchSpanProcessor to export. The default value is `30000`. |
@@ -119,7 +119,7 @@ The following settings are deprecated:
 
 | Name | Notes |
 | :--- | :---- |
-| `ELASTIC_OTEL_METRICS_DISABLED` 🔹 | [(EDOT Ref)](#deprecated-elastic_otel_metrics_disabled-details) Turn off metrics export and some metrics collection by the SDK. {applies_to}`product: deprecated 1.1.0` |
+| `ELASTIC_OTEL_METRICS_DISABLED` 🔹 | [(Elastic OTel Ref)](#deprecated-elastic_otel_metrics_disabled-details) Turn off metrics export and some metrics collection by the SDK. {applies_to}`product: deprecated 1.1.0` |
 
 ## Central configuration
 
@@ -130,7 +130,7 @@ product:
   edot_node: preview 1.2.0
 ```
 
-APM Agent Central Configuration lets you configure EDOT Node.js instances remotely, see [Central configuration docs](opentelemetry://reference/central-configuration.md) for more details.
+APM Agent Central Configuration lets you configure Elastic OTel Node.js instances remotely, see [Central configuration docs](opentelemetry://reference/central-configuration.md) for more details.
 
 ### Configure central configuration
 
@@ -151,7 +151,7 @@ The following environment variable can be used to configure requests send to the
 
 ### Central configuration settings
 
-You can modify the following settings for EDOT Node.js through APM Agent Central Configuration:
+You can modify the following settings for Elastic OTel Node.js through APM Agent Central Configuration:
 
 | Setting | Central configuration name | Type |
 |---------|--------------------------|------|
@@ -166,13 +166,13 @@ You can modify the following settings for EDOT Node.js through APM Agent Central
 
 Dynamic settings can be changed without having to restart the application.
 
-## EDOT configuration details
+## Elastic OTel configuration details [edot-configuration-details]
 
-This section includes additional details on some configuration settings that merit more explanation, or that have behavior that differs in EDOT Node.js when compared to OpenTelemetry JS.
+This section includes additional details on some configuration settings that merit more explanation, or that have behavior that differs in Elastic OTel Node.js when compared to OpenTelemetry JS.
 
 ### `OTEL_NODE_RESOURCE_DETECTORS` details [otel_node_resource_detectors-details]
 
-A comma-separated list of named resource detectors to use. EDOT Node.js supports the same set as the [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/auto-instrumentations-node/README.md#usage-auto-instrumentation):
+A comma-separated list of named resource detectors to use. Elastic OTel Node.js supports the same set as the [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/auto-instrumentations-node/README.md#usage-auto-instrumentation):
 
 - `env`
 - `host`
@@ -193,7 +193,7 @@ The "cloud" resource detectors (`alibaba`, `aws`, `azure`, `gcp`) typically make
 export OTEL_NODE_RESOURCE_DETECTORS=env,host,os,process,serviceinstance,container
 ```
 
-In addition, EDOT Node.js always includes the [`telemetry.distro.*` resource attributes](https://opentelemetry.io/docs/specs/semconv/attributes-registry/telemetry/).
+In addition, Elastic OTel Node.js always includes the [`telemetry.distro.*` resource attributes](https://opentelemetry.io/docs/specs/semconv/attributes-registry/telemetry/).
 
 :::{note}
 {{kib}} relies on the `service.instance.id` resource attribute to query and break down data to be shown in [service metrics](docs-content://solutions/observability/apm/metrics-ui.md). If you turn off the `serviceinstance` resource detector, the dashboard won't display any data.
@@ -209,7 +209,7 @@ In addition, EDOT Node.js always includes the [`telemetry.distro.*` resource att
 
 The default set of enabled instrumentations is [the set of included instrumentations](/reference/edot-node/supported-technologies.md#instrumentations), minus any that are noted as ["disabled by default"](/reference/edot-node/supported-technologies.md#disabled-instrumentations).
 
-EDOT Node.js handles these settings the same as the [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/auto-instrumentations-node/README.md#usage-auto-instrumentation), with one addition. In `@opentelemetry/auto-instrumentations-node`, the name of an instrumentation is the name of the package with the `@opentelemetry/instrumentation-` prefix removed -- `cassandra-driver` refers to the instrumentation provided by `@opentelemetry/instrumentation-cassandra`. EDOT Node.js can include instrumentations that do not have this prefix, for example `@elastic/opentelemetry-instrumentation-SOMETHING`, if/when Elastic includes additional instrumentations that do not match `@opentelemetry/instrumentation-*`. In these cases, the "name" for the instrumentation is the full package name.
+Elastic OTel Node.js handles these settings the same as the [`@opentelemetry/auto-instrumentations-node`](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/auto-instrumentations-node/README.md#usage-auto-instrumentation), with one addition. In `@opentelemetry/auto-instrumentations-node`, the name of an instrumentation is the name of the package with the `@opentelemetry/instrumentation-` prefix removed -- `cassandra-driver` refers to the instrumentation provided by `@opentelemetry/instrumentation-cassandra`. Elastic OTel Node.js can include instrumentations that do not have this prefix, for example `@elastic/opentelemetry-instrumentation-SOMETHING`, if/when Elastic includes additional instrumentations that do not match `@opentelemetry/instrumentation-*`. In these cases, the "name" for the instrumentation is the full package name.
 
 ### `ELASTIC_OTEL_INSTRUMENTATION_HTTP_{CLIENT,SERVER}_CAPTURE_{REQUEST,RESPONSE}_HEADERS` details [capture_headers-details]
 
@@ -235,8 +235,8 @@ product:
 Setting `ELASTIC_OTEL_METRICS_DISABLED` to `true` turns off metrics export by the SDK and some metrics collection. This configuration setting is deprecated as of v1.1.0 in favor of using the following settings for finer control:
 
 - To turn off the export of all metrics, set the `OTEL_METRICS_EXPORTER` environment variable to `none`.
-- To turn off collection by the `@opentelemetry/instrumentation-runtime-node` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=runtime-node`. [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details)
-- To turn off metrics collection by the `@opentelemetry/instrumentation-host-metrics` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics`. [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details)
+- To turn off collection by the `@opentelemetry/instrumentation-runtime-node` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=runtime-node`. [(Elastic OTel Ref)](#otel_node_disabledenabled_instrumentations-details)
+- To turn off metrics collection by the `@opentelemetry/instrumentation-host-metrics` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics`. [(Elastic OTel Ref)](#otel_node_disabledenabled_instrumentations-details)
 
 ### `ELASTIC_OTEL_HOST_METRICS_DISABLED` details [elastic_otel_host_metrics_disabled-details]
 
@@ -245,16 +245,16 @@ product:
  edot_node: deprecated X.X.X
 ```
 
-EDOT Node.js collects and exports [host metrics](/reference/edot-node/metrics.md#process-and-runtime-metrics) by default, using the `@opentelemetry/host-metrics` package. To turn off host metrics collection, set the `ELASTIC_HOST_OTEL_METRICS_DISABLED` environment variable to `true`.
+Elastic OTel Node.js collects and exports [host metrics](/reference/edot-node/metrics.md#process-and-runtime-metrics) by default, using the `@opentelemetry/host-metrics` package. To turn off host metrics collection, set the `ELASTIC_HOST_OTEL_METRICS_DISABLED` environment variable to `true`.
 
-Since vX.X.X EDOT Node.js uses the `@opentelemetry/instrumentation-host-metrics` package to collect metrics. This configuration setting is deprecated in favor of using one of the following:
+Since vX.X.X Elastic OTel Node.js uses the `@opentelemetry/instrumentation-host-metrics` package to collect metrics. This configuration setting is deprecated in favor of using one of the following:
 - To turn off the export of all metrics, set the `OTEL_METRICS_EXPORTER` environment variable to `none`.
-- To turn off collection by the `@opentelemetry/instrumentation-host-metrics` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics`. [(EDOT Ref)](#otel_node_disabledenabled_instrumentations-details)
+- To turn off collection by the `@opentelemetry/instrumentation-host-metrics` package, set the `OTEL_NODE_{DISABLED,ENABLED}_INSTRUMENTATIONS` environment variable to exclude that instrumentation. For example, `OTEL_NODE_DISABLED_INSTRUMENTATIONS=host-metrics`. [(Elastic OTel Ref)](#otel_node_disabledenabled_instrumentations-details)
 
 ### `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` details [otel_exporter_otlp_metrics_temporality_preference-details]
 
 {{es}} and {{kib}} work best with metrics provided in delta-temporality.
-Therefore, the EDOT Node.js changes the default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to `delta`.
+Therefore, Elastic OTel Node.js changes the default value of `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` to `delta`.
 You can override this default if needed, note though that some provided {{kib}} dashboards will not work correctly in this case.
 
 OpenTelemetry defaults the temporality preference to `cumulative`. See https://opentelemetry.io/docs/specs/otel/metrics/sdk_exporters/otlp/#additional-environment-variable-configuration
@@ -268,7 +268,7 @@ For Node.js usage, the following instrumentations produce telemetry using HTTP s
 - `@opentelemetry/instrumentation-http`: Currently transitioning from old to stable HTTP semantic conventions, through the `OTEL_SEMCONV_STABILITY_OPT_IN` setting.
 - `@opentelemetry/instrumentation-undici`: Uses the stable HTTP semantic conventions, because this instrumentation was created after HTTP semconv had stabilized.
 
-EDOT Node.js differs from current OTel JS in that it *defaults `OTEL_SEMCONV_STABILITY_OPT_IN` to `http`*. This means that, by default, all HTTP-related telemetry from EDOT Node.js will use the newer, stable HTTP semantic conventions. (This difference from contrib is expected to be temporary, as `@opentelemetry/instrumentation-http` switches to producing only stable HTTP semantic conventions after its transition period.)
+Elastic OTel Node.js differs from current OTel JS in that it *defaults `OTEL_SEMCONV_STABILITY_OPT_IN` to `http`*. This means that, by default, all HTTP-related telemetry from Elastic OTel Node.js will use the newer, stable HTTP semantic conventions. (This difference from contrib is expected to be temporary, as `@opentelemetry/instrumentation-http` switches to producing only stable HTTP semantic conventions after its transition period.)
 
 ### `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` details [elastic_otel_context_propagation_only-details]
 
@@ -288,9 +288,9 @@ product:
   edot_node: preview 1.0.0
 ```
 
-By default EDOT Node.js enables instrumentation for a number of Node.js logging frameworks.
+By default Elastic OTel Node.js enables instrumentation for a number of Node.js logging frameworks.
 Those instrumentations support a feature called "log sending," where log records for any created loggers are sent to the configured OTLP endpoint.
-EDOT Node.js **disables log sending by default.**
+Elastic OTel Node.js **disables log sending by default.**
 To enable log sending, set the `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING=true` environment variable.
 (Note: The "log correlation" feature of these instrumentations is still enabled by default.)
 

@@ -1,6 +1,6 @@
 ---
 navigation_title: Metrics
-description: Metrics produced by the Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js).
+description: Metrics produced by Elastic OTel Node.js.
 applies_to:
   stack:
   serverless:
@@ -15,11 +15,11 @@ products:
 
 # Metrics
 
-In the Elastic Distribution of OpenTelemetry for Node.js (EDOT Node.js) the collection of metrics is turned on by default. Refer to the [settings with `METRIC` in the name](/reference/edot-node/configuration.md) for all options for configuring metric collection.
+In Elastic OTel Node.js the collection of metrics is turned on by default. Refer to the [settings with `METRIC` in the name](/reference/edot-node/configuration.md) for all options for configuring metric collection.
 
 ## Process and runtime metrics
 
-EDOT Node.js gathers metrics from the Node.js process your application is
+Elastic OTel Node.js gathers metrics from the Node.js process your application is
 running using the following packages:
 
 - `@opentelemetry/instrumentation-host-metrics` to gather `process.cpu.*` and `process.memory.*` metrics ([ref](https://github.com/open-telemetry/semantic-conventions/blob/80988c54712ee336cb3a6240b8845e9dfa8c9f49/docs/system/process-metrics.md?plain=1#L22)).
@@ -42,5 +42,5 @@ A subset of them are useful to detect issues when doing an overview of the instr
 - `process.memory.usage` is the value of [Resident Set Size](https://nodejs.org/api/process.html#processmemoryusagerss) in bytes. It
   measures how much memory the process is allocating.
 
-If your service is instrumented by EDOT Node.js, or by custom instrumentation that includes the packages previously mentioned,
+If your service is instrumented by Elastic OTel Node.js, or by custom instrumentation that includes the packages previously mentioned,
 {{kib}} shows them as part of the [service metrics](docs-content://solutions/observability/apm/metrics-ui.md).
