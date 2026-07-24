@@ -25,6 +25,8 @@ function checkTelemetry(t, col) {
     t.equal(spans[0].name, 'search');
     t.equal(spans[0].kind, 'SPAN_KIND_CLIENT', 'kind');
     t.equal(spans[0].scope.name, '@elastic/transport');
+    // Note on `db.system`: current @elastic/elasticsearch native instr still
+    // using old unstable DB semconv.
     t.equal(spans[0].attributes['db.system'], 'elasticsearch');
     t.equal(spans[0].attributes['db.operation.name'], 'search');
 

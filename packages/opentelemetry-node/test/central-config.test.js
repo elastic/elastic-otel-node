@@ -871,7 +871,7 @@ test('central-config', (suite) => {
                     'scope.name',
                     '@opentelemetry/instrumentation-mongodb'
                 );
-                t.equal(span.name, 'mongodb.insert', 'mongodb span');
+                t.equal(span.name, 'insert test-col', 'mongodb span');
                 metric = findObjInArray(
                     allMetrics,
                     'scope.name',
@@ -879,7 +879,7 @@ test('central-config', (suite) => {
                 );
                 t.equal(
                     metric.name,
-                    'db.client.connections.usage',
+                    'db.client.connection.count',
                     'mongodb metric'
                 );
 

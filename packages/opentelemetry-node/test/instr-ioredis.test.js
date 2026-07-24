@@ -39,7 +39,7 @@ const testFixtures = [
                 t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');
                 t.equal(s.kind, 'SPAN_KIND_CLIENT', 'kind');
                 t.equal(s.scope.name, '@opentelemetry/instrumentation-ioredis');
-                t.equal(s.attributes['db.system'], 'redis');
+                t.equal(s.attributes['db.system.name'], 'redis');
             });
             t.equal(spans[1].name, 'set');
             t.equal(spans[2].name, 'get');
@@ -72,7 +72,7 @@ function assertUseIoredisMjsSpans(t, col) {
     // Assert that we got the two redis spans expected from 'use-ioredis.mjs'.
     const spans = filterOutDnsNetSpans(col.sortedSpans);
     t.equal(spans[1].name, 'set');
-    t.equal(spans[1].attributes['db.system'], 'redis');
+    t.equal(spans[1].attributes['db.system.name'], 'redis');
     t.equal(spans[2].name, 'get');
 }
 

@@ -370,7 +370,7 @@ const REMOTE_CONFIG_HANDLERS = [
                         //    case if unpatching is safe.
                         // Notes / Limitations:
                         // - instr-mongodb: Cannot dynamically disable
-                        //   `db.client.connections.usage` metric from this
+                        //   `db.client.connections.count` metric from this
                         //   instr.
                         // - instr-aws-sdk: `@smithy/middleware-stack` patch
                         //   does *not* support unpatching, so `instr.disable()`

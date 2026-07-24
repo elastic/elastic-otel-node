@@ -31,11 +31,11 @@ const testFixtures = [
         // verbose: true,
         checkTelemetry: (t, col) => {
             // We expect spans like this
-            // ------ trace 790a66 (4 spans) ------
-            //        span bd069a "manual-parent-span" (5.4ms, SPAN_KIND_INTERNAL)
-            //  +13ms `- span 1e5ee2 "mongodb.insert" (1.4ms, SPAN_KIND_CLIENT)
-            //   +3ms `- span 3d4723 "mongodb.delete" (0.6ms, SPAN_KIND_CLIENT)
-            //   +1ms `- span 1c1373 "mongodb.endSessions" (0.3ms, SPAN_KIND_CLIENT)
+            // ------ trace 0c68f6 (4 spans) ------
+            //        span 0971d4 "manual-parent-span" (8.2ms, SPAN_KIND_INTERNAL, service.name=unknown_service:node, scope=test)
+            //   +3ms `- span cd2b90 "insert test-col" (1.2ms, SPAN_KIND_CLIENT, service.name=unknown_service:node, scope=mongodb)
+            //   +2ms `- span 000a95 "delete test-col" (0.6ms, SPAN_KIND_CLIENT, service.name=unknown_service:node, scope=mongodb)
+            //   +2ms `- span 172822 "endSessions $cmd" (0.1ms, SPAN_KIND_CLIENT, service.name=unknown_service:node, scope=mongodb)
             const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans.length, 4);
 
@@ -46,7 +46,7 @@ const testFixtures = [
                 spans[1].scope.name,
                 '@opentelemetry/instrumentation-mongodb'
             );
-            t.equal(spans[1].name, 'mongodb.insert');
+            t.equal(spans[1].name, 'insert test-col');
             t.equal(spans[1].kind, 'SPAN_KIND_CLIENT');
             t.equal(spans[1].traceId, spans[0].traceId, 'same trace');
             t.equal(spans[1].parentSpanId, spans[0].spanId);
@@ -55,7 +55,7 @@ const testFixtures = [
                 spans[2].scope.name,
                 '@opentelemetry/instrumentation-mongodb'
             );
-            t.equal(spans[2].name, 'mongodb.delete');
+            t.equal(spans[2].name, 'delete test-col');
             t.equal(spans[2].kind, 'SPAN_KIND_CLIENT');
             t.equal(spans[2].traceId, spans[0].traceId, 'same trace');
             t.equal(spans[2].parentSpanId, spans[0].spanId);
@@ -64,7 +64,7 @@ const testFixtures = [
                 spans[3].scope.name,
                 '@opentelemetry/instrumentation-mongodb'
             );
-            t.equal(spans[3].name, 'mongodb.endSessions');
+            t.equal(spans[3].name, 'endSessions $cmd');
             t.equal(spans[3].kind, 'SPAN_KIND_CLIENT');
             t.equal(spans[3].traceId, spans[0].traceId, 'same trace');
             t.equal(spans[3].parentSpanId, spans[0].spanId);
