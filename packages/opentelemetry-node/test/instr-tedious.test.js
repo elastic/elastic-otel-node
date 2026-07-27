@@ -53,7 +53,7 @@ const testFixtures = [
             t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');
             t.equal(s.kind, 'SPAN_KIND_CLIENT', 'kind');
             t.equal(s.scope.name, '@opentelemetry/instrumentation-tedious');
-            t.equal(s.attributes['db.system'], 'mssql');
+            t.equal(s.attributes['db.system.name'], 'microsoft.sql_server');
             t.equal(s.name, 'execSql master');
         },
     },

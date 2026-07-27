@@ -5,7 +5,10 @@
   "description": "A type:module package used for testing. Need type:module to be able to use ESM-syntax in type-stripped .ts files.",
   "type": "module",
   "dependencies": {
-    "@elastic/opentelemetry-node": "../../..",
+    "@elastic/opentelemetry-node": "../../.."
+  },
+  "devDependencies": {
+    "typescript": "5.2.2",
     "@types/node": "^20.17.30"
   },
   "scripts": {

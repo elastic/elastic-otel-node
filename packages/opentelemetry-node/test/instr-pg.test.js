@@ -36,7 +36,7 @@ const testFixtures = [
                 t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');
                 t.equal(s.kind, 'SPAN_KIND_CLIENT', 'kind');
                 t.equal(s.scope.name, '@opentelemetry/instrumentation-pg');
-                t.equal(s.attributes['db.system'], 'postgresql');
+                t.equal(s.attributes['db.system.name'], 'postgresql');
             });
             t.equal(spans[1].name, 'pg.connect');
             t.equal(spans[2].name, 'pg.query:SELECT postgres');

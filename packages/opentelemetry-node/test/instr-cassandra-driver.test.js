@@ -52,7 +52,7 @@ const testFixtures = [
                     s.scope.name,
                     '@opentelemetry/instrumentation-cassandra-driver'
                 );
-                t.equal(s.attributes['db.system'], 'cassandra');
+                t.equal(s.attributes['db.system.name'], 'cassandra');
             });
             t.equal(spans[1].name, 'cassandra-driver.execute');
             t.equal(spans[2].name, 'cassandra-driver.execute');

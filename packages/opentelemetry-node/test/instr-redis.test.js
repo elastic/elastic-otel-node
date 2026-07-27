@@ -38,7 +38,7 @@ const testFixtures = [
                 t.equal(s.parentSpanId, spans[0].spanId, 'parentSpanId');
                 t.equal(s.kind, 'SPAN_KIND_CLIENT', 'kind');
                 t.equal(s.scope.name, '@opentelemetry/instrumentation-redis');
-                t.equal(s.attributes['db.system'], 'redis');
+                t.equal(s.attributes['db.system.name'], 'redis');
             });
             t.equal(spans[1].name, 'redis-connect');
             t.equal(spans[2].name, 'redis-SET');
@@ -64,7 +64,7 @@ const testFixtures = [
             // Assert that we got the three redis spans expected from 'use-redis.mjs'.
             const spans = filterOutDnsNetSpans(col.sortedSpans);
             t.equal(spans[1].name, 'redis-connect');
-            t.equal(spans[1].attributes['db.system'], 'redis');
+            t.equal(spans[1].attributes['db.system.name'], 'redis');
             t.equal(spans[2].name, 'redis-SET');
             t.equal(spans[3].name, 'redis-GET');
         },

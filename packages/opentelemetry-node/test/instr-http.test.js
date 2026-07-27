@@ -35,7 +35,7 @@ const testFixtures = [
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
-            OTEL_SEMCONV_STABILITY_OPT_IN: 'db/dup,foo',
+            OTEL_SEMCONV_STABILITY_OPT_IN: 'foo',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -69,52 +69,11 @@ const testFixtures = [
         },
     },
     {
-        name: 'http.get (dual HTTP semconv if user set in env)',
-        args: ['./fixtures/use-http-get.js'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
-            OTEL_SEMCONV_STABILITY_OPT_IN: 'http/dup',
-        },
-        // verbose: true,
-        checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans;
-            t.equal(spans.length, 1);
-            const span = spans[0];
-            t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
-            t.equal(span.name, 'GET');
-            t.equal(span.kind, 'SPAN_KIND_CLIENT');
-            t.equal(span.attributes['http.url'], 'http://www.google.com/');
-            t.equal(span.attributes['url.full'], 'http://www.google.com/');
-        },
-    },
-    {
-        name: 'https.get (dual HTTP semconv if user set in env)',
-        args: ['./fixtures/use-https-get.js'],
-        cwd: __dirname,
-        env: {
-            NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
-            OTEL_SEMCONV_STABILITY_OPT_IN: 'http/dup',
-        },
-        // verbose: true,
-        checkTelemetry: (t, col) => {
-            const spans = col.sortedSpans;
-            t.equal(spans.length, 1);
-            const span = spans[0];
-            t.equal(span.scope.name, '@opentelemetry/instrumentation-http');
-            t.equal(span.name, 'GET');
-            t.equal(span.kind, 'SPAN_KIND_CLIENT');
-            t.equal(span.attributes['http.url'], 'https://www.google.com/');
-            t.equal(span.attributes['url.full'], 'https://www.google.com/');
-        },
-    },
-    {
         name: 'http.createServer',
         args: ['./fixtures/use-http-server.js'],
         cwd: __dirname,
         env: {
             NODE_OPTIONS: '--require=@elastic/opentelemetry-node',
-            OTEL_SEMCONV_STABILITY_OPT_IN: 'http/dup',
         },
         // verbose: true,
         checkTelemetry: (t, col) => {
@@ -131,23 +90,23 @@ const testFixtures = [
             t.equal(spans[0].name, 'GET');
             t.equal(spans[0].kind, 'SPAN_KIND_CLIENT');
             t.equal(spans[0].status.code, 'STATUS_CODE_ERROR');
-            t.equal(spans[0].attributes['http.status_code'], 404);
+            t.equal(spans[0].attributes['http.response.status_code'], 404);
 
             t.equal(spans[1].traceId, spans[0].traceId);
             t.equal(spans[1].parentSpanId, spans[0].spanId);
             t.equal(spans[1].name, 'GET');
             t.equal(spans[1].kind, 'SPAN_KIND_SERVER');
-            t.equal(spans[1].attributes['http.status_code'], 404);
+            t.equal(spans[1].attributes['http.response.status_code'], 404);
 
             t.equal(spans[2].name, 'POST');
             t.equal(spans[2].kind, 'SPAN_KIND_CLIENT');
-            t.equal(spans[2].attributes['http.status_code'], 200);
+            t.equal(spans[2].attributes['http.response.status_code'], 200);
 
             t.equal(spans[3].traceId, spans[2].traceId);
             t.equal(spans[3].parentSpanId, spans[2].spanId);
             t.equal(spans[3].name, 'POST');
             t.equal(spans[3].kind, 'SPAN_KIND_SERVER');
-            t.equal(spans[3].attributes['http.status_code'], 200);
+            t.equal(spans[3].attributes['http.response.status_code'], 200);
         },
     },
 ];
