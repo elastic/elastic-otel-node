@@ -29,6 +29,15 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## 1.17.0 [edot-node-1.17.0-release-notes]
+
+### Chores [edot-node-1.17.0-chores]
+
+* Update all `@opentelemetry/*` upstream package dependencies to the latest releases:
+    - [`v2.10.0` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/v2.10.0) from opentelemetry-js
+    - [`experimental/v0.221.0` release](https://github.com/open-telemetry/opentelemetry-js/releases/tag/experimental%2Fv0.221.0) from opentelemetry-js
+    - [opentelemetry-js-contrib release](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/3596#issuecomment-5051036858)
+
 ## 1.16.0 [edot-node-1.16.0-release-notes]
 
 ### Features and enhancements [edot-node-1.16.0-features-enhancements]
