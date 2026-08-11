@@ -32,9 +32,9 @@
     "json": "^11.0.0",
     "minimatch": "^9.0.9",
     "mkdirp": "^3.0.1",
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.5",
     "semver": "^7.8.5",
     "typescript": "5.0.4",
-    "typescript-eslint": "^8.62.0"
+    "typescript-eslint": "^8.64.0"
   }
 }
