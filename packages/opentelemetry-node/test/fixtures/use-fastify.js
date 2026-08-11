@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Usage: node -r ./telemetry-with-fastify-otel.mjs use-fastify.js
+// Usage: node --import ./telemetry-with-fastify-otel.mjs use-fastify.js
 
 const http = require('http');
 
