@@ -17,6 +17,10 @@ if (skip) {
 const testFixtures = [
     {
         name: 'use-redis.js',
+        versionRanges: {
+            // redis@6 supports >=20.0.0
+            node: '>=20.0.0',
+        },
         args: ['./fixtures/use-redis.js'],
         cwd: __dirname,
         env: {
@@ -52,7 +56,8 @@ const testFixtures = [
     {
         name: 'use-redis.mjs (ESM)',
         versionRanges: {
-            node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
+            // redis@6 supports >=20.0.0 and `module.register()` was added in 20.6.0
+            node: '>=20.6.0',
         },
         args: ['./fixtures/use-redis.mjs'],
         cwd: __dirname,
