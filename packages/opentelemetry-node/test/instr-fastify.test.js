@@ -24,9 +24,15 @@ const testFixtures = [
             OTEL_NODE_DISABLED_INSTRUMENTATIONS: 'dns,net',
         },
         versionRanges: {
-            // Ref: https://fastify.dev/docs/latest/Guides/Migration-Guide-V5/#long-term-support-cycle
-            node: '>=20.0.0',
+            // - Ref: https://fastify.dev/docs/latest/Guides/Migration-Guide-V5/#long-term-support-cycle
+            // - Also don't test the `x.0.0` version of v22.
+            //   Fastify itself tests the *latest* release of a given major.
+            //   https://github.com/elastic/elastic-otel-node/issues/1578
+            //   Choosing the `v22.22` minor was arbitrary.
+            node: '^20.0.0 || >=22.22.0',
         },
+        // Set a timeout because we've had hangs (#1578).
+        timeout: 30000,
         verbose: true,
         checkTelemetry: (t, col) => {
             // We expect spans like this
