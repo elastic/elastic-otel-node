@@ -176,5 +176,11 @@
     "tedious": "^20.0.0",
     "undici": "^6.21.3",
     "winston": "^3.13.1"
+  },
+  "// overrides": "adm-zip: waiting for cassandra-driver release with https://github.com/apache/cassandra-nodejs-driver/pull/470#issuecomment-5211268924",
+  "overrides": {
+    "cassandra-driver": {
+      "adm-zip": "~0.6.0"
+    }
   }
 }
