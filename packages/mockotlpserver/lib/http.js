@@ -225,7 +225,15 @@ class HttpService extends Service {
                 // same context).
                 // https://nodejs.org/api/diagnostics_channel.html#channelpublishmessage
                 // TODO: maybe surround with try/catch to not blow up the server?
-                const parseData = parsersMap[contentType] || unknownParser;
+                let parseData;
+                if (
+                    Object.prototype.hasOwnProperty.call(parsersMap, contentType) &&
+                    typeof parsersMap[contentType] === 'function'
+                ) {
+                    parseData = parsersMap[contentType];
+                } else {
+                    parseData = unknownParser;
+                }
                 const reqBuffer = Buffer.concat(chunks);
                 const reqUrl = req.url;
                 const data = parseData(log, reqBuffer, req);
