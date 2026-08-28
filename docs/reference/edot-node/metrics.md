@@ -49,9 +49,7 @@ If EDOT Node.js instruments your service, or if your custom instrumentation incl
 
 Health metrics are internal metrics emitted by the OpenTelemetry Node.js SDK about its own operations, such as the number of exported spans, dropped spans, or spans that failed to send. EDOT Node.js is built on that SDK, so you can use these metrics to monitor the health of your telemetry pipeline.
 
-### EDOT Node.js
-
-EDOT Node.js uses `opentelemetry-sdk-node`. To enable health metrics, set the `OTEL_NODE_EXPERIMENTAL_SDK_METRICS` environment variable to `true`:
+To enable health metrics, set the `OTEL_NODE_EXPERIMENTAL_SDK_METRICS` environment variable to `true`:
 
 ```sh
 OTEL_NODE_EXPERIMENTAL_SDK_METRICS=true node --import @elastic/opentelemetry-node my-app.js
