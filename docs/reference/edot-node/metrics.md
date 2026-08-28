@@ -42,8 +42,7 @@ A subset of them is useful to detect issues when you review the instrumented ser
 - `process.memory.usage` is the value of [Resident Set Size](https://nodejs.org/api/process.html#processmemoryusagerss) in bytes. It
   measures how much memory the process allocates.
 
-If EDOT Node.js instruments your service, or if your custom instrumentation includes the packages previously mentioned,
-{{kib}} shows them as part of the [service metrics](docs-content://solutions/observability/apm/metrics-ui.md).
+If EDOT Node.js instruments your service, or if your custom instrumentation includes the mentioned packages, {{kib}} shows them as part of the [service metrics](docs-content://solutions/observability/apm/metrics-ui.md).
 
 ## Health metrics
 
