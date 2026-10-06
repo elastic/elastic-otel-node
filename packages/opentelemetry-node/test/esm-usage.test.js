@@ -22,8 +22,8 @@ const testFixtures = [
     {
         name: 'ESM via --import',
         versionRanges: {
-            // TODO: issue on node docs that https://nodejs.org/api/all.html#all_module_moduleregisterspecifier-parenturl-options history doesn't show backport to v18.19.0
-            node: '^18.19.0 || >=20.6.0', // when `module.register()` was added
+            // ioredis@6 requires >=20, `module.register()` requires '^18.19.0 || >=20.6.0'
+            node: '>=20.6.0',
         },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
