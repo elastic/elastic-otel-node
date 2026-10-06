@@ -50,8 +50,8 @@ const testFixtures = [
             OTEL_NODE_RESOURCE_DETECTORS: 'none', // cloud detectors are slow
         },
         versionRanges: {
-            // Min-supported node by @elastic/elasticsearch@9.
-            node: '>=20',
+            // @elastic/elasticsearch@9.5.0 supports >=22
+            node: '>=22',
         },
         // verbose: true,
         checkTelemetry,
@@ -65,8 +65,8 @@ const testFixtures = [
             OTEL_NODE_RESOURCE_DETECTORS: 'none', // cloud detectors are slow
         },
         versionRanges: {
-            // @elastic/elasticsearch@9 supports >=20, --import requires 20.6.0
-            node: '>=20.6.0',
+            // @elastic/elasticsearch@9.5.0 supports >=22
+            node: '>=22',
         },
         // verbose: true,
         checkTelemetry,
