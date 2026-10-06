@@ -159,7 +159,7 @@
     "express": "^5.1.0",
     "fastify": "^5.1.0",
     "graphql": "^16.10.0",
-    "ioredis": "^5.4.1",
+    "ioredis": "^6.0.0",
     "kafkajs": "^2.2.4",
     "module-details-from-path": "^1.0.3",
     "mongodb": "^7.1.0",

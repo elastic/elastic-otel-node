@@ -66,6 +66,10 @@ function assertUseIoredisTsSpans(t, col) {
 const testFixtures = [
     {
         name: 'minimal bootstrap, CommonJS-only (telemetry-cjs.js)',
+        versionRanges: {
+            // ioredis@6 requires >=20
+            node: '>=20',
+        },
         args: ['./fixtures/use-ioredis.js'],
         cwd: __dirname,
         env: {
@@ -76,6 +80,10 @@ const testFixtures = [
     },
     {
         name: 'minimal bootstrap, CommonJS-only (telemetry-cjs.js on CLI)',
+        versionRanges: {
+            // ioredis@6 requires >=20
+            node: '>=20',
+        },
         args: [
             '-r',
             './fixtures/telemetry-cjs.js',
@@ -87,6 +95,10 @@ const testFixtures = [
     },
     {
         name: 'minimal bootstrap, CommonJS-only (telemetry-cjs.cjs)',
+        versionRanges: {
+            // ioredis@6 requires >=20
+            node: '>=20',
+        },
         args: ['./fixtures/use-ioredis.js'],
         cwd: __dirname,
         env: {
@@ -98,6 +110,10 @@ const testFixtures = [
 
     {
         name: 'minimal bootstrap, no ESM hook (telemetry-minimal.mjs)',
+        versionRanges: {
+            // ioredis@6 requires >=20
+            node: '>=20',
+        },
         args: ['./fixtures/use-ioredis.js'],
         cwd: __dirname,
         env: {
@@ -109,6 +125,10 @@ const testFixtures = [
 
     {
         name: 'starter bootstrap template (telemetry.mjs)',
+        versionRanges: {
+            // ioredis@6 requires >=20, `module.register()` requires '^18.19.0 || >=20.6.0'
+            node: '>=20.6.0',
+        },
         args: ['./fixtures/use-ioredis.mjs'],
         cwd: __dirname,
         env: {
@@ -183,6 +203,10 @@ const testFixtures = [
     // TypeScript-related tests.
     {
         name: 'bootstrap with compiled TS (telemetry-typescript.ts -> .js)',
+        versionRanges: {
+            // ioredis@6 requires >=20
+            node: '>=20',
+        },
         args: ['./fixtures/an-esm-pkg/build/use-ioredis.js'],
         cwd: __dirname,
         env: {
