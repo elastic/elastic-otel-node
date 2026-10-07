@@ -1,5 +1,9 @@
 # @elastic/mockopampserver Changelog
 
+## v0.5.1
+
+- Bump deps, including a vulnerability update. No functional change.
+
 ## v0.5.0
 
 - Add TLS and mTLS support. [#1044](https://github.com/elastic/elastic-otel-node/issues/1044)
