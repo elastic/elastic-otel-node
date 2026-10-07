@@ -1,5 +1,9 @@
 # @elastic/opamp-client-node Changelog
 
+## v0.5.1
+
+- Bump deps, including a security release of undici. No functional change.
+
 ## v0.5.0
 
 - Bump deps, including bufbuild deps, and regenerate the js files from protos.
