@@ -13,7 +13,7 @@ const {log} = require('./logging');
 const {setUserAgentOnOTLPTransport} = require('./user-agent');
 
 /**
- * @typedef {import('@opentelemetry/sdk-trace-base').SpanExporter} SpanExporter
+ * @typedef {import('@opentelemetry/sdk-trace').SpanExporter} SpanExporter
  * @typedef {import('@opentelemetry/sdk-metrics').PushMetricExporter} PushMetricExporter
  * @typedef {import('@opentelemetry/sdk-logs').LogRecordExporter} LogRecordExporter
  *

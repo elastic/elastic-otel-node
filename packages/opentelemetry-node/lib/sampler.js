@@ -14,8 +14,8 @@ const {
  * @typedef {import('@opentelemetry/api').Context} Context
  * @typedef {import('@opentelemetry/api').Link} Link
  * @typedef {import('@opentelemetry/api').SpanKind} SpanKind
- * @typedef {import('@opentelemetry/sdk-trace-base').Sampler} Sampler
- * @typedef {import('@opentelemetry/sdk-trace-base').SamplingResult} SamplingResult
+ * @typedef {import('@opentelemetry/sdk-trace').Sampler} Sampler
+ * @typedef {import('@opentelemetry/sdk-trace').SamplingResult} SamplingResult
  */
 
 /**

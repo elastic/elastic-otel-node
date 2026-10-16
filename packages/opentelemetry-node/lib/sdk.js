@@ -53,7 +53,7 @@ const DISTRO_VERSION = require('../package.json').version;
 
 /**
  * @typedef {import('@opentelemetry/sdk-node').NodeSDKConfiguration} NodeSDKConfiguration
- * @typedef {import('@opentelemetry/sdk-trace-base').Sampler} Sampler
+ * @typedef {import('@opentelemetry/sdk-trace').Sampler} Sampler
  */
 
 /**
