@@ -57,7 +57,7 @@
     "dashdash": "^2.0.0",
     "long": "^5.2.3",
     "protobufjs": "^8.6.4",
-    "safe-stable-stringify": "^2.5.0"
+    "safe-stable-stringify": "^3.0.0"
   },
   "devDependencies": {
     "protobufjs-cli": "^2.5.5"
