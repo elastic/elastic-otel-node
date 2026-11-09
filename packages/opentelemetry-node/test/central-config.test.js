@@ -1099,10 +1099,7 @@ test('central-config', (suite) => {
 // This reproduces one of the above test cases, but with the OpAMP server and
 // client configured for mTLS.
 test('central-config with mTLS', (suite) => {
-    const TEST_CERTS_DIR = path.resolve(
-        __dirname,
-        '../../opamp-client-node/test/certs' // XXX obvs
-    );
+    const TEST_CERTS_DIR = path.resolve(__dirname, './certs');
     const opampServer = new MockOpAMPServer({
         logLevel: 'warn', // use 'debug' for some debugging of the server
         port: 0,
