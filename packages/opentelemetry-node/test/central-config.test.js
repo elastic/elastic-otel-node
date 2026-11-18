@@ -1070,6 +1070,126 @@ test('central-config', (suite) => {
             },
         },
 
+        {
+            name: 'central-config-gen-telemetry.js use_path_as_span_name=true span_name_groups',
+            args: ['./fixtures/central-config-gen-telemetry.js'],
+            cwd: __dirname,
+            env: () => {
+                return {
+                    NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                    // Skip cloud resource detectors to avoid delay and noise.
+                    OTEL_NODE_RESOURCE_DETECTORS:
+                        'env,host,os,process,serviceinstance,container',
+                    ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
+                    ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
+                    ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                    // Set a short metric export interval to allow the
+                    // fixture script to wait for an interval after receiving
+                    // central config before proceeding.
+                    OTEL_METRIC_EXPORT_INTERVAL: '500',
+                    OTEL_METRIC_EXPORT_TIMEOUT: '450',
+                    ELASTIC_OTEL_SPAN_NAME_GROUPS: 'GE*',
+                };
+            },
+            before: () => {
+                const config = {
+                    use_path_as_span_name: 'true',
+                    span_name_groups: 'manual-*',
+                };
+                opampServer.setAgentConfigMap({
+                    configMap: {
+                        elastic: {
+                            body: Buffer.from(JSON.stringify(config), 'utf8'),
+                            contentType: 'application/json',
+                        },
+                    },
+                });
+            },
+            after: () => {
+                opampServer.setAgentConfigMap({configMap: {}});
+            },
+            // verbose: true,
+            checkTelemetry: (t, col) => {
+                // The central config `span_name_groups` replaces the
+                // `ELASTIC_OTEL_SPAN_NAME_GROUPS` patterns.
+                const spans = filterOutDnsNetSpans(col.sortedSpans);
+                t.deepEqual(
+                    spans.map((s) => `${s.kind} ${s.name}`),
+                    [
+                        'SPAN_KIND_INTERNAL manual-*',
+                        'SPAN_KIND_CLIENT GET',
+                        'SPAN_KIND_SERVER GET /',
+                    ]
+                );
+            },
+        },
+
+        {
+            name: 'central-config-gen-telemetry.js use_path_as_span_name=bogus',
+            args: ['./fixtures/central-config-gen-telemetry.js'],
+            cwd: __dirname,
+            env: () => {
+                return {
+                    NODE_OPTIONS: '--import @elastic/opentelemetry-node',
+                    // Skip cloud resource detectors to avoid delay and noise.
+                    OTEL_NODE_RESOURCE_DETECTORS:
+                        'env,host,os,process,serviceinstance,container',
+                    ELASTIC_OTEL_OPAMP_ENDPOINT: opampServer.endpoint,
+                    ELASTIC_OTEL_EXPERIMENTAL_OPAMP_HEARTBEAT_INTERVAL: '300',
+                    ELASTIC_OTEL_TEST_OPAMP_CLIENT_DIAG_ENABLED: 'true',
+                    // Set a short metric export interval to allow the
+                    // fixture script to wait for an interval after receiving
+                    // central config before proceeding.
+                    OTEL_METRIC_EXPORT_INTERVAL: '500',
+                    OTEL_METRIC_EXPORT_TIMEOUT: '450',
+                    ELASTIC_OTEL_SPAN_NAME_GROUPS: 'GE*',
+                };
+            },
+            before: () => {
+                const config = {
+                    use_path_as_span_name: 'bogus',
+                };
+                opampServer.setAgentConfigMap({
+                    configMap: {
+                        elastic: {
+                            body: Buffer.from(JSON.stringify(config), 'utf8'),
+                            contentType: 'application/json',
+                        },
+                    },
+                });
+            },
+            after: () => {
+                opampServer.setAgentConfigMap({configMap: {}});
+            },
+            // verbose: true,
+            checkTelemetry: (t, col, stdout) => {
+                // The `ELASTIC_OTEL_SPAN_NAME_GROUPS` patterns still apply.
+                const spans = filterOutDnsNetSpans(col.sortedSpans);
+                t.deepEqual(
+                    spans.map((s) => `${s.kind} ${s.name}`),
+                    [
+                        'SPAN_KIND_INTERNAL manual-span',
+                        'SPAN_KIND_CLIENT GE*',
+                        'SPAN_KIND_SERVER GE*',
+                    ]
+                );
+                const recs = stdout
+                    .split(/\r?\n/g)
+                    .filter((ln) => ln.startsWith('{'))
+                    .map((ln) => JSON.parse(ln));
+                const rec = findObjInArray(
+                    recs,
+                    'msg',
+                    'could not apply all remote config settings'
+                );
+                t.ok(rec);
+                t.equal(
+                    rec.applyErrs[0],
+                    'unknown "use_path_as_span_name" value: "bogus"'
+                );
+            },
+        },
+
         // TODO: Test unpatching cases with ESM. Does that work?
     ];
 

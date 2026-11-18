@@ -29,6 +29,12 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## version.next [edot-node-X.X.X-release-notes]
+
+### Features and enhancements [edot-node-X.X.X-features-enhancements]
+
+* Add `ELASTIC_OTEL_USE_PATH_AS_SPAN_NAME` to name HTTP server spans that have no route using the URL path, and `ELASTIC_OTEL_SPAN_NAME_GROUPS` to group span names by wildcard patterns. Both can be changed at runtime with the `use_path_as_span_name` and `span_name_groups` central configuration settings.
+
 ## 1.20.1 [edot-node-1.20.1-release-notes]
 
 ### Chores [edot-node-1.20.1-chores]

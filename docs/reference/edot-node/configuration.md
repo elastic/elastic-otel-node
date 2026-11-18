@@ -79,6 +79,8 @@ The 🔹 symbol denotes settings with a default value or behavior that differs b
 | `OTEL_SEMCONV_STABILITY_OPT_IN` 🔹 | [(EDOT Ref)](#otel_semconv_stability_opt_in-details) Control which HTTP semantic conventions are used by `@opentelemetry/instrumentation-http`. The default value is `http`. The OTel default is an empty value. |
 | `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` 🔹 | [(EDOT Ref)](#elastic_otel_context_propagation_only-details) Set to `true` to turn on trace-context propagation in outgoing requests and log correlation. This turns off the sending of spans. |
 | `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING` 🔹 | [(EDOT Ref)](#elastic_otel_node_enable_log_sending-details) Set to `true` to enable "log sending" in instrumentations of Node.js logging frameworks (pino, bunyan, winston). |
+| `ELASTIC_OTEL_USE_PATH_AS_SPAN_NAME` 🔹 | [(EDOT Ref)](#elastic_otel_use_path_as_span_name-details) Set to `true` to name HTTP server spans that have no route using the URL path. |
+| `ELASTIC_OTEL_SPAN_NAME_GROUPS` 🔹 | [(EDOT Ref)](#elastic_otel_span_name_groups-details) Comma-separated list of wildcard patterns. A span whose name matches a pattern is renamed to that pattern. |
 | | |
 | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | [(EDOT Ref)](#otel_instrumentation_genai_capture_message_content-details) A boolean to control whether message content should be included in GenAI-related telemetry. |
 | | |
@@ -163,6 +165,8 @@ You can modify the following settings for EDOT Node.js through APM Agent Central
 | Send logs | `send_logs` | Dynamic {applies_to}`product: preview 1.3.0` |
 | Sampling rate | `sampling_rate` | Dynamic {applies_to}`product: preview 1.6.0` |
 | Central config polling interval | `opamp_polling_interval` | Dynamic {applies_to}`product: preview 1.7.0` |
+| Use path as span name | `use_path_as_span_name` | Dynamic {applies_to}`product: preview 1.21.0` |
+| Span name groups | `span_name_groups` | Dynamic {applies_to}`product: preview 1.21.0` |
 
 Dynamic settings can be changed without having to restart the application.
 
@@ -280,6 +284,38 @@ product:
 Set the `ELASTIC_OTEL_CONTEXT_PROPAGATION_ONLY` environment variable to `true` to turn on trace-context propagation in outgoing requests and log correlation. This turns off the sending of spans. Setting `OTEL_TRACES_EXPORTER` to `none` overrides this setting, deactivating trace-context propagation.
 
 Refer to the [migration guide](/reference/edot-node/migration.md#contextpropagationonly) for details on how this relates to the similar `contextPropagationOnly` setting from the non-OTel Elastic Node.js APM agent.
+
+### `ELASTIC_OTEL_USE_PATH_AS_SPAN_NAME` details [elastic_otel_use_path_as_span_name-details]
+
+```{applies_to}
+product:
+  edot_node: preview 1.21.0
+```
+
+HTTP server spans are named `{method} {route}` when the instrumented framework provides a route, for example with Express. When it does not, for example with the plain `http` module or unsupported frameworks, the span name is only the HTTP method, such as `GET`.
+
+Set `ELASTIC_OTEL_USE_PATH_AS_SPAN_NAME` to `true` to name those spans `{method} {path}` instead, using the `url.path` attribute, for example `GET /users/42/cart`. Spans that already have a route in their name are not modified.
+
+Because paths often contain identifiers, this can create many distinct span names. Use [`ELASTIC_OTEL_SPAN_NAME_GROUPS`](#elastic_otel_span_name_groups-details) to consolidate them.
+
+This can be changed at runtime with the `use_path_as_span_name` [central configuration setting](#central-configuration-settings).
+
+Refer to the [migration guide](/reference/edot-node/migration.md#usepathastransactionname) for details on how this relates to the similar `usePathAsTransactionName` setting from the non-OTel Elastic Node.js APM agent.
+
+### `ELASTIC_OTEL_SPAN_NAME_GROUPS` details [elastic_otel_span_name_groups-details]
+
+```{applies_to}
+product:
+  edot_node: preview 1.21.0
+```
+
+Set `ELASTIC_OTEL_SPAN_NAME_GROUPS` to a comma-separated list of wildcard patterns. A span whose name matches a pattern is renamed to that pattern, and the first matching pattern wins. This applies to all spans, after [`ELASTIC_OTEL_USE_PATH_AS_SPAN_NAME`](#elastic_otel_use_path_as_span_name-details).
+
+For example, `ELASTIC_OTEL_SPAN_NAME_GROUPS="GET /users/*/cart"` renames both `GET /users/42/cart` and `GET /users/73/cart` to `GET /users/*/cart`.
+
+Patterns support the `*` wildcard, which matches zero or more characters, including `/`. Matching is case-sensitive.
+
+This can be changed at runtime with the `span_name_groups` [central configuration setting](#central-configuration-settings).
 
 ### `ELASTIC_OTEL_NODE_ENABLE_LOG_SENDING` details [elastic_otel_node_enable_log_sending-details]
 

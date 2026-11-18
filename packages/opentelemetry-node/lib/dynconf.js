@@ -10,6 +10,7 @@ const {channel, subscribe, unsubscribe} = require('diagnostics_channel');
 const {ExportResultCode} = require('@opentelemetry/core');
 
 const {log} = require('./logging');
+const {SpanNamer} = require('./span-name');
 const {setUserAgentOnOTLPTransport} = require('./user-agent');
 
 /**
@@ -19,6 +20,10 @@ const {setUserAgentOnOTLPTransport} = require('./user-agent');
  *
  * @typedef {Object} DynConfSpanExportersEvent
  * @property {boolean} enabled
+ *
+ * @typedef {Object} DynConfSpanNamesEvent
+ * @property {boolean} [usePathAsSpanName]
+ * @property {string[]} [spanNameGroups]
  *
  * @typedef {Object} DynConfMetricExportersEvent
  * @property {boolean} enabled
@@ -31,6 +36,7 @@ const {setUserAgentOnOTLPTransport} = require('./user-agent');
  * Diagnostics channels used to communicate changes to some config vars.
  */
 const CH_SPAN_EXPORTERS = 'elastic-opentelemetry-node.dynconf.span-exporters';
+const CH_SPAN_NAMES = 'elastic-opentelemetry-node.dynconf.span-names';
 const CH_METRIC_EXPORTERS =
     'elastic-opentelemetry-node.dynconf.metric-exporters';
 const CH_LOG_RECORD_EXPORTERS =
@@ -38,6 +44,7 @@ const CH_LOG_RECORD_EXPORTERS =
 
 const chs = {
     [CH_SPAN_EXPORTERS]: channel(CH_SPAN_EXPORTERS),
+    [CH_SPAN_NAMES]: channel(CH_SPAN_NAMES),
     [CH_METRIC_EXPORTERS]: channel(CH_METRIC_EXPORTERS),
     [CH_LOG_RECORD_EXPORTERS]: channel(CH_LOG_RECORD_EXPORTERS),
 };
@@ -46,13 +53,17 @@ const chs = {
  * A SpanExporter that is dynamically configurable:
  * - It can be enabled/disabled dynamically. When enabled it proxies to a
  *   delegate SpanExporter.
+ * - It can rename spans before passing them to the delegate.
  */
 class DynConfSpanExporter {
     constructor(delegate) {
         this._delegate = delegate;
         this._enabled = true;
+        this._spanNamer = new SpanNamer();
         this._boundSub = this._onChange.bind(this); // save for unsubscribe()
+        this._boundSpanNamesSub = this._onSpanNamesChange.bind(this);
         subscribe(CH_SPAN_EXPORTERS, this._boundSub);
+        subscribe(CH_SPAN_NAMES, this._boundSpanNamesSub);
 
         const transport = this._delegate?._delegate?._transport;
         if (!transport) {
@@ -75,17 +86,38 @@ class DynConfSpanExporter {
             this._enabled = chEvent.enabled;
         }
     }
+    /**
+     * @param {DynConfSpanNamesEvent} chEvent
+     */
+    _onSpanNamesChange(chEvent) {
+        const hasUsePath = typeof chEvent.usePathAsSpanName === 'boolean';
+        const hasGroups = Array.isArray(chEvent.spanNameGroups);
+        if (!hasUsePath && !hasGroups) {
+            log.warn(`unexpected "${CH_SPAN_NAMES}" channel event: ${chEvent}`);
+            return;
+        }
+        if (hasUsePath) {
+            this._spanNamer.setUsePathAsSpanName(chEvent.usePathAsSpanName);
+        }
+        if (hasGroups) {
+            this._spanNamer.setSpanNameGroups(chEvent.spanNameGroups);
+        }
+    }
 
     // interface SpanExporter
     export(spans, resultCallback) {
         if (this._enabled) {
-            return this._delegate.export(spans, resultCallback);
+            return this._delegate.export(
+                this._spanNamer.rename(spans),
+                resultCallback
+            );
         } else {
             resultCallback({code: ExportResultCode.SUCCESS});
         }
     }
     shutdown() {
         unsubscribe(CH_SPAN_EXPORTERS, this._boundSub);
+        unsubscribe(CH_SPAN_NAMES, this._boundSpanNamesSub);
         if (this._enabled) {
             return this._delegate.shutdown();
         } else {
@@ -171,6 +203,16 @@ function _dynConfWrapSpanProcessors(sp) {
  */
 function dynConfSpanExporters(config) {
     chs[CH_SPAN_EXPORTERS].publish(config);
+}
+
+/**
+ * Dynamically configure how the SDK's SpanExporters name spans. Settings that
+ * are not given are left unchanged.
+ *
+ * @param {DynConfSpanNamesEvent} config
+ */
+function dynConfSpanNames(config) {
+    chs[CH_SPAN_NAMES].publish(config);
 }
 
 /**
@@ -455,6 +497,7 @@ function setupDynConfExporters(sdk) {
 module.exports = {
     setupDynConfExporters,
     dynConfSpanExporters,
+    dynConfSpanNames,
     dynConfMetricExporters,
     dynConfLogRecordExporters,
 

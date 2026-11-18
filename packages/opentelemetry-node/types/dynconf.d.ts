@@ -4,6 +4,10 @@ export type LogRecordExporter = import('@opentelemetry/sdk-logs').LogRecordExpor
 export type DynConfSpanExportersEvent = {
     enabled: boolean;
 };
+export type DynConfSpanNamesEvent = {
+    usePathAsSpanName?: boolean;
+    spanNameGroups?: string[];
+};
 export type DynConfMetricExportersEvent = {
     enabled: boolean;
 };
@@ -39,6 +43,13 @@ export function setupDynConfExporters(sdk: any): void;
  * @param {DynConfSpanExportersEvent} config
  */
 export function dynConfSpanExporters(config: DynConfSpanExportersEvent): void;
+/**
+ * Dynamically configure how the SDK's SpanExporters name spans. Settings that
+ * are not given are left unchanged.
+ *
+ * @param {DynConfSpanNamesEvent} config
+ */
+export function dynConfSpanNames(config: DynConfSpanNamesEvent): void;
 /**
  * Dynamically configure the SDK's metric exporters.
  *
