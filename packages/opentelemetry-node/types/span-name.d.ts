@@ -16,8 +16,7 @@ export class WildcardMatcher {
      *
      * The pattern is split on `*` into segments. `str` must start with the
      * first segment, end with the last one, and contain the segments in
-     * between in order. Each of those is matched at its earliest position,
-     * which never needs to be revisited.
+     * between in order.
      *
      * @param {string} str
      * @returns {boolean}
