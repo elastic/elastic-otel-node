@@ -34,7 +34,7 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
-          node-version: 'v24.8.0'
+          node-version: 'v26.13.1'
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
@@ -92,7 +92,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags')
         working-directory: ./packages/opentelemetry-node
         # https://docs.npmjs.com/trusted-publishers
-        run: npm publish
+        # Note: tag "canary" until ready for 2.0.0 release.
+        run: npm publish --tag="canary"
 
       - name: GitHub release (only for tag releases)
         if: startsWith(github.ref, 'refs/tags')

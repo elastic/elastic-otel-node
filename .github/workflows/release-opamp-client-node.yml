@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
-          node-version: 'v24.8.0'
+          node-version: 'v26.13.1'
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 

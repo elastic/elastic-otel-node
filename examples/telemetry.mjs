@@ -45,14 +45,6 @@ register(
  * - In addition, it accepts some Elastic-specific configuration options.
  *   See `ElasticNodeSDKOptions` in "types/sdk.d.ts":
  *   https://github.com/elastic/elastic-otel-node/blob/main/packages/opentelemetry-node/types/sdk.d.ts
- *
- * - Many useful OpenTelemetry JS SDK classes and utilities are re-exported.
- *   For example:
- *
- *      import { core, tracing } from '@elastic/opentelemetry-node/sdk';
- *      core.hrTime();
- *      new tracing.ConsoleSpanExporter();
- *      class MySpanProcessor implements tracing.SpanProcessor { ... }
  */
 startNodeSDK();
 
