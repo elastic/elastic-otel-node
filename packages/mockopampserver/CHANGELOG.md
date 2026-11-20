@@ -1,5 +1,9 @@
 # @elastic/mockopampserver Changelog
 
+## Unreleased
+
+- Drop support for Node.js 18 and 20. Minimum supported Node.js is now v22.15.0.
+
 ## v0.5.1
 
 - Bump deps, including a vulnerability update. No functional change.
