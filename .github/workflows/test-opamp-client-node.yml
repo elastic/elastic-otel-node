@@ -33,8 +33,6 @@ jobs:
           - '26'
           - '24'
           - '22'
-          - '20'
-          - '18'
     steps:
     - uses: actions/checkout@v7.0.1
 

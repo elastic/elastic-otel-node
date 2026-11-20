@@ -29,6 +29,12 @@ To check for security updates, go to [Security announcements for the Elastic sta
 % ### Fixes [edot-node-X.X.X-fixes]
 % *
 
+## 2.0.0-dev [edot-node-2.0.0-release-notes]
+
+### Features and enhancements [edot-node-2.0.0-features-enhancements]
+
+* ... TODO: fill in notes, also breaking changes and link there
+
 ## 1.20.2 [edot-node-1.20.2-release-notes]
 
 ### Chores [edot-node-1.20.2-chores]

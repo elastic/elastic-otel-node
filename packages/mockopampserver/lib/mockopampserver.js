@@ -8,7 +8,7 @@ const http = require('http');
 const https = require('https');
 const {inspect} = require('util');
 const zlib = require('zlib');
-const TTLCache = require('@isaacs/ttlcache');
+const {TTLCache} = require('@isaacs/ttlcache');
 const {create, toBinary, fromBinary} = require('@bufbuild/protobuf');
 const {Busboy} = require('@fastify/busboy');
 const {stringify: uuidStringify} = require('uuid');
@@ -319,6 +319,7 @@ class MockOpAMPServer {
      * @returns {AgentInfo | undefined}
      */
     getActiveAgent(instanceUid) {
+        // TODO: add test case for this method, it is used in opamp-client-node tests only, I think.
         const instanceUidStr = uuidStringify(instanceUid);
         return this._activeAgents.get(instanceUidStr);
     }
