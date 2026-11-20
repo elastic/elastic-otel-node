@@ -28,9 +28,11 @@ const luggite = require('./luggite');
 const {getInstrumentationNamesFromStr} = require('./instrumentations');
 const {
     dynConfSpanExporters,
+    dynConfSpanNames,
     dynConfMetricExporters,
     dynConfLogRecordExporters,
 } = require('./dynconf');
+const {parseSpanNameGroups} = require('./span-name');
 
 // The key used in the AgentConfigMap.configMap for the Elastic central config
 // AgentConfigFile.
@@ -467,6 +469,53 @@ const REMOTE_CONFIG_HANDLERS = [
         },
     },
 
+    {
+        keys: ['use_path_as_span_name'],
+        setter: (config, _sdkInfo, _opampClient) => {
+            const VAL_DEFAULT = initialConfig.use_path_as_span_name;
+            const [errmsg, val, verb] = _parseBoolConfigRawVal(
+                'use_path_as_span_name',
+                config['use_path_as_span_name'],
+                VAL_DEFAULT
+            );
+            if (errmsg) {
+                return errmsg;
+            }
+
+            dynConfSpanNames({usePathAsSpanName: val});
+            log.info(
+                `central-config: ${verb} "use_path_as_span_name" to "${val}"`
+            );
+            return null;
+        },
+    },
+
+    {
+        keys: ['span_name_groups'],
+        setter: (config, _sdkInfo, _opampClient) => {
+            const raw = config['span_name_groups'];
+            let val;
+            let verb = 'set';
+            switch (typeof raw) {
+                case 'undefined':
+                    val = initialConfig.span_name_groups;
+                    verb = 'reset';
+                    break;
+                case 'string':
+                    val = parseSpanNameGroups(raw);
+                    break;
+                default:
+                    return `unknown 'span_name_groups' value type: ${typeof raw} (${raw})`;
+            }
+
+            dynConfSpanNames({spanNameGroups: val});
+            log.info(
+                `central-config: ${verb} "span_name_groups" to ${JSON.stringify(val)}`
+            );
+            return null;
+        },
+    },
+
     /**
      * The `opamp_polling_interval` value is a Kibana Agent Configuration
      * "duration" -- a string, e.g. "30s". It is currently configured
@@ -767,6 +816,8 @@ function setupCentralConfig(sdkInfo) {
     initialConfig.sampling_rate = sdkInfo.samplingRate;
     initialConfig.send_traces = !sdkInfo.contextPropagationOnly;
     initialConfig.heartbeatIntervalSeconds = heartbeatIntervalSeconds;
+    initialConfig.use_path_as_span_name = sdkInfo.usePathAsSpanName;
+    initialConfig.span_name_groups = sdkInfo.spanNameGroups;
     log.debug({initialConfig}, 'initial central config values');
 
     const client = createOpAMPClient({

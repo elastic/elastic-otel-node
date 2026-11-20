@@ -47,6 +47,7 @@ const {
     createDynConfLogRecordExporter,
     setupDynConfExporters,
     dynConfSpanExporters,
+    dynConfSpanNames,
 } = require('./dynconf');
 const {createDefaultSampler} = require('./sampler');
 const DISTRO_VERSION = require('../package.json').version;
@@ -310,6 +311,15 @@ function startNodeSDK(cfg = {}) {
         dynConfSpanExporters({enabled: false});
     }
 
+    const usePathAsSpanName = getBooleanFromEnv(
+        'ELASTIC_OTEL_USE_PATH_AS_SPAN_NAME'
+    );
+    const spanNameGroups =
+        getStringListFromEnv('ELASTIC_OTEL_SPAN_NAME_GROUPS') ?? [];
+    if (usePathAsSpanName || spanNameGroups.length > 0) {
+        dynConfSpanNames({usePathAsSpanName, spanNameGroups});
+    }
+
     // OpAMP for central config.
     // TODO: handle resource in this SDK, so don't have use private `_resource`
     const opampClient = setupCentralConfig({
@@ -324,6 +334,8 @@ function startNodeSDK(cfg = {}) {
         sampler,
         samplingRate,
         contextPropagationOnly,
+        usePathAsSpanName,
+        spanNameGroups,
     });
 
     // Log a preamble by default. The primary goal is for getting clarity on

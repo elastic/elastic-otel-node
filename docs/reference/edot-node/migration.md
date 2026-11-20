@@ -272,6 +272,12 @@ The Elastic {{product.apm}} Node.js agent [`transactionSampleRate`](apm-agent-no
 
 For example, for the equivalent of `transactionSampleRate: '0.25'` use `OTEL_TRACES_SAMPLER=parentbased_traceidratio OTEL_TRACES_SAMPLER_ARG=0.25`.
 
+### `usePathAsTransactionName`
+
+The Elastic {{product.apm}} Node.js agent [`usePathAsTransactionName`](apm-agent-nodejs://reference/configuration.md#use-path-as-transaction-name) option corresponds to the EDOT Node.js `ELASTIC_OTEL_USE_PATH_AS_SPAN_NAME` option, see [its details](/reference/edot-node/configuration.md#elastic_otel_use_path_as_span_name-details).
+
+The central configuration equivalent is `use_path_as_span_name`. To consolidate the resulting span names, use `ELASTIC_OTEL_SPAN_NAME_GROUPS` or the `span_name_groups` central configuration setting.
+
 ## Limitations
 
 The following limitations apply to EDOT Node.js.
