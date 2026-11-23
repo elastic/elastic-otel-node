@@ -19,11 +19,11 @@ const MILLISECONDS_TO_NANOSECONDS = Math.pow(10, NANOSECOND_DIGITS_IN_MILLIS);
  * @returns {string}
  */
 function hrTimeToTimeStamp(time) {
-  const precision = NANOSECOND_DIGITS;
-  const tmp = `${'0'.repeat(precision)}${time[1]}Z`;
-  const nanoString = tmp.substring(tmp.length - precision - 1);
-  const date = new Date(time[0] * 1000).toISOString();
-  return date.replace('000Z', nanoString);
+    const precision = NANOSECOND_DIGITS;
+    const tmp = `${'0'.repeat(precision)}${time[1]}Z`;
+    const nanoString = tmp.substring(tmp.length - precision - 1);
+    const date = new Date(time[0] * 1000).toISOString();
+    return date.replace('000Z', nanoString);
 }
 
 /**
@@ -32,15 +32,17 @@ function hrTimeToTimeStamp(time) {
  * @returns {import('@opentelemetry/api').HrTime}
  */
 function millisToHrTime(epochMillis) {
-  const epochSeconds = epochMillis / 1000;
-  // Decimals only.
-  const seconds = Math.trunc(epochSeconds);
-  // Round sub-nanosecond accuracy to nanosecond.
-  const nanos = Math.round((epochMillis % 1000) * MILLISECONDS_TO_NANOSECONDS);
-  return [seconds, nanos];
+    const epochSeconds = epochMillis / 1000;
+    // Decimals only.
+    const seconds = Math.trunc(epochSeconds);
+    // Round sub-nanosecond accuracy to nanosecond.
+    const nanos = Math.round(
+        (epochMillis % 1000) * MILLISECONDS_TO_NANOSECONDS
+    );
+    return [seconds, nanos];
 }
 
 module.exports = {
     hrTimeToTimeStamp,
     millisToHrTime,
-}
+};
