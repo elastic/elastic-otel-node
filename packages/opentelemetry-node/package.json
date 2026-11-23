@@ -136,7 +136,7 @@
     "@opentelemetry/semantic-conventions": "^1.30.0",
     "@opentelemetry/winston-transport": "^0.35.0",
     "import-in-the-middle": "^3.0.0",
-    "safe-stable-stringify": "^2.4.3"
+    "safe-stable-stringify": "^3.0.0"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.658.1",
