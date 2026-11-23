@@ -14,12 +14,13 @@
  */
 
 import {register} from 'node:module';
+import type {ReadableSpan, SpanProcessor} from '@opentelemetry/sdk-trace';
+import {BatchSpanProcessor} from '@opentelemetry/sdk-trace';
+import {OTLPTraceExporter} from '@opentelemetry/exporter-trace-otlp-proto';
 import {
     startNodeSDK,
     createAddHookMessageChannel,
-    tracing,
 } from '@elastic/opentelemetry-node/sdk';
-import {OTLPTraceExporter} from '@opentelemetry/exporter-trace-otlp-proto';
 
 const {registerOptions, waitForAllMessagesAcknowledged} =
     createAddHookMessageChannel();
@@ -31,11 +32,11 @@ register(
 
 // Shows an example of implementing and using a custom SpanProcessor.
 // This tests that (at least some) OTel types from EDOT Node.js are usable.
-class MySpanProcessor implements tracing.SpanProcessor {
-    onStart(span: tracing.ReadableSpan) {
+class MySpanProcessor implements SpanProcessor {
+    onStart(span: ReadableSpan) {
         span.attributes['MySpanProcessor'] = 'was here';
     }
-    onEnd(span: tracing.ReadableSpan) {}
+    onEnd(span: ReadableSpan) {}
     async forceFlush() {}
     async shutdown() {}
 }
@@ -43,7 +44,7 @@ class MySpanProcessor implements tracing.SpanProcessor {
 startNodeSDK({
     spanProcessors: [
         new MySpanProcessor(),
-        new tracing.BatchSpanProcessor(new OTLPTraceExporter()),
+        new BatchSpanProcessor({exporter: new OTLPTraceExporter()}),
     ],
 });
 
