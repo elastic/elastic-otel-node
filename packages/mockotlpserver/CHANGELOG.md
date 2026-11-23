@@ -1,5 +1,10 @@
 # @elastic/mockotlpserver Changelog
 
+## v0.12.1
+
+- chore: Drop dep on `@opentelemetry/core`. It was only being used for a couple
+  convenience time functions.
+
 ## v0.12.0
 
 - Bump deps: protobufjs@8, protobufjs-cli@2 (devDep).

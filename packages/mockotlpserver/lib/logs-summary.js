@@ -9,11 +9,10 @@
 
 const util = require('util');
 
-const {hrTimeToTimeStamp, millisToHrTime} = require('@opentelemetry/core');
-
 const {Printer} = require('./printers');
 const {normalizeLogs} = require('./normalize');
 const {style} = require('./styling');
+const {hrTimeToTimeStamp, millisToHrTime} = require('./timeutils');
 
 class LogsSummaryPrinter extends Printer {
     /**
