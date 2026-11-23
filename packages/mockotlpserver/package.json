@@ -1,6 +1,6 @@
 {
   "name": "@elastic/mockotlpserver",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "type": "commonjs",
   "description": "A mock OTLP server, useful for dev and testing",
   "publishConfig": {
@@ -31,7 +31,7 @@
     "lint:eslint": "eslint .",
     "lint:prettier": "(cd ../../; prettier --check $npm_config_local_prefix)",
     "lint:types": "tsc",
-    "lint:deps": "dependency-check 'lib/**/*.js' -i protobufjs-cli",
+    "lint:deps": "dependency-check 'lib/**/*.js' -i protobufjs-cli -i @opentelemetry/api",
     "lint:license-files": "../../scripts/gen-notice.sh --lint .  # requires node >=16",
     "lint:fix": "eslint --fix . && (cd ../../; prettier --list-different --write $npm_config_local_prefix)",
     "start": "node lib/cli.js",
@@ -53,13 +53,13 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.11.1",
     "@grpc/proto-loader": "^0.8.0",
-    "@opentelemetry/core": "^2.0.0",
     "dashdash": "^2.0.0",
     "long": "^5.2.3",
     "protobufjs": "^8.6.4",
     "safe-stable-stringify": "^3.0.0"
   },
   "devDependencies": {
+    "@opentelemetry/api": "^1.3.0",
     "protobufjs-cli": "^2.5.5"
   }
 }
