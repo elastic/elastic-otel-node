@@ -7,22 +7,14 @@
 
 const os = require('os');
 
+const {ProxyTracerProvider} = require('@opentelemetry/api');
 const {
     getBooleanFromEnv,
     getNumberFromEnv,
     getStringFromEnv,
     getStringListFromEnv,
 } = require('@opentelemetry/core');
-const {
-    api,
-    core,
-    logs,
-    metrics,
-    node,
-    resources,
-    tracing,
-    NodeSDK,
-} = require('@opentelemetry/sdk-node');
+const {NodeSDK} = require('@opentelemetry/sdk-node');
 const {
     BatchLogRecordProcessor,
     ConsoleLogRecordExporter,
@@ -119,7 +111,7 @@ function startNodeSDK(cfg = {}) {
         };
     }
 
-    registerOTelDiagLogger(api);
+    registerOTelDiagLogger();
 
     // Check the deprecated `ELASTIC_OTEL_METRICS_DISABLED` env var
     if ('ELASTIC_OTEL_METRICS_DISABLED' in process.env) {
@@ -288,7 +280,7 @@ function startNodeSDK(cfg = {}) {
 
     // Some tricks to get a handle on noop signal providers, to be used for
     // dynamic configuration.
-    const tracerProviderProxy = new api.ProxyTracerProvider();
+    const tracerProviderProxy = new ProxyTracerProvider();
     const noopTracerProvider = tracerProviderProxy.getDelegate();
     // TODO: set our `tracerProviderProxy` as the global for `send_traces` config
     //      const success = api.trace.setGlobalTracerProvider(tracerProviderProxy);
@@ -375,16 +367,4 @@ module.exports = {
     createDynConfLogRecordExporter, // TODO: doc this in API user guide
 
     createAddHookMessageChannel, // re-export from import-in-the-middle
-
-    // Re-exports from sdk-node, so that users bootstrapping EDOT Node.js in
-    // code can access useful parts of the SDK.  One difference from the
-    // re-exports in `@opentelmetry/sdk-node`, is that we are not re-exporting
-    // `contextBase`. It is a dupe of `api` and feels vestigial.
-    api,
-    core,
-    logs,
-    metrics,
-    node,
-    resources,
-    tracing,
 };

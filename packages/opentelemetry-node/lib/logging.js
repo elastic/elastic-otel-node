@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+const {diag, DiagLogLevel} = require('@opentelemetry/api');
+
 // This provides a `log` singleton Logger instance to be used for logging
 // by this SDK.
 //
@@ -80,9 +82,9 @@ function createLogger() {
 /**
  * Register the singleton `log` to handle OTel `api.diag.*()` calls.
  */
-function registerOTelDiagLogger(api) {
+function registerOTelDiagLogger() {
     // TODO: when luggite supports .child, add a module/component attr for diag log output
-    api.diag.setLogger(
+    diag.setLogger(
         {
             error: (msg, ...args) => {
                 if (FILTER_OUT_DIAG_ERROR_MESSAGES.includes(msg)) {
@@ -108,7 +110,7 @@ function registerOTelDiagLogger(api) {
         {
             // Set the diag log level to pass through *all* records. The
             // luggite logger (`log`) will handle filtering based on level.
-            logLevel: api.DiagLogLevel['ALL'],
+            logLevel: DiagLogLevel['ALL'],
         }
     );
 }

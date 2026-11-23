@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^9.5.1",
-    "@elastic/opentelemetry-node": "^1.18.0",
-    "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.81.0",
-    "@opentelemetry/sdk-node": "^0.223.0",
+    "@elastic/opentelemetry-node": "file:../packages/opentelemetry-node",
+    "@opentelemetry/api": "^1.10.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.83.1",
+    "@opentelemetry/sdk-node": "^0.301.2",
     "bunyan": "^1.8.15",
     "express": "^5.2.1",
     "pino-pretty": "^13.1.3"
